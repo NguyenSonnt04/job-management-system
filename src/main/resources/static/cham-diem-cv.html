@@ -3,264 +3,790 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chấm Điểm CV AI | CareerViet</title>
-    <meta name="description" content="Tối ưu hóa CV và khám phá công việc phù hợp với AI.">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/cham-diem-cv.css">
+    <title>Chấm điểm CV bằng AI | CareerViet</title>
+    <meta name="description" content="Phân tích và chấm điểm CV của bạn bằng trí tuệ nhân tạo Gemini. Nhận đánh giá chi tiết về điểm mạnh, điểm yếu và gợi ý cải thiện.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cham-diem-cv.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-    <!-- Header Placeholder -->
+
     <div id="header-placeholder"></div>
 
-    <main class="cv-scorer-container">
-        <div class="container-wrapper">
-            <div class="main-layout">
-                <!-- Left Sidebar -->
-                <aside class="sidebar">
-                    <div class="upload-card">
-                        <div class="card-title">
-                            <i data-lucide="file-text"></i>
-                            <span>Chấm điểm CV</span>
-                        </div>
-                        
-                        <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
-                            <div class="drop-zone-icon">
-                                <i data-lucide="upload-cloud"></i>
-                            </div>
-                            <p>Tải CV lên ngay</p>
-                            <span>PDF, DOCX (Tối đa 5MB)</span>
-                            <input type="file" id="fileInput" style="display: none" accept=".pdf,.docx">
-                            <button class="btn-browse">Chọn tệp</button>
-                        </div>
+    <!-- ===== HERO ===== -->
+    <section class="cv-hero">
+        <div class="cv-hero-bg"></div>
+        <div class="cv-hero-content">
+            <div class="cv-hero-badge">
+                <i class="fas fa-robot"></i> Powered by Google Gemini AI
+            </div>
+            <h1 class="cv-hero-title">Chấm điểm CV <span class="gradient-text">thông minh</span></h1>
+            <p class="cv-hero-subtitle">Upload CV của bạn và nhận ngay đánh giá chi tiết từ AI trong vài giây</p>
 
-                        <div class="form-group">
-                            <label>VỊ TRÍ MỤC TIÊU</label>
-                            <input type="text" class="input-field" placeholder="Ví dụ: Quản lý sản phẩm">
-                        </div>
-
-                        <button class="btn-analyze">Phân tích lại</button>
-                    </div>
-
-                    <div class="pro-tip-card">
-                        <h3>Mẹo hay</h3>
-                        <p>Thêm các kết quả định lượng (VD: "Tăng doanh số 20%") có thể giúp tăng điểm của bạn lên tới 15 điểm.</p>
-                        <button class="btn-learn">Tìm hiểu thêm</button>
-                    </div>
-                </aside>
-
-                <!-- Center Content Area -->
-                <div class="dashboard-content">
-                    <!-- Score Overview Card -->
-                    <div class="score-overview">
-                        <div class="score-gauge-container">
-                            <svg class="score-gauge" viewBox="0 0 160 160">
-                                <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
-                                <circle class="gauge-progress" cx="80" cy="80" r="70"></circle>
-                            </svg>
-                            <div class="score-text">
-                                <span class="score-number">80</span>
-                                <span class="score-label">ĐIỂM</span>
-                            </div>
-                        </div>
-                        
-                        <div class="feedback-header">
-                            <span class="badge-profile">
-                                <i data-lucide="trending-up" style="width: 14px;"></i>
-                                HỒ SƠ CHUYÊN NGHIỆP
-                            </span>
-                            <h2>Làm tốt lắm, Son1!</h2>
-                            <p>CV của bạn tốt hơn 85% ứng viên trong cùng lĩnh vực.</p>
-                            
-                            <div class="stats-grid">
-                                <div class="stat-item">
-                                    <span class="stat-value">12</span>
-                                    <span class="stat-label">TỪ KHÓA</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-value">8+ Năm</span>
-                                    <span class="stat-label">KINH NGHIỆM</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Analysis Grid -->
-                    <div class="analysis-grid">
-                        <section class="analysis-card strengths">
-                            <h3><i data-lucide="check-circle"></i> Điểm mạnh chính</h3>
-                            <ul class="analysis-list">
-                                <li>
-                                    <h4>Động từ hành động</h4>
-                                    <p>Sử dụng các từ ngữ mang tính chuyên môn cao.</p>
-                                </li>
-                                <li>
-                                    <h4>Kỹ năng phù hợp</h4>
-                                    <p>Khớp với yêu cầu tuyển dụng hiện đại.</p>
-                                </li>
-                            </ul>
-                        </section>
-                        
-                        <section class="analysis-card improvements">
-                            <h3><i data-lucide="alert-circle"></i> Cần cải thiện</h3>
-                            <ul class="analysis-list">
-                                <li>
-                                    <h4>Dữ liệu định lượng</h4>
-                                    <p>Hãy thêm nhiều chỉ số hiệu suất công việc hơn.</p>
-                                </li>
-                                <li>
-                                    <h4>Trình bày văn bản</h4>
-                                    <p>Mật độ chữ hơi dày ở phần Giáo dục.</p>
-                                </li>
-                            </ul>
-                        </section>
-                    </div>
-
-                    <!-- Recommendations Section -->
-                    <section class="recommendations-section">
-                        <div class="section-head">
-                            <i data-lucide="zap"></i>
-                            <span>Đề xuất từ chuyên gia AI</span>
-                        </div>
-                        
-                        <div class="rec-list">
-                            <div class="rec-item">
-                                <div class="rec-icon"><i data-lucide="file-edit"></i></div>
-                                <div class="rec-info">
-                                    <h4>Viết lại Tóm tắt</h4>
-                                    <p>Cần tập trung nhiều hơn vào khả năng lãnh đạo.</p>
-                                </div>
-                                <a href="#" class="rec-action">Áp dụng</a>
-                            </div>
-                            
-                            <div class="rec-item">
-                                <div class="rec-icon"><i data-lucide="link"></i></div>
-                                <div class="rec-info">
-                                    <h4>Link Portfolio</h4>
-                                    <p>Trình bày thêm các dự án thực tế đã tham gia.</p>
-                                </div>
-                                <a href="#" class="rec-action">Thêm ngay</a>
-                            </div>
-                        </div>
-
-                        <button class="btn-download">
-                            <i data-lucide="download" style="width: 18px; margin-right: 8px;"></i>
-                            Tải báo cáo phân tích chi tiết (PDF)
-                        </button>
-                    </section>
-                </div>
-
-                <!-- Right Sidebar: Matching Jobs -->
-                <aside class="matching-jobs-card">
-                    <div class="matching-header">
-                        <h3><i data-lucide="briefcase"></i> Việc làm phù hợp</h3>
-                        <span class="badge-matches">Tìm thấy 8 kết quả</span>
-                    </div>
-
-                    <div class="job-matching-list">
-                        <!-- Job Item 1 -->
-                        <div class="job-match-item">
-                            <div class="job-match-top">
-                                <div class="comp-logo">G</div>
-                                <div class="job-match-info">
-                                    <h4>Quản lý Sản phẩm Cấp cao</h4>
-                                    <p>GlobalTech Solutions</p>
-                                </div>
-                                <div class="match-pct">
-                                    <span class="pct">96%</span>
-                                    <span class="lbl">PHÙ HỢP</span>
-                                </div>
-                            </div>
-                            <div class="job-match-meta">
-                                <span><i data-lucide="map-pin" style="width: 12px;"></i> Quận 1, Tp. HCM</span>
-                                <span><i data-lucide="dollar-sign" style="width: 12px;"></i> 35tr - 50tr</span>
-                            </div>
-                            <div class="job-match-actions">
-                                <button class="btn-quick-apply">Ứng tuyển ngay</button>
-                                <button class="btn-save"><i data-lucide="bookmark" style="width: 14px;"></i></button>
-                            </div>
-                        </div>
-
-                        <!-- Job Item 2 -->
-                        <div class="job-match-item">
-                            <div class="job-match-top">
-                                <div class="comp-logo">F</div>
-                                <div class="job-match-info">
-                                    <h4>Trưởng nhóm tối ưu (PO)</h4>
-                                    <p>FinStream App</p>
-                                </div>
-                                <div class="match-pct">
-                                    <span class="pct">92%</span>
-                                    <span class="lbl">PHÙ HỢP</span>
-                                </div>
-                            </div>
-                            <div class="job-match-meta">
-                                <span><i data-lucide="globe" style="width: 12px;"></i> Làm việc từ xa</span>
-                                <span><i data-lucide="dollar-sign" style="width: 12px;"></i> 25tr - 40tr</span>
-                            </div>
-                            <div class="job-match-actions">
-                                <button class="btn-quick-apply">Ứng tuyển ngay</button>
-                                <button class="btn-save"><i data-lucide="bookmark" style="width: 14px;"></i></button>
-                            </div>
-                        </div>
-
-                        <!-- Job Item 3 -->
-                        <div class="job-match-item">
-                            <div class="job-match-top">
-                                <div class="comp-logo">S</div>
-                                <div class="job-match-info">
-                                    <h4>Quản lý Sản phẩm (Growth)</h4>
-                                    <p>Spark Dynamics</p>
-                                </div>
-                                <div class="match-pct">
-                                    <span class="pct">88%</span>
-                                    <span class="lbl">PHÙ HỢP</span>
-                                </div>
-                            </div>
-                            <div class="job-match-meta">
-                                <span><i data-lucide="map-pin" style="width: 12px;"></i> Quận 7, Tp. HCM</span>
-                                <span><i data-lucide="dollar-sign" style="width: 12px;"></i> Thỏa thuận</span>
-                            </div>
-                            <div class="job-match-actions">
-                                <button class="btn-quick-apply">Ứng tuyển ngay</button>
-                                <button class="btn-save"><i data-lucide="bookmark" style="width: 14px;"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <a href="#" class="view-all-matches">Xem tất cả việc làm</a>
-                </aside>
+            <div class="cv-criteria-pills">
+                <span class="criteria-pill"><i class="fas fa-chart-line"></i> Chỉ số Tác động</span>
+                <span class="criteria-pill"><i class="fas fa-code"></i> Độ sâu Kỹ thuật</span>
+                <span class="criteria-pill"><i class="fas fa-project-diagram"></i> Tư duy hệ thống</span>
+                <span class="criteria-pill"><i class="fas fa-robot"></i> Đọc hiểu của Máy</span>
             </div>
         </div>
-    </main>
+    </section>
 
-    <!-- Floating Shopping Bag Button (as per image) -->
-    <div class="float-btn">
-        <i data-lucide="shopping-bag"></i>
+    <!-- ===== MAIN ===== -->
+    <div class="cv-page-body">
+        <div class="container">
+
+            <!-- Not logged in warning -->
+            <div id="loginWarning" class="login-warning" style="display:none;">
+                <i class="fas fa-lock"></i>
+                <span>Vui lòng <a href="candidate-login.html">đăng nhập</a> để sử dụng tính năng chấm điểm CV</span>
+            </div>
+
+            <div id="mainContent">
+                <div class="cv-layout">
+
+                    <!-- LEFT: Upload + Result -->
+                    <div class="cv-left">
+
+                        <!-- Upload card -->
+                        <div class="cv-upload-card" id="uploadCard">
+                            <div class="upload-header">
+                                <div class="upload-icon-wrap">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <h2>Tải lên CV của bạn</h2>
+                                <p>Hỗ trợ định dạng PDF và DOCX, tối đa 5MB</p>
+                            </div>
+
+                            <div class="dropzone" id="dropzone"
+                                 onclick="document.getElementById('cvFileInput').click()"
+                                 ondragover="handleDragOver(event)"
+                                 ondragleave="handleDragLeave(event)"
+                                 ondrop="handleDrop(event)">
+                                <div class="dropzone-inner" id="dropzoneInner">
+                                    <i class="fas fa-file-upload dropzone-icon"></i>
+                                    <p class="dropzone-text">Kéo thả file vào đây</p>
+                                    <p class="dropzone-hint">hoặc <span class="dropzone-link">chọn file từ máy</span></p>
+                                    <p class="dropzone-formats">PDF · DOCX · DOC</p>
+                                </div>
+                                <input type="file" id="cvFileInput" accept=".pdf,.doc,.docx" style="display:none" onchange="handleFileSelect(this)">
+                            </div>
+
+                            <!-- File selected preview -->
+                            <div class="file-preview" id="filePreview" style="display:none;">
+                                <div class="file-preview-icon">
+                                    <i class="fas fa-file-pdf" id="fileTypeIcon"></i>
+                                </div>
+                                <div class="file-preview-info">
+                                    <div class="file-name" id="selectedFileName"></div>
+                                    <div class="file-size" id="selectedFileSize"></div>
+                                </div>
+                                <button class="file-remove" onclick="removeFile()" title="Xóa file">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            <button class="btn-analyze" id="btnAnalyze" onclick="analyzeCV()" disabled>
+                                <i class="fas fa-brain"></i>
+                                Phân tích CV ngay
+                            </button>
+                        </div>
+
+                        <!-- Loading state -->
+                        <div class="cv-analyzing" id="analyzingCard" style="display:none;">
+                            <div class="analyzing-animation">
+                                <div class="analyzing-ring"></div>
+                                <div class="analyzing-ring ring-2"></div>
+                                <div class="analyzing-ring ring-3"></div>
+                                <i class="fas fa-brain analyzing-icon"></i>
+                            </div>
+                            <h3>AI đang phân tích CV của bạn...</h3>
+                            <p id="analyzingStep">Đang đọc nội dung tài liệu...</p>
+                            <div class="analyzing-steps">
+                                <div class="step-item active" id="step1">
+                                    <i class="fas fa-file-alt"></i> Đọc tài liệu
+                                </div>
+                                <div class="step-item" id="step2">
+                                    <i class="fas fa-brain"></i> Phân tích AI
+                                </div>
+                                <div class="step-item" id="step3">
+                                    <i class="fas fa-chart-bar"></i> Tính điểm
+                                </div>
+                                <div class="step-item" id="step4">
+                                    <i class="fas fa-check-circle"></i> Hoàn thành
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Result card -->
+                        <div class="cv-result-card" id="resultCard" style="display:none;">
+
+                            <!-- Score header -->
+                            <div class="result-header">
+                                <div class="total-score-wrap">
+                                    <svg class="score-ring" viewBox="0 0 120 120">
+                                        <circle class="score-ring-bg" cx="60" cy="60" r="52"/>
+                                        <circle class="score-ring-fill" id="scoreRingFill" cx="60" cy="60" r="52"
+                                            stroke-dasharray="326.7"
+                                            stroke-dashoffset="326.7"/>
+                                    </svg>
+                                    <div class="total-score-text">
+                                        <div class="total-score-num" id="totalScoreNum">0</div>
+                                        <div class="total-score-max" id="totalScoreMax">/100</div>
+                                    </div>
+                                </div>
+                                <div class="result-header-info">
+                                    <div class="result-grade" id="resultGrade">—</div>
+                                    <div class="result-file-name" id="resultFileName"></div>
+                                    <p class="result-overall" id="resultOverall"></p>
+                                    <div class="result-actions">
+                                        <button class="btn-rescore" onclick="resetUpload()">
+                                            <i class="fas fa-redo"></i> Chấm lại
+                                        </button>
+                                        <button class="btn-download-result" onclick="downloadResult()">
+                                            <i class="fas fa-download"></i> Tải kết quả
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Criteria breakdown -->
+                            <div class="criteria-section">
+                                <h3 class="section-title"><i class="fas fa-chart-bar"></i> Phân tích chi tiết</h3>
+                                <div class="criteria-grid" id="criteriaGrid"></div>
+                            </div>
+
+                            <!-- Strengths & Weaknesses -->
+                            <div class="sw-section">
+                                <div class="strengths-card">
+                                    <h3><i class="fas fa-thumbs-up"></i> Điểm mạnh</h3>
+                                    <ul class="sw-list" id="strengthsList"></ul>
+                                </div>
+                                <div class="weaknesses-card">
+                                    <h3><i class="fas fa-exclamation-triangle"></i> Điểm cần cải thiện</h3>
+                                    <ul class="sw-list" id="weaknessesList"></ul>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Info + History -->
+                    <div class="cv-right">
+
+                        <!-- How it works -->
+                        <div class="info-card">
+                            <div class="info-card-title">Cách hoạt động</div>
+                            <div class="how-step">
+                                <div class="how-step-num">1</div>
+                                <div class="how-step-text">
+                                    <strong>Upload CV</strong>
+                                    <span>PDF hoặc DOCX, tối đa 5MB</span>
+                                </div>
+                            </div>
+                            <div class="how-step">
+                                <div class="how-step-num">2</div>
+                                <div class="how-step-text">
+                                    <strong>AI phân tích</strong>
+                                    <span>Gemini đọc và đánh giá CV theo 4 tiêu chí</span>
+                                </div>
+                            </div>
+                            <div class="how-step">
+                                <div class="how-step-num">3</div>
+                                <div class="how-step-text">
+                                    <strong>Nhận kết quả</strong>
+                                    <span>Điểm số, điểm mạnh/yếu và gợi ý cải thiện</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Criteria info -->
+                        <div class="info-card" id="criteriaInfoCard">
+                            <div class="info-card-title">Tiêu chí đánh giá</div>
+                            <div id="criteriaInfoList">
+                                <div style="color:#999;font-size:13px;">Đang tải...</div>
+                            </div>
+                        </div>
+
+                        <!-- History -->
+                        <div class="info-card" id="historyCard" style="display:none;">
+                            <div class="info-card-title">
+                                Lịch sử chấm điểm
+                                <span class="history-count" id="historyCount">0</span>
+                            </div>
+                            <div id="historyList"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <!-- Footer Placeholder -->
+    <!-- Footer -->
     <div id="footer-placeholder"></div>
 
     <script src="js/main.js"></script>
     <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
+    // ========================================
+    // CHAM DIEM CV PAGE LOGIC
+    // ========================================
 
-        // Simple script to simulate animation
-        document.querySelector('.btn-analyze').addEventListener('click', function() {
-            this.textContent = 'Đang phân tích...';
-            this.disabled = true;
-            setTimeout(() => {
-                this.textContent = 'Phân tích lại';
-                this.disabled = false;
-                alert('Phân tích hoàn tất! Dữ liệu đã được cập nhật.');
-            }, 2000);
+    let selectedFile    = null;
+    let currentResult   = null;
+    let analyzingTimer  = null;
+
+    const GRADE_MAP = [
+        { min: 90, label: 'Xuất sắc',  color: '#00BFA5', emoji: '🏆' },
+        { min: 75, label: 'Tốt',        color: '#2196F3', emoji: '⭐' },
+        { min: 60, label: 'Khá',        color: '#FF9800', emoji: '👍' },
+        { min: 40, label: 'Trung bình', color: '#FF5722', emoji: '📝' },
+        { min: 0,  label: 'Yếu',        color: '#EF5350', emoji: '⚠️' }
+    ];
+
+    // ---- Init ----
+    document.addEventListener('DOMContentLoaded', async () => {
+        await checkLogin();
+        await loadCriteria();
+    });
+
+    // ---- Check login status ----
+    async function checkLogin() {
+        try {
+            const res  = await fetch('/api/auth/me', { credentials: 'include' });
+            const data = await res.json();
+            if (data.loggedIn) {
+                document.getElementById('loginWarning').style.display = 'none';
+                document.getElementById('mainContent').style.display  = 'block';
+                loadHistory();
+            } else {
+                document.getElementById('loginWarning').style.display = 'flex';
+                document.getElementById('mainContent').style.display  = 'none';
+            }
+        } catch {
+            document.getElementById('mainContent').style.display = 'block';
+        }
+    }
+
+    // ---- Load criteria from DB via API ----
+    async function loadCriteria() {
+        try {
+            const res  = await fetch('/api/cv-scoring/criteria');
+            const list = await res.json();
+            const container = document.getElementById('criteriaInfoList');
+            container.innerHTML = list.map(c => `
+                <div class="criteria-info-item">
+                    <div class="criteria-info-name">${c.name}</div>
+                    <div class="criteria-info-desc">${c.description || ''}</div>
+                    <div class="criteria-info-max">Tối đa: <strong>${c.maxScore} điểm</strong></div>
+                </div>
+            `).join('');
+
+            // Also update hero pills dynamically
+            const pills = document.querySelector('.cv-criteria-pills');
+            if (pills && list.length > 0) {
+                const icons = ['fa-chart-line', 'fa-code', 'fa-project-diagram', 'fa-robot'];
+                pills.innerHTML = list.map((c, i) =>
+                    `<span class="criteria-pill"><i class="fas ${icons[i] || 'fa-check'}"></i> ${c.name}</span>`
+                ).join('');
+            }
+        } catch {
+            // Silent fail — criteria will show empty
+        }
+    }
+
+    // ---- Load history ----
+    async function loadHistory() {
+        try {
+            const res     = await fetch('/api/cv-scoring/history', { credentials: 'include' });
+            if (!res.ok)  return;
+            const history = await res.json();
+            if (history.length === 0) return;
+
+            document.getElementById('historyCard').style.display = 'block';
+            document.getElementById('historyCount').textContent  = history.length;
+
+            document.getElementById('historyList').innerHTML = history.map(h => {
+                const pct   = Math.round((h.totalScore / (h.maxTotalScore || 100)) * 100);
+                const grade = getGrade(pct);
+                const date  = new Date(h.createdAt).toLocaleDateString('vi-VN');
+                return `
+                    <div class="history-item" onclick="loadHistorySession(${h.id})">
+                        <div class="history-item-left">
+                            <div class="history-item-name">
+                                <i class="fas fa-file-alt"></i> ${h.fileName}
+                            </div>
+                            <div class="history-item-date">${date}</div>
+                        </div>
+                        <div class="history-item-score" style="color:${grade.color}">
+                            ${h.totalScore}/${h.maxTotalScore}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch { /* silent */ }
+    }
+
+    // ---- Load a historical session ----
+    async function loadHistorySession(id) {
+        try {
+            const res     = await fetch(`/api/cv-scoring/${id}`, { credentials: 'include' });
+            if (!res.ok)  return;
+            const data    = await res.json();
+            renderResult(data);
+            document.getElementById('uploadCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch { /* silent */ }
+    }
+
+    // ---- File drag & drop ----
+    function handleDragOver(e) {
+        e.preventDefault();
+        document.getElementById('dropzone').classList.add('drag-over');
+    }
+
+    function handleDragLeave() {
+        document.getElementById('dropzone').classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('dropzone').classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) processFile(file);
+    }
+
+    function handleFileSelect(input) {
+        if (input.files[0]) processFile(input.files[0]);
+    }
+
+    function processFile(file) {
+        const ext  = file.name.split('.').pop().toLowerCase();
+        const allowed = ['pdf', 'doc', 'docx'];
+
+        if (!allowed.includes(ext)) {
+            showToast('❌ Chỉ hỗ trợ PDF, DOC, DOCX', 'error');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            showToast('❌ File quá lớn, tối đa 5MB', 'error');
+            return;
+        }
+
+        selectedFile = file;
+
+        // Update UI
+        document.getElementById('dropzoneInner').style.display = 'none';
+        document.getElementById('filePreview').style.display   = 'flex';
+        document.getElementById('selectedFileName').textContent = file.name;
+        document.getElementById('selectedFileSize').textContent =
+            (file.size / 1024).toFixed(0) + ' KB';
+
+        const icon = document.getElementById('fileTypeIcon');
+        icon.className = ext === 'pdf'
+            ? 'fas fa-file-pdf' : 'fas fa-file-word';
+        icon.style.color = ext === 'pdf' ? '#EE0033' : '#2E3B8E';
+
+        document.getElementById('btnAnalyze').disabled = false;
+    }
+
+    function removeFile() {
+        selectedFile = null;
+        document.getElementById('cvFileInput').value = '';
+        document.getElementById('dropzoneInner').style.display = 'block';
+        document.getElementById('filePreview').style.display   = 'none';
+        document.getElementById('btnAnalyze').disabled         = true;
+    }
+
+    // ---- Analyze ----
+    async function analyzeCV() {
+        if (!selectedFile) return;
+
+        // Switch to loading state
+        document.getElementById('uploadCard').style.display   = 'none';
+        document.getElementById('analyzingCard').style.display = 'block';
+        startAnalyzingAnimation();
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        try {
+            const res  = await fetch('/api/cv-scoring/score', {
+                method:      'POST',
+                credentials: 'include',
+                body:        formData
+            });
+            const data = await res.json();
+
+            clearInterval(analyzingTimer);
+
+            if (!res.ok || !data.success) {
+                throw new Error(data.message || 'Lỗi phân tích CV');
+            }
+
+            // Activate step 4
+            document.querySelectorAll('.step-item').forEach(s => s.classList.add('active'));
+
+            await wait(600);
+
+            // Show result
+            document.getElementById('analyzingCard').style.display = 'none';
+            document.getElementById('resultCard').style.display    = 'block';
+            renderResult(data.data);
+            loadHistory();
+
+        } catch (err) {
+            clearInterval(analyzingTimer);
+            document.getElementById('analyzingCard').style.display = 'none';
+            document.getElementById('uploadCard').style.display    = 'block';
+            showToast('❌ ' + err.message, 'error');
+        }
+    }
+
+    // ---- Render result ----
+    function renderResult(data) {
+        currentResult = data;
+        const pct     = Math.round((data.totalScore / (data.maxTotalScore || 100)) * 100);
+        const grade   = getGrade(pct);
+
+        // Score ring animation
+        const circumference = 326.7;
+        const offset = circumference - (pct / 100) * circumference;
+        const ring   = document.getElementById('scoreRingFill');
+        ring.style.stroke          = grade.color;
+        ring.style.strokeDashoffset = circumference; // reset
+        setTimeout(() => {
+            ring.style.transition   = 'stroke-dashoffset 1.2s ease';
+            ring.style.strokeDashoffset = offset;
+        }, 100);
+
+        // Animate number
+        animateNumber('totalScoreNum', 0, data.totalScore, 1200);
+        document.getElementById('totalScoreMax').textContent = '/' + data.maxTotalScore;
+
+        // Grade
+        const gradeEl = document.getElementById('resultGrade');
+        gradeEl.textContent = grade.emoji + ' ' + grade.label;
+        gradeEl.style.color = grade.color;
+
+        document.getElementById('resultFileName').textContent = '📄 ' + (data.fileName || '');
+        document.getElementById('resultOverall').textContent  = data.overallFeedback || '';
+
+        // Criteria grid
+        const grid = document.getElementById('criteriaGrid');
+        grid.innerHTML = (data.results || []).map((r, i) => {
+            const critPct  = Math.round((r.score / r.maxScore) * 100);
+            const critGrade = getGrade(critPct);
+            return `
+                <div class="criteria-card" style="animation-delay: ${i * 0.1}s">
+                    <div class="criteria-card-header">
+                        <div class="criteria-card-name">${r.criteriaName}</div>
+                        <div class="criteria-card-score" style="color:${critGrade.color}">
+                            ${r.score}<span>/${r.maxScore}</span>
+                        </div>
+                    </div>
+                    <div class="criteria-progress-bg">
+                        <div class="criteria-progress-fill"
+                             style="width:${critPct}%;background:${critGrade.color};
+                                    transition:width 1s ease ${i * 0.15}s;"></div>
+                    </div>
+                    <div class="criteria-feedback">${r.feedback || ''}</div>
+                </div>
+            `;
+        }).join('');
+
+        // Strengths
+        const sEl = document.getElementById('strengthsList');
+        sEl.innerHTML = (data.strengths || []).map(s =>
+            `<li><i class="fas fa-check-circle"></i> ${s}</li>`
+        ).join('') || '<li style="color:#999">Không có dữ liệu</li>';
+
+        // Weaknesses
+        const wEl = document.getElementById('weaknessesList');
+        wEl.innerHTML = (data.weaknesses || []).map(w =>
+            `<li><i class="fas fa-exclamation-circle"></i> ${w}</li>`
+        ).join('') || '<li style="color:#999">Không có dữ liệu</li>';
+    }
+
+    // ---- Reset ----
+    function resetUpload() {
+        removeFile();
+        document.getElementById('resultCard').style.display = 'none';
+        document.getElementById('uploadCard').style.display = 'block';
+        currentResult = null;
+    }
+
+    // ---- Download result as PDF ----
+    function downloadResult() {
+        if (!currentResult) return;
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+        const W      = doc.internal.pageSize.getWidth();
+        const margin = 18;
+        const colW   = W - margin * 2;
+        let y        = 0;
+
+        // Helper: add new page if needed
+        function checkPage(needed = 10) {
+            if (y + needed > 275) {
+                doc.addPage();
+                y = margin;
+            }
+        }
+
+        // Helper: wrap text
+        function addWrappedText(text, x, startY, maxW, lineH, color) {
+            if (color) doc.setTextColor(...color);
+            const lines = doc.splitTextToSize(text, maxW);
+            lines.forEach(line => {
+                checkPage(lineH);
+                doc.text(line, x, y);
+                y += lineH;
+            });
+            if (color) doc.setTextColor(0, 0, 0);
+            return y;
+        }
+
+        // ---------- HEADER BANNER ----------
+        doc.setFillColor(26, 26, 46);
+        doc.rect(0, 0, W, 42, 'F');
+
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(255, 255, 255);
+        doc.text('KET QUA CHAM DIEM CV', margin, 16);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(180, 180, 220);
+        doc.text('Powered by Google Gemini AI  |  CareerViet', margin, 24);
+
+        const pct  = Math.round((currentResult.totalScore / (currentResult.maxTotalScore || 100)) * 100);
+        const grade = getGrade(pct);
+
+        // Score circle (right side of header)
+        const cx = W - 30, cy = 21, r = 14;
+        doc.setFillColor(46, 59, 142);
+        doc.circle(cx, cy, r, 'F');
+        doc.setFontSize(15);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(255, 255, 255);
+        doc.text(`${currentResult.totalScore}`, cx, cy - 1, { align: 'center' });
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`/ ${currentResult.maxTotalScore}`, cx, cy + 6, { align: 'center' });
+
+        y = 50;
+        doc.setTextColor(0, 0, 0);
+
+        // ---------- FILE INFO ----------
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text(`File: ${currentResult.fileName || '—'}   |   Xep loai: ${grade.label}   |   Ngay: ${new Date().toLocaleDateString('vi-VN')}`, margin, y);
+        y += 8;
+
+        // Divider
+        doc.setDrawColor(220, 220, 220);
+        doc.line(margin, y, W - margin, y);
+        y += 7;
+
+        // ---------- OVERALL FEEDBACK ----------
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(26, 26, 46);
+        doc.text('DANH GIA CHUNG', margin, y);
+        y += 6;
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        addWrappedText(currentResult.overallFeedback || '—', margin, y, colW, 5.5, [60, 60, 60]);
+        y += 5;
+
+        // Divider
+        doc.setDrawColor(220, 220, 220);
+        doc.line(margin, y, W - margin, y);
+        y += 7;
+
+        // ---------- CRITERIA TABLE ----------
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(26, 26, 46);
+        doc.text('PHAN TICH THEO TIEU CHI', margin, y);
+        y += 7;
+
+        const results = currentResult.results || [];
+        results.forEach((r, i) => {
+            checkPage(22);
+            const critPct = Math.round((r.score / r.maxScore) * 100);
+
+            // Row background alternate
+            if (i % 2 === 0) {
+                doc.setFillColor(248, 249, 250);
+                doc.rect(margin, y - 5, colW, 20, 'F');
+            }
+
+            // Criteria name + score
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(26, 26, 46);
+            doc.text(r.criteriaName, margin + 3, y);
+
+            const scoreStr = `${r.score} / ${r.maxScore}  (${critPct}%)`;
+            doc.setTextColor(46, 59, 142);
+            doc.text(scoreStr, W - margin - 3, y, { align: 'right' });
+
+            y += 5;
+
+            // Progress bar
+            const barW = colW - 6;
+            doc.setFillColor(220, 220, 220);
+            doc.roundedRect(margin + 3, y, barW, 3, 1, 1, 'F');
+            const fillW = (critPct / 100) * barW;
+            doc.setFillColor(46, 59, 142);
+            doc.roundedRect(margin + 3, y, fillW, 3, 1, 1, 'F');
+            y += 6;
+
+            // Feedback
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            addWrappedText(r.feedback || '', margin + 3, y, colW - 6, 4.5, [100, 100, 100]);
+            y += 3;
         });
+
+        y += 3;
+        doc.setDrawColor(220, 220, 220);
+        doc.line(margin, y, W - margin, y);
+        y += 7;
+
+        // ---------- STRENGTHS ----------
+        const strengths  = currentResult.strengths  || [];
+        const weaknesses = currentResult.weaknesses || [];
+        const halfW      = (colW - 6) / 2;
+
+        checkPage(30);
+        const swStartY = y;
+
+        // Left: Strengths
+        doc.setFillColor(0, 135, 90);
+        doc.rect(margin, y - 4, halfW + 3, 8, 'F');
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(255, 255, 255);
+        doc.text('DIEM MANH', margin + 3, y + 1);
+
+        // Right: Weaknesses
+        doc.setFillColor(255, 107, 53);
+        doc.rect(margin + halfW + 6, y - 4, halfW, 8, 'F');
+        doc.text('CAN CAI THIEN', margin + halfW + 9, y + 1);
+
+        y += 10;
+        const listY = y;
+        let leftY   = listY;
+        let rightY  = listY;
+
+        // Render strengths
+        strengths.forEach(s => {
+            if (leftY + 6 > 275) { doc.addPage(); leftY = margin; }
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(0, 135, 90);
+            doc.text('●', margin + 3, leftY);
+            doc.setTextColor(40, 40, 40);
+            const wrapped = doc.splitTextToSize(s, halfW - 8);
+            wrapped.forEach(line => {
+                doc.text(line, margin + 8, leftY);
+                leftY += 5;
+            });
+        });
+
+        // Render weaknesses
+        weaknesses.forEach(w => {
+            if (rightY + 6 > 275) { doc.addPage(); rightY = margin; }
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(255, 107, 53);
+            doc.text('●', margin + halfW + 9, rightY);
+            doc.setTextColor(40, 40, 40);
+            const wrapped = doc.splitTextToSize(w, halfW - 8);
+            wrapped.forEach(line => {
+                doc.text(line, margin + halfW + 14, rightY);
+                rightY += 5;
+            });
+        });
+
+        y = Math.max(leftY, rightY) + 8;
+
+        // ---------- FOOTER ----------
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let p = 1; p <= pageCount; p++) {
+            doc.setPage(p);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(160, 160, 160);
+            doc.text(`CareerViet CV Scoring  |  Trang ${p}/${pageCount}`, W / 2, 290, { align: 'center' });
+        }
+
+        const fileName = (currentResult.fileName || 'cv').replace(/\.[^.]+$/, '');
+        doc.save(`ket-qua-cham-diem-${fileName}.pdf`);
+    }
+
+    // ---- Helpers ----
+    function getGrade(pct) {
+        return GRADE_MAP.find(g => pct >= g.min) || GRADE_MAP[GRADE_MAP.length - 1];
+    }
+
+    function animateNumber(elId, from, to, duration) {
+        const el  = document.getElementById(elId);
+        const fps = 60;
+        const frames = duration / (1000 / fps);
+        const step   = (to - from) / frames;
+        let current  = from;
+        const timer  = setInterval(() => {
+            current += step;
+            if ((step > 0 && current >= to) || (step < 0 && current <= to)) {
+                clearInterval(timer);
+                el.textContent = to;
+            } else {
+                el.textContent = Math.round(current);
+            }
+        }, 1000 / fps);
+    }
+
+    function wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function startAnalyzingAnimation() {
+        const steps = ['step1', 'step2', 'step3'];
+        let i = 0;
+        analyzingTimer = setInterval(() => {
+            i++;
+            if (i < steps.length) {
+                document.getElementById(steps[i]).classList.add('active');
+            }
+        }, 2000);
+    }
+
+    function showToast(msg, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `cv-toast cv-toast-${type}`;
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
     </script>
 </body>
 </html>

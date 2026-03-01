@@ -119,46 +119,76 @@
                 </div>
 
                 <!-- User Menu (for logged-in users) -->
-                <div class="user-menu-wrapper" id="userMenuWrapper" style="display: none; position: relative;">
-                    <a href="#" class="login-link" id="userMenuLink" onclick="toggleUserDropdown(event)">
+                <div class="user-menu-wrapper" id="userMenuWrapper" style="display: none;">
+                    <a href="#" class="login-link user-menu-trigger" id="userMenuLink">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <path d="M16.6667 17.5V15.8333C16.6667 14.9493 16.3155 14.1014 15.6904 13.4763C15.0652 12.8512 14.2174 12.5 13.3333 12.5H6.66667C5.78261 12.5 4.93477 12.8512 4.30964 13.4763C3.68452 14.1014 3.33333 14.9493 3.33333 15.8333V17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M10 9.16667C11.8409 9.16667 13.3333 7.67428 13.3333 5.83333C13.3333 3.99238 11.8409 2.5 10 2.5C8.15905 2.5 6.66667 3.99238 6.66667 5.83333C6.66667 7.67428 8.15905 9.16667 10 9.16667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         <span id="userDisplayName">Xin chào</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="user-chevron">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </a>
-                    
-                    <!-- User Dropdown -->
-                    <div id="userDropdown" class="login-dropdown user-dropdown" style="min-width: 220px; display: none;">
-                        <div style="padding: 16px; border-bottom: 1px solid #eee;">
-                            <p style="font-weight: 600; color: #333; margin: 0;" id="userFullName">Người dùng</p>
-                            <p style="font-size: 12px; color: #666; margin: 4px 0 0 0;" id="userEmail">email@example.com</p>
+
+                    <!-- User Dropdown (hover) -->
+                    <div id="userDropdown" class="user-dropdown-menu">
+
+                        <!-- Profile info -->
+                        <div class="udm-profile">
+                            <div class="udm-avatar">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="udm-name" id="userFullName">Người dùng</div>
+                                <div class="udm-email" id="userEmail">email@example.com</div>
+                            </div>
                         </div>
-                        <a href="/profile.html" class="dropdown-menu-item" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: #333; text-decoration: none;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            Thông tin tài khoản
-                        </a>
-                        <a href="/my-applications.html" class="dropdown-menu-item" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                            </svg>
-                            Việc làm đã ứng tuyển
-                        </a>
-                        <a href="/auth/logout" class="dropdown-menu-item" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: #e53e3e; text-decoration: none;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" y1="12" x2="9" y2="12"></line>
-                            </svg>
-                            Đăng xuất
-                        </a>
+
+                        <!-- Menu items -->
+                        <div class="udm-items">
+                            <a href="/profile.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                Quản Lý Hồ Sơ
+                            </a>
+                            <a href="/cv-editor.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                                Hồ sơ CareerViet
+                            </a>
+                            <a href="/saved-jobs.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                                Việc làm đã lưu
+                            </a>
+                            <a href="/my-applications.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                                Thông Báo Việc Làm
+                            </a>
+
+                            <div class="udm-divider"></div>
+
+                            <a href="/employer-login.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                Nhà tuyển dụng của tôi
+                            </a>
+                            <a href="/notifications.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                                Xem tất cả thông báo
+                            </a>
+
+                            <div class="udm-divider"></div>
+
+                            <a href="/settings.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                Cài đặt
+                            </a>
+                            <a href="/auth/logout" class="udm-item udm-item-logout">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                Đăng xuất
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -266,44 +296,154 @@ function togglePassword(inputId) {
     input.type = input.type === 'password' ? 'text' : 'password';
 }
 
-// Toggle user dropdown menu
-function toggleUserDropdown(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const dropdown = document.getElementById('userDropdown');
-    if (dropdown) {
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    }
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(e) {
-    const userMenuWrapper = document.getElementById('userMenuWrapper');
-    const dropdown = document.getElementById('userDropdown');
-    if (userMenuWrapper && dropdown && !userMenuWrapper.contains(e.target)) {
-        dropdown.style.display = 'none';
-    }
+// Rotate chevron on hover via JS fallback (CSS handles main hover)
+document.addEventListener('DOMContentLoaded', function() {
+    const wrapper = document.getElementById('userMenuWrapper');
+    if (!wrapper) return;
+    // No JS needed — pure CSS hover
 });
+
 </script>
 
 <style>
-/* User menu dropdown styles */
+/* ===== USER DROPDOWN (HOVER) ===== */
 .user-menu-wrapper {
     position: relative;
 }
 
-.user-menu-wrapper .login-dropdown {
-    display: none;
+.user-menu-trigger {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.user-menu-wrapper .login-dropdown.show,
-.user-menu-wrapper.active .login-dropdown {
-    display: block !important;
+.user-chevron {
+    margin-left: 2px;
+    transition: transform 0.2s ease;
 }
 
-.dropdown-menu-item:hover {
-    background: #f5f5f5;
+.user-menu-wrapper:hover .user-chevron {
+    transform: rotate(180deg);
+}
+
+/* Dropdown panel */
+.user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 230px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #f0f0f0;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+    pointer-events: none;
+}
+
+/* Bridge gap so mouse can move from trigger to menu */
+.user-dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 0;
+    right: 0;
+    height: 12px;
+}
+
+.user-menu-wrapper:hover .user-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Profile header */
+.udm-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.udm-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #EE0033, #ff3355);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+}
+
+.udm-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    line-height: 1.2;
+}
+
+.udm-email {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* Items */
+.udm-items {
+    padding: 6px 0;
+}
+
+.udm-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    font-size: 14px;
+    color: #333;
+    text-decoration: none;
+    transition: background 0.15s;
+    font-weight: 500;
+}
+
+.udm-item svg {
+    color: #888;
+    flex-shrink: 0;
+    transition: color 0.15s;
+}
+
+.udm-item:hover {
+    background: #f8f9fa;
+    color: #EE0033;
+}
+
+.udm-item:hover svg {
+    color: #EE0033;
+}
+
+.udm-divider {
+    height: 1px;
+    background: #f0f0f0;
+    margin: 4px 0;
+}
+
+.udm-item-logout {
+    color: #EE0033;
+}
+
+.udm-item-logout svg {
+    color: #EE0033;
+}
+
+.udm-item-logout:hover {
+    background: #fff5f5;
+    color: #cc0028;
 }
 </style>
-
-
