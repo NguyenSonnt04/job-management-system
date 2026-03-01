@@ -29,8 +29,8 @@ public class JobController {
     @Autowired private DegreeLevelRepository     degreeLevelRepository;
     @Autowired private JobBenefitRepository      jobBenefitRepository;
     @Autowired private ProvinceRepository        provinceRepository;
-    @Autowired private JobApplicationRepository  jobApplicationRepository;
     @Autowired private JobRepository             jobRepository;
+    @Autowired private JobStatisticsRepository   jobStatisticsRepository;
 
     /**
      * Get employer info for auto-fill
@@ -107,6 +107,12 @@ public class JobController {
 
         List<Job> jobs = jobService.getJobsByEmployer(employer.getId());
         
+        // Fetch statistics for these jobs
+        List<Long> jobIds = jobs.stream().map(Job::getId).collect(Collectors.toList());
+        List<JobStatistics> statsList = jobStatisticsRepository.findByJobIdIn(jobIds);
+        Map<Long, JobStatistics> statsMap = statsList.stream()
+                .collect(Collectors.toMap(s -> s.getJob().getId(), s -> s));
+
         // Map to include application count
         List<Map<String, Object>> jobsWithCounts = jobs.stream().map(job -> {
             Map<String, Object> map = new HashMap<>();
@@ -120,10 +126,10 @@ public class JobController {
             map.put("createdAt", job.getCreatedAt());
             map.put("deadline", job.getDeadline());
             map.put("status", job.getStatus());
-            map.put("viewCount", job.getViewCount());
             
-            long appCount = jobApplicationRepository.findByJobId(job.getId()).size();
-            map.put("applicationCount", appCount);
+            JobStatistics stats = statsMap.get(job.getId());
+            map.put("viewCount", stats != null ? stats.getViewCount() : 0);
+            map.put("applicationCount", stats != null ? stats.getApplicationCount() : 0);
             return map;
         }).collect(Collectors.toList());
         
@@ -135,17 +141,24 @@ public class JobController {
      */
     @PostMapping("/{id}/view")
     public ResponseEntity<?> incrementViewCount(@PathVariable Long id) {
-        return jobRepository.findById(id).map(job -> {
-            job.incrementViewCount();
-            jobRepository.save(job);
-            return ResponseEntity.ok(Map.of("success", true, "viewCount", job.getViewCount()));
-        }).orElse(ResponseEntity.notFound().build());
+        return jobStatisticsRepository.findByJobId(id).map(stats -> {
+            stats.incrementViewCount();
+            jobStatisticsRepository.save(stats);
+            return ResponseEntity.ok(Map.of("success", true, "viewCount", stats.getViewCount()));
+        }).orElseGet(() -> {
+            // Case where stats doesn't exist yet but job does
+            return jobRepository.findById(id).map(job -> {
+                JobStatistics newStats = new JobStatistics(job);
+                newStats.incrementViewCount();
+                jobStatisticsRepository.save(newStats);
+                return ResponseEntity.ok(Map.of("success", true, "viewCount", 1L));
+            }).orElse(ResponseEntity.notFound().build());
+        });
     }
 
     /**
      * Get all active jobs (public)
-     */
-    @GetMapping("/active")
+     */    @GetMapping("/active")
     public ResponseEntity<List<Job>> getAllActiveJobs() {
         List<Job> jobs = jobService.getAllActiveJobs();
         return ResponseEntity.ok(jobs);

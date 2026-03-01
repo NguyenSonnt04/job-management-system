@@ -28,6 +28,7 @@ public class ApplicationController {
     @Autowired private JobRepository            jobRepo;
     @Autowired private UserRepository           userRepo;
     @Autowired private EmployerRepository       employerRepo;
+    @Autowired private Nhom08.Project.repository.JobStatisticsRepository jobStatsRepo;
 
     /**
      * POST /api/applications/apply
@@ -89,6 +90,19 @@ public class ApplicationController {
         }
 
         applicationRepo.save(application);
+
+        // Update applicationCount
+        jobStatsRepo.findByJobId(jobId).ifPresentOrElse(stats -> {
+            stats.incrementApplicationCount();
+            jobStatsRepo.save(stats);
+        }, () -> {
+            Nhom08.Project.entity.JobStatistics newStats = new Nhom08.Project.entity.JobStatistics(jobOpt.get());
+            // Since this is the first application, counts may not be accurate if there are older ones.
+            // A better way is to count all existing applications for this job.
+            long count = applicationRepo.findByJobId(jobId).size();
+            newStats.setApplicationCount(count);
+            jobStatsRepo.save(newStats);
+        });
 
         resp.put("success", true);
         resp.put("message", "Ứng tuyển thành công!");
