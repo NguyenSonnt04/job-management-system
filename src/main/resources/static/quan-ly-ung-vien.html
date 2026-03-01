@@ -231,5 +231,121 @@
     </a>
 
     <script src="js/employer.js"></script>
+    <script>
+    // ── Status display helpers ──────────────────────────────
+    const STATUS_LABEL = {
+        'PENDING':   { text: 'Chờ xem xét',   cls: 'status-pending'   },
+        'VIEWED':    { text: 'Đã xem',          cls: 'status-viewed'    },
+        'SAVED':     { text: 'Đã lưu',          cls: 'status-saved'     },
+        'REJECTED':  { text: 'Từ chối',         cls: 'status-rejected'  },
+        'INTERVIEW': { text: 'Mời phỏng vấn',   cls: 'status-interview' },
+    };
+
+    function formatDate(iso) {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function statusBadge(status) {
+        const s = STATUS_LABEL[status] || { text: status || 'N/A', cls: 'status-pending' };
+        return `<span class="status-badge ${s.cls}">${s.text}</span>`;
+    }
+
+    // ── Render table ────────────────────────────────────────
+    let allApplications = [];
+
+    function renderTable(apps) {
+        const tbody = document.querySelector('.candidate-table tbody');
+        if (!apps || apps.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="9">Hiện tại không có hồ sơ nào trong thư mục này!</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = apps.map(app => `
+            <tr data-id="${app.id}">
+                <td class="col-check">
+                    <input type="checkbox" class="row-check" value="${app.id}">
+                    <div class="applicant-info">
+                        <div class="applicant-name">${app.fullName || '—'}</div>
+                        <div class="applicant-email">${app.email || ''}</div>
+                        <div class="applicant-job" style="font-size:11px;color:#888;">${app.jobTitle || ''}</div>
+                    </div>
+                </td>
+                <td>${formatDate(app.createdAt)}</td>
+                <td>${formatDate(app.createdAt)}</td>
+                <td>${statusBadge(app.status)}</td>
+                <td>—</td>
+                <td>—</td>
+                <td>—</td>
+                <td>—</td>
+                <td>
+                    <div class="action-btns">
+                        <select class="status-select" onchange="changeStatus(${app.id}, this.value)" title="Đổi trạng thái">
+                            ${Object.entries(STATUS_LABEL).map(([k, v]) =>
+                                `<option value="${k}" ${app.status === k ? 'selected' : ''}>${v.text}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // ── Change status ────────────────────────────────────────
+    async function changeStatus(id, newStatus) {
+        try {
+            const res = await fetch(`/api/applications/${id}/status`, {
+                method:      'PATCH',
+                headers:     { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body:        JSON.stringify({ status: newStatus })
+            });
+            if (res.ok) {
+                const app = allApplications.find(a => a.id === id);
+                if (app) app.status = newStatus;
+                // Update status badge in same row
+                const row = document.querySelector(`tr[data-id="${id}"]`);
+                if (row) {
+                    const badge = row.querySelector('.status-badge');
+                    if (badge) badge.outerHTML = statusBadge(newStatus);
+                }
+            }
+        } catch (e) {
+            console.error('Lỗi đổi trạng thái:', e);
+        }
+    }
+
+    // ── Select all checkbox ─────────────────────────────────
+    document.getElementById('check-all').addEventListener('change', function() {
+        document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
+    });
+
+    // ── Load data ───────────────────────────────────────────
+    async function loadApplications() {
+        try {
+            const res  = await fetch('/api/applications/employer', { credentials: 'include' });
+            if (!res.ok) {
+                if (res.status === 401) {
+                    document.querySelector('.candidate-table tbody').innerHTML =
+                        `<tr class="empty-row"><td colspan="9">⚠️ Vui lòng <a href="employer-login.html">đăng nhập</a> để xem danh sách ứng viên.</td></tr>`;
+                    return;
+                }
+                throw new Error('API error ' + res.status);
+            }
+            const data = await res.json();
+            allApplications = data.applications || [];
+
+            // Update tab count
+            document.querySelector('.tab-item.active').textContent =
+                `Hồ Sơ Ứng Tuyển (${data.total || 0})`;
+
+            renderTable(allApplications);
+        } catch (err) {
+            console.error('Lỗi tải dữ liệu ứng viên:', err);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadApplications);
+    </script>
 </body>
 </html>

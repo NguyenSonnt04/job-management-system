@@ -291,8 +291,8 @@
                 </td>
                 <td class="col-date">${createdDate}</td>
                 <td class="col-date ${isExpired ? 'text-danger' : ''}">${deadlineDate}</td>
-                <td class="col-views">—</td>
-                <td class="col-applies">0</td>
+                <td class="col-views">${job.viewCount || 0}</td>
+                <td class="col-applies">${job.applicationCount || 0}</td>
                 <td class="col-cvs">—</td>
                 <td class="col-actions">
                     <div class="action-btns">
@@ -501,7 +501,6 @@
 
             const salaryMin = job.salaryMin ? (job.salaryMin / 1_000_000).toFixed(1) + ' Tr' : '—';
             const salaryMax = job.salaryMax ? (job.salaryMax / 1_000_000).toFixed(1) + ' Tr' : '—';
-
             return {
                 'STT':              idx + 1,
                 'Chức Danh':        job.title || '',
@@ -512,6 +511,8 @@
                 'Ngày Đăng':        job.createdAt ? job.createdAt.split('T')[0] : '',
                 'Hạn Nộp':          job.deadline || '',
                 'Trạng Thái':       statusLabel,
+                'Lượt Xem':         job.viewCount || 0,
+                'Lượt Nộp':         job.applicationCount || 0,
                 'Kinh Nghiệm':      job.experience || '',
                 'Loại Hình':        job.employmentType || '',
                 'Urgent':           job.urgentRecruitment ? 'Có' : 'Không',
@@ -562,6 +563,8 @@
             { wch: 13 },   // Ngày đăng
             { wch: 13 },   // Hạn nộp
             { wch: 12 },   // Trạng thái
+            { wch: 10 },   // Lượt xem
+            { wch: 10 },   // Lượt nộp
             { wch: 15 },   // Kinh nghiệm
             { wch: 15 },   // Loại hình
             { wch: 8  },   // Urgent

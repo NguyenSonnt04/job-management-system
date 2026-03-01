@@ -29,6 +29,8 @@ public class JobController {
     @Autowired private DegreeLevelRepository     degreeLevelRepository;
     @Autowired private JobBenefitRepository      jobBenefitRepository;
     @Autowired private ProvinceRepository        provinceRepository;
+    @Autowired private JobApplicationRepository  jobApplicationRepository;
+    @Autowired private JobRepository             jobRepository;
 
     /**
      * Get employer info for auto-fill
@@ -104,7 +106,40 @@ public class JobController {
                 .orElseThrow(() -> new RuntimeException("Employer profile not found"));
 
         List<Job> jobs = jobService.getJobsByEmployer(employer.getId());
-        return ResponseEntity.ok(jobs);
+        
+        // Map to include application count
+        List<Map<String, Object>> jobsWithCounts = jobs.stream().map(job -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", job.getId());
+            map.put("title", job.getTitle());
+            map.put("location", job.getLocation());
+            map.put("salaryMin", job.getSalaryMin());
+            map.put("salaryMax", job.getSalaryMax());
+            map.put("currency", job.getCurrency());
+            map.put("urgentRecruitment", job.getUrgentRecruitment());
+            map.put("createdAt", job.getCreatedAt());
+            map.put("deadline", job.getDeadline());
+            map.put("status", job.getStatus());
+            map.put("viewCount", job.getViewCount());
+            
+            long appCount = jobApplicationRepository.findByJobId(job.getId()).size();
+            map.put("applicationCount", appCount);
+            return map;
+        }).collect(Collectors.toList());
+        
+        return ResponseEntity.ok(jobsWithCounts);
+    }
+
+    /**
+     * Increment job view count
+     */
+    @PostMapping("/{id}/view")
+    public ResponseEntity<?> incrementViewCount(@PathVariable Long id) {
+        return jobRepository.findById(id).map(job -> {
+            job.incrementViewCount();
+            jobRepository.save(job);
+            return ResponseEntity.ok(Map.of("success", true, "viewCount", job.getViewCount()));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     /**

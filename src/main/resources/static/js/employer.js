@@ -1,15 +1,33 @@
 // ===== Employer Page JavaScript =====
 
-// Function to load HTML content into a placeholder
+// Load HTML and execute any <script> tags inside it
 async function loadHTML(elementId, filePath) {
     try {
         const response = await fetch(filePath);
         if (!response.ok) throw new Error(`Failed to load ${filePath}`);
-        const html = await response.text();
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.innerHTML = html;
-        }
+        const html     = await response.text();
+        const element  = document.getElementById(elementId);
+        if (!element) return;
+
+        // Set HTML (scripts inside innerHTML do NOT run automatically)
+        element.innerHTML = html;
+
+        // Re-create and append each <script> so the browser executes them
+        element.querySelectorAll('script').forEach(oldScript => {
+            const newScript = document.createElement('script');
+            // Copy attributes (type, src, etc.)
+            Array.from(oldScript.attributes).forEach(attr =>
+                newScript.setAttribute(attr.name, attr.value)
+            );
+            // Copy inline content
+            if (oldScript.src) {
+                // External script — set src triggers load & execute
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
     } catch (error) {
         console.error('Error loading HTML:', error);
     }
@@ -17,7 +35,6 @@ async function loadHTML(elementId, filePath) {
 
 // Load employer header and footer when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Load employer header and footer in parallel
     Promise.all([
         loadHTML('header-employer-placeholder', 'includes/header-employer.html'),
         loadHTML('footer-placeholder', 'includes/footer.html')

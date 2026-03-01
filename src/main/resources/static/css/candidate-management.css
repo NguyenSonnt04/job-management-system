@@ -321,3 +321,78 @@
         grid-template-columns: 1fr 1fr;
     }
 }
+
+/* ── Applicant info in first column ── */
+.candidate-table td {
+    padding: 14px 10px;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 13px;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.col-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.applicant-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.applicant-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1a1a2e;
+}
+
+.applicant-email {
+    font-size: 12px;
+    color: #666;
+}
+
+.candidate-table tr:hover {
+    background: #f8f9ff;
+}
+
+/* ── Status badges ── */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-pending   { background: #fff3cd; color: #856404; }
+.status-viewed    { background: #d1ecf1; color: #0c5460; }
+.status-saved     { background: #d4edda; color: #155724; }
+.status-rejected  { background: #f8d7da; color: #721c24; }
+.status-interview { background: #cce5ff; color: #004085; }
+
+/* ── Status select in action column ── */
+.status-select {
+    padding: 5px 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    background: white;
+    min-width: 130px;
+}
+
+.status-select:focus {
+    outline: none;
+    border-color: #2E3B8E;
+}
+
+.action-btns {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}

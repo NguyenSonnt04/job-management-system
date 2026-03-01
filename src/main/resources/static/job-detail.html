@@ -597,10 +597,11 @@
         }
 
         try {
-            // Fetch job detail & all active jobs in parallel
+            // Fetch job detail, active jobs & increment view simultaneously
             const [jobRes, allJobsRes] = await Promise.all([
                 fetch(`/api/jobs/${jobId}`, { credentials: 'include' }),
-                fetch('/api/jobs/active', { credentials: 'include' })
+                fetch('/api/jobs/active', { credentials: 'include' }),
+                fetch(`/api/jobs/${jobId}/view`, { method: 'POST' }).catch(() => {})
             ]);
 
             if (!jobRes.ok) {
