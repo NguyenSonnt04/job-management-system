@@ -70,8 +70,8 @@ public class Job {
     private Boolean urgentRecruitment = false;
 
     // Ngôn ngữ trình bày hồ sơ
-    @Column(name = "resume_language", length = 20)
-    private String resumeLanguage = "Tiếng Việt";
+    @Column(name = "resume_language", length = 100)
+    private String resumeLanguage = "Ti\u1ebfng Vi\u1ec7t";
 
     // Hình thức làm việc
     @Column(name = "employment_type", length = 50)

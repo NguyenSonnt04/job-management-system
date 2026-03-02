@@ -1,6 +1,7 @@
 package Nhom08.Project.controller;
 
 import Nhom08.Project.entity.*;
+import Nhom08.Project.repository.CvJobMatchRepository;
 import Nhom08.Project.repository.JobRepository;
 import Nhom08.Project.service.AuthService;
 import Nhom08.Project.service.CvScoringService;
@@ -8,6 +9,7 @@ import Nhom08.Project.service.GeminiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,10 +20,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/cv-scoring")
 public class CvScoringController {
 
-    @Autowired private CvScoringService scoringService;
-    @Autowired private AuthService      authService;
-    @Autowired private GeminiService    geminiService;
-    @Autowired private JobRepository    jobRepo;
+    @Autowired private CvScoringService    scoringService;
+    @Autowired private AuthService         authService;
+    @Autowired private GeminiService       geminiService;
+    @Autowired private JobRepository       jobRepo;
+    @Autowired private CvJobMatchRepository matchRepo;
 
     // ── Helper: get current user from session ──────────────
     private Optional<User> currentUser(Authentication auth) {
@@ -145,6 +148,24 @@ public class CvScoringController {
             return ResponseEntity.status(403).body(Map.of("message", e.getMessage()));
         }
 
+        // ── Cache hit: return saved matches from DB ────────────────────────────
+        if (matchRepo.existsBySessionId(sessionId)) {
+            List<CvJobMatch> cached = matchRepo.findBySessionIdOrderByMatchScoreDesc(sessionId);
+            List<Map<String, Object>> cachedResult = cached.stream().map(c -> {
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("jobId",      c.getJobId());
+                m.put("matchScore", c.getMatchScore());
+                m.put("reason",     c.getReason());
+                m.put("title",      c.getJobTitle());
+                m.put("industry",   c.getJobIndustry());
+                m.put("location",   c.getJobLocation());
+                m.put("experience", c.getJobExperience());
+                m.put("company",    c.getCompanyName());
+                return m;
+            }).collect(Collectors.toList());
+            return ResponseEntity.ok(Map.of("matches", cachedResult, "industry", "", "cached", true));
+        }
+
         // Build CV profile text from session data
         StringBuilder cvProfile = new StringBuilder();
         cvProfile.append("Overall feedback: ").append(session.getOverallFeedback()).append("\n");
@@ -160,88 +181,89 @@ public class CvScoringController {
             cvProfile.append("\n").append(r.getCriteria().getName())
                      .append(": ").append(r.getFeedback()));
 
-        // Ask Gemini to extract the industry keyword from CV profile
+        // --- Step 1: Extract industry keyword from CV profile via Gemini ---
         String industryPrompt =
-            "Based on this CV analysis summary, respond with ONLY a JSON object containing one field 'industry' " +
-            "with the main industry/domain keyword in Vietnamese (e.g. 'Công nghệ thông tin', 'Kế toán', 'Marketing'). " +
-            "CV Summary: " + cvProfile;
+            "Based on this CV analysis, reply with ONLY a JSON object: {\"industry\": \"<keyword>\"}\n" +
+            "The keyword must be one of the common Vietnamese industry names used in job listings, " +
+            "for example: 'C\u00f4ng ngh\u1ec7 th\u00f4ng tin', 'K\u1ebf to\u00e1n', 'Marketing', 'T\u00e0i ch\u00ednh', 'X\u00e2y d\u1ef1ng'.\n" +
+            "Use EXACTLY the same short keyword that would appear in job industry fields.\n\n" +
+            "CV Summary:\n" + cvProfile;
 
-        String industryJson;
         String detectedIndustry = null;
         try {
-            industryJson = geminiService.scoreCvText(industryPrompt, List.of());
-            // Parse industry from JSON
+            String industryJson = geminiService.callGeminiWithText(industryPrompt);
             com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
-            com.fasterxml.jackson.databind.JsonNode node = om.readTree(industryJson);
+            // Strip markdown code fences if present
+            String cleanJson = industryJson.replaceAll("(?s)```json|```", "").trim();
+            com.fasterxml.jackson.databind.JsonNode node = om.readTree(cleanJson);
             if (node.has("industry")) {
-                detectedIndustry = node.get("industry").asText();
+                detectedIndustry = node.get("industry").asText().trim();
             }
-        } catch (Exception e) {
-            // Fallback: use top 20 active jobs
-        }
+        } catch (Exception ignored) { /* fallback below */ }
 
-        // Fetch candidate jobs
-        List<Job> candidateJobs;
-        if (detectedIndustry != null && !detectedIndustry.isBlank()) {
-            candidateJobs = jobRepo.findByStatusAndIndustryContainingIgnoreCase("ACTIVE", detectedIndustry);
-            if (candidateJobs.isEmpty()) {
-                candidateJobs = jobRepo.findTop20ByStatus("ACTIVE");
-            }
-        } else {
-            candidateJobs = jobRepo.findTop20ByStatus("ACTIVE");
-        }
+        // --- Step 2: Fetch candidate jobs ---
+        // Always include all ACTIVE jobs; if DB is small just take all of them
+        List<Job> activeSameIndustry = (detectedIndustry != null && !detectedIndustry.isBlank())
+            ? jobRepo.findByStatusAndIndustryContainingIgnoreCase("ACTIVE", detectedIndustry)
+            : List.of();
+
+        List<Job> fallbackJobs = jobRepo.findTop20ByStatus("ACTIVE");
+
+        // Merge: same-industry first, then add remaining from fallback (avoid duplicates)
+        java.util.Set<Long> seen = new java.util.LinkedHashSet<>();
+        List<Job> candidateJobs = new ArrayList<>();
+        for (Job j : activeSameIndustry) { if (seen.add(j.getId())) candidateJobs.add(j); }
+        for (Job j : fallbackJobs)       { if (seen.add(j.getId())) candidateJobs.add(j); }
 
         if (candidateJobs.isEmpty()) {
             return ResponseEntity.ok(Map.of("matches", List.of(), "industry", ""));
         }
 
-        // Build job data list for Gemini
-        List<Map<String, Object>> jobData = candidateJobs.stream().map(j -> {
-            Map<String, Object> m = new LinkedHashMap<>();
-            m.put("id",          j.getId());
-            m.put("title",       j.getTitle());
-            m.put("industry",    j.getIndustry());
-            m.put("experience",  j.getExperience());
-            m.put("description", j.getDescription() != null
-                ? j.getDescription().substring(0, Math.min(500, j.getDescription().length())) : "");
-            m.put("requirements", j.getRequirements() != null
-                ? j.getRequirements().substring(0, Math.min(500, j.getRequirements().length())) : "");
-            return m;
-        }).collect(Collectors.toList());
-
-        // Ask Gemini to match (text-based using CV profile)
-        String matchPrompt =
-            "You are a job-matching AI. Based on this candidate profile, match and score each job listing (0-100).\n" +
-            "Candidate Profile:\n" + cvProfile + "\n\n" +
-            "Score based on: skill alignment (40%), experience (30%), industry fit (20%), education (10%).\n\n" +
-            "Jobs to match:\n";
-        StringBuilder jobsText = new StringBuilder(matchPrompt);
-        for (Map<String, Object> jd : jobData) {
-            jobsText.append("---\nJob ID: ").append(jd.get("id"))
-                .append("\nTitle: ").append(jd.get("title"))
-                .append("\nIndustry: ").append(jd.get("industry"))
-                .append("\nExperience: ").append(jd.get("experience"))
-                .append("\nRequirements: ").append(jd.get("requirements")).append("\n");
+        // --- Step 3: Build job descriptions for matching prompt ---
+        StringBuilder jobsBlock = new StringBuilder();
+        for (Job j : candidateJobs) {
+            jobsBlock.append("---\nJob ID: ").append(j.getId())
+                .append("\nTitle: ").append(j.getTitle())
+                .append("\nIndustry: ").append(j.getIndustry())
+                .append("\nExperience: ").append(j.getExperience())
+                .append("\nDescription: ").append(
+                    j.getDescription() != null
+                        ? j.getDescription().substring(0, Math.min(400, j.getDescription().length())) : "")
+                .append("\nRequirements: ").append(
+                    j.getRequirements() != null
+                        ? j.getRequirements().substring(0, Math.min(400, j.getRequirements().length())) : "")
+                .append("\n\n");
         }
-        jobsText.append("\nReturn ONLY a JSON array (no markdown): [{\"jobId\": <number>, \"matchScore\": <0-100>, \"reason\": \"<1 sentence in Vietnamese>\"}]\nSort descending. Only include jobs with matchScore >= 40.");
+
+        // --- Step 4: Ask Gemini to match using callGeminiWithText ---
+        String matchPrompt =
+            "You are a job-matching AI. Score how well this candidate matches each job listing (0-100).\n\n" +
+            "CANDIDATE PROFILE:\n" + cvProfile + "\n\n" +
+            "Scoring weights: skill alignment 40%, experience 30%, industry fit 20%, education 10%.\n\n" +
+            "JOB LISTINGS:\n" + jobsBlock +
+            "Return ONLY a JSON array, no markdown:\n" +
+            "[{\"jobId\": <number>, \"matchScore\": <0-100>, \"reason\": \"<1 sentence in Vietnamese>\"}]\n" +
+            "Sort by matchScore descending. Include ALL jobs (even low scores).";
 
         try {
-            String matchJson = geminiService.scoreCvText(jobsText.toString(), List.of());
+            String matchJson = geminiService.callGeminiWithText(matchPrompt);
             com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
-            com.fasterxml.jackson.databind.JsonNode matchArray = om.readTree(matchJson);
+            String cleanMatch = matchJson.replaceAll("(?s)```json|```", "").trim();
+            com.fasterxml.jackson.databind.JsonNode matchArray = om.readTree(cleanMatch);
 
-            // Enrich with job details
             Map<Long, Job> jobMap = candidateJobs.stream().collect(Collectors.toMap(Job::getId, j -> j));
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (com.fasterxml.jackson.databind.JsonNode item : matchArray) {
-                long jid  = item.path("jobId").asLong();
-                int  score = item.path("matchScore").asInt(0);
+                long   jid    = item.path("jobId").asLong();
+                int    score  = item.path("matchScore").asInt(0);
                 String reason = item.path("reason").asText("");
+                if (score < 30) continue;  // Filter out very poor matches
 
                 Job job = jobMap.get(jid);
                 if (job == null) continue;
 
+                // Build result map
                 Map<String, Object> m = new LinkedHashMap<>();
                 m.put("jobId",      jid);
                 m.put("matchScore", score);
@@ -252,6 +274,19 @@ public class CvScoringController {
                 m.put("experience", job.getExperience());
                 m.put("company",    job.getEmployer() != null ? job.getEmployer().getCompanyName() : "");
                 result.add(m);
+
+                // Persist to DB cache
+                CvJobMatch cache = new CvJobMatch();
+                cache.setSession(session);
+                cache.setJobId(jid);
+                cache.setMatchScore(score);
+                cache.setReason(reason);
+                cache.setJobTitle(job.getTitle());
+                cache.setJobIndustry(job.getIndustry());
+                cache.setJobLocation(job.getLocation());
+                cache.setJobExperience(job.getExperience());
+                cache.setCompanyName(job.getEmployer() != null ? job.getEmployer().getCompanyName() : "");
+                matchRepo.save(cache);
             }
 
             return ResponseEntity.ok(Map.of(
@@ -262,6 +297,24 @@ public class CvScoringController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                 .body(Map.of("message", "Lỗi phân tích: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * DELETE /api/cv-scoring/match-jobs/{sessionId}
+     * Xoa cache match de cho phep tai lai.
+     */
+    @Transactional
+    @DeleteMapping("/match-jobs/{sessionId}")
+    public ResponseEntity<?> clearMatchCache(@PathVariable Long sessionId, Authentication auth) {
+        Optional<User> userOpt = currentUser(auth);
+        if (userOpt.isEmpty()) return ResponseEntity.status(401).build();
+        try {
+            scoringService.getSession(sessionId, userOpt.get().getId());
+            matchRepo.deleteBySessionId(sessionId);
+            return ResponseEntity.ok(Map.of("cleared", true));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).body(Map.of("message", e.getMessage()));
         }
     }
 

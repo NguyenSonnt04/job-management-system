@@ -37,6 +37,15 @@ public class GeminiService {
         return callGemini(body);
     }
 
+    /**
+     * Call Gemini with a plain text prompt (no scoring wrapper).
+     * Use this for industry extraction, job matching, etc.
+     */
+    public String callGeminiWithText(String prompt) {
+        requireApiKey();
+        return callGemini(buildTextRequest(prompt));
+    }
+
     // ── Score CV from file bytes ──────────────────────────────────────────────
     public String scoreCvFile(byte[] fileBytes, String mimeType,
                                List<Nhom08.Project.entity.CvScoringCriteria> criteriaList) {

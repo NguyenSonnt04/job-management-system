@@ -784,3 +784,19 @@
     transition: all 0.2s; box-shadow: 0 4px 14px rgba(46,59,142,0.35);
 }
 .btn-view-all-jobs:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(46,59,142,0.45); }
+
+/* ---- Reload match button ---- */
+.btn-reload-match {
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.btn-reload-match:hover:not(:disabled) { background: rgba(255,255,255,0.25); }
+.btn-reload-match:disabled { opacity: 0.5; cursor: not-allowed; }

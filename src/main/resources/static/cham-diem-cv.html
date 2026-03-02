@@ -182,7 +182,12 @@
                                         <i class="fas fa-briefcase"></i>
                                         Việc làm phù hợp với bạn
                                     </div>
-                                    <div id="matchJobsBadge" class="match-jobs-badge"></div>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <div id="matchJobsBadge" class="match-jobs-badge"></div>
+                                        <button id="btnReloadMatch" class="btn-reload-match" onclick="reloadMatch()" title="Tìm lại">
+                                            <i class="fas fa-redo-alt"></i>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div id="matchJobsLoading" style="display:none;" class="match-jobs-loading">
@@ -269,6 +274,7 @@
     let currentResult   = null;
     let analyzingTimer  = null;
     let matchedJobIds   = [];  // IDs of matched jobs for redirect
+    let currentSessionId = null; // For reload matching
 
     const GRADE_MAP = [
         { min: 90, label: 'Xuất sắc',  color: '#00BFA5', emoji: '🏆' },
@@ -293,13 +299,31 @@
                 document.getElementById('loginWarning').style.display = 'none';
                 document.getElementById('mainContent').style.display  = 'block';
                 loadHistory();
+                restoreLastSession();  // Restore previous result if any
             } else {
                 document.getElementById('loginWarning').style.display = 'flex';
                 document.getElementById('mainContent').style.display  = 'none';
+                sessionStorage.removeItem('cvLastSessionId');
+                sessionStorage.removeItem('cvLastResult');
             }
         } catch {
             document.getElementById('mainContent').style.display = 'block';
         }
+    }
+
+    // ---- Restore last session from sessionStorage ----
+    function restoreLastSession() {
+        const savedId     = sessionStorage.getItem('cvLastSessionId');
+        const savedResult = sessionStorage.getItem('cvLastResult');
+        if (!savedId || !savedResult) return;
+        try {
+            const data = JSON.parse(savedResult);
+            renderResult(data);
+            document.getElementById('uploadCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'block';
+            // Restore match section with saved sessionId (no re-call to API, just re-trigger)
+            matchJobs(parseInt(savedId));
+        } catch { /* ignore corrupt data */ }
     }
 
     // ---- Load criteria from DB via API ----
@@ -364,13 +388,17 @@
     // ---- Load a historical session ----
     async function loadHistorySession(id) {
         try {
-            const res     = await fetch(`/api/cv-scoring/${id}`, { credentials: 'include' });
-            if (!res.ok)  return;
-            const data    = await res.json();
+            const res  = await fetch(`/api/cv-scoring/${id}`, { credentials: 'include' });
+            if (!res.ok) return;
+            const data = await res.json();
             renderResult(data);
             document.getElementById('uploadCard').style.display = 'none';
             document.getElementById('resultCard').style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Save to sessionStorage + trigger match
+            sessionStorage.setItem('cvLastSessionId', id);
+            sessionStorage.setItem('cvLastResult', JSON.stringify(data));
+            matchJobs(id);
         } catch { /* silent */ }
     }
 
@@ -468,6 +496,9 @@
             document.getElementById('analyzingCard').style.display = 'none';
             document.getElementById('resultCard').style.display    = 'block';
             renderResult(data.data);
+            // Persist for page restore
+            sessionStorage.setItem('cvLastSessionId', data.sessionId);
+            sessionStorage.setItem('cvLastResult', JSON.stringify(data.data));
             matchJobs(data.sessionId);  // Auto-trigger matching
             loadHistory();
 
@@ -550,13 +581,17 @@
         document.getElementById('resultCard').style.display       = 'none';
         document.getElementById('matchJobsSection').style.display = 'none';
         document.getElementById('uploadCard').style.display       = 'block';
-        currentResult = null;
-        matchedJobIds = [];
+        currentResult    = null;
+        currentSessionId = null;
+        matchedJobIds    = [];
+        sessionStorage.removeItem('cvLastSessionId');
+        sessionStorage.removeItem('cvLastResult');
     }
 
     // ---- Match Jobs ----
     async function matchJobs(sessionId) {
         if (!sessionId) return;
+        currentSessionId = sessionId;  // Save for reload
         const section  = document.getElementById('matchJobsSection');
         const loading  = document.getElementById('matchJobsLoading');
         const listEl   = document.getElementById('matchJobsList');
@@ -629,6 +664,23 @@
             return;
         }
         window.location.href = '/tim-viec-lam.html?matchIds=' + matchedJobIds.join(',');
+    }
+
+    async function reloadMatch() {
+        if (!currentSessionId) return;
+        const btn = document.getElementById('btnReloadMatch');
+        btn.querySelector('i').style.animation = 'spinRing 0.8s linear infinite';
+        btn.disabled = true;
+        try {
+            // Xoa cache DB truoc
+            await fetch(`/api/cv-scoring/match-jobs/${currentSessionId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+        } catch { /* ignore */ }
+        await matchJobs(currentSessionId);
+        btn.querySelector('i').style.animation = '';
+        btn.disabled = false;
     }
 
     // ---- Download result as PDF ----
