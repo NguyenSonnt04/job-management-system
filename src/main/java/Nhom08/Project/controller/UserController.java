@@ -56,6 +56,9 @@ public class UserController {
         response.put("phone", user.getPhone());
         response.put("role", user.getRole().getName());
 
+        // Build displayName — always set regardless of employer record
+        String displayName = user.getFullName();
+
         // If employer, include company info
         if (user.isEmployer()) {
             Optional<Employer> employerOpt = employerRepository.findByUserId(user.getId());
@@ -68,17 +71,20 @@ public class UserController {
                 employerInfo.put("contactPhone", employer.getContactPhone());
                 employerInfo.put("province", employer.getProvince());
                 response.put("employer", employerInfo);
-                
-                // Use contact name for display if fullName is null
-                if (user.getFullName() == null || user.getFullName().isEmpty()) {
-                    response.put("displayName", employer.getContactName());
-                } else {
-                    response.put("displayName", user.getFullName());
+
+                // Prefer contactName if fullName is blank
+                if (displayName == null || displayName.isBlank()) {
+                    displayName = employer.getContactName();
                 }
             }
-        } else {
-            response.put("displayName", user.getFullName() != null ? user.getFullName() : user.getEmail());
         }
+
+        // Final fallback to email
+        if (displayName == null || displayName.isBlank()) {
+            displayName = user.getEmail();
+        }
+        response.put("displayName", displayName);
+
 
         return ResponseEntity.ok(response);
     }

@@ -43,13 +43,28 @@
             </nav>
 
             <div class="header-actions">
-                <a href="#" class="notification-link">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M15 6.66667C15 5.34058 14.4732 4.06881 13.5355 3.13113C12.5979 2.19345 11.3261 1.66667 10 1.66667C8.67392 1.66667 7.40215 2.19345 6.46447 3.13113C5.52678 4.06881 5 5.34058 5 6.66667C5 12.5 2.5 14.1667 2.5 14.1667H17.5C17.5 14.1667 15 12.5 15 6.66667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M11.4417 17.5C11.2952 17.7526 11.0849 17.9622 10.8319 18.1079C10.5789 18.2537 10.292 18.3304 10 18.3304C9.70802 18.3304 9.42111 18.2537 9.16812 18.1079C8.91514 17.7526 8.70484 17.7526 8.55835 17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span>Thông Báo Việc Làm</span>
-                </a>
+                <!-- Notification Bell -->
+                <div class="notif-wrapper" id="notifWrapper">
+                    <button class="notification-link notif-trigger" id="notifBtn" aria-label="Thông báo">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M15 6.66667C15 5.34058 14.4732 4.06881 13.5355 3.13113C12.5979 2.19345 11.3261 1.66667 10 1.66667C8.67392 1.66667 7.40215 2.19345 6.46447 3.13113C5.52678 4.06881 5 5.34058 5 6.66667C5 12.5 2.5 14.1667 2.5 14.1667H17.5C17.5 14.1667 15 12.5 15 6.66667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11.4417 17.5C11.2952 17.7526 11.0849 17.9622 10.8319 18.1079C10.5789 18.2537 10.292 18.3304 10 18.3304C9.70802 18.3304 9.42111 18.2537 9.16812 18.1079C8.91514 17.7526 8.70484 17.7526 8.55835 17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Thông Báo Việc Làm</span>
+                        <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+                    </button>
+
+                    <!-- Notification Dropdown -->
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <span class="notif-title">Thông Báo</span>
+                            <button class="notif-read-all" id="notifReadAll">Đánh dấu đã đọc</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">Không có thông báo nào</div>
+                        </div>
+                    </div>
+                </div>
                 
                 <!-- Login Dropdown (for guests) -->
                 <div class="login-dropdown-wrapper" id="loginWrapper">
@@ -119,46 +134,76 @@
                 </div>
 
                 <!-- User Menu (for logged-in users) -->
-                <div class="user-menu-wrapper" id="userMenuWrapper" style="display: none; position: relative;">
-                    <a href="#" class="login-link" id="userMenuLink" onclick="toggleUserDropdown(event)">
+                <div class="user-menu-wrapper" id="userMenuWrapper" style="display: none;">
+                    <a href="#" class="login-link user-menu-trigger" id="userMenuLink">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <path d="M16.6667 17.5V15.8333C16.6667 14.9493 16.3155 14.1014 15.6904 13.4763C15.0652 12.8512 14.2174 12.5 13.3333 12.5H6.66667C5.78261 12.5 4.93477 12.8512 4.30964 13.4763C3.68452 14.1014 3.33333 14.9493 3.33333 15.8333V17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M10 9.16667C11.8409 9.16667 13.3333 7.67428 13.3333 5.83333C13.3333 3.99238 11.8409 2.5 10 2.5C8.15905 2.5 6.66667 3.99238 6.66667 5.83333C6.66667 7.67428 8.15905 9.16667 10 9.16667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         <span id="userDisplayName">Xin chào</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 4px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="user-chevron">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </a>
-                    
-                    <!-- User Dropdown -->
-                    <div id="userDropdown" class="login-dropdown user-dropdown" style="min-width: 220px; display: none;">
-                        <div style="padding: 16px; border-bottom: 1px solid #eee;">
-                            <p style="font-weight: 600; color: #333; margin: 0;" id="userFullName">Người dùng</p>
-                            <p style="font-size: 12px; color: #666; margin: 4px 0 0 0;" id="userEmail">email@example.com</p>
+
+                    <!-- User Dropdown (hover) -->
+                    <div id="userDropdown" class="user-dropdown-menu">
+
+                        <!-- Profile info -->
+                        <div class="udm-profile">
+                            <div class="udm-avatar">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="udm-name" id="userFullName">Người dùng</div>
+                                <div class="udm-email" id="userEmail">email@example.com</div>
+                            </div>
                         </div>
-                        <a href="/profile.html" class="dropdown-menu-item" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: #333; text-decoration: none;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            Thông tin tài khoản
-                        </a>
-                        <a href="/my-applications.html" class="dropdown-menu-item" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                            </svg>
-                            Việc làm đã ứng tuyển
-                        </a>
-                        <a href="/auth/logout" class="dropdown-menu-item" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: #e53e3e; text-decoration: none;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" y1="12" x2="9" y2="12"></line>
-                            </svg>
-                            Đăng xuất
-                        </a>
+
+                        <!-- Menu items -->
+                        <div class="udm-items">
+                            <a href="/profile.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                Quản Lý Hồ Sơ
+                            </a>
+                            <a href="/cv-editor.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                                Hồ sơ CareerViet
+                            </a>
+                            <a href="/saved-jobs.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                                Việc làm đã lưu
+                            </a>
+                            <a href="/my-applications.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                                Thông Báo Việc Làm
+                            </a>
+
+                            <div class="udm-divider"></div>
+
+                            <a href="/employer-login.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                Nhà tuyển dụng của tôi
+                            </a>
+                            <a href="/notifications.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                                Xem tất cả thông báo
+                            </a>
+
+                            <div class="udm-divider"></div>
+
+                            <a href="/settings.html" class="udm-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                Cài đặt
+                            </a>
+                            <a href="/auth/logout" class="udm-item udm-item-logout">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                Đăng xuất
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -266,44 +311,458 @@ function togglePassword(inputId) {
     input.type = input.type === 'password' ? 'text' : 'password';
 }
 
-// Toggle user dropdown menu
-function toggleUserDropdown(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const dropdown = document.getElementById('userDropdown');
-    if (dropdown) {
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    }
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(e) {
-    const userMenuWrapper = document.getElementById('userMenuWrapper');
-    const dropdown = document.getElementById('userDropdown');
-    if (userMenuWrapper && dropdown && !userMenuWrapper.contains(e.target)) {
-        dropdown.style.display = 'none';
-    }
+// Rotate chevron on hover via JS fallback (CSS handles main hover)
+document.addEventListener('DOMContentLoaded', function() {
+    const wrapper = document.getElementById('userMenuWrapper');
+    if (!wrapper) return;
+    // No JS needed — pure CSS hover
 });
+
+// ===== NOTIFICATION BELL =====
+(function() {
+    let notifOpen = false;
+
+    function formatTimeAgo(isoStr) {
+        if (!isoStr) return '';
+        const diff = Date.now() - new Date(isoStr).getTime();
+        const m = Math.floor(diff / 60000);
+        if (m < 1) return 'Vua xong';
+        if (m < 60) return m + ' phut truoc';
+        const h = Math.floor(m / 60);
+        if (h < 24) return h + ' gio truoc';
+        return Math.floor(h / 24) + ' ngay truoc';
+    }
+
+    async function loadNotifications() {
+        try {
+            const res = await fetch('/api/notifications', { credentials: 'include' });
+            if (!res.ok) return; // Not logged in or error
+            const data = await res.json();
+
+            // Update badge
+            const badge = document.getElementById('notifBadge');
+            if (badge) {
+                if (data.unreadCount > 0) {
+                    badge.textContent = data.unreadCount > 9 ? '9+' : data.unreadCount;
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+
+            // Render list
+            const list = document.getElementById('notifList');
+            if (!list) return;
+
+            const notifs = data.notifications || [];
+            if (notifs.length === 0) {
+                list.innerHTML = '<div class="notif-empty">Khong co thong bao nao</div>';
+                return;
+            }
+
+            list.innerHTML = notifs.map(n => `
+                <div class="notif-item ${n.read ? '' : 'notif-unread'}" data-id="${n.id}">
+                    <div class="notif-icon notif-icon-interview">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <div class="notif-content">
+                        <div class="notif-item-title">${n.title}</div>
+                        <div class="notif-item-msg">${n.message}</div>
+                        <div class="notif-item-time">${formatTimeAgo(n.createdAt)}</div>
+                    </div>
+                    ${!n.read ? '<div class="notif-dot"></div>' : ''}
+                </div>
+            `).join('');
+
+            // Click item → mark read
+            list.querySelectorAll('.notif-item').forEach(el => {
+                el.addEventListener('click', async function() {
+                    const id = this.dataset.id;
+                    await fetch(`/api/notifications/${id}/read`, { method: 'PATCH', credentials: 'include' });
+                    this.classList.remove('notif-unread');
+                    this.querySelector('.notif-dot')?.remove();
+                    loadNotifications(); // refresh badge count
+                });
+            });
+        } catch (e) {
+            // Silent fail
+        }
+    }
+
+    // Header duoc inject dong nen dung setTimeout thay vi DOMContentLoaded
+    setTimeout(function() {
+        const btn = document.getElementById('notifBtn');
+        const dropdown = document.getElementById('notifDropdown');
+        const readAllBtn = document.getElementById('notifReadAll');
+
+        if (!btn || !dropdown) return;
+
+        // Toggle dropdown on click
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notifOpen = !notifOpen;
+            dropdown.classList.toggle('notif-open', notifOpen);
+            if (notifOpen) loadNotifications();
+        });
+
+        // Close on outside click
+        document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                notifOpen = false;
+                dropdown.classList.remove('notif-open');
+            }
+        });
+
+        // Mark all read
+        if (readAllBtn) {
+            readAllBtn.addEventListener('click', async function(e) {
+                e.stopPropagation();
+                await fetch('/api/notifications/read-all', { method: 'PATCH', credentials: 'include' });
+                loadNotifications();
+            });
+        }
+
+        // Initial load (poll every 30s)
+        loadNotifications();
+        setInterval(loadNotifications, 30000);
+    }, 0);
+})();
+
+
+
 </script>
 
 <style>
-/* User menu dropdown styles */
+/* ===== USER DROPDOWN (HOVER) ===== */
 .user-menu-wrapper {
     position: relative;
 }
 
-.user-menu-wrapper .login-dropdown {
-    display: none;
+.user-menu-trigger {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.user-menu-wrapper .login-dropdown.show,
-.user-menu-wrapper.active .login-dropdown {
-    display: block !important;
+.user-chevron {
+    margin-left: 2px;
+    transition: transform 0.2s ease;
 }
 
-.dropdown-menu-item:hover {
-    background: #f5f5f5;
+.user-menu-wrapper:hover .user-chevron {
+    transform: rotate(180deg);
+}
+
+/* Dropdown panel */
+.user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 230px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #f0f0f0;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+    pointer-events: none;
+}
+
+/* Bridge gap so mouse can move from trigger to menu */
+.user-dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 0;
+    right: 0;
+    height: 12px;
+}
+
+.user-menu-wrapper:hover .user-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Profile header */
+.udm-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.udm-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #EE0033, #ff3355);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+}
+
+.udm-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    line-height: 1.2;
+}
+
+.udm-email {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* Items */
+.udm-items {
+    padding: 6px 0;
+}
+
+.udm-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    font-size: 14px;
+    color: #333;
+    text-decoration: none;
+    transition: background 0.15s;
+    font-weight: 500;
+}
+
+.udm-item svg {
+    color: #888;
+    flex-shrink: 0;
+    transition: color 0.15s;
+}
+
+.udm-item:hover {
+    background: #f8f9fa;
+    color: #EE0033;
+}
+
+.udm-item:hover svg {
+    color: #EE0033;
+}
+
+.udm-divider {
+    height: 1px;
+    background: #f0f0f0;
+    margin: 4px 0;
+}
+
+.udm-item-logout {
+    color: #EE0033;
+}
+
+.udm-item-logout svg {
+    color: #EE0033;
+}
+
+.udm-item-logout:hover {
+    background: #fff5f5;
+    color: #cc0028;
+}
+
+/* ===== NOTIFICATION BELL ===== */
+.notif-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.notif-trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    margin: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text-dark);
+    border-radius: 6px;
+    line-height: 1;
+    transition: background 0.2s, color 0.2s;
+}
+
+.notif-trigger:hover {
+    background: var(--light-gray);
+    color: var(--primary-orange);
+}
+
+.notif-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: #EE0033;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid #fff;
+    line-height: 1;
+}
+
+.notif-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 340px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #f0f0f0;
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    pointer-events: none;
+}
+
+.notif-dropdown.notif-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.notif-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.notif-read-all {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    color: #1a5bbf;
+    font-weight: 500;
+    padding: 0;
+    font-family: inherit;
+}
+
+.notif-read-all:hover { text-decoration: underline; }
+
+.notif-list {
+    max-height: 360px;
+    overflow-y: auto;
+    padding: 6px 0;
+}
+
+.notif-empty {
+    text-align: center;
+    padding: 32px 16px;
+    color: #aaa;
+    font-size: 14px;
+}
+
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+    border-bottom: 1px solid #f8f8f8;
+}
+
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: #f8faff; }
+
+.notif-unread {
+    background: #f0f6ff;
+}
+
+.notif-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notif-icon-interview {
+    background: #e8f5e9;
+    color: #1b8f3f;
+}
+
+.notif-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notif-item-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notif-item-msg {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.notif-item-time {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+}
+
+.notif-dot {
+    width: 8px;
+    height: 8px;
+    background: #EE0033;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
 }
 </style>
-
-

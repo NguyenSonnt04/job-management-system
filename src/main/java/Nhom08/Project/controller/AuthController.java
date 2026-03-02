@@ -35,6 +35,31 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     /**
+     * GET /api/auth/me — returns current logged-in user info
+     */
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, Object>> me(Authentication auth) {
+        Map<String, Object> resp = new HashMap<>();
+        if (auth == null || !auth.isAuthenticated()) {
+            resp.put("loggedIn", false);
+            return ResponseEntity.ok(resp);
+        }
+        return authService.findByEmail(auth.getName()).map(user -> {
+            resp.put("loggedIn",    true);
+            resp.put("id",          user.getId());
+            resp.put("email",       user.getEmail());
+            resp.put("fullName",    user.getFullName());
+            resp.put("phone",       user.getPhone());
+            resp.put("role",        user.getRole().getName());
+            resp.put("displayName", user.getFullName() != null ? user.getFullName() : user.getEmail());
+            return ResponseEntity.ok(resp);
+        }).orElseGet(() -> {
+            resp.put("loggedIn", false);
+            return ResponseEntity.ok(resp);
+        });
+    }
+
+    /**
      * Check if email exists
      */
     @GetMapping("/check-email")

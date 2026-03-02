@@ -21,6 +21,9 @@ public class JobService {
     @Autowired
     private EmployerRepository employerRepository;
 
+    @Autowired
+    private Nhom08.Project.repository.JobStatisticsRepository jobStatisticsRepository;
+
     /**
      * Create a new job posting
      */
@@ -59,7 +62,10 @@ public class JobService {
         job.setEmployer(employer);
         job.setStatus("ACTIVE");
 
-        return jobRepository.save(job);
+        Job savedJob = jobRepository.save(job);
+        jobStatisticsRepository.save(new Nhom08.Project.entity.JobStatistics(savedJob));
+
+        return savedJob;
     }
 
     /**

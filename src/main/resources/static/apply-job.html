@@ -384,7 +384,6 @@
         btn.textContent = 'Đang gửi...';
 
         try {
-            // Gọi API ứng tuyển (nếu có endpoint — nếu chưa có thì mock success)
             const coverLetter = document.getElementById('useCoverLetter').checked
                 ? document.getElementById('coverLetterText').value
                 : '';
@@ -399,32 +398,26 @@
                 coverLetter: coverLetter
             };
 
-            // Try API first, fall back to mock success
-            let success = false;
-            try {
-                const res = await fetch('/api/applications/apply', {
-                    method:  'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(payload)
-                });
-                success = res.ok;
-            } catch {
-                // API chưa có → mock success
-                success = true;
-            }
+            const res  = await fetch('/api/applications/apply', {
+                method:      'POST',
+                headers:     { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body:        JSON.stringify(payload)
+            });
 
-            if (success) {
+            const data = await res.json();
+
+            if (res.ok && data.success) {
                 document.getElementById('successMsg').textContent =
                     `Hồ sơ của bạn đã được gửi đến ${currentJob?.employer?.companyName || 'nhà tuyển dụng'}. Chúc bạn may mắn!`;
                 document.getElementById('successOverlay').classList.add('active');
             } else {
-                throw new Error('Submit failed');
+                throw new Error(data.message || 'Gửi hồ sơ thất bại');
             }
 
         } catch (err) {
             console.error('Submit error:', err);
-            alert('Có lỗi xảy ra khi gửi hồ sơ. Vui lòng thử lại!');
+            alert(err.message || 'Có lỗi xảy ra khi gửi hồ sơ. Vui lòng thử lại!');
             btn.disabled = false;
             btn.textContent = 'ỨNG TUYỂN VỊ TRÍ NÀY';
         }
