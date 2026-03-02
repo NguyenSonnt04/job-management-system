@@ -4,11 +4,13 @@ import Nhom08.Project.entity.Employer;
 import Nhom08.Project.entity.Job;
 import Nhom08.Project.entity.JobApplication;
 import Nhom08.Project.entity.Notification;
+import Nhom08.Project.entity.NotificationTemplate;
 import Nhom08.Project.entity.User;
 import Nhom08.Project.repository.EmployerRepository;
 import Nhom08.Project.repository.JobApplicationRepository;
 import Nhom08.Project.repository.JobRepository;
 import Nhom08.Project.repository.NotificationRepository;
+import Nhom08.Project.repository.NotificationTemplateRepository;
 import Nhom08.Project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +33,8 @@ public class ApplicationController {
     @Autowired private UserRepository           userRepo;
     @Autowired private EmployerRepository       employerRepo;
     @Autowired private Nhom08.Project.repository.JobStatisticsRepository jobStatsRepo;
-    @Autowired private NotificationRepository   notificationRepo;
+    @Autowired private NotificationRepository         notificationRepo;
+    @Autowired private NotificationTemplateRepository templateRepo;
 
     /**
      * POST /api/applications/apply
@@ -184,14 +187,27 @@ public class ApplicationController {
         application.setStatus(newStatus);
         applicationRepo.save(application);
 
-        // Gui thong bao cho ung vien khi duoc moi phong van
+        // Doc template tu DB, fallback ve gia tri mac dinh
         if ("INTERVIEW".equals(newStatus) && application.getUser() != null) {
             Notification notification = new Notification();
             notification.setUser(application.getUser());
             notification.setType("INTERVIEW");
-            notification.setTitle("Ban da duoc moi phong van!");
-            String jobTitle = application.getJob() != null ? application.getJob().getTitle() : "vi tri nay";
-            notification.setMessage("Chuc mung! Ban da duoc moi phong van cho vi tri '" + jobTitle + "'. Nha tuyen dung se lien he voi ban som!");
+
+            String jobTitle = application.getJob() != null ? application.getJob().getTitle() : "vị trí này";
+
+            String title = templateRepo.findByKey("INTERVIEW_TITLE")
+                .map(NotificationTemplate::getValue)
+                .orElse("Bạn được mời phỏng vấn!")
+                .replace("{jobTitle}", jobTitle);
+
+            String message = templateRepo.findByKey("INTERVIEW_MESSAGE")
+                .map(NotificationTemplate::getValue)
+                .orElse("Chúc mừng! Bạn đã được mời phỏng vấn cho vị trí '{jobTitle}'. Nhà tuyển dụng sẽ liên hệ với bạn sớm!")
+                .replace("{jobTitle}", jobTitle);
+
+            notification.setTitle(title);
+            notification.setMessage(message);
+
             if (application.getJob() != null) {
                 notification.setJobId(application.getJob().getId());
                 notification.setJobTitle(jobTitle);
