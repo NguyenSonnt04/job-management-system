@@ -173,6 +173,34 @@
                             </div>
 
                         </div>
+
+                        <!-- ===== MATCH JOBS SECTION ===== -->
+                        <div id="matchJobsSection" style="display:none;">
+                            <div class="match-jobs-card">
+                                <div class="match-jobs-header">
+                                    <div class="match-jobs-title">
+                                        <i class="fas fa-briefcase"></i>
+                                        Việc làm phù hợp với bạn
+                                    </div>
+                                    <div id="matchJobsBadge" class="match-jobs-badge"></div>
+                                </div>
+
+                                <div id="matchJobsLoading" style="display:none;" class="match-jobs-loading">
+                                    <div class="match-loading-ring"></div>
+                                    <span>AI đang tìm việc phù hợp...</span>
+                                </div>
+
+                                <div id="matchJobsList" class="match-jobs-list"></div>
+
+                                <div id="matchJobsActions" style="display:none;" class="match-jobs-actions">
+                                    <button class="btn-view-all-jobs" onclick="viewAllMatchedJobs()">
+                                        <i class="fas fa-search"></i>
+                                        Xem tất cả việc làm phù hợp
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- RIGHT: Info + History -->
@@ -240,6 +268,7 @@
     let selectedFile    = null;
     let currentResult   = null;
     let analyzingTimer  = null;
+    let matchedJobIds   = [];  // IDs of matched jobs for redirect
 
     const GRADE_MAP = [
         { min: 90, label: 'Xuất sắc',  color: '#00BFA5', emoji: '🏆' },
@@ -439,6 +468,7 @@
             document.getElementById('analyzingCard').style.display = 'none';
             document.getElementById('resultCard').style.display    = 'block';
             renderResult(data.data);
+            matchJobs(data.sessionId);  // Auto-trigger matching
             loadHistory();
 
         } catch (err) {
@@ -517,9 +547,88 @@
     // ---- Reset ----
     function resetUpload() {
         removeFile();
-        document.getElementById('resultCard').style.display = 'none';
-        document.getElementById('uploadCard').style.display = 'block';
+        document.getElementById('resultCard').style.display       = 'none';
+        document.getElementById('matchJobsSection').style.display = 'none';
+        document.getElementById('uploadCard').style.display       = 'block';
         currentResult = null;
+        matchedJobIds = [];
+    }
+
+    // ---- Match Jobs ----
+    async function matchJobs(sessionId) {
+        if (!sessionId) return;
+        const section  = document.getElementById('matchJobsSection');
+        const loading  = document.getElementById('matchJobsLoading');
+        const listEl   = document.getElementById('matchJobsList');
+        const actEl    = document.getElementById('matchJobsActions');
+        const badgeEl  = document.getElementById('matchJobsBadge');
+
+        section.style.display  = 'block';
+        loading.style.display  = 'flex';
+        listEl.innerHTML       = '';
+        actEl.style.display    = 'none';
+        matchedJobIds          = [];
+
+        try {
+            const res  = await fetch('/api/cv-scoring/match-jobs', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId })
+            });
+            const data = await res.json();
+            loading.style.display = 'none';
+
+            if (!res.ok || !data.matches) {
+                listEl.innerHTML = `<div class="match-empty"><i class="fas fa-search"></i><p>${data.message || 'Không tìm được việc phù hợp'}</p></div>`;
+                return;
+            }
+
+            const matches = data.matches;
+            matchedJobIds = matches.map(m => m.jobId);
+
+            if (matches.length === 0) {
+                listEl.innerHTML = '<div class="match-empty"><i class="fas fa-search"></i><p>Chưa có việc làm phù hợp trong hệ thống</p></div>';
+                return;
+            }
+
+            badgeEl.textContent = matches.length + ' việc làm';
+            listEl.innerHTML = matches.slice(0, 5).map(m => {
+                const scoreColor = m.matchScore >= 80 ? '#00BFA5' : m.matchScore >= 60 ? '#2196F3' : '#FF9800';
+                return `
+                <div class="match-job-item">
+                    <div class="match-score-ring" style="--score-color:${scoreColor}">
+                        <span>${m.matchScore}%</span>
+                    </div>
+                    <div class="match-job-info">
+                        <div class="match-job-title">${m.title}</div>
+                        <div class="match-job-meta">
+                            <span><i class="fas fa-building"></i> ${m.company || 'N/A'}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> ${m.location || 'N/A'}</span>
+                            <span><i class="fas fa-briefcase"></i> ${m.experience || 'N/A'}</span>
+                        </div>
+                        <div class="match-job-reason"><i class="fas fa-check-circle"></i> ${m.reason}</div>
+                    </div>
+                    <a href="/tim-viec-lam.html?jobId=${m.jobId}" class="match-job-link" target="_blank">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>`;
+            }).join('');
+
+            if (matches.length > 0) actEl.style.display = 'flex';
+
+        } catch (err) {
+            loading.style.display = 'none';
+            listEl.innerHTML = '<div class="match-empty"><i class="fas fa-exclamation-circle"></i><p>Lỗi kết nối AI</p></div>';
+        }
+    }
+
+    function viewAllMatchedJobs() {
+        if (matchedJobIds.length === 0) {
+            window.location.href = '/tim-viec-lam.html';
+            return;
+        }
+        window.location.href = '/tim-viec-lam.html?matchIds=' + matchedJobIds.join(',');
     }
 
     // ---- Download result as PDF ----
