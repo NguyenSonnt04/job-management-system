@@ -59,6 +59,35 @@
     margin-left: 4px;
 }
 
+/* Count badge on nav links */
+.nav-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 20px;
+    margin-left: 6px;
+    min-width: 20px;
+    line-height: 1.6;
+    letter-spacing: 0;
+    transition: all 0.2s;
+    /* Light style - nhạt, sáng */
+    background: #e8edf7;
+    color: var(--primary-blue);
+}
+
+.sub-nav-link.active .nav-count-badge {
+    background: #dce8ff;
+    color: var(--primary-blue);
+}
+
+.sub-nav-link:not(.active) .nav-count-badge {
+    background: #f0f0f0;
+    color: #888;
+}
+
 .sub-nav-actions {
     display: flex;
     gap: 12px;

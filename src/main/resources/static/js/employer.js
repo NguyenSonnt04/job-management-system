@@ -42,7 +42,45 @@ document.addEventListener('DOMContentLoaded', function() {
         // Setup login dropdown after header is loaded
         setTimeout(setupLoginDropdown, 100);
     });
+
+    // Load nav badge counts
+    loadNavBadges();
 });
+
+// Fetch job count and applicant count, then show badges in sub-nav
+async function loadNavBadges() {
+    try {
+        const [jobsRes, appsRes] = await Promise.all([
+            fetch('/api/jobs/my-jobs', { credentials: 'include' }),
+            fetch('/api/applications/employer', { credentials: 'include' })
+        ]);
+
+        if (jobsRes.ok) {
+            const jobs = await jobsRes.json();
+            const totalJobs = Array.isArray(jobs) ? jobs.length : 0;
+            document.querySelectorAll('#badge-jobs').forEach(el => {
+                if (totalJobs > 0) {
+                    el.textContent = totalJobs;
+                    el.style.display = 'inline-block';
+                }
+            });
+        }
+
+        if (appsRes.ok) {
+            const data = await appsRes.json();
+            const totalApps = data.total || 0;
+            document.querySelectorAll('#badge-applicants').forEach(el => {
+                if (totalApps > 0) {
+                    el.textContent = totalApps;
+                    el.style.display = 'inline-block';
+                }
+            });
+        }
+    } catch (e) {
+        // Silent fail - badges just won't show if API unreachable
+        console.warn('Nav badges could not be loaded:', e);
+    }
+}
 
 // Setup login dropdown toggle
 function setupLoginDropdown() {
