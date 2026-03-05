@@ -57,11 +57,19 @@ async function loadNavBadges() {
 
         if (jobsRes.ok) {
             const jobs = await jobsRes.json();
-            const totalJobs = Array.isArray(jobs) ? jobs.length : 0;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            // Only count jobs that are ACTIVE and not yet expired
+            const activeJobs = Array.isArray(jobs)
+                ? jobs.filter(j => j.status === 'ACTIVE' && (!j.deadline || new Date(j.deadline) >= today))
+                : [];
+            const totalJobs = activeJobs.length;
             document.querySelectorAll('#badge-jobs').forEach(el => {
                 if (totalJobs > 0) {
                     el.textContent = totalJobs;
                     el.style.display = 'inline-block';
+                } else {
+                    el.style.display = 'none';
                 }
             });
         }

@@ -1,7 +1,7 @@
 # 📋 FEATURES.md — Theo Dõi Tiến Độ Tính Năng
 
 > **Dự án:** CareerViet — Hệ Thống Quản Lý Tuyển Dụng (Nhóm 08)  
-> **Cập nhật lần cuối:** 2026-03-02  
+> **Cập nhật lần cuối:** 2026-03-05  
 > **Cách dùng:** Khi hoàn thành một tính năng, cập nhật trạng thái từ `🔲 Chưa làm` → `✅ Hoàn thành` và ghi ngày hoàn thành.
 
 ---
@@ -73,7 +73,9 @@
 | 4.5 | Lọc theo ngành, lương, địa điểm | ✅ | 2026-02 | Filters API fully functional |
 | 4.6 | Đánh dấu tin tuyển dụng khẩn | ✅ | 2026-02 | Field `urgentRecruitment` trong Job entity |
 | 4.7 | Job status: DRAFT / ACTIVE / CLOSED | ✅ | 2026-02 | Field `status` trong Job entity |
-| 4.8 | Nộp hồ sơ ứng tuyển | 🚧 | — | Có frontend form, backend sắp hoàn thiện logic workflow |
+| 4.8 | Nộp hồ sơ ứng tuyển | ✅ | 2026-03 | `POST /api/applications/apply` — validate duplicate, link user account |
+| 4.9 | Quản lý hồ sơ ứng tuyển (employer) | ✅ | 2026-03 | `GET /api/applications/employer` — xem tất cả ứng viên |
+| 4.10 | Cập nhật trạng thái hồ sơ | ✅ | 2026-03 | `PATCH /api/applications/{id}/status` — trigger notification khi INTERVIEW |
 
 ---
 
@@ -89,6 +91,16 @@
 | 5.6 | Tạo CV bằng AI (UI) | 🚧 | — | `/tao-cv-ai.html` — có giao diện chọn template |
 | 5.7 | CV Editor & Harvard Template | ✅ | 2026-02 | Design Harvard chuẩn, wysiwyg editor |
 | 5.8 | Xuất CV dạng PDF | ⬜ | — | Chưa làm |
+
+---
+
+## 5.5 🔔 Thông Báo (Notifications)
+
+| # | Tính năng | Trạng thái | Ngày hoàn thành | Ghi chú |
+|---|-----------|-----------|-----------------|---------|
+| 5.5.1 | Gửi thông báo mời phỏng vấn | ✅ | 2026-03 | Tự động khi employer cập nhật status → INTERVIEW |
+| 5.5.2 | Xem danh sách thông báo | ✅ | 2026-03 | `GET /api/notifications` — kèm unreadCount |
+| 5.5.3 | Đánh dấu đã đọc | ✅ | 2026-03 | `PATCH /api/notifications/{id}/read` và `read-all` |
 
 ---
 
@@ -135,14 +147,14 @@
 ## 📊 Tổng Kết Tiến Độ
 
 ```
-✅ Hoàn thành : 43 tính năng
-🚧 Đang làm   :  6 tính năng
+✅ Hoàn thành : 49 tính năng
+🚧 Đang làm   :  4 tính năng
 ⬜ Chưa làm   :  9 tính năng
 ─────────────────────────────
-   Tổng        : 58 tính năng
+   Tổng        : 62 tính năng
 ```
 
-> **Tiến độ ước tính:** ~74% hoàn thành
+> **Tiến độ ước tính:** ~79% hoàn thành
 
 ---
 
@@ -152,6 +164,7 @@
 |------|---------------|---------|
 | 2026-02-22 | AI (Antigravity) | Khởi tạo file, phân tích toàn bộ codebase và ghi nhận trạng thái hiện tại |
 | 2026-03-02 | AI (Antigravity) | Cập nhật trạng thái hoàn thiện CV Scoring, AI Job Matching, Security API Keys, Database Seeding, và các UI/UX bug fixes |
+| 2026-03-05 | AI (Antigravity) | Cập nhật: ApplicationController (apply, employer view, status update), NotificationController (list, read, read-all), tạo `API_DOCS.md` đầy đủ cho toàn bộ endpoints đã hoàn thành |
 
 ---
 

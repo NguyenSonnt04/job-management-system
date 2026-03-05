@@ -21,8 +21,8 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     // Find jobs by location
     List<Job> findByLocationContainingIgnoreCase(String location);
     
-    // Find jobs by title
-    List<Job> findByTitleContainingIgnoreCase(String title);
+    // Find jobs by title (excluding soft-deleted)
+    List<Job> findByTitleContainingIgnoreCaseAndStatusNot(String title, String excludedStatus);
 
     // Find active jobs by industry (for CV matching)
     List<Job> findByStatusAndIndustryContainingIgnoreCase(String status, String industry);

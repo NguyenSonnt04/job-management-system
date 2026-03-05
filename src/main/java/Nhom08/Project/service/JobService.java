@@ -134,7 +134,7 @@ public class JobService {
     }
 
     /**
-     * Delete job
+     * Soft delete job — mark as DELETED instead of removing from DB
      */
     @Transactional
     public void deleteJob(Long jobId, Long employerId) {
@@ -146,7 +146,9 @@ public class JobService {
             throw new RuntimeException("Bạn không có quyền xóa tin tuyển dụng này");
         }
 
-        jobRepository.delete(job);
+        // Soft delete: just mark as DELETED, keep record in DB
+        job.setStatus("DELETED");
+        jobRepository.save(job);
     }
 
     /**
@@ -154,6 +156,6 @@ public class JobService {
      */
     public List<Job> searchJobs(String keyword) {
         // Simple search by title for now
-        return jobRepository.findByTitleContainingIgnoreCase(keyword);
+        return jobRepository.findByTitleContainingIgnoreCaseAndStatusNot(keyword, "DELETED");
     }
 }
