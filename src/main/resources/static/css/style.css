@@ -87,12 +87,14 @@ img {
 }
 
 .logo img {
-    height: 45px;
+    width: 30px;
     transition: var(--transition);
+    transform: scale(2.5) translateY(2px);
 }
 
+
 .logo:hover img {
-    transform: scale(1.05);
+    transform: scale(2.8) translateY(2px);
 }
 
 .nav {
