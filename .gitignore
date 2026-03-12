@@ -36,3 +36,15 @@ build/
 src/main/resources/application-local.properties
 *.env
 .env
+
+### Windows reserved device names (cannot be added to Git on Windows) ###
+nul
+con
+prn
+aux
+com1
+com2
+com3
+lpt1
+lpt2
+lpt3
