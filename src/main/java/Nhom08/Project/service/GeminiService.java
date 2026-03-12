@@ -41,7 +41,20 @@ public class GeminiService {
      * Call Gemini with a plain text prompt (no scoring wrapper).
      * Use this for industry extraction, job matching, etc.
      */
+    /** Existing method kept for backward compatibility - returns JSON-forced response. */
     public String callGeminiWithText(String prompt) {
+        requireApiKey();
+        return callGemini(buildTextRequest(prompt));
+    }
+
+    /** Call Gemini expecting a plain conversational text reply (not forced JSON). */
+    public String callGeminiPlainText(String prompt) {
+        requireApiKey();
+        return callGemini(buildPlainTextRequest(prompt));
+    }
+
+    /** Call Gemini expecting a JSON object response. */
+    public String callGeminiJson(String prompt) {
         requireApiKey();
         return callGemini(buildTextRequest(prompt));
     }
@@ -103,6 +116,14 @@ public class GeminiService {
                    "\"generationConfig\":{\"responseMimeType\":\"application/json\"}}";
         } catch (Exception e) {
             throw new RuntimeException("Build request failed", e);
+        }
+    }
+
+    private String buildPlainTextRequest(String prompt) {
+        try {
+            return "{\"contents\":[{\"parts\":[{\"text\":" + mapper.valueToTree(prompt) + "}]}]}";
+        } catch (Exception e) {
+            throw new RuntimeException("Build plain request failed", e);
         }
     }
 
