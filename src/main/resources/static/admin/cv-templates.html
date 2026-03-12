@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Mẫu CV | Admin CareerViet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; min-height: 100vh; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            position: fixed; left: 0; top: 0; bottom: 0; width: 260px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            color: white; padding: 20px 0; z-index: 100; overflow-y: auto;
+        }
+        .sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .sidebar-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: white; }
+        .sidebar-logo img { height: 36px; filter: brightness(0) invert(1); }
+        .sidebar-logo span { font-size: 18px; font-weight: 700; }
+        .admin-badge { background: #e53e3e; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
+        .sidebar-nav { padding: 0 12px; }
+        .nav-section { margin-bottom: 24px; }
+        .nav-section-title { font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; letter-spacing: 1px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; margin-bottom: 4px; transition: all 0.3s; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+        /* ── Main ── */
+        .main-content { margin-left: 260px; padding: 24px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .page-title { font-size: 24px; font-weight: 700; color: #1a1a2e; }
+        .btn-primary { display: flex; align-items: center; gap: 8px; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-primary svg { width: 16px; height: 16px; }
+
+        /* Stats */
+        .stats-bar { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-mini { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; }
+        .stat-mini-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .stat-mini-icon.total { background: #ede9fe; }
+        .stat-mini-icon.act { background: #d1fae5; }
+        .stat-mini-icon.hid { background: #fef3c7; }
+        .stat-mini-value { font-size: 24px; font-weight: 700; color: #1a1a2e; }
+        .stat-mini-label { font-size: 13px; color: #666; }
+
+        /* Grid */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .section-title { font-size: 18px; font-weight: 600; color: #1a1a2e; }
+        .templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 20px; }
+
+        .template-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent; }
+        .template-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); border-color: #667eea; }
+        .template-card.inactive { opacity: 0.6; }
+
+        .template-preview { height: 120px; display: flex; align-items: center; justify-content: center; padding: 16px; position: relative; }
+        .preview-mockup { width: 80px; display: flex; flex-direction: column; gap: 6px; }
+        .preview-line { height: 8px; background: rgba(255,255,255,0.6); border-radius: 4px; }
+        .preview-line.t { height: 13px; }
+        .preview-line.s { width: 50%; }
+        .has-content-badge { position: absolute; top: 8px; left: 8px; background: rgba(16,185,129,0.9); color: white; font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+        .inactive-badge-overlay { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.5); color: white; font-size: 10px; padding: 3px 8px; border-radius: 20px; }
+
+        .template-body { padding: 16px; }
+        .template-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .template-name { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+        .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+        .template-desc { font-size: 13px; color: #666; margin-bottom: 14px; line-height: 1.5; }
+        .template-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+        .meta-tag { background: #f0f2f5; color: #555; font-size: 11px; padding: 3px 8px; border-radius: 6px; }
+        .template-actions { display: flex; gap: 8px; border-top: 1px solid #f0f2f5; padding-top: 14px; }
+        .btn-action { flex: 1; padding: 8px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .btn-edit { background: #ede9fe; color: #7c3aed; }
+        .btn-edit:hover { background: #ddd6fe; }
+        .btn-toggle { background: #fef3c7; color: #d97706; }
+        .btn-toggle:hover { background: #fde68a; }
+        .btn-toggle.on { background: #d1fae5; color: #059669; }
+        .btn-toggle.on:hover { background: #a7f3d0; }
+        .btn-delete { background: #fee2e2; color: #dc2626; }
+        .btn-delete:hover { background: #fecaca; }
+        .btn-action svg { width: 14px; height: 14px; }
+        .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #999; }
+        .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.3; }
+        .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: #555; }
+
+        /* ── Modal ── */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1000; align-items: flex-start; justify-content: center; padding: 24px; overflow-y: auto; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: white; border-radius: 16px; width: 760px; max-width: 96vw; box-shadow: 0 24px 60px rgba(0,0,0,0.2); animation: slideIn 0.25s ease; }
+        @keyframes slideIn { from { opacity:0; transform:translateY(-24px); } to { opacity:1; transform:translateY(0); } }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; border-radius: 16px 16px 0 0; z-index: 10; }
+        .modal-title { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+        .btn-close { background: none; border: none; cursor: pointer; color: #999; font-size: 24px; line-height: 1; }
+        .btn-close:hover { color: #333; }
+
+        /* Tab nav inside modal */
+        .tab-nav { display: flex; gap: 0; border-bottom: 1px solid #eee; padding: 0 24px; }
+        .tab-btn { padding: 12px 16px; background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 600; color: #94a3b8; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; }
+        .tab-btn.active { color: #667eea; border-bottom-color: #667eea; }
+        .tab-panel { display: none; padding: 20px 24px; }
+        .tab-panel.active { display: block; }
+
+        .modal-footer { padding: 16px 24px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 12px; position: sticky; bottom: 0; background: white; border-radius: 0 0 16px 16px; }
+
+        /* Form styles */
+        .form-group { margin-bottom: 16px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 9px 13px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; transition: border-color 0.2s; }
+        .form-control:focus { outline: none; border-color: #667eea; }
+        textarea.form-control { resize: vertical; min-height: 70px; }
+        select.form-control { background: white; cursor: pointer; }
+        .color-group { display: flex; gap: 8px; align-items: center; }
+        .color-group input[type="color"] { width: 42px; height: 42px; padding: 2px; border: 1.5px solid #e5e7eb; border-radius: 8px; cursor: pointer; }
+        .color-group .form-control { flex: 1; }
+
+        /* Dynamic list (experience/education) */
+        .dynamic-list { display: flex; flex-direction: column; gap: 12px; }
+        .dynamic-item { border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 14px; position: relative; background: #fafafa; }
+        .dynamic-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .dynamic-item-title { font-size: 13px; font-weight: 700; color: #374151; }
+        .btn-remove-item { background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+        .btn-remove-item:hover { background: #fecaca; }
+        .btn-add-item { display: flex; align-items: center; gap: 6px; margin-top: 10px; padding: 9px 16px; background: #f0f9ff; color: #0284c7; border: 1.5px dashed #bae6fd; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-add-item:hover { background: #e0f2fe; border-color: #7dd3fc; }
+
+        /* Bullet points textarea for details */
+        .details-hint { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+
+        /* Skills section */
+        .skills-group { display: flex; flex-direction: column; gap: 10px; }
+        .skill-row { display: grid; grid-template-columns: 150px 1fr auto; gap: 8px; align-items: center; }
+        .btn-remove-skill { background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
+
+        /* Live mini preview */
+        .mini-preview {
+            background: white; border: 1px solid #eee; border-radius: 10px;
+            padding: 14px; font-size: 12px; line-height: 1.5; min-height: 160px;
+            overflow: hidden; position: relative;
+        }
+        .mini-preview-label { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .mini-preview h2 { font-size: 16px; font-weight: 800; text-transform: uppercase; color: #2E3B8E; text-align: center; letter-spacing: 1px; margin-bottom: 2px; }
+        .mini-preview p.sub { text-align: center; font-style: italic; font-size: 11px; color: #555; }
+        .mini-preview .section-line { border-bottom: 1px solid #2E3B8E; font-weight: 700; font-size: 10px; text-transform: uppercase; color: #2E3B8E; margin: 8px 0 4px; letter-spacing: 0.5px; }
+        .mini-preview .detail { font-size: 10px; color: #444; margin-bottom: 2px; }
+
+        .btn-secondary { padding: 10px 20px; border-radius: 8px; background: #f3f4f6; color: #374151; border: none; cursor: pointer; font-size: 14px; font-weight: 500; }
+        .btn-secondary:hover { background: #e5e7eb; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a2e; color: white; padding: 14px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: #059669; }
+        .toast.error { background: #dc2626; }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <a href="/admin/dashboard.html" class="sidebar-logo">
+            <img src="../images/logo.png" alt="CareerViet">
+            <span>CareerViet<span class="admin-badge">ADMIN</span></span>
+        </a>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <div class="nav-section-title">Tổng quan</div>
+            <a href="/admin/dashboard.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                Dashboard
+            </a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Quản lý</div>
+            <a href="/admin/users.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Người dùng
+            </a>
+            <a href="/admin/employers.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                Nhà tuyển dụng
+            </a>
+            <a href="/admin/jobs.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                Việc làm
+            </a>
+            <a href="/admin/cv-templates.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+                Mẫu CV
+            </a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Hệ thống</div>
+            <a href="/admin/settings.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                Cài đặt
+            </a>
+        </div>
+    </nav>
+</aside>
+
+<main class="main-content">
+    <div class="top-bar">
+        <h1 class="page-title">Quản lý Mẫu CV</h1>
+        <button class="btn-primary" onclick="openModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Thêm mẫu CV
+        </button>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-mini"><div class="stat-mini-icon total">📄</div><div><div class="stat-mini-value" id="statTotal">0</div><div class="stat-mini-label">Tổng mẫu CV</div></div></div>
+        <div class="stat-mini"><div class="stat-mini-icon act">✅</div><div><div class="stat-mini-value" id="statActive">0</div><div class="stat-mini-label">Đang hiển thị</div></div></div>
+        <div class="stat-mini"><div class="stat-mini-icon hid">🙈</div><div><div class="stat-mini-value" id="statHidden">0</div><div class="stat-mini-label">Đang ẩn</div></div></div>
+    </div>
+
+    <div class="section-header">
+        <span class="section-title">Danh sách mẫu CV</span>
+        <a href="/tao-cv-ai.html" target="_blank" style="font-size:13px;color:#667eea;text-decoration:none;">→ Xem trang người dùng ↗</a>
+    </div>
+    <div class="templates-grid" id="templatesGrid">
+        <div style="text-align:center;padding:40px;color:#999;grid-column:1/-1;">Đang tải...</div>
+    </div>
+</main>
+
+<!-- ══════════════════════════════════════════════
+     MODAL: Add / Edit CV Template
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Thêm mẫu CV mới</h2>
+        <button class="btn-close" onclick="closeModal()">×</button>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('tab-meta',this)">⚙️ Thông tin chung</button>
+        <button class="tab-btn" onclick="switchTab('tab-personal',this)">👤 Cá nhân</button>
+        <button class="tab-btn" onclick="switchTab('tab-edu',this)">🎓 Học vấn</button>
+        <button class="tab-btn" onclick="switchTab('tab-exp',this)">💼 Kinh nghiệm</button>
+        <button class="tab-btn" onclick="switchTab('tab-proj',this)">🚀 Dự án</button>
+        <button class="tab-btn" onclick="switchTab('tab-skills',this)">🛠 Kỹ năng</button>
+    </div>
+
+    <!-- ── TAB 1: Meta ── -->
+    <div class="tab-panel active" id="tab-meta">
+        <input type="hidden" id="templateId">
+        <div class="form-group">
+            <label>Tên mẫu CV *</label>
+            <input id="tName" class="form-control" placeholder="VD: The Silicon Valley" oninput="updateMiniPreview()">
+        </div>
+        <div class="form-group">
+            <label>Mô tả ngắn</label>
+            <textarea id="tDesc" class="form-control" placeholder="Mô tả phong cách và đối tượng phù hợp..."></textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Lĩnh vực</label>
+                <select id="tCategory" class="form-control">
+                    <option value="">-- Tất cả --</option>
+                    <option value="Công nghệ & IT">Công nghệ &amp; IT</option>
+                    <option value="Tài chính & Kinh doanh">Tài chính &amp; Kinh doanh</option>
+                    <option value="Marketing & PR">Marketing &amp; PR</option>
+                    <option value="Thiết kế & Sáng tạo">Thiết kế &amp; Sáng tạo</option>
+                    <option value="Giáo dục & Hàn lâm">Giáo dục &amp; Hàn lâm</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Phong cách</label>
+                <select id="tStyle" class="form-control">
+                    <option value="">-- Chọn --</option>
+                    <option value="minimalist">Tối giản</option>
+                    <option value="professional">Chuyên nghiệp</option>
+                    <option value="creative">Sáng tạo</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Màu nền preview</label>
+                <div class="color-group">
+                    <input type="color" id="tColorPicker" value="#5b7c76" oninput="document.getElementById('tColor').value=this.value">
+                    <input id="tColor" class="form-control" placeholder="#5b7c76" oninput="syncColor()">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Nhãn badge</label>
+                <input id="tBadgeLabel" class="form-control" placeholder="VD: ATS-Friendly">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Màu nền badge</label>
+                <div class="color-group">
+                    <input type="color" id="tBadgeBgPicker" value="#dcfce7" oninput="document.getElementById('tBadgeBg').value=this.value">
+                    <input id="tBadgeBg" class="form-control" placeholder="#dcfce7" oninput="syncBadgeBg()">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Màu chữ badge</label>
+                <div class="color-group">
+                    <input type="color" id="tBadgeTextPicker" value="#16a34a" oninput="document.getElementById('tBadgeText').value=this.value">
+                    <input id="tBadgeText" class="form-control" placeholder="#16a34a" oninput="syncBadgeText()">
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Thứ tự hiển thị</label>
+                <input id="tSortOrder" class="form-control" type="number" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label>Trạng thái</label>
+                <select id="tActive" class="form-control">
+                    <option value="true">Hiển thị</option>
+                    <option value="false">Ẩn</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TAB 2: Personal Info ── -->
+    <div class="tab-panel" id="tab-personal">
+        <div class="mini-preview" id="miniPreview">
+            <div class="mini-preview-label">Xem trước</div>
+            <h2 id="prevName">HỌ VÀ TÊN</h2>
+            <p class="sub" id="prevSubtitle">Chức danh</p>
+            <div id="prevContact" class="detail" style="text-align:center; color:#666; font-size:10px; margin-top:4px;"></div>
+        </div>
+        <br>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Họ và tên *</label>
+                <input id="pName" class="form-control" placeholder="VD: NGUYỄN VĂN A" oninput="updateMiniPreview()">
+            </div>
+            <div class="form-group">
+                <label>Chức danh / Nghề nghiệp</label>
+                <input id="pSubtitle" class="form-control" placeholder="VD: Software Engineer" oninput="updateMiniPreview()">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Email</label>
+                <input id="pEmail" class="form-control" type="email" placeholder="example@email.com" oninput="updateMiniPreview()">
+            </div>
+            <div class="form-group">
+                <label>Số điện thoại</label>
+                <input id="pPhone" class="form-control" placeholder="0912 345 678" oninput="updateMiniPreview()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Địa chỉ</label>
+            <input id="pAddress" class="form-control" placeholder="VD: 123 Nguyễn Huệ, Quận 1, TP.HCM">
+        </div>
+        <div class="form-group">
+            <label>Tóm tắt bản thân (Summary)</label>
+            <textarea id="pSummary" class="form-control" rows="4" placeholder="Giới thiệu ngắn về bản thân, kinh nghiệm nổi bật và mục tiêu nghề nghiệp..."></textarea>
+        </div>
+    </div>
+
+    <!-- ── TAB 3: Education ── -->
+    <div class="tab-panel" id="tab-edu">
+        <div class="dynamic-list" id="eduList"></div>
+        <button class="btn-add-item" onclick="addEdu()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Thêm mục học vấn
+        </button>
+    </div>
+
+    <!-- ── TAB 4: Experience ── -->
+    <div class="tab-panel" id="tab-exp">
+        <div class="dynamic-list" id="expList"></div>
+        <button class="btn-add-item" onclick="addExp()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Thêm mục kinh nghiệm
+        </button>
+    </div>
+
+    <!-- ── TAB 5: Projects ── -->
+    <div class="tab-panel" id="tab-proj">
+        <div class="dynamic-list" id="projList"></div>
+        <button class="btn-add-item" onclick="addProject()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Thêm dự án
+        </button>
+    </div>
+
+    <!-- ── TAB 6: Skills ── -->
+    <div class="tab-panel" id="tab-skills">
+        <div class="skills-group" id="skillsList"></div>
+        <button class="btn-add-item" onclick="addSkill()" style="margin-top:10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Thêm nhóm kỹ năng
+        </button>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal()">Hủy</button>
+        <button class="btn-primary" onclick="saveTemplate()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span id="btnSaveText">Lưu mẫu CV</span>
+        </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let templates = [];
+
+// ──────────────── Load & Render ────────────────
+async function loadTemplates() {
+    try {
+        const res = await fetch('/api/cv-templates');
+        templates = await res.json();
+        renderGrid();
+        updateStats();
+    } catch {
+        document.getElementById('templatesGrid').innerHTML =
+            '<div class="empty-state"><h3>Không thể tải dữ liệu</h3></div>';
+    }
+}
+
+function updateStats() {
+    const active = templates.filter(t => t.active).length;
+    document.getElementById('statTotal').textContent = templates.length;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statHidden').textContent = templates.length - active;
+}
+
+function renderGrid() {
+    const g = document.getElementById('templatesGrid');
+    if (!templates.length) {
+        g.innerHTML = `<div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <h3>Chưa có mẫu CV nào</h3><p>Nhấn "Thêm mẫu CV" để bắt đầu</p>
+        </div>`;
+        return;
+    }
+    g.innerHTML = templates.map(t => {
+        let content = null;
+        try { content = t.templateContent ? JSON.parse(t.templateContent) : null; } catch {}
+        const hasContent = content && content.name;
+        return `
+        <div class="template-card ${!t.active ? 'inactive' : ''}">
+            <div class="template-preview" style="background:${t.previewColor||'#e2e8f0'}">
+                ${hasContent ? '<span class="has-content-badge">✓ Có nội dung</span>' : ''}
+                ${!t.active ? '<span class="inactive-badge-overlay">Đang ẩn</span>' : ''}
+                <div class="preview-mockup">
+                    <div class="preview-line t"></div>
+                    <div class="preview-line"></div>
+                    <div class="preview-line"></div>
+                    <div class="preview-line s"></div>
+                </div>
+            </div>
+            <div class="template-body">
+                <div class="template-header-row">
+                    <span class="template-name">${esc(t.name)}</span>
+                    ${t.badgeLabel ? `<span class="badge" style="background:${t.badgeBgColor||'#e2e8f0'};color:${t.badgeTextColor||'#374151'}">${esc(t.badgeLabel)}</span>` : ''}
+                </div>
+                <p class="template-desc">${esc(t.description||'—')}</p>
+                <div class="template-meta">
+                    ${t.category ? `<span class="meta-tag">📂 ${esc(t.category)}</span>` : ''}
+                    ${t.styleTag ? `<span class="meta-tag">🎨 ${esc(t.styleTag)}</span>` : ''}
+                    ${hasContent ? `<span class="meta-tag" style="color:#059669;">⚡ ${getContentSummary(content)}</span>` : '<span class="meta-tag" style="color:#d97706;">⚠ Chưa có nội dung</span>'}
+                </div>
+                <div class="template-actions">
+                    <button class="btn-action btn-edit" onclick="openEdit(${t.id})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Sửa
+                    </button>
+                    <button class="btn-action btn-toggle ${t.active ? 'on' : ''}" onclick="toggleActive(${t.id})">
+                        ${t.active ? 'Ẩn' : 'Hiện'}
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteTemplate(${t.id},'${esc(t.name)}')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path></svg>Xóa
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function getContentSummary(c) {
+    const parts = [];
+    if (c.education?.length) parts.push(`${c.education.length} học vấn`);
+    if (c.experience?.length) parts.push(`${c.experience.length} KN`);
+    if (c.projects?.length) parts.push(`${c.projects.length} dự án`);
+    if (c.skills?.length) parts.push(`${c.skills.length} KN nhóm`);
+    return parts.join(' · ') || 'Có nội dung';
+}
+
+// ──────────────── Tab ────────────────
+function switchTab(id, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id).classList.add('active');
+}
+
+// ──────────────── Modal Open/Close ────────────────
+function openModal(tpl = null) {
+    const isEdit = tpl !== null;
+    document.getElementById('modalTitle').textContent = isEdit ? 'Chỉnh sửa mẫu CV' : 'Thêm mẫu CV mới';
+    document.getElementById('btnSaveText').textContent = isEdit ? 'Cập nhật' : 'Lưu mẫu CV';
+    document.getElementById('templateId').value = isEdit ? tpl.id : '';
+
+    // Meta tab
+    document.getElementById('tName').value = tpl?.name || '';
+    document.getElementById('tDesc').value = tpl?.description || '';
+    document.getElementById('tCategory').value = tpl?.category || '';
+    document.getElementById('tStyle').value = tpl?.styleTag || '';
+    document.getElementById('tColor').value = tpl?.previewColor || '#5b7c76';
+    document.getElementById('tColorPicker').value = tpl?.previewColor || '#5b7c76';
+    document.getElementById('tBadgeLabel').value = tpl?.badgeLabel || '';
+    document.getElementById('tBadgeBg').value = tpl?.badgeBgColor || '#dcfce7';
+    document.getElementById('tBadgeBgPicker').value = tpl?.badgeBgColor || '#dcfce7';
+    document.getElementById('tBadgeText').value = tpl?.badgeTextColor || '#16a34a';
+    document.getElementById('tBadgeTextPicker').value = tpl?.badgeTextColor || '#16a34a';
+    document.getElementById('tSortOrder').value = tpl?.sortOrder ?? 0;
+    document.getElementById('tActive').value = tpl?.active !== false ? 'true' : 'false';
+
+    // Content
+    let c = { name:'', subtitle:'', email:'', phone:'', address:'', summary:'', education:[], experience:[], projects:[], skills:[] };
+    if (tpl?.templateContent) {
+        try { c = { ...c, ...JSON.parse(tpl.templateContent) }; } catch {}
+    }
+    document.getElementById('pName').value = c.name || '';
+    document.getElementById('pSubtitle').value = c.subtitle || '';
+    document.getElementById('pEmail').value = c.email || '';
+    document.getElementById('pPhone').value = c.phone || '';
+    document.getElementById('pAddress').value = c.address || '';
+    document.getElementById('pSummary').value = c.summary || '';
+
+    // Dynamic lists
+    renderEduList(c.education || []);
+    renderExpList(c.experience || []);
+    renderProjectList(c.projects || []);
+    renderSkillsList(c.skills || []);
+
+    updateMiniPreview();
+
+    // Reset to first tab
+    document.querySelectorAll('.tab-btn')[0].click();
+    document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEdit(id) {
+    const t = templates.find(t => t.id === id);
+    if (t) openModal(t);
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+// ──────────────── Mini Preview ────────────────
+function updateMiniPreview() {
+    const name = document.getElementById('pName').value || document.getElementById('tName').value || 'HỌ VÀ TÊN';
+    const sub = document.getElementById('pSubtitle').value || 'Chức danh';
+    const email = document.getElementById('pEmail').value;
+    const phone = document.getElementById('pPhone').value;
+    document.getElementById('prevName').textContent = name.toUpperCase();
+    document.getElementById('prevSubtitle').textContent = sub;
+    const contact = [email, phone].filter(Boolean).join(' • ');
+    document.getElementById('prevContact').textContent = contact;
+}
+
+// ──────────────── Education ────────────────
+let eduItems = [];
+
+function renderEduList(items) {
+    eduItems = items.map(i => ({...i}));
+    document.getElementById('eduList').innerHTML = eduItems.map((item, idx) => `
+        <div class="dynamic-item" id="edu-${idx}">
+            <div class="dynamic-item-header">
+                <span class="dynamic-item-title">🎓 Mục học vấn ${idx+1}</span>
+                <button class="btn-remove-item" onclick="removeEdu(${idx})">Xóa</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tên trường</label>
+                    <input class="form-control" value="${esc(item.school||'')}" onchange="eduItems[${idx}].school=this.value" placeholder="ĐH Bách Khoa TP.HCM">
+                </div>
+                <div class="form-group">
+                    <label>Địa điểm</label>
+                    <input class="form-control" value="${esc(item.location||'')}" onchange="eduItems[${idx}].location=this.value" placeholder="TP. Hồ Chí Minh, VN">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Bằng cấp / Chuyên ngành</label>
+                    <input class="form-control" value="${esc(item.degree||'')}" onchange="eduItems[${idx}].degree=this.value" placeholder="Cử nhân Kỹ thuật Phần mềm">
+                </div>
+                <div class="form-group">
+                    <label>Thời gian</label>
+                    <input class="form-control" value="${esc(item.period||'')}" onchange="eduItems[${idx}].period=this.value" placeholder="2018 – 2022">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Chi tiết (mỗi dòng = 1 gạch đầu dòng)</label>
+                <textarea class="form-control" rows="3" onchange="eduItems[${idx}].details=this.value.split('\\n').filter(s=>s.trim())" placeholder="GPA: 3.8/4.0&#10;Tốt nghiệp loại Giỏi&#10;Đề tài: ...">${(item.details||[]).join('\n')}</textarea>
+                <div class="details-hint">Mỗi dòng sẽ thành 1 bullet point trong CV</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function addEdu() {
+    eduItems.push({ school:'', location:'', degree:'', period:'', details:[] });
+    renderEduList(eduItems);
+}
+
+function removeEdu(idx) {
+    eduItems.splice(idx, 1);
+    renderEduList(eduItems);
+}
+
+// Sync detailes from current DOM before save
+function syncEduDetails() {
+    document.querySelectorAll('#eduList .dynamic-item').forEach((el, idx) => {
+        const ta = el.querySelector('textarea');
+        if (ta) eduItems[idx].details = ta.value.split('\n').filter(s => s.trim());
+        const inputs = el.querySelectorAll('input');
+        if (inputs[0]) eduItems[idx].school = inputs[0].value;
+        if (inputs[1]) eduItems[idx].location = inputs[1].value;
+        if (inputs[2]) eduItems[idx].degree = inputs[2].value;
+        if (inputs[3]) eduItems[idx].period = inputs[3].value;
+    });
+}
+
+// ──────────────── Experience ────────────────
+let expItems = [];
+
+function renderExpList(items) {
+    expItems = items.map(i => ({...i}));
+    document.getElementById('expList').innerHTML = expItems.map((item, idx) => `
+        <div class="dynamic-item" id="exp-${idx}">
+            <div class="dynamic-item-header">
+                <span class="dynamic-item-title">💼 Kinh nghiệm ${idx+1}</span>
+                <button class="btn-remove-item" onclick="removeExp(${idx})">Xóa</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tên công ty</label>
+                    <input class="form-control" value="${esc(item.company||'')}" onchange="expItems[${idx}].company=this.value" placeholder="Google Vietnam">
+                </div>
+                <div class="form-group">
+                    <label>Địa điểm</label>
+                    <input class="form-control" value="${esc(item.location||'')}" onchange="expItems[${idx}].location=this.value" placeholder="TP. Hồ Chí Minh">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Chức vụ</label>
+                    <input class="form-control" value="${esc(item.role||'')}" onchange="expItems[${idx}].role=this.value" placeholder="Senior Software Engineer">
+                </div>
+                <div class="form-group">
+                    <label>Thời gian</label>
+                    <input class="form-control" value="${esc(item.period||'')}" onchange="expItems[${idx}].period=this.value" placeholder="Tháng 3, 2021 – Hiện tại">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Mô tả công việc (mỗi dòng = 1 gạch đầu dòng)</label>
+                <textarea class="form-control" rows="4" onchange="expItems[${idx}].details=this.value.split('\\n').filter(s=>s.trim())" placeholder="Phát triển tính năng A giúp tăng X% chỉ số Y&#10;Dẫn dắt team 5 người và mentor 2 junior developer&#10;...">${(item.details||[]).join('\n')}</textarea>
+                <div class="details-hint">Mỗi dòng sẽ thành 1 bullet point trong CV</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function addExp() {
+    expItems.push({ company:'', location:'', role:'', period:'', details:[] });
+    renderExpList(expItems);
+}
+
+function removeExp(idx) {
+    expItems.splice(idx, 1);
+    renderExpList(expItems);
+}
+
+function syncExpDetails() {
+    document.querySelectorAll('#expList .dynamic-item').forEach((el, idx) => {
+        const ta = el.querySelector('textarea');
+        if (ta) expItems[idx].details = ta.value.split('\n').filter(s => s.trim());
+        const inputs = el.querySelectorAll('input');
+        if (inputs[0]) expItems[idx].company = inputs[0].value;
+        if (inputs[1]) expItems[idx].location = inputs[1].value;
+        if (inputs[2]) expItems[idx].role = inputs[2].value;
+        if (inputs[3]) expItems[idx].period = inputs[3].value;
+    });
+}
+
+// ──────────────── Projects ────────────────
+let projectItems = [];
+
+function renderProjectList(items) {
+    projectItems = items.map(i => ({...i}));
+    document.getElementById('projList').innerHTML = projectItems.map((item, idx) => `
+        <div class="dynamic-item" id="proj-${idx}">
+            <div class="dynamic-item-header">
+                <span class="dynamic-item-title">🚀 Dự án ${idx+1}</span>
+                <button class="btn-remove-item" onclick="removeProject(${idx})">Xóa</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tên dự án</label>
+                    <input class="form-control" value="${esc(item.name||'')}" onchange="projectItems[${idx}].name=this.value" placeholder="AI Recruitment Platform">
+                </div>
+                <div class="form-group">
+                    <label>Thời gian</label>
+                    <input class="form-control" value="${esc(item.period||'')}" onchange="projectItems[${idx}].period=this.value" placeholder="Feb 2025 – Apr 2025">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Công nghệ sử dụng (Tech)</label>
+                    <input class="form-control" value="${esc(item.tech||'')}" onchange="projectItems[${idx}].tech=this.value" placeholder="Java Spring Boot, MySQL, React">
+                </div>
+                <div class="form-group">
+                    <label>GitHub / Link dự án</label>
+                    <input class="form-control" type="url" value="${esc(item.github||'')}" onchange="projectItems[${idx}].github=this.value" placeholder="https://github.com/...">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Mô tả dự án (mỗi dòng = 1 gạch đầu dòng)</label>
+                <textarea class="form-control" rows="4" onchange="projectItems[${idx}].details=this.value.split('\\n').filter(s=>s.trim())" placeholder="Phát triển hệ thống tuyển dụng sử dụng Java Spring Boot&#10;Thiết kế và implement RESTful APIs&#10;Xây dựng thuật toán AI matching CV với job">${(item.details||[]).join('\n')}</textarea>
+                <div class="details-hint">Mỗi dòng sẽ thành 1 bullet point trong CV</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function addProject() {
+    projectItems.push({ name:'', period:'', tech:'', github:'', details:[] });
+    renderProjectList(projectItems);
+}
+
+function removeProject(idx) {
+    projectItems.splice(idx, 1);
+    renderProjectList(projectItems);
+}
+
+function syncProjects() {
+    document.querySelectorAll('#projList .dynamic-item').forEach((el, idx) => {
+        const ta = el.querySelector('textarea');
+        if (ta) projectItems[idx].details = ta.value.split('\n').filter(s => s.trim());
+        const inputs = el.querySelectorAll('input');
+        if (inputs[0]) projectItems[idx].name = inputs[0].value;
+        if (inputs[1]) projectItems[idx].period = inputs[1].value;
+        if (inputs[2]) projectItems[idx].tech = inputs[2].value;
+        if (inputs[3]) projectItems[idx].github = inputs[3].value;
+    });
+}
+
+// ──────────────── Skills ────────────────
+let skillItems = [];
+
+function renderSkillsList(items) {
+    skillItems = items.map(i => ({...i}));
+    const list = document.getElementById('skillsList');
+    list.innerHTML = skillItems.map((item, idx) => `
+        <div class="skill-row">
+            <input class="form-control" placeholder="Nhóm (VD: Lập trình)" value="${esc(item.category||'')}" onchange="skillItems[${idx}].category=this.value">
+            <input class="form-control" placeholder="Kỹ năng, cách nhau bằng dấu phẩy" value="${esc((item.items||[]).join(', '))}" onchange="skillItems[${idx}].items=this.value.split(',').map(s=>s.trim()).filter(Boolean)">
+            <button class="btn-remove-skill" onclick="removeSkill(${idx})">✕</button>
+        </div>
+    `).join('');
+}
+
+function addSkill() {
+    skillItems.push({ category:'', items:[] });
+    renderSkillsList(skillItems);
+}
+
+function removeSkill(idx) {
+    skillItems.splice(idx, 1);
+    renderSkillsList(skillItems);
+}
+
+function syncSkills() {
+    document.querySelectorAll('#skillsList .skill-row').forEach((el, idx) => {
+        const inputs = el.querySelectorAll('input');
+        if (inputs[0]) skillItems[idx].category = inputs[0].value;
+        if (inputs[1]) skillItems[idx].items = inputs[1].value.split(',').map(s=>s.trim()).filter(Boolean);
+    });
+}
+
+// ──────────────── Color sync ────────────────
+function syncColor() {
+    const v = document.getElementById('tColor').value;
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById('tColorPicker').value = v;
+}
+function syncBadgeBg() {
+    const v = document.getElementById('tBadgeBg').value;
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById('tBadgeBgPicker').value = v;
+}
+function syncBadgeText() {
+    const v = document.getElementById('tBadgeText').value;
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById('tBadgeTextPicker').value = v;
+}
+
+// ──────────────── Save ────────────────
+async function saveTemplate() {
+    const name = document.getElementById('tName').value.trim();
+    if (!name) { showToast('Vui lòng nhập tên mẫu CV (Tab Thông tin chung)', 'error'); return; }
+
+    // Sync dynamic lists before collecting
+    syncEduDetails();
+    syncExpDetails();
+    syncProjects();
+    syncSkills();
+
+    const content = {
+        name: document.getElementById('pName').value.trim(),
+        subtitle: document.getElementById('pSubtitle').value.trim(),
+        email: document.getElementById('pEmail').value.trim(),
+        phone: document.getElementById('pPhone').value.trim(),
+        address: document.getElementById('pAddress').value.trim(),
+        summary: document.getElementById('pSummary').value.trim(),
+        education: eduItems,
+        experience: expItems,
+        projects: projectItems,
+        skills: skillItems
+    };
+
+    const id = document.getElementById('templateId').value;
+    const payload = {
+        name,
+        description: document.getElementById('tDesc').value.trim(),
+        previewColor: document.getElementById('tColor').value.trim(),
+        badgeLabel: document.getElementById('tBadgeLabel').value.trim(),
+        badgeBgColor: document.getElementById('tBadgeBg').value.trim(),
+        badgeTextColor: document.getElementById('tBadgeText').value.trim(),
+        category: document.getElementById('tCategory').value || null,
+        styleTag: document.getElementById('tStyle').value || null,
+        sortOrder: parseInt(document.getElementById('tSortOrder').value) || 0,
+        active: document.getElementById('tActive').value === 'true',
+        templateContent: JSON.stringify(content)
+    };
+
+    try {
+        const res = await fetch(id ? `/api/cv-templates/${id}` : '/api/cv-templates', {
+            method: id ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error();
+        closeModal();
+        showToast(id ? 'Cập nhật thành công!' : 'Thêm mẫu CV thành công!', 'success');
+        loadTemplates();
+    } catch {
+        showToast('Có lỗi xảy ra, vui lòng thử lại', 'error');
+    }
+}
+
+// ──────────────── Actions ────────────────
+async function toggleActive(id) {
+    await fetch(`/api/cv-templates/${id}/toggle`, { method: 'PATCH' });
+    loadTemplates();
+    showToast('Đã cập nhật trạng thái', 'success');
+}
+
+async function deleteTemplate(id, name) {
+    if (!confirm(`Xóa mẫu CV "${name}"?`)) return;
+    const res = await fetch(`/api/cv-templates/${id}`, { method: 'DELETE' });
+    if (res.ok) { showToast('Đã xóa!', 'success'); loadTemplates(); }
+    else showToast('Có lỗi xảy ra', 'error');
+}
+
+// ──────────────── Toast ────────────────
+function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function esc(str) {
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', loadTemplates);
+</script>
+</body>
+</html>
