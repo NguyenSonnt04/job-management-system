@@ -4,251 +4,1329 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI CV Builder | CareerViet</title>
-    <!-- Main Style -->
     <link rel="stylesheet" href="css/style.css">
-    <!-- Editor Specific Style -->
     <link rel="stylesheet" href="css/cv-editor.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ── Progress steps ── */
+        .cv-progress {
+            display: flex; align-items: center; gap: 6px;
+            padding: 10px 16px; background: #f8fafc;
+            border-bottom: 1px solid #e8ecef; overflow-x: auto;
+        }
+        .cv-step {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 11px; font-weight: 600; color: #94a3b8;
+            white-space: nowrap;
+        }
+        .cv-step.done  { color: #10b981; }
+        .cv-step.active { color: #2e3b8e; }
+        .cv-step-dot {
+            width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e2e8f0;
+            display: flex; align-items: center; justify-content: center; font-size: 9px;
+        }
+        .cv-step.done  .cv-step-dot { background: #10b981; border-color: #10b981; color: white; }
+        .cv-step.active .cv-step-dot { background: #2e3b8e; border-color: #2e3b8e; color: white; }
+        .cv-step-line { flex: 1; height: 2px; background: #e2e8f0; min-width: 12px; }
+        .cv-step-line.done { background: #10b981; }
+
+        /* ── Quick-reply chips ── */
+        .quick-replies {
+            display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 0;
+        }
+        .quick-reply {
+            padding: 5px 12px; background: #eff6ff; color: #2e3b8e;
+            border: 1px solid #bfdbfe; border-radius: 20px;
+            font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+        }
+        .quick-reply:hover { background: #2e3b8e; color: white; }
+
+        /* ── Generating overlay ── */
+        .generating-overlay {
+            display: none; position: absolute; inset: 0;
+            background: rgba(255,255,255,0.9); z-index: 50;
+            align-items: center; justify-content: center; flex-direction: column;
+            gap: 16px; font-size: 15px; font-weight: 600; color: #2e3b8e;
+        }
+        .generating-overlay.show { display: flex; }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #e2e8f0;
+            border-top-color: #2e3b8e; border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── CV Action Toolbar ── */
+        .cv-action-toolbar {
+            display: none; align-items: center; justify-content: center; gap: 10px;
+            padding: 12px 20px; background: #f8fafc;
+            border-top: 1px solid #e8ecef; flex-wrap: wrap;
+        }
+        .cv-action-toolbar.show { display: flex; }
+        .btn-cv-action {
+            display: flex; align-items: center; gap: 6px;
+            padding: 9px 18px; border-radius: 8px; border: none;
+            font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-save-cv  { background: #2e3b8e; color: white; }
+        .btn-save-cv:hover { background: #1e2a6e; }
+        .btn-pdf { background: #dc2626; color: white; }
+        .btn-pdf:hover { background: #b91c1c; }
+        .btn-save-cv.saved { background: #10b981; }
+        .btn-upload-avatar { background: #0f766e; color: white; }
+        .btn-upload-avatar:hover { background: #0d6361; }
+        .btn-edit-toggle { background: white; color: #2e3b8e; border: 2px solid #2e3b8e; }
+        .btn-edit-toggle.active { background: #2e3b8e; color: white; }
+
+        /* ── Inline editing glow ── */
+        .cv-editable-mode [contenteditable] {
+            outline: none;
+            border-bottom: 1px dashed rgba(46,59,142,0.35);
+            min-width: 20px; display: inline-block;
+            cursor: text;
+            transition: background 0.15s;
+        }
+        .cv-editable-mode [contenteditable]:hover {
+            background: rgba(46,59,142,0.06);
+            border-radius: 2px;
+        }
+        .cv-editable-mode [contenteditable]:focus {
+            background: rgba(46,59,142,0.08);
+            border-color: #2e3b8e;
+            border-radius: 2px;
+        }
+        .edit-mode-badge {
+            display: none; position: fixed; bottom: 80px; right: 20px;
+            background: #2e3b8e; color: white; border-radius: 8px;
+            padding: 6px 14px; font-size: 12px; font-weight: 700;
+            z-index: 200; box-shadow: 0 4px 12px rgba(46,59,142,0.35);
+            animation: fadeIn 0.3s;
+        }
+        .edit-mode-badge.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── Avatar upload overlay ── */
+        .cvm-avatar-wrapper {
+            position: relative;
+            width: 120px; height: 120px;
+            flex-shrink: 0;
+        }
+        .cvm-avatar-wrapper .cvm-avatar {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .avatar-upload-overlay {
+            display: none;
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.45);
+            border-radius: 50%;
+            align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 22px;
+            transition: opacity 0.2s;
+        }
+        .cv-editable-mode .cvm-avatar-wrapper:hover .avatar-upload-overlay {
+            display: flex;
+        }
+        #avatarFileInput { display: none; }
+
+        /* ── Print (PDF export) ── */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        @media print {
+            #header-placeholder, #footer-placeholder,
+            .assistant-column, .cv-progress, .generating-overlay,
+            #templateBanner, .cv-action-toolbar, .edit-mode-badge { display: none !important; }
+            body { background: white !important; overflow: visible !important; }
+            .editor-workspace { display: block !important; overflow: visible !important; height: auto !important; }
+            .preview-column {
+                margin: 0 !important; padding: 0 !important;
+                box-shadow: none !important; border: none !important;
+                height: auto !important; overflow: visible !important;
+                background: white !important;
+            }
+            .cv-document {
+                box-shadow: none !important; transform: none !important;
+                border-radius: 0 !important; padding: 0 !important;
+                max-width: none !important; min-height: unset !important;
+                width: 210mm !important;
+            }
+            .cvm-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .cvm-left { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .cvm-bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .cvm-exp-item { page-break-inside: avoid; }
+            .cvm-section { page-break-inside: avoid; }
+        }
+    </style>
 </head>
 <body>
-    <!-- Header Placeholder (Main Site Header) -->
     <div id="header-placeholder"></div>
 
-    <!-- Main Workspace -->
     <div class="editor-workspace">
-        <!-- Left: Live Preview -->
-        <section class="preview-column">
-                <div class="cv-document" id="cvPreview">
-                    <header class="cv-header-harvard">
-                        <h1 class="cv-name-harvard">ALEX RIVERS</h1>
-                        <p class="cv-subtitle-harvard">Product Designer</p>
-                        <div class="cv-contact-harvard">
-                            <span>287 Park Lane, San Francisco, CA 94123</span>
-                            <span class="separator">•</span>
-                            <span>alex.rivers@email.com</span>
-                            <span class="separator">•</span>
-                            <span>(555) 000-1234</span>
-                        </div>
-                    </header>
+        <!-- ── Left: CV Preview ── -->
+        <section class="preview-column" style="position:relative;">
+            <!-- Generating overlay -->
+            <div class="generating-overlay" id="generatingOverlay">
+                <div class="spinner"></div>
+                <span>AI đang tạo CV của bạn...</span>
+                <small style="color:#64748b; font-weight:400;">Đây có thể mất 10–20 giây</small>
+            </div>
 
-                    <div class="cv-summary-harvard">
-                        <p>Chuyên gia Thiết kế Sản phẩm sáng tạo với hơn 5 năm kinh nghiệm xây dựng trải nghiệm kỹ thuật số tập trung vào người dùng. Chuyên sâu về thiết kế UI/UX, hệ thống thiết kế và tạo nguyên mẫu nhanh, mong muốn thúc đẩy nỗ lực thiết kế tại [Tên Công Ty].</p>
-                    </div>
-
-                    <!-- EDUCATION -->
-                    <section class="cv-section-harvard">
-                        <h3 class="cv-section-title-harvard">HỌC VẤN</h3>
-                        
-                        <div class="cv-item-harvard">
-                            <div class="cv-row-harvard">
-                                <span class="cv-org-name">ĐẠI HỌC KIẾN TRÚC TP.HCM</span>
-                                <span class="cv-location">Hồ Chí Minh, VN</span>
-                            </div>
-                            <div class="cv-row-harvard">
-                                <span class="cv-degree">Cử nhân Thiết kế Đồ họa</span>
-                                <span class="cv-date">2016 – 2020</span>
-                            </div>
-                            <ul class="cv-list-harvard">
-                                <li>GPA: 3.8/4.0</li>
-                                <li>Tốt nghiệp loại Giỏi</li>
-                                <li>Đồ án tốt nghiệp: "Tái định vị thương hiệu du lịch Việt Nam"</li>
-                            </ul>
-                        </div>
-                    </section>
-
-                    <!-- EXPERIENCE -->
-                    <section class="cv-section-harvard">
-                        <h3 class="cv-section-title-harvard">KINH NGHIỆM LÀM VIỆC</h3>
-                        
-                        <div class="cv-item-harvard">
-                            <div class="cv-row-harvard">
-                                <span class="cv-org-name">TECHFLOW SOLUTIONS</span>
-                                <span class="cv-location">San Francisco, CA</span>
-                            </div>
-                            <div class="cv-row-harvard">
-                                <span class="cv-degree">Senior Product Designer</span>
-                                <span class="cv-date">Tháng 6, 2021 – Hiện tại</span>
-                            </div>
-                            <ul class="cv-list-harvard">
-                                <li>Dẫn dắt thiết kế cho nền tảng SaaS chủ chốt, giúp tăng tỷ lệ giữ chân người dùng thêm 25% trong vòng 1 năm.</li>
-                                <li>Cố vấn cho các nhà thiết kế trẻ và thiết lập hệ thống thiết kế đa nền tảng mạnh mẽ.</li>
-                                <li>Tối ưu hóa quy trình làm việc giữa team Design và Dev, giảm thời gian bàn giao xuống 15%.</li>
-                            </ul>
-                        </div>
-
-                        <div class="cv-item-harvard">
-                            <div class="cv-row-harvard">
-                                <span class="cv-org-name">CREATIVE STUDIO</span>
-                                <span class="cv-location">New York, NY</span>
-                            </div>
-                            <div class="cv-row-harvard">
-                                <span class="cv-degree">UX Designer</span>
-                                <span class="cv-date">Tháng 5, 2018 – Tháng 4, 2021</span>
-                            </div>
-                            <ul class="cv-list-harvard">
-                                <li>Thiết kế giao diện mobile app cho các đối tác Fintech lớn trong khu vực.</li>
-                                <li>Thực hiện nghiên cứu người dùng (User Research) cho hơn 10 dự án lớn nhỏ.</li>
-                            </ul>
-                        </div>
-                    </section>
-
-                    <!-- SKILLS -->
-                    <section class="cv-section-harvard">
-                        <h3 class="cv-section-title-harvard">KỸ NĂNG</h3>
-                        <div class="cv-skills-harvard">
-                            <ul>
-                                <li><strong>Thiết kế:</strong> Figma, Adobe XD, Photoshop, Illustrator, Sketch</li>
-                                <li><strong>Kỹ thuật:</strong> HTML/CSS, Basic React, Webflow</li>
-                                <li><strong>Ngôn ngữ:</strong> Tiếng Anh (IELTS 7.5), Tiếng Việt (Bản ngữ)</li>
-                            </ul>
-                        </div>
-                    </section>
+            <div class="cv-document" id="cvPreview">
+                <div id="cvPlaceholder" style="text-align:center; padding:60px 20px; color:#94a3b8;">
+                    <div style="font-size:48px; margin-bottom:16px;">✨</div>
+                    <p style="font-size:16px; font-weight:700; color:#64748b; margin-bottom:8px;">CV của bạn sẽ hiện ra ở đây</p>
+                    <p style="font-size:13px;">Hoàn thành trò chuyện với AI bên phải<br>để tạo CV theo mẫu bạn đã chọn</p>
                 </div>
-            </section>
+            </div>
 
-            <!-- Right: AI Assistant -->
-            <aside class="assistant-column">
-                <header class="assistant-header">
-                    <div class="assistant-info">
-                        <div class="ai-icon">
-                            <i data-lucide="bot"></i>
-                        </div>
-                        <div>
-                            <div class="ai-name">AI CV Assistant</div>
-                            <div class="ai-status">Đang trực tuyến & sẵn sàng hỗ trợ</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 0.75rem; color: #94a3b8;">
-                        <i id="btnSettings" data-lucide="settings" style="width: 18px; cursor: pointer;"></i>
-                        <i data-lucide="history" style="width: 18px; cursor: pointer;"></i>
-                    </div>
-                </header>
+            <!-- CV Action Toolbar: shown after CV is generated -->
+            <div class="cv-action-toolbar" id="cvToolbar">
+                <button class="btn-cv-action btn-upload-avatar" onclick="triggerAvatarUpload()" title="Tải ảnh đại diện">
+                    🖼️ Ảnh đại diện
+                </button>
+                <button class="btn-cv-action btn-edit-toggle" id="btnEditToggle" onclick="toggleEditMode()" title="Chỉnh sửa trực tiếp">
+                    ✏️ Chỉnh sửa thủ công
+                </button>
+                <button class="btn-cv-action btn-save-cv" id="btnSaveCv" onclick="saveCv()">
+                    💾 Lưu CV
+                </button>
+                <button class="btn-cv-action btn-pdf" onclick="downloadPdf()">
+                    📄 Tải PDF
+                </button>
+            </div>
+            <!-- Hidden avatar input -->
+            <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)">
+        </section>
 
-                <!-- Settings Panel (Hidden by default) -->
-                <div id="settingsPanel" class="settings-panel">
-                    <div class="settings-option">
-                        <span>Giọng điệu AI</span>
-                        <select>
-                            <option>Chuyên nghiệp</option>
-                            <option>Thân thiện</option>
-                            <option>Ngắn gọn</option>
-                        </select>
+        <!-- ── Right: AI Chat ── -->
+        <aside class="assistant-column">
+            <!-- Header -->
+            <header class="assistant-header">
+                <div class="assistant-info">
+                    <div class="ai-icon">
+                        <i data-lucide="bot"></i>
                     </div>
-                    <div class="settings-option">
-                        <span>Ngôn ngữ</span>
-                        <select>
-                            <option>Tiếng Việt</option>
-                            <option>English</option>
-                        </select>
-                    </div>
-                    <div class="settings-option">
-                        <span>Tự động sửa lỗi</span>
-                        <label class="switch">
-                            <input type="checkbox" checked>
-                            <span class="slider round"></span>
-                        </label>
+                    <div>
+                        <div class="ai-name">AI CV Assistant</div>
+                        <div class="ai-status" id="aiStatus">Đang trực tuyến &amp; sẵn sàng hỗ trợ</div>
                     </div>
                 </div>
+                <button id="btnRestart" title="Bắt đầu lại"
+                    style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:20px;"
+                    onclick="restartChat()">↺</button>
+            </header>
 
-                <div class="chat-history" id="chatHistory">
-                    <div class="msg msg-ai">
-                        <div class="msg-bubble">
-                            Chào Alex! Tôi đã cập nhật thành công vị trí hiện tại của bạn tại <strong>TechFlow Solutions</strong>. Trông rất tuyệt! 
-                            <br>
-                            Tiếp theo, bạn có thể cho tôi biết về kinh nghiệm làm việc trước đây không? Bạn đã làm gì trước khi gia nhập TechFlow?
-                        </div>
-                        <div class="msg-time">10:42 AM</div>
-                    </div>
+            <!-- Progress steps -->
+            <div class="cv-progress" id="progressBar"></div>
 
-                    <div class="msg msg-user">
-                        <div class="msg-bubble">
-                            Trước đó, tôi làm UX Designer tại Creative Studio trong 3 năm. Tôi tập trung vào các ứng dụng di động và thực hiện một số nghiên cứu người dùng.
-                        </div>
-                        <div class="msg-time">10:45 AM</div>
-                    </div>
+            <!-- Chat history -->
+            <div class="chat-history" id="chatHistory"></div>
 
-                    <div class="typing-indicator">
-                        <span class="dot-typing"></span>
-                        <span class="dot-typing"></span>
-                        <span class="dot-typing"></span>
-                    </div>
-                </div>
+            <!-- Quick reply chips -->
+            <div class="quick-replies" id="quickReplies"></div>
 
-                <div class="chat-actions">
-
-                    <div class="input-container">
-                        <div class="input-footer">
-                            <span class="input-hint"></span>
-                            <div class="input-btns">
-                                <i data-lucide="mic" class="btn-mic"></i>
-                                <div class="btn-send">
-                                    <i data-lucide="send" style="width: 16px;"></i>
-                                </div>
+            <!-- Input -->
+            <div class="chat-actions">
+                <div class="input-container">
+                    <textarea class="chat-input" id="chatInput"
+                        placeholder="Nhập câu trả lời của bạn..." rows="3"></textarea>
+                    <div class="input-footer">
+                        <span class="input-hint" id="inputHint"></span>
+                        <div class="input-btns">
+                            <div class="btn-send" id="btnSend">
+                                <i data-lucide="send" style="width:16px;"></i>
                             </div>
                         </div>
                     </div>
-                    <div style="text-align: right; margin-top: 0.5rem;">
-                        <span style="font-size: 0.65rem; color: #10b981; font-weight: 600;">● AI Sẵn sàng cập nhật</span>
-                    </div>
                 </div>
-            </aside>
-        </div>
+                <div style="text-align:right; margin-top:6px;">
+                    <span style="font-size:0.65rem; color:#10b981; font-weight:600;" id="aiReadyLabel">
+                        ● AI Sẵn sàng
+                    </span>
+                </div>
+            </div>
+        </aside>
     </div>
 
-    <!-- Footer Placeholder (Main Site Footer) -->
     <div id="footer-placeholder"></div>
-
+    <!-- Edit mode floating badge -->
+    <div class="edit-mode-badge" id="editModeBadge">✏️ Đang chỉnh sửa trực tiếp</div>
     <script src="js/main.js"></script>
     <script>
-        // Initialize Lucide icons
+    // ═══════════════════════════════════════════════════════════
+    //  CONSTANTS & STATE
+    // ═══════════════════════════════════════════════════════════
+
+    const STEPS = [
+        { id: 'name',       label: 'Tên',         question: 'Xin chào! Bạn cho tôi biết <strong>họ và tên đầy đủ</strong> của bạn nhé?', hint: 'VD: Nguyễn Văn A', required: true },
+        { id: 'subtitle',   label: 'Chức danh',   question: 'Tuyệt! Bạn đang làm nghề gì hoặc <strong>chức danh / mục tiêu nghề nghiệp</strong> của bạn là gì?', hint: 'VD: Software Engineer, Bác sĩ, Kế toán trưởng, Kiến trúc sư...' },
+        { id: 'contact',    label: 'Liên hệ',     question: 'Cho tôi biết <strong>email, số điện thoại, địa chỉ</strong> của bạn. Nếu có, thêm cả link <strong>LinkedIn hoặc Portfolio</strong>?', hint: 'Email\nSố điện thoại\nĐịa chỉ\nLinkedIn/Portfolio (tùy chọn)', multi: true },
+        { id: 'summary',    label: 'Bản thân',    question: 'Hãy <strong>giới thiệu về bản thân</strong> bạn — kinh nghiệm nổi bật, điểm mạnh và mục tiêu nghề nghiệp?', hint: 'Viết 2-5 câu mô tả bản thân...' },
+        { id: 'edu',        label: 'Học vấn',     question: 'Bạn học ở đâu? Hãy cho biết <strong>tên trường, ngành học, bằng cấp và thời gian</strong>?', hint: 'VD: ĐH Y Hà Nội, Bác sĩ đa khoa, Y6, 2016-2022', loop: true, loopLabel: 'bằng cấp / trường học' },
+        { id: 'exp',        label: 'Kinh nghiệm', question: 'Bạn đã có <strong>kinh nghiệm làm việc</strong> chưa? Nếu có, hãy cho biết công ty/cơ quan, vị trí, thời gian và mô tả ngắn công việc?', hint: 'VD: Bệnh viện Bạch Mai, BS nội trú, 2022-2024', loop: true, loopLabel: 'kinh nghiệm', optional: true },
+        { id: 'projects',   label: 'Dự án',       question: 'Bạn có <strong>dự án, công trình hoặc thành tích nổi bật</strong> nào muốn đưa vào CV không?', hint: 'VD: Đề tài nghiên cứu, App, Chiến dịch Marketing, Thiết kế kiến trúc...', loop: true, loopLabel: 'dự án / công trình', optional: true },
+        { id: 'skills',     label: 'Kỹ năng',     question: 'Hãy liệt kê <strong>kỹ năng chuyên môn và kỹ năng mềm</strong> của bạn theo từng nhóm?', hint: 'VD: Chuyên môn: Phẫu thuật, Cấp cứu\nNgôn ngữ: Tiếng Anh C1\nTin học: Word, Excel' },
+        { id: 'certs',      label: 'Chứng chỉ',   question: 'Bạn có <strong>chứng chỉ hành nghề, chứng chỉ chuyên môn, hay bằng cấp bổ sung</strong> nào không?', hint: 'VD: Chứng chỉ hành nghề dược, IELTS 7.0, CFA Level 1, PMP...', loop: true, loopLabel: 'chứng chỉ', optional: true },
+        { id: 'awards',     label: 'Giải thưởng', question: 'Bạn đã từng nhận được <strong>giải thưởng, danh hiệu hay thành tích xuất sắc</strong> nào không?', hint: 'VD: Nhân viên xuất sắc năm 2023, Học bổng Honda, Giải nhất Hackathon...', loop: true, loopLabel: 'giải thưởng', optional: true },
+        { id: 'activities', label: 'Hoạt động',   question: 'Bạn có tham gia <strong>hoạt động ngoại khóa, tình nguyện, câu lạc bộ hoặc tổ chức</strong> nào không?', hint: 'VD: CLB Bóng đá, Tình nguyện Mùa hè xanh, Ban chấp hành Đoàn trường...', loop: true, loopLabel: 'hoạt động', optional: true },
+        { id: 'done',       label: 'Hoàn tất',    question: '' }
+    ];
+
+    let currentStepIndex = 0;
+    let loopingStep = null;       // which step we're re-collecting
+    let loopCount   = 0;          // how many items collected in current loop
+    let templateData = null;      // from admin-configured template JSON
+    let templateName = '';
+
+    // Raw collected data
+    const cvData = {
+        name: '', subtitle: '', email: '', phone: '', address: '',
+        linkedin: '', portfolio: '', summary: '',
+        education: [], experience: [], projects: [], skills: [],
+        certifications: [], awards: [], activities: []
+    };
+
+    // Avatar stored as data URL
+    let avatarDataUrl = null;
+
+    // Inline edit mode flag
+    let isEditMode = false;
+
+    // ═══════════════════════════════════════════════════════════
+    //  INIT
+    // ═══════════════════════════════════════════════════════════
+    async function init() {
         lucide.createIcons();
 
-        // Toggle Settings Panel
-        const btnSettings = document.getElementById('btnSettings');
-        const settingsPanel = document.getElementById('settingsPanel');
+        const params = new URLSearchParams(window.location.search);
+        const templateId = params.get('template');
 
-        if (btnSettings && settingsPanel) {
-            btnSettings.addEventListener('click', () => {
-                settingsPanel.classList.toggle('active');
-            });
+        if (templateId) {
+            try {
+                const res = await fetch(`/api/cv-templates/${templateId}`);
+                if (res.ok) {
+                    const tpl = await res.json();
+                    templateName = tpl.name || 'CV Mẫu';
+                    // Store template metadata globally for style routing
+                    window.currentTemplate = {
+                        previewColor: tpl.previewColor || '#2E3B8E',
+                        styleTag:     tpl.styleTag     || 'professional',
+                        name:         tpl.name         || ''
+                    };
+                    if (tpl.templateContent) {
+                        try { templateData = JSON.parse(tpl.templateContent); } catch {}
+                    }
+                }
+            } catch {}
         }
 
-        // Simple chat interaction simulation
-        const chatInput = document.querySelector('.chat-input');
-        const btnSend = document.querySelector('.btn-send');
-        const chatHistory = document.getElementById('chatHistory');
+        // ── Render template preview immediately ──────────────────
+        if (templateData && templateData.name) {
+            // Show the template sample data right away
+            renderCvPreview(templateData);
+            // Add an overlay banner indicating this is the template preview
+            const banner = document.createElement('div');
+            banner.id = 'templateBanner';
+            banner.style.cssText = `
+                position: sticky; top: 0; z-index: 10;
+                background: linear-gradient(135deg, #2e3b8e, #1a2456);
+                color: white; text-align: center; padding: 10px 16px;
+                font-size: 13px; font-weight: 600; letter-spacing: 0.3px;
+            `;
+            banner.innerHTML = `📋 Đây là mẫu CV <strong>"${esc(templateName)}"</strong> — Hoàn thành chat bên phải để điền thông tin của bạn`;
+            document.getElementById('cvPreview').before(banner);
+        }
 
-        btnSend.addEventListener('click', function() {
-            const text = chatInput.value.trim();
-            if (text) {
-                // Add user message
-                const userMsg = document.createElement('div');
-                userMsg.className = 'msg msg-user';
-                userMsg.innerHTML = `
-                    <div class="msg-bubble">${text}</div>
-                    <div class="msg-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                `;
-                chatHistory.appendChild(userMsg);
-                chatInput.value = '';
-                chatHistory.scrollTop = chatHistory.scrollHeight;
+        renderProgress();
+        startConversation();
 
-                // Simulate AI response after 1s
-                setTimeout(() => {
-                    const aiMsg = document.createElement('div');
-                    aiMsg.className = 'msg msg-ai';
-                    aiMsg.innerHTML = `
-                        <div class="msg-bubble">Thông tin đã được ghi nhận. Tôi đang cập nhật hồ sơ của bạn...</div>
-                        <div class="msg-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                    `;
-                    chatHistory.appendChild(aiMsg);
-                    chatHistory.scrollTop = chatHistory.scrollHeight;
-                }, 1000);
-            }
+        document.getElementById('btnSend').addEventListener('click', handleSend);
+        document.getElementById('chatInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
         });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  PROGRESS BAR
+    // ═══════════════════════════════════════════════════════════
+    function renderProgress() {
+        const bar = document.getElementById('progressBar');
+        const visibleSteps = STEPS.filter(s => s.id !== 'done');
+        bar.innerHTML = visibleSteps.map((s, i) => {
+            const realIdx = STEPS.indexOf(s);
+            const isDone   = realIdx < currentStepIndex;
+            const isActive = realIdx === currentStepIndex;
+            return `
+                ${i > 0 ? `<div class="cv-step-line ${isDone ? 'done' : ''}"></div>` : ''}
+                <div class="cv-step ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}">
+                    <div class="cv-step-dot">${isDone ? '✓' : i + 1}</div>
+                    <span>${s.label}</span>
+                </div>`;
+        }).join('');
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  CONVERSATION START
+    // ═══════════════════════════════════════════════════════════
+    function startConversation() {
+        const greeting = templateName
+            ? `Xin chào! Tôi sẽ giúp bạn tạo CV theo mẫu <strong>"${esc(templateName)}"</strong>. Hãy trả lời từng câu hỏi để tôi điền thông tin cho bạn nhé! 🎯`
+            : 'Xin chào! Tôi là AI CV Assistant. Hãy trả lời từng câu hỏi để tôi tạo CV chuyên nghiệp cho bạn! 🎯';
+
+        addAiMsg(greeting);
+        setTimeout(() => askCurrentStep(), 600);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  STEP HANDLER
+    // ═══════════════════════════════════════════════════════════
+    function askCurrentStep() {
+        const step = STEPS[currentStepIndex];
+        if (!step || step.id === 'done') { generateCv(); return; }
+
+        document.getElementById('inputHint').textContent = step.hint || '';
+        renderProgress();
+
+        let q = step.question;
+
+        // For loop steps on second+ iteration, ask if more
+        if (loopingStep && loopingStep.id === step.id && loopCount > 0) {
+            q = `Bạn có muốn thêm <strong>${step.loopLabel}</strong> khác không? (Nhập nội dung hoặc bỏ qua)`;
+            setQuickReplies(['Không, tiếp tục ➜']);
+        } else {
+            clearQuickReplies();
+            if (step.optional) {
+                setQuickReplies(['Bỏ qua phần này ➜']);
+            }
+        }
+
+        addAiMsg(q);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  SEND HANDLER
+    // ═══════════════════════════════════════════════════════════
+    async function handleSend() {
+        const input = document.getElementById('chatInput');
+        const text  = input.value.trim();
+        if (!text) return;
+
+        input.value = '';
+        addUserMsg(text);
+        clearQuickReplies();
+
+        // ── Post-gen mode: route to AI edit ──────────────────────
+        if (isPostGenMode) {
+            await handleEditRequest(text);
+            return;
+        }
+
+        setAiTyping(true);
+
+        const step = STEPS[currentStepIndex];
+
+        // Special: skip optional
+        if (text.toLowerCase().includes('bỏ qua') || text.toLowerCase().includes('tiếp tục ➜') && loopCount === 0) {
+            setAiTyping(false);
+            moveToNextStep();
+            return;
+        }
+
+        // Special: done with loop
+        if ((text.toLowerCase().startsWith('không') || text.includes('tiếp tục ➜')) && loopCount > 0) {
+            setAiTyping(false);
+            addAiMsg('OK! Chuyển sang phần tiếp theo nhé. 😊');
+            loopingStep = null;
+            loopCount   = 0;
+            currentStepIndex++;
+            setTimeout(() => askCurrentStep(), 500);
+            return;
+        }
+
+        // Collect the data
+        collectData(step, text);
+
+        // Ask Gemini to acknowledge
+        let ackMsg = 'Đã ghi nhận! ';
+        try {
+            const res = await fetch('/api/cv-ai/acknowledge', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ step: step.label, answer: text })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                ackMsg = data.message || ackMsg;
+            }
+        } catch {}
+
+        setAiTyping(false);
+        addAiMsg(ackMsg);
+
+        // Move forward
+        setTimeout(() => {
+            if (step.loop) {
+                loopingStep = step;
+                loopCount++;
+                // Ask next iteration of same step
+                setTimeout(() => askCurrentStep(), 400);
+            } else {
+                moveToNextStep();
+            }
+        }, 400);
+    }
+
+    function moveToNextStep() {
+        loopingStep = null;
+        loopCount   = 0;
+        currentStepIndex++;
+        setTimeout(() => askCurrentStep(), 500);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  DATA COLLECTOR
+    // ═══════════════════════════════════════════════════════════
+    function collectData(step, text) {
+        switch (step.id) {
+            case 'name':
+                cvData.name = text;
+                break;
+
+            case 'subtitle':
+                cvData.subtitle = text;
+                break;
+
+            case 'contact': {
+                const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+                const emailLine  = lines.find(l => l.includes('@'));
+                const phoneLine  = lines.find(l => /[\d\s\-\+]{8,}/.test(l) && !l.includes('@'));
+                const linkedinLine = lines.find(l => /linkedin\.com|linkedin:/i.test(l));
+                const portfolioLine = lines.find(l => /portfolio|github\.com|behance|dribbble|http/i.test(l) && l !== linkedinLine);
+                const rest = lines.filter(l => l !== emailLine && l !== phoneLine && l !== linkedinLine && l !== portfolioLine);
+                if (emailLine)   cvData.email     = emailLine.replace(/^email:?\s*/i, '');
+                if (phoneLine)   cvData.phone     = phoneLine.replace(/^(phone|sdt|điện thoại):?\s*/i, '');
+                if (linkedinLine) cvData.linkedin  = linkedinLine.replace(/^linkedin:?\s*/i, '').trim();
+                if (portfolioLine) cvData.portfolio = portfolioLine.replace(/^(portfolio|github|link):?\s*/i, '').trim();
+                if (rest.length) cvData.address   = rest.join(', ');
+                break;
+            }
+
+            case 'summary':
+                cvData.summary = text;
+                break;
+
+            case 'edu':
+                cvData.education.push({ raw: text });
+                break;
+
+            case 'exp':
+                cvData.experience.push({ raw: text });
+                break;
+
+            case 'projects':
+                cvData.projects.push({ raw: text });
+                break;
+
+            case 'certs':
+                cvData.certifications.push({ raw: text });
+                break;
+
+            case 'awards':
+                cvData.awards.push({ raw: text });
+                break;
+
+            case 'activities':
+                cvData.activities.push({ raw: text });
+                break;
+
+            case 'skills':
+                text.split('\n').forEach(line => {
+                    const colonIdx = line.indexOf(':');
+                    if (colonIdx !== -1) {
+                        const cat   = line.substring(0, colonIdx).trim();
+                        const items = line.substring(colonIdx + 1).split(',').map(s => s.trim()).filter(Boolean);
+                        if (items.length) cvData.skills.push({ category: cat, items });
+                    } else if (line.trim()) {
+                        const items = line.split(',').map(s => s.trim()).filter(Boolean);
+                        if (cvData.skills.length && cvData.skills[cvData.skills.length - 1].category === 'Khác') {
+                            cvData.skills[cvData.skills.length - 1].items.push(...items);
+                        } else {
+                            cvData.skills.push({ category: 'Khác', items });
+                        }
+                    }
+                });
+                break;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  GENERATE CV (final step)
+    // ═══════════════════════════════════════════════════════════
+    async function generateCv() {
+        renderProgress();
+        addAiMsg('🎉 Tôi đã có đủ thông tin! Để tôi tạo CV chuyên nghiệp cho bạn... <em>Quá trình này mất khoảng 10-20 giây.</em>');
+        disableInput(true);
+
+        document.getElementById('generatingOverlay').classList.add('show');
+
+        try {
+            const res = await fetch('/api/cv-ai/generate-cv', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rawData: cvData })
+            });
+
+            document.getElementById('generatingOverlay').classList.remove('show');
+
+            if (!res.ok) throw new Error('Server error');
+            const data = await res.json();
+
+            if (!data.success || !data.cvJson) {
+                throw new Error(data.error || 'AI response invalid');
+            }
+
+            renderCvPreview(data.cvJson);
+
+            // Remove the "this is a template" banner — CV is now personalized
+            const banner = document.getElementById('templateBanner');
+            if (banner) banner.remove();
+
+            addAiMsg('✅ <strong>CV của bạn đã sẵn sàng!</strong> Bạn có thể xem bên trái. Nếu muốn thay đổi gì, hãy cho tôi biết nhé!');
+            enablePostGenActions();
+
+        } catch (e) {
+            document.getElementById('generatingOverlay').classList.remove('show');
+            addAiMsg('😔 Có lỗi khi tạo CV: ' + e.message + '. Vui lòng thử lại hoặc kiểm tra kết nối API Key.');
+            disableInput(false);
+        }
+    }
+
+    function enablePostGenActions() {
+        disableInput(false);
+        isPostGenMode = true;
+        document.getElementById('chatInput').placeholder = 'Yêu cầu chỉnh sửa CV (VD: "thêm kỹ năng Python", "viết lại summary")...';
+        document.getElementById('aiStatus').textContent  = 'CV đã sẵn sàng — Hỏi tôi để chỉnh sửa';
+        document.getElementById('cvToolbar').classList.add('show');
+        setQuickReplies([
+            'Viết lại phần tóm tắt',
+            'Thêm kỹ năng vào CV',
+            'Làm cho kinh nghiệm ấn tượng hơn',
+            'Thêm chứng chỉ vào CV'
+        ]);
+    }
+
+    // ── Toggle inline edit mode ───────────────────────────────────────────────
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        const preview = document.getElementById('cvPreview');
+        const badge   = document.getElementById('editModeBadge');
+        const btn     = document.getElementById('btnEditToggle');
+        if (isEditMode) {
+            preview.classList.add('cv-editable-mode');
+            preview.querySelectorAll('.cv-editable').forEach(el => el.setAttribute('contenteditable', 'true'));
+            btn.classList.add('active');
+            btn.textContent = '✅ Đang chỉnh sửa';
+            badge.classList.add('show');
+            addAiMsg('✏️ <strong>Chế độ chỉnh sửa thủ công đã bật.</strong> Bạn có thể click trực tiếp vào bất kỳ đoạn văn bản nào trên CV bên trái để sửa. Nhấn nút lần nữa để tắt.');
+        } else {
+            preview.classList.remove('cv-editable-mode');
+            preview.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+            btn.classList.remove('active');
+            btn.textContent = '✏️ Chỉnh sửa thủ công';
+            badge.classList.remove('show');
+            addAiMsg('💾 Chỉnh sửa thủ công đã tắt. Mọi thay đổi đã được áp dụng vào CV.');
+        }
+    }
+
+    // ── Avatar upload ─────────────────────────────────────────────────────────
+    function triggerAvatarUpload() {
+        document.getElementById('avatarFileInput').click();
+    }
+
+    function handleAvatarUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            avatarDataUrl = e.target.result;
+            // Update avatar in preview if it exists
+            const avatarEl = document.getElementById('cvAvatarImg');
+            if (avatarEl) {
+                avatarEl.src = avatarDataUrl;
+                avatarEl.style.display = 'block';
+                const placeholder = document.getElementById('cvAvatarPlaceholder');
+                if (placeholder) placeholder.style.display = 'none';
+            }
+            addAiMsg('🖼️ <strong>Ảnh đại diện đã được cập nhật!</strong> Ảnh sẽ xuất hiện trong CV của bạn.');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ── Post-gen: AI edit mode ────────────────────────────────────────────────
+    let isPostGenMode = false;
+    let currentCvJson = null;  // tracks the live generated/edited CV
+
+    async function handleEditRequest(text) {
+        if (!currentCvJson) {
+            addAiMsg('Chưa có CV nào để chỉnh sửa. Vui lòng hoàn thành quá trình tạo CV trước.');
+            return;
+        }
+
+        setAiTyping(true);
+        disableInput(true);
+        clearQuickReplies();
+
+        try {
+            const res = await fetch('/api/cv-ai/edit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ request: text, currentCv: currentCvJson })
+            });
+
+            setAiTyping(false);
+            disableInput(false);
+
+            if (!res.ok) throw new Error('Server error');
+            const data = await res.json();
+
+            if (!data.success) throw new Error(data.message || 'Lỗi chỉnh sửa');
+
+            // Update the live CV
+            currentCvJson = data.cvJson;
+            renderCvPreview(data.cvJson);
+
+            addAiMsg((data.message || 'CV đã được cập nhật! ✨') + ' Bạn có muốn thay đổi gì thêm không?');
+
+            // Reset save button (content changed, not yet saved)
+            const btnSave = document.getElementById('btnSaveCv');
+            if (btnSave) {
+                btnSave.textContent = '💾 Lưu CV';
+                btnSave.classList.remove('saved');
+            }
+
+            setQuickReplies([
+                'Tiếp tục chỉnh sửa khác',
+                'Viết lại phần tóm tắt',
+                'Thêm kỹ năng mới'
+            ]);
+
+        } catch (e) {
+            setAiTyping(false);
+            disableInput(false);
+            addAiMsg('😔 Không thể chỉnh sửa: ' + e.message);
+        }
+    }
+
+    // ── Save CV to DB ─────────────────────────────────────────────────────────
+    let savedCvId = null;
+
+    async function saveCv() {
+        if (!currentCvJson) { addAiMsg('Chưa có CV để lưu.'); return; }
+
+        const btnSave = document.getElementById('btnSaveCv');
+        btnSave.textContent = '⏳ Đang lưu...';
+        btnSave.disabled = true;
+
+        const cvName = currentCvJson.name
+            ? `CV của ${currentCvJson.name}`
+            : 'CV của tôi';
+
+        const params = new URLSearchParams(window.location.search);
+
+        try {
+            const url  = savedCvId ? `/api/user-cv/${savedCvId}` : '/api/user-cv/save';
+            const method = savedCvId ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cvName,
+                    templateId:   params.get('template') || null,
+                    templateName: templateName || '',
+                    cvContent:    JSON.stringify(currentCvJson)
+                })
+            });
+
+            const data = await res.json();
+
+            if (res.status === 401) {
+                addAiMsg('⚠️ Bạn cần <strong><a href="/login.html" style="color:#2e3b8e;">đăng nhập</a></strong> để lưu CV vào tài khoản.');
+                btnSave.textContent = '💾 Lưu CV';
+                btnSave.disabled = false;
+                return;
+            }
+
+            if (!data.success) throw new Error(data.message);
+
+            if (data.id) savedCvId = data.id;
+
+            btnSave.textContent = '✅ Đã lưu';
+            btnSave.classList.add('saved');
+            btnSave.disabled = false;
+            addAiMsg(`💾 <strong>CV đã được lưu thành công</strong> vào tài khoản của bạn!`);
+
+        } catch (e) {
+            btnSave.textContent = '💾 Lưu CV';
+            btnSave.disabled = false;
+            addAiMsg('Lỗi khi lưu CV: ' + e.message);
+        }
+    }
+
+    // ── Download PDF ─────────────────────────────────────────────────────────
+    function downloadPdf() {
+        // Ensure edit mode is off before printing
+        if (isEditMode) toggleEditMode();
+        // Brief delay to let DOM settle
+        setTimeout(() => window.print(), 150);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  CV RENDERER — Multi-Style Dispatcher
+    // ═══════════════════════════════════════════════════════════
+    function renderCvPreview(c) {
+        currentCvJson = c;
+        const accent = window.currentTemplate?.previewColor || c._accent || '#2E3B8E';
+        c._accent = accent;
+
+        // Route to style-specific renderer based on template styleTag
+        const style = window.currentTemplate?.styleTag || c._styleTag || 'professional';
+        c._styleTag = style;
+
+        let html = '';
+        if (style === 'creative')    html = renderCreativeStyle(c, accent);
+        else if (style === 'minimalist') html = renderMinimalistStyle(c, accent);
+        else if (style === 'classic')    html = renderClassicStyle(c, accent);
+        else                             html = renderProfessionalStyle(c, accent);
+
+        document.getElementById('cvPreview').innerHTML = html;
+
+        if (isEditMode) {
+            document.getElementById('cvPreview').classList.add('cv-editable-mode');
+            document.getElementById('cvPreview').querySelectorAll('.cv-editable').forEach(el => el.setAttribute('contenteditable', 'true'));
+        }
+    }
+
+    // ── Common helpers ──────────────────────────────────────────
+    function ed(text) { return `<span class="cv-editable">${esc(text)}</span>`; }
+
+    function getAvatarHtml(borderColor = 'rgba(255,255,255,0.6)', size = 120, shape = 'circle') {
+        const existing = avatarDataUrl;
+        const radius = shape === 'square' ? '12px' : '50%';
+        return `<div class="cvm-avatar-wrapper" style="width:${size}px;height:${size}px;">
+            <div class="cvm-avatar" id="cvAvatarPlaceholder" style="border-radius:${radius};${existing ? 'display:none;' : ''}"></div>
+            <img id="cvAvatarImg" src="${existing || ''}" alt="Avatar"
+                style="width:${size}px;height:${size}px;border-radius:${radius};object-fit:cover;border:4px solid ${borderColor};${existing ? '' : 'display:none;'}">
+            <div class="avatar-upload-overlay" onclick="triggerAvatarUpload()" title="Thay đổi ảnh" style="border-radius:${radius};">📷</div>
+        </div>`;
+    }
+
+    // ── STYLE 1: Professional (2-column with color header) ──────
+    function renderProfessionalStyle(c, accent) {
+        const skillsHtml = (c.skills || []).map(sg => `
+            <div class="cvm-skill-group">
+                <div class="cvm-skill-cat">${ed(sg.category)}</div>
+                ${(sg.items || []).map((item, i) => `
+                    <div class="cvm-skill-bar">
+                        <span>${ed(item)}</span>
+                        <div class="cvm-bar"><div class="cvm-bar-fill" style="width:${95-(i%5)*8}%;background:${accent};"></div></div>
+                    </div>`).join('')}
+            </div>`).join('');
+
+        const eduHtml = (c.education || []).map(e => `
+            <div class="cvm-edu-item">
+                <div class="cvm-edu-degree">${ed(e.degree||'')}</div>
+                <div class="cvm-edu-school">${ed(e.school||e.location||'')}</div>
+                <div class="cvm-edu-year">${ed(e.period||'')}</div>
+                ${(e.details||[]).map(d=>`<div class="cvm-edu-detail">• ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const certHtml = (c.certifications||[]).map(cert=>`
+            <div class="cvm-edu-item">
+                <div class="cvm-edu-degree">${ed(cert.name||cert.raw||'')}</div>
+                ${cert.issuer?`<div class="cvm-edu-school">${ed(cert.issuer)}</div>`:''}
+                ${cert.year?`<div class="cvm-edu-year">${ed(cert.year)}</div>`:''}
+            </div>`).join('');
+
+        const awardsHtml = (c.awards||[]).map(aw=>`
+            <div class="cvm-edu-item">
+                <div class="cvm-edu-degree">🏆 ${ed(aw.name||aw.raw||'')}</div>
+                ${aw.year?`<div class="cvm-edu-year">${ed(aw.year)}</div>`:''}
+            </div>`).join('');
+
+        const expHtml = (c.experience||[]).map(e=>`
+            <div class="cvm-exp-item">
+                <div class="cvm-exp-role">${ed(e.role||'')}</div>
+                <div class="cvm-exp-company">${ed(e.company||'')} &nbsp;|&nbsp; ${ed(e.period||'')}</div>
+                ${(e.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const projHtml = (c.projects||[]).map(p=>`
+            <div class="cvm-exp-item">
+                <div class="cvm-exp-role">${ed(p.name||'')}</div>
+                <div class="cvm-exp-company">${p.period?`${ed(p.period)} <br>`:''} ${p.tech?`<strong>Tech:</strong> ${ed(p.tech)} <br>`:''} ${p.github?`<a href="${esc(p.github)}" target="_blank" style="color:${accent}">${ed(p.github)}</a>`:''}</div>
+                ${(p.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const actHtml = (c.activities||[]).map(a=>`
+            <div class="cvm-exp-item">
+                <div class="cvm-exp-role">${ed(a.name||a.raw||'')}</div>
+                ${a.role?`<div class="cvm-exp-company">${ed(a.role)}</div>`:''}
+                ${a.period?`<div class="cvm-exp-company">${ed(a.period)}</div>`:''}
+                ${(a.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const summaryHtml = c.summary ? `<div class="cvm-section cvm-summary-section">
+            <div class="cvm-section-title" style="color:${accent};border-bottom:1.5px solid ${accent};">MỤC TIÊU NGHỀ NGHIỆP</div>
+            <div class="cvm-summary-text-full cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</div></div>` : '';
+
+        const linkedinHtml = c.linkedin ? `<span>🔗 <a href="${esc(c.linkedin)}" target="_blank" style="color:rgba(255,255,255,0.9);text-decoration:none;">${ed(c.linkedin)}</a></span>` : '';
+        const portfolioHtml = c.portfolio ? `<span>🌐 <a href="${esc(c.portfolio)}" target="_blank" style="color:rgba(255,255,255,0.9);text-decoration:none;">${ed(c.portfolio)}</a></span>` : '';
+
+        return `<div class="cv-full" style="--cv-accent:${accent};">
+            <div class="cvm-header" style="background:${accent};">
+                ${getAvatarHtml()}
+                <div class="cvm-header-info">
+                    <div class="cvm-name cv-editable">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</div>
+                    <div class="cvm-job-title cv-editable">${esc(c.subtitle||'Vị trí công việc mong muốn')}</div>
+                    <div class="cvm-contact-row">
+                        ${c.email?`<span>✉ <span class="cv-editable">${esc(c.email)}</span></span>`:''}
+                        ${c.phone?`<span>☎ <span class="cv-editable">${esc(c.phone)}</span></span>`:''}
+                        ${c.address?`<span>📍 <span class="cv-editable">${esc(c.address)}</span></span>`:''}
+                        ${linkedinHtml}${portfolioHtml}
+                    </div>
+                </div>
+            </div>
+            <div class="cvm-body">
+                <div class="cvm-left">
+                    ${skillsHtml?`<div class="cvm-section"><div class="cvm-section-title" style="color:${accent};">KỸ NĂNG</div>${skillsHtml}</div>`:''}
+                    ${eduHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};">HỌC VẤN</div>${eduHtml}</div>`:''}
+                    ${certHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};">CHỨNG CHỈ</div>${certHtml}</div>`:''}
+                    ${awardsHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};">GIẢI THƯỞNG</div>${awardsHtml}</div>`:''}
+                </div>
+                <div class="cvm-right">
+                    ${summaryHtml}
+                    ${expHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};border-bottom:1.5px solid ${accent};">KINH NGHIỆM LÀM VIỆC</div>${expHtml}</div>`:''}
+                    ${projHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};border-bottom:1.5px solid ${accent};">DỰ ÁN / CÔNG TRÌNH</div>${projHtml}</div>`:''}
+                    ${actHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};border-bottom:1.5px solid ${accent};">HOẠT ĐỘNG NGOẠI KHÓA</div>${actHtml}</div>`:''}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // ── STYLE 2: Creative (Dark sidebar + geometric accents) ────
+    function renderCreativeStyle(c, accent) {
+        // Compute a lighter tint for the sidebar bg
+        const sidebarBg = accent;
+
+        const skillTagsHtml = (c.skills||[]).flatMap(sg=>
+            (sg.items||[]).map(item=>`<span class="cvc-skill-tag">${ed(item)}</span>`)
+        ).join('');
+
+        const skillGroupsHtml = (c.skills||[]).map(sg=>`
+            <div style="margin-bottom:16px;">
+                <div class="cvc-section-sub">${ed(sg.category)}</div>
+                <div class="cvc-tags">${(sg.items||[]).map(item=>`<span class="cvc-tag">${ed(item)}</span>`).join('')}</div>
+            </div>`).join('');
+
+        const eduSideHtml = (c.education||[]).map(e=>`
+            <div class="cvc-side-item">
+                <div class="cvc-side-title">${ed(e.degree||'')}</div>
+                <div class="cvc-side-sub">${ed(e.school||e.location||'')}</div>
+                <div class="cvc-side-year">${ed(e.period||'')}</div>
+            </div>`).join('');
+
+        const certSideHtml = (c.certifications||[]).map(cert=>`
+            <div class="cvc-side-item">
+                <div class="cvc-side-title">${ed(cert.name||cert.raw||'')}</div>
+                ${cert.issuer?`<div class="cvc-side-sub">${ed(cert.issuer)}</div>`:''}
+                ${cert.year?`<div class="cvc-side-year">${ed(cert.year)}</div>`:''}
+            </div>`).join('');
+
+        const awardSideHtml = (c.awards||[]).map(aw=>`
+            <div class="cvc-side-item">
+                <span style="font-size:18px;">🏆</span>
+                <div>
+                    <div class="cvc-side-title">${ed(aw.name||aw.raw||'')}</div>
+                    ${aw.year?`<div class="cvc-side-year">${ed(aw.year)}</div>`:''}
+                </div>
+            </div>`).join('');
+
+        const expHtml = (c.experience||[]).map(e=>`
+            <div class="cvc-timeline-item">
+                <div class="cvc-timeline-dot" style="background:${accent};"></div>
+                <div class="cvc-timeline-content">
+                    <div class="cvc-exp-role">${ed(e.role||'')}</div>
+                    <div class="cvc-exp-meta" style="color:${accent};">${ed(e.company||'')} · ${ed(e.period||'')}</div>
+                    ${(e.details||[]).map(d=>`<div class="cvc-detail">▸ ${ed(d)}</div>`).join('')}
+                </div>
+            </div>`).join('');
+
+        const projHtml = (c.projects||[]).map(p=>`
+            <div class="cvc-timeline-item">
+                <div class="cvc-timeline-dot" style="background:${accent};"></div>
+                <div class="cvc-timeline-content">
+                    <div class="cvc-exp-role">${ed(p.name||'')}</div>
+                    <div class="cvc-exp-meta" style="color:${accent};">${p.period||''} ${p.tech?`· ${p.tech}`:''}</div>
+                    ${p.github?`<div class="cvc-detail">🔗 <a href="${esc(p.github)}" target="_blank" style="color:${accent};">${ed(p.github)}</a></div>`:''}
+                    ${(p.details||[]).map(d=>`<div class="cvc-detail">▸ ${ed(d)}</div>`).join('')}
+                </div>
+            </div>`).join('');
+
+        const actHtml = (c.activities||[]).map(a=>`
+            <div class="cvc-timeline-item">
+                <div class="cvc-timeline-dot" style="background:${accent};"></div>
+                <div class="cvc-timeline-content">
+                    <div class="cvc-exp-role">${ed(a.name||a.raw||'')}</div>
+                    ${a.role||a.period?`<div class="cvc-exp-meta" style="color:${accent};">${a.role?ed(a.role):''} ${a.period?'· '+ed(a.period):''}</div>`:''}
+                    ${(a.details||[]).map(d=>`<div class="cvc-detail">▸ ${ed(d)}</div>`).join('')}
+                </div>
+            </div>`).join('');
+
+        return `<div class="cv-full cvc-root" style="--cv-accent:${accent};">
+            <!-- Top banner -->
+            <div class="cvc-banner" style="background:${accent};">
+                <div class="cvc-banner-shape"></div>
+                <div class="cvc-banner-inner">
+                    ${getAvatarHtml('rgba(255,255,255,0.8)', 100, 'square')}
+                    <div class="cvc-banner-info">
+                        <div class="cvc-name cv-editable">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</div>
+                        <div class="cvc-subtitle cv-editable">${esc(c.subtitle||'Chức danh / Vị trí')}</div>
+                        <div class="cvc-contacts">
+                            ${c.email?`<span>✉ <span class="cv-editable">${esc(c.email)}</span></span>`:''}
+                            ${c.phone?`<span>☎ <span class="cv-editable">${esc(c.phone)}</span></span>`:''}
+                            ${c.address?`<span>📍 <span class="cv-editable">${esc(c.address)}</span></span>`:''}
+                            ${c.linkedin?`<span>🔗 <span class="cv-editable">${esc(c.linkedin)}</span></span>`:''}
+                            ${c.portfolio?`<span>🌐 <span class="cv-editable">${esc(c.portfolio)}</span></span>`:''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Body: sidebar + main -->
+            <div class="cvc-body">
+                <!-- Left sidebar -->
+                <div class="cvc-sidebar" style="background:#f8fafc;">
+                    ${c.summary?`<div class="cvc-side-block">
+                        <div class="cvc-side-heading" style="color:${accent};">GIỚI THIỆU</div>
+                        <div class="cvc-summary cv-editable" style="font-size:13px;color:#475569;line-height:1.7;">${esc(c.summary).replace(/\n/g,'<br>')}</div>
+                    </div>`:''}
+                    ${skillGroupsHtml?`<div class="cvc-side-block">
+                        <div class="cvc-side-heading" style="color:${accent};">KỸ NĂNG</div>
+                        ${skillGroupsHtml}
+                    </div>`:''}
+                    ${eduSideHtml?`<div class="cvc-side-block">
+                        <div class="cvc-side-heading" style="color:${accent};">HỌC VẤN</div>
+                        ${eduSideHtml}
+                    </div>`:''}
+                    ${certSideHtml?`<div class="cvc-side-block">
+                        <div class="cvc-side-heading" style="color:${accent};">CHỨNG CHỈ</div>
+                        ${certSideHtml}
+                    </div>`:''}
+                    ${awardSideHtml?`<div class="cvc-side-block">
+                        <div class="cvc-side-heading" style="color:${accent};">THÀNH TÍCH</div>
+                        ${awardSideHtml}
+                    </div>`:''}
+                </div>
+                <!-- Right main -->
+                <div class="cvc-main">
+                    ${expHtml?`<div class="cvc-main-block">
+                        <div class="cvc-main-heading" style="border-color:${accent};color:${accent};">KINH NGHIỆM LÀM VIỆC</div>
+                        <div class="cvc-timeline">${expHtml}</div>
+                    </div>`:''}
+                    ${projHtml?`<div class="cvc-main-block">
+                        <div class="cvc-main-heading" style="border-color:${accent};color:${accent};">DỰ ÁN NỔI BẬT</div>
+                        <div class="cvc-timeline">${projHtml}</div>
+                    </div>`:''}
+                    ${actHtml?`<div class="cvc-main-block">
+                        <div class="cvc-main-heading" style="border-color:${accent};color:${accent};">HOẠT ĐỘNG</div>
+                        <div class="cvc-timeline">${actHtml}</div>
+                    </div>`:''}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // ── STYLE 3: Minimalist (clean 1-col, subtle accent line) ──
+    function renderMinimalistStyle(c, accent) {
+        const contactItems = [
+            c.email    ? `<span class="cvm1-contact-item">✉ <span class="cv-editable">${esc(c.email)}</span></span>` : '',
+            c.phone    ? `<span class="cvm1-contact-item">☎ <span class="cv-editable">${esc(c.phone)}</span></span>` : '',
+            c.address  ? `<span class="cvm1-contact-item">📍 <span class="cv-editable">${esc(c.address)}</span></span>` : '',
+            c.linkedin ? `<span class="cvm1-contact-item">🔗 <span class="cv-editable">${esc(c.linkedin)}</span></span>` : '',
+            c.portfolio? `<span class="cvm1-contact-item">🌐 <span class="cv-editable">${esc(c.portfolio)}</span></span>` : ''
+        ].filter(Boolean).join('');
+
+        const section = (title, content) => content ? `
+            <div class="cvm1-section">
+                <div class="cvm1-section-title" style="color:${accent};border-bottom:2px solid ${accent}15;">${title}</div>
+                ${content}
+            </div>` : '';
+
+        const eduHtml = (c.education||[]).map(e=>`
+            <div class="cvm1-item">
+                <div class="cvm1-item-head">
+                    <div>
+                        <div class="cvm1-item-title">${ed(e.degree||'')}</div>
+                        <div class="cvm1-item-sub">${ed(e.school||e.location||'')}</div>
+                    </div>
+                    <div class="cvm1-item-date" style="color:${accent};">${ed(e.period||'')}</div>
+                </div>
+                ${(e.details||[]).map(d=>`<div class="cvm1-detail">• ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const expHtml = (c.experience||[]).map(e=>`
+            <div class="cvm1-item">
+                <div class="cvm1-item-head">
+                    <div>
+                        <div class="cvm1-item-title">${ed(e.role||'')}</div>
+                        <div class="cvm1-item-sub">${ed(e.company||'')}</div>
+                    </div>
+                    <div class="cvm1-item-date" style="color:${accent};">${ed(e.period||'')}</div>
+                </div>
+                ${(e.details||[]).map(d=>`<div class="cvm1-detail">• ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const projHtml = (c.projects||[]).map(p=>`
+            <div class="cvm1-item">
+                <div class="cvm1-item-head">
+                    <div class="cvm1-item-title">${ed(p.name||'')}</div>
+                    <div class="cvm1-item-date" style="color:${accent};">${ed(p.period||'')}</div>
+                </div>
+                ${p.tech?`<div class="cvm1-item-sub">Tech: ${ed(p.tech)}</div>`:''}
+                ${p.github?`<div class="cvm1-detail">🔗 <a href="${esc(p.github)}" target="_blank" style="color:${accent}">${ed(p.github)}</a></div>`:''}
+                ${(p.details||[]).map(d=>`<div class="cvm1-detail">• ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const skillHtml = (c.skills||[]).map(sg=>`
+            <div class="cvm1-skill-row">
+                <div class="cvm1-skill-cat">${ed(sg.category)}</div>
+                <div class="cvm1-skill-pills">${(sg.items||[]).map(item=>`<span class="cvm1-pill" style="background:${accent}18;color:${accent};border:1px solid ${accent}40;">${ed(item)}</span>`).join('')}</div>
+            </div>`).join('');
+
+        const certHtml = (c.certifications||[]).map(cert=>`
+            <div class="cvm1-cert">
+                <span class="cvm1-cert-name">${ed(cert.name||cert.raw||'')}</span>
+                ${cert.issuer?`<span class="cvm1-cert-issuer"> — ${ed(cert.issuer)}</span>`:''}
+                ${cert.year?`<span class="cvm1-cert-year" style="color:${accent};"> (${ed(cert.year)})</span>`:''}
+            </div>`).join('');
+
+        const awardsHtml = (c.awards||[]).map(aw=>`
+            <div class="cvm1-cert">🏆 <span class="cvm1-cert-name">${ed(aw.name||aw.raw||'')}</span>
+                ${aw.year?`<span class="cvm1-cert-year" style="color:${accent};"> — ${ed(aw.year)}</span>`:''}
+            </div>`).join('');
+
+        const actHtml = (c.activities||[]).map(a=>`
+            <div class="cvm1-item">
+                <div class="cvm1-item-head">
+                    <div class="cvm1-item-title">${ed(a.name||a.raw||'')}</div>
+                    ${a.period?`<div class="cvm1-item-date" style="color:${accent};">${ed(a.period)}</div>`:''}
+                </div>
+                ${a.role?`<div class="cvm1-item-sub">${ed(a.role)}</div>`:''}
+                ${(a.details||[]).map(d=>`<div class="cvm1-detail">• ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        return `<div class="cv-full cvm1-root" style="--cv-accent:${accent};">
+            <div class="cvm1-header">
+                <div class="cvm1-avatar-area">${getAvatarHtml('#e2e8f0', 90, 'circle')}</div>
+                <div class="cvm1-header-text">
+                    <div class="cvm1-name cv-editable" style="color:${accent};">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</div>
+                    <div class="cvm1-subtitle cv-editable">${esc(c.subtitle||'')}</div>
+                    <div class="cvm1-contacts">${contactItems}</div>
+                </div>
+            </div>
+            <div class="cvm1-divider" style="background:${accent};"></div>
+            <div class="cvm1-body">
+                ${section('GIỚI THIỆU BẢN THÂN', c.summary?`<div class="cvm1-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</div>`:'')}
+                ${section('KINH NGHIỆM LÀM VIỆC', expHtml)}
+                ${section('HỌC VẤN', eduHtml)}
+                ${section('DỰ ÁN', projHtml)}
+                ${section('KỸ NĂNG', skillHtml)}
+                ${section('CHỨNG CHỈ', certHtml)}
+                ${section('GIẢI THƯỞNG', awardsHtml)}
+                ${section('HOẠT ĐỘNG NGOẠI KHÓA', actHtml)}
+            </div>
+        </div>`;
+    }
+
+    // ── STYLE 4: Classic (Harvard-inspired, black & white) ─────
+    function renderClassicStyle(c, accent) {
+        const hrColor = accent || '#1a1a1a';
+
+        const contactBits = [
+            c.email    ? `<span class="cv-editable">${esc(c.email)}</span>` : '',
+            c.phone    ? `<span class="cv-editable">${esc(c.phone)}</span>` : '',
+            c.address  ? `<span class="cv-editable">${esc(c.address)}</span>` : '',
+            c.linkedin ? `<span class="cv-editable">${esc(c.linkedin)}</span>` : '',
+            c.portfolio? `<span class="cv-editable">${esc(c.portfolio)}</span>` : ''
+        ].filter(Boolean).join(' &nbsp;•&nbsp; ');
+
+        const section = (title, content) => content ? `
+            <div class="cvcl-section">
+                <div class="cvcl-title" style="border-bottom:2px solid ${hrColor};color:${hrColor};">${title}</div>
+                ${content}
+            </div>` : '';
+
+        const eduHtml = (c.education||[]).map(e=>`
+            <div class="cvcl-item">
+                <div class="cvcl-item-head">
+                    <strong class="cv-editable">${esc(e.degree||'')}</strong>
+                    <span class="cvcl-date cv-editable">${esc(e.period||'')}</span>
+                </div>
+                <div class="cvcl-item-sub cv-editable">${esc(e.school||e.location||'')}</div>
+                ${(e.details||[]).map(d=>`<div class="cvcl-bullet">– ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const expHtml = (c.experience||[]).map(e=>`
+            <div class="cvcl-item">
+                <div class="cvcl-item-head">
+                    <strong class="cv-editable">${esc(e.role||'')}</strong>
+                    <span class="cvcl-date cv-editable">${esc(e.period||'')}</span>
+                </div>
+                <div class="cvcl-item-sub cv-editable">${esc(e.company||'')}</div>
+                ${(e.details||[]).map(d=>`<div class="cvcl-bullet">– ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const projHtml = (c.projects||[]).map(p=>`
+            <div class="cvcl-item">
+                <div class="cvcl-item-head">
+                    <strong class="cv-editable">${esc(p.name||'')}</strong>
+                    <span class="cvcl-date">${esc(p.period||'')}</span>
+                </div>
+                ${p.tech?`<div class="cvcl-item-sub">Tech: ${ed(p.tech)}</div>`:''}
+                ${p.github?`<div class="cvcl-bullet"><a href="${esc(p.github)}" target="_blank" style="color:${hrColor}">${ed(p.github)}</a></div>`:''}
+                ${(p.details||[]).map(d=>`<div class="cvcl-bullet">– ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const skillHtml = (c.skills||[]).map(sg=>`
+            <div class="cvcl-skill-row">
+                <span class="cvcl-skill-label"><strong>${ed(sg.category)}:</strong></span>
+                <span class="cvcl-skill-vals">${(sg.items||[]).map(i=>ed(i)).join(', ')}</span>
+            </div>`).join('');
+
+        const certHtml = (c.certifications||[]).map(cert=>`
+            <div class="cvcl-item" style="margin-bottom:8px;">
+                <span class="cv-editable">${esc(cert.name||cert.raw||'')}</span>
+                ${cert.issuer?`, <em class="cv-editable">${esc(cert.issuer)}</em>`:''}
+                ${cert.year?` (${ed(cert.year)})`:''}
+            </div>`).join('');
+
+        const awardsHtml = (c.awards||[]).map(aw=>`
+            <div class="cvcl-item" style="margin-bottom:8px;">
+                <strong class="cv-editable">${esc(aw.name||aw.raw||'')}</strong>
+                ${aw.year?` — <em>${ed(aw.year)}</em>`:''}
+            </div>`).join('');
+
+        const actHtml = (c.activities||[]).map(a=>`
+            <div class="cvcl-item">
+                <div class="cvcl-item-head">
+                    <strong class="cv-editable">${esc(a.name||a.raw||'')}</strong>
+                    ${a.period?`<span class="cvcl-date">${ed(a.period)}</span>`:''}
+                </div>
+                ${a.role?`<div class="cvcl-item-sub">${ed(a.role)}</div>`:''}
+                ${(a.details||[]).map(d=>`<div class="cvcl-bullet">– ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        return `<div class="cv-full cvcl-root" style="--cv-accent:${hrColor};">
+            <div class="cvcl-header">
+                <div class="cvcl-name cv-editable">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</div>
+                <div class="cvcl-subtitle cv-editable">${esc(c.subtitle||'')}</div>
+                <div class="cvcl-contact">${contactBits}</div>
+                <div class="cvcl-hr" style="background:${hrColor};"></div>
+            </div>
+            <div class="cvcl-body">
+                ${section('OBJECTIVE / MỤC TIÊU', c.summary?`<p class="cvcl-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>`:'')}
+                ${section('WORK EXPERIENCE / KINH NGHIỆM', expHtml)}
+                ${section('EDUCATION / HỌC VẤN', eduHtml)}
+                ${section('PROJECTS / DỰ ÁN', projHtml)}
+                ${section('SKILLS / KỸ NĂNG', skillHtml)}
+                ${section('CERTIFICATIONS / CHỨNG CHỈ', certHtml)}
+                ${section('AWARDS & HONORS / GIẢI THƯỞNG', awardsHtml)}
+                ${section('ACTIVITIES / HOẠT ĐỘNG', actHtml)}
+            </div>
+        </div>`;
+    }
+
+
+    // ═══════════════════════════════════════════════════════════
+    //  CHAT UI HELPERS
+    // ═══════════════════════════════════════════════════════════
+    function addAiMsg(html) {
+        const el = document.createElement('div');
+        el.className = 'msg msg-ai';
+        el.innerHTML = `<div class="msg-bubble">${html}</div><div class="msg-time">${nowTime()}</div>`;
+        appendMsg(el);
+    }
+
+    function addUserMsg(text) {
+        const el = document.createElement('div');
+        el.className = 'msg msg-user';
+        el.innerHTML = `<div class="msg-bubble">${esc(text)}</div><div class="msg-time">${nowTime()}</div>`;
+        appendMsg(el);
+    }
+
+    function appendMsg(el) {
+        const h = document.getElementById('chatHistory');
+        h.appendChild(el);
+        h.scrollTop = h.scrollHeight;
+    }
+
+    let typingEl = null;
+    function setAiTyping(on) {
+        if (on && !typingEl) {
+            typingEl = document.createElement('div');
+            typingEl.className = 'typing-indicator';
+            typingEl.innerHTML = '<span class="dot-typing"></span><span class="dot-typing"></span><span class="dot-typing"></span>';
+            appendMsg(typingEl);
+        } else if (!on && typingEl) {
+            typingEl.remove();
+            typingEl = null;
+        }
+    }
+
+    function setQuickReplies(chips) {
+        const qr = document.getElementById('quickReplies');
+        qr.innerHTML = chips.map(c =>
+            `<button class="quick-reply" onclick="handleQuickReply('${c}')">${c}</button>`
+        ).join('');
+    }
+
+    function clearQuickReplies() {
+        document.getElementById('quickReplies').innerHTML = '';
+    }
+
+    function handleQuickReply(text) {
+        document.getElementById('chatInput').value = text;
+        handleSend();
+    }
+
+    function disableInput(disabled) {
+        document.getElementById('chatInput').disabled = disabled;
+        document.getElementById('btnSend').style.opacity = disabled ? '0.5' : '1';
+        document.getElementById('btnSend').style.pointerEvents = disabled ? 'none' : 'auto';
+    }
+
+    function restartChat() {
+        if (!confirm('Bắt đầu lại từ đầu? Dữ liệu hiện tại sẽ bị xóa.')) return;
+        location.reload();
+    }
+
+    function nowTime() {
+        return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function esc(str) {
+        return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  BOOT
+    // ═══════════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
