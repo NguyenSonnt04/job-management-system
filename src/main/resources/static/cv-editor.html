@@ -983,7 +983,8 @@
                         ${c.email?`<span>📧 <span class="cv-editable">${esc(c.email)}</span></span>`:''}
                         ${c.phone?`<span>📱 <span class="cv-editable">${esc(c.phone)}</span></span>`:''}
                         ${c.address?`<span>📍 <span class="cv-editable">${esc(c.address)}</span></span>`:''}
-                        ${c.linkedin?`<span>🔗 <span class="cv-editable">${esc(c.linkedin)}</span></span>`:''}
+                        ${linkedinHtml}
+                        ${portfolioHtml}
                     </div>
                 </div>
             </header>
@@ -997,6 +998,8 @@
                     ${summaryHtml}
                     ${expHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">KINH NGHIỆM LÀM VIỆC</h2>${expHtml}</section>`:''}
                     ${projHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">DỰ ÁN NỔI BẬT</h2>${projHtml}</section>`:''}
+                    ${awardsHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">GIẢI THƯỞNG</h2>${awardsHtml}</section>`:''}
+                    ${actHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">HOẠT ĐỘNG</h2>${actHtml}</section>`:''}
                 </main>
             </div>
         </div>`;
@@ -1024,6 +1027,32 @@
                 <div class="cvc2-card-sub">${ed(e.period||'')}</div>
             </div>`).join('');
 
+        const projHtml = (c.projects||[]).map(p=>`
+            <div class="cvc2-card">
+                <div class="cvc2-card-title">${ed(p.name||'')}</div>
+                <div class="cvc2-card-sub" style="color:${accent}">${ed(p.period||'')} &nbsp;|&nbsp; ${ed(p.tech||'')}</div>
+                ${(p.details||[]).map(d=>`<div class="cvc2-card-bullet">◈ ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const awardsHtml = (c.awards||[]).map(aw=>`
+            <div class="cvc2-card">
+                <div class="cvc2-card-title">🏆 ${ed(aw.name||aw.raw||'')}</div>
+                <div class="cvc2-card-sub">${ed(aw.year||'')}</div>
+            </div>`).join('');
+
+        const certHtml = (c.certifications||[]).map(cert=>`
+            <div class="cvc2-card">
+                <div class="cvc2-card-title">${ed(cert.name||cert.raw||'')}</div>
+                <div class="cvc2-card-sub">${ed(cert.issuer||'')} &nbsp;|&nbsp; ${ed(cert.year||'')}</div>
+            </div>`).join('');
+
+        const actHtml = (c.activities||[]).map(a=>`
+            <div class="cvc2-card">
+                <div class="cvc2-card-title">${ed(a.name||a.raw||'')}</div>
+                <div class="cvc2-card-sub">${ed(a.role||'')} &nbsp;|&nbsp; ${ed(a.period||'')}</div>
+                ${(a.details||[]).map(d=>`<div class="cvc2-card-bullet">◈ ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
         return `<div class="cv-full cvc2-root" style="--cv-accent:${accent};">
             <header class="cvc2-header" style="background: linear-gradient(45deg, ${accent}, ${accent}cc);">
                 ${getAvatarHtml('rgba(255,255,255,0.8)', 110, 'square')}
@@ -1033,6 +1062,7 @@
                     <div class="cvc2-contacts">
                         ${c.email?`<span>📧 <span class="cv-editable">${esc(c.email)}</span></span>`:''}
                         ${c.phone?`<span>📱 <span class="cv-editable">${esc(c.phone)}</span></span>`:''}
+                        ${c.address?`<span>📍 <span class="cv-editable">${esc(c.address)}</span></span>`:''}
                     </div>
                 </div>
             </header>
@@ -1041,9 +1071,13 @@
                     ${c.summary?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">GIỚI THIỆU</h3><div class="cvc2-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</div></section>`:''}
                     ${skillGroupsHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">KỸ NĂNG</h3>${skillGroupsHtml}</section>`:''}
                     ${eduHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">HỌC VẤN</h3>${eduHtml}</section>`:''}
+                    ${certHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">CHỨNG CHỈ</h3>${certHtml}</section>`:''}
+                    ${awardsHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">GIẢI THƯỞNG</h3>${awardsHtml}</section>`:''}
                 </aside>
                 <main class="cvc2-right">
                     ${expHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">KINH NGHIỆM</h3>${expHtml}</section>`:''}
+                    ${projHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">DỰ ÁN PHÁT TRIỂN</h3>${projHtml}</section>`:''}
+                    ${actHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">HOẠT ĐỘNG</h3>${actHtml}</section>`:''}
                 </main>
             </div>
         </div>`;
@@ -1078,6 +1112,51 @@
                 </div>
             </div>`).join('');
 
+        const projHtml = (c.projects||[]).map(p=>`
+            <div class="cvm2-row">
+                <div class="cvm2-row-period" style="color:${accent}">${esc(p.period||'')}</div>
+                <div class="cvm2-row-content">
+                    <div class="cvm2-row-title">${esc(p.name||'')}</div>
+                    <div class="cvm2-row-org">${esc(p.tech||'')}</div>
+                    ${(p.details||[]).map(d=>`<div class="cvm2-bullet">${ed(d)}</div>`).join('')}
+                </div>
+            </div>`).join('');
+
+        const certHtml = (c.certifications||[]).map(cert=>`
+            <div class="cvm2-row">
+                <div class="cvm2-row-period" style="color:${accent}">${esc(cert.year||'')}</div>
+                <div class="cvm2-row-content">
+                    <div class="cvm2-row-title">${esc(cert.name||cert.raw||'')}</div>
+                    <div class="cvm2-row-org">${esc(cert.issuer||'')}</div>
+                </div>
+            </div>`).join('');
+
+        const awardsHtml = (c.awards||[]).map(aw=>`
+            <div class="cvm2-row">
+                <div class="cvm2-row-period" style="color:${accent}">${esc(aw.year||'')}</div>
+                <div class="cvm2-row-content">
+                    <div class="cvm2-row-title">🏆 ${esc(aw.name||aw.raw||'')}</div>
+                </div>
+            </div>`).join('');
+
+        const actHtml = (c.activities||[]).map(a=>`
+            <div class="cvm2-row">
+                <div class="cvm2-row-period" style="color:${accent}">${esc(a.period||'')}</div>
+                <div class="cvm2-row-content">
+                    <div class="cvm2-row-title">${esc(a.name||a.raw||'')}</div>
+                    <div class="cvm2-row-org">${esc(a.role||'')}</div>
+                    ${(a.details||[]).map(d=>`<div class="cvm2-bullet">${ed(d)}</div>`).join('')}
+                </div>
+            </div>`).join('');
+
+        const skillHtml = (c.skills||[]).map(sg=>`
+             <div class="cvm2-row">
+                <div class="cvm2-row-period" style="color:${accent}">${esc(sg.category||'Kỹ năng')}</div>
+                <div class="cvm2-row-content">
+                    <div class="cvm2-row-org">${(sg.items||[]).join(', ')}</div>
+                </div>
+            </div>`).join('');
+
         return `<div class="cv-full cvm2-root">
             <header class="cvm2-header">
                 <h1 class="cvm2-name cv-editable">${esc(c.name||'HỌ TÊN')}</h1>
@@ -1091,7 +1170,12 @@
             <div class="cvm2-body">
                 ${c.summary?block('GIỚI THIỆU',`<p class="cvm2-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>`)  :''}
                 ${expHtml?block('KINH NGHIỆM',expHtml):''}
-                ${eduHtml?block('HỌ C VẤN',eduHtml):''}
+                ${projHtml?block('DỰ ÁN',projHtml):''}
+                ${eduHtml?block('HỌC VẤN',eduHtml):''}
+                ${skillHtml?block('KỸ NĂNG',skillHtml):''}
+                ${certHtml?block('CHỨNG CHỈ',certHtml):''}
+                ${awardsHtml?block('GIẢI THƯỞNG',awardsHtml):''}
+                ${actHtml?block('HOẠT ĐỘNG',actHtml):''}
             </div>
         </div>`;
     }
