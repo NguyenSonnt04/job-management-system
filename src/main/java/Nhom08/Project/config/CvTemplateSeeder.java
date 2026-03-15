@@ -42,6 +42,19 @@ public class CvTemplateSeeder implements ApplicationRunner {
 
         // === STYLE ĐẶC BIỆT ===
         seedTemplate(buildHarvardTemplate());
+
+        // === TOPCV STYLE TEMPLATES ===
+        seedTemplate(buildTopCVAtsTemplate());
+        seedTemplate(buildTopCVGradTemplate());
+        seedTemplate(buildTopCVMinimalTemplate());
+        seedTemplate(buildTopCvSidebarTemplate());
+
+        // === NGÀNH NGHỀ MỚI ===
+        seedTemplate(buildDataAnalystTemplate());
+        seedTemplate(buildProductManagerTemplate());
+        seedTemplate(buildDevOpsTemplate());
+        seedTemplate(buildCustomerSuccessTemplate());
+        seedTemplate(buildContentCreatorTemplate());
     }
 
     /**
@@ -1033,6 +1046,781 @@ public class CvTemplateSeeder implements ApplicationRunner {
                   "period": "2022 – Present",
                   "details": []
                 }
+              ]
+            }
+            """);
+        return t;
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    //  TOPCV STYLE TEMPLATES - Được thiết kế giống TopCV
+    // ────────────────────────────────────────────────────────────────
+
+    // ── 17. TopCV ATS-Friendly ───────────────────────────────────────────
+    private CvTemplate buildTopCVAtsTemplate() {
+        CvTemplate t = new CvTemplate();
+        t.setName("TopCV ATS-Friendly");
+        t.setDescription("Mẫu CV tối ưu ATS với bố cục đơn giản, rõ ràng. Phù hợp cho mọi ngành nghề, đặc biệt khi ứng dụng qua hệ thống ATS.");
+        t.setPreviewColor("#2563eb");
+        t.setBadgeLabel("ATS-Friendly");
+        t.setBadgeBgColor("#dbeafe");
+        t.setBadgeTextColor("#1d4ed8");
+        t.setCategory("TopCV Styles");
+        t.setStyleTag("ats");
+        t.setSortOrder(17);
+        t.setActive(true);
+        t.setTemplateContent("""
+            {
+              "name": "PHẠM THỊY DUNG",
+              "subtitle": "Kỹ sư Phần Mềm | 3 Năm Kinh Nghiệm",
+              "email": "thidung.dev@gmail.com",
+              "phone": "0912 345 678",
+              "address": "Quận 1, TP. Hồ Chí Minh",
+              "summary": "Kỹ sư phần mềm với 3 năm kinh nghiệm phát triển ứng dụng Java và React. Chuyên về xây dựng hệ thống backend hiệu suất cao và kiến trúc microservices. Đam mê học hỏi và đóng góp vào các dự án open source.",
+              "education": [
+                {
+                  "school": "ĐẠI HỌC BÁCH KHOA TP. HCM",
+                  "location": "TP. Hồ Chí Minh",
+                  "degree": "Kỹ sư Công nghệ Thông tin",
+                  "period": "2019 – 2023",
+                  "details": [
+                    "GPA: 3.7/4.0",
+                    "Đồ án: Hệ thống quản lý nhân sự sử dụng Spring Boot và React",
+                    "Chứng chỉ: Oracle Certified Java SE 11 Developer (2022)"
+                  ]
+                }
+              ],
+              "experience": [
+                {
+                  "company": "FPT SOFTWARE",
+                  "location": "TP. Hồ Chí Minh",
+                  "role": "Backend Developer",
+                  "period": "07/2022 – Hiện tại",
+                  "details": [
+                    "Phát triển API RESTful cho hệ thống quản lý nhân sự phục vụ 10.000+ người dùng",
+                    "Tối ưu hóa database queries, giảm 40% thời gian phản hồi",
+                    "Xây dựng CI/CD pipeline với GitHub Actions và Docker",
+                    "Mentor 3 thực tập sinh về Java best practices"
+                  ]
+                },
+                {
+                  "company": "CMC GLOBAL",
+                  "location": "TP. Hồ Chí Minh",
+                  "role": "Java Developer Intern",
+                  "period": "01/2022 – 06/2022",
+                  "details": [
+                    "Thực tập module thanh toán tích hợp VNPay và Momo",
+                    "Học hỏi và áp dụng Agile/Scrum trong phát triển phần mềm"
+                  ]
+                }
+              ],
+              "skills": [
+                { "category": "Backend", "items": ["Java", "Spring Boot", "Spring Security", "Microservices", "REST API"] },
+                { "category": "Frontend", "items": ["ReactJS", "TypeScript", "HTML/CSS", "Bootstrap"] },
+                { "category": "Database", "items": ["MySQL", "PostgreSQL", "Redis", "MongoDB"] },
+                { "category": "DevOps", "items": ["Docker", "Git", "Jenkins", "AWS (Basic)"] },
+                { "category": "Ngôn ngữ", "items": ["Tiếng Anh (TOEIC 800)", "Tiếng Việt"] }
+              ],
+              "certifications": [
+                { "name": "Oracle Certified Java SE 11 Developer", "issuer": "Oracle", "year": "2022" },
+                { "name": "AWS Cloud Practitioner", "issuer": "Amazon Web Services", "year": "2023" }
+              ]
+            }
+            """);
+        return t;
+    }
+
+    // ── 18. TopCV Gradient Header ─────────────────────────────────────────
+    private CvTemplate buildTopCVGradTemplate() {
+        CvTemplate t = new CvTemplate();
+        t.setName("TopCV Gradient Creative");
+        t.setDescription("Mẫu CV hiện đại với header gradient màu sắc tươi sáng. Phù hợp cho Creative, Marketing, Designer.");
+        t.setPreviewColor("#7c3aed");
+        t.setBadgeLabel("Creative");
+        t.setBadgeBgColor("#ede9fe");
+        t.setBadgeTextColor("#6d28d9");
+        t.setCategory("TopCV Styles");
+        t.setStyleTag("creative");
+        t.setSortOrder(18);
+        t.setActive(true);
+        t.setTemplateContent("""
+            {
+              "name": "LÊI THỦ YÊN NGA",
+              "subtitle": "UI/UX Designer | Creative Director",
+              "email": "yenga.design@gmail.com",
+              "phone": "0905 789 012",
+              "address": "Quận 3, TP. Hồ Chí Minh",
+              "summary": "UI/UX Designer với 5 năm kinh nghiệm thiết kế sản phẩm kỹ thuật số. Portfolio gồm 20+ sản phẩm đã launch với hàng triệu người dùng. Đam mê tạo ra trải nghiệm người dùng đáng nhớ và thiết kế hệ thống thiết kế nhất quán.",
+              "education": [
+                {
+                  "school": "ĐẠI HỌC MỸ THUẬT CÔNG NGHIỆP HÀ NỘI",
+                  "location": "Hà Nội",
+                  "degree": "Cử nhân Thiết kế Truyền thông Đa phương tiện",
+                  "period": "2017 – 2021",
+                  "details": [
+                    "Tốt nghiệp Xuất sắc",
+                    "Học bổng trao đổi tại Politecnico di Milano, Ý (2019)",
+                    "Giải Nhất Young Lotus 2019"
+                  ]
+                }
+              ],
+              "experience": [
+                {
+                  "company": "TIKI CORPORATION",
+                  "location": "TP. Hồ Chí Minh",
+                  "role": "Senior UX Designer",
+                  "period": "2021 – Hiện tại",
+                  "details": [
+                    "Redesign toàn diện luồng Checkout, giảm tỷ lệ bỏ giỏ hàng 22%",
+                    "Xây dựng Tiki Design System với 200+ components",
+                    "User Research với 50+ người dùng mỗi quý",
+                    "Mentor 4 junior designer"
+                  ]
+                },
+                {
+                  "company": "BASE.VN",
+                  "location": "Hà Nội",
+                  "role": "UI/UX Designer",
+                  "period": "2020 – 2021",
+                  "details": [
+                    "Thiết kế toàn bộ UI cho nền tảng quản lý doanh nghiệp",
+                    "Tăng System Usability Score từ 68 lên 84"
+                  ]
+                }
+              ],
+              "projects": [
+                {
+                  "name": "Redesign App Giao đồ ăn SuperShip",
+                  "period": "09/2022 – 11/2022",
+                  "tech": "Figma, Maze, Hotjar, Principle",
+                  "github": "behance.net/yenga-design",
+                  "details": [
+                    "Redesign toàn bộ trải nghiệm đặt đồ ăn",
+                    "Tăng Conversion Rate từ 18% lên 31%",
+                    "Featured trên Dribbble với 2.000+ lượt thích"
+                  ]
+                }
+              ],
+              "skills": [
+                { "category": "Design Tools", "items": ["Figma", "Adobe XD", "Sketch", "Illustrator", "Photoshop"] },
+                { "category": "UX Methods", "items": ["Design Thinking", "User Research", "Usability Testing", "Prototyping"] },
+                { "category": "Development", "items": ["HTML/CSS", "JavaScript", "ReactJS"] },
+                { "category": "Ngôn ngữ", "items": ["Tiếng Anh (IELTS 7.0)", "Tiếng Việt"] }
+              ]
+            }
+            """);
+        return t;
+    }
+
+    // ── 19. TopCV Minimalist Clean ────────────────────────────────────────
+    private CvTemplate buildTopCVMinimalTemplate() {
+        CvTemplate t = new CvTemplate();
+        t.setName("TopCV Minimalist Clean");
+        t.setDescription("Mẫu CV tối giản, sạch sẽ, tập trung vào nội dung. Phù hợp cho mọi vị trí từ Fresher đến Senior.");
+        t.setPreviewColor("#0e7490");
+        t.setBadgeLabel("Minimalist");
+        t.setBadgeBgColor("#cffafe");
+        t.setBadgeTextColor("#0e7490");
+        t.setCategory("TopCV Styles");
+        t.setStyleTag("minimalist");
+        t.setSortOrder(19);
+        t.setActive(true);
+        t.setTemplateContent("""
+            {
+              "name": "TRỊN QUỐC BẢO",
+              "subtitle": "Fullstack Developer | Open Source Contributor",
+              "email": "quocbao.dev@gmail.com",
+              "phone": "0977 654 321",
+              "address": "Đà Nẵng (Remote)",
+              "summary": "Fullstack Developer với 4 năm kinh nghiệm xây dựng ứng dụng web sử dụng MERN stack. Đóng góp vào nhiều dự án open source với hơn 500 stars trên GitHub. Đam mê tạo ra sản phẩm có giá trị và chia sẻ kiến thức thông qua blog và technical talks.",
+              "education": [
+                {
+                  "school": "ĐẠI HỌC BÁCH KHOA ĐÀ NẴNG",
+                  "location": "Đà Nẵng",
+                  "degree": "Kỹ sư Công nghệ Thông tin",
+                  "period": "2018 – 2022",
+                  "details": [
+                    "GPA: 3.8/4.0",
+                    "Tốt nghiệp Đồ án tốt nghiệp: Hệ thống quản lý tasks với React và Node.js"
+                  ]
+                }
+              ],
+              "experience": [
+                {
+                  "company": "TECH STARTUP VIETNAM",
+                  "location": "Đà Nẵng",
+                  "role": "Fullstack Developer",
+                  "period": "2022 – Hiện tại",
+                  "details": [
+                    "Phát triển platform SaaS cho quản lý kho vận hành",
+                    "Xây dựng RESTful APIs với Node.js, Express và MongoDB",
+                    "Tích hợp các gateway thanh toán: Stripe, PayPal, VNPay",
+                    "Triển khai ứng dụng trên AWS với Docker và Kubernetes"
+                  ]
+                },
+                {
+                  "company": "FREELANCE",
+                  "location": "Remote",
+                  "role": "Web Developer",
+                  "period": "2020 – 2022",
+                  "details": [
+                    "Hoàn thành 20+ dự án cho khách hàng trên toàn thế giới",
+                    "Làm việc trên các platform: Upwork, Fiverr, Freelancer.com",
+                    "Specialized in React, Node.js and WordPress"
+                  ]
+                }
+              ],
+              "skills": [
+                { "category": "Frontend", "items": ["React", "Vue.js", "Next.js", "TypeScript", "TailwindCSS"] },
+                { "category": "Backend", "items": ["Node.js", "Express", "NestJS", "FastAPI"] },
+                { "category": "Database", "items": ["PostgreSQL", "MongoDB", "Redis", "MySQL"] },
+                { "category": "DevOps", "items": ["AWS", "Docker", "CI/CD", "Git"] },
+                { "category": "Soft Skills", "items": ["Problem Solving", "Communication", "Time Management", "Adaptability"] }
+              ],
+              "certifications": [
+                { "name": "AWS Certified Developer – Associate", "issuer": "Amazon Web Services", "year": "2023" },
+                { "name": "MongoDB Certified Developer", "issuer": "MongoDB University", "year": "2022" }
+              ],
+              "projects": [
+                {
+                  "name": "Task Management System",
+                  "period": "2023",
+                  "tech": "React, Node.js, MongoDB, AWS",
+                  "github": "github.com/quocbao/task-manager",
+                  "details": [
+                    "Ứng dụng quản lý công việc cá nhân với tính năng drag-and-drop",
+                    "2,000+ monthly active users",
+                    "Open source trên GitHub với 300+ stars"
+                  ]
+                }
+              ]
+            }
+            """);
+        return t;
+    }
+
+    // ── 20. TopCV Modern Sidebar ──────────────────────────────────────────
+    private CvTemplate buildTopCvSidebarTemplate() {
+        CvTemplate t = new CvTemplate();
+        t.setName("TopCV Modern Sidebar");
+        t.setDescription("Mẫu CV hiện đại với sidebar màu accent. Phù hợp cho các vị trí kinh doanh, marketing, quản lý.");
+        t.setPreviewColor("#0891b2");
+        t.setBadgeLabel("Professional");
+        t.setBadgeBgColor("#cffafe");
+        t.setBadgeTextColor("#0891b2");
+        t.setCategory("TopCV Styles");
+        t.setStyleTag("professional");
+        t.setSortOrder(20);
+        t.setActive(true);
+        t.setTemplateContent("""
+            {
+              "name": "HOÀNG THỊ LAN CHI",
+              "subtitle": "Digital Marketing Manager | 6 Năm Kinh Nghiệm",
+              "email": "lanchi.mkt@gmail.com",
+              "phone": "0933 444 555",
+              "address": "Tân Bình, TP. Hồ Chí Minh",
+              "linkedin": "linkedin.com/in/hoangthilanchi",
+              "summary": "Digital Marketing Manager với 6 năm kinh nghiệm quản lý ngân sách và chiến dịch cho các thương hiệu FMCG lớn. Chuyên về Performance Marketing, Content Strategy và Brand Development. Đã giúp tăng 35% doanh thu online trong vòng 1 năm.",
+              "education": [
+                {
+                  "school": "ĐẠI HỌC KINH TẾ TP. HCM (UEH)",
+                  "location": "TP. Hồ Chí Minh",
+                  "degree": "Cử nhân Quản trị Kinh doanh – Chuyên ngành Marketing",
+                  "period": "2015 – 2019",
+                  "details": [
+                    "GPA: 3.6/4.0",
+                    "Chứng chỉ Digital Marketing Professional (Google Hub 2020)",
+                    "Chứng chỉ Facebook Blueprint Professional (Meta 2021)"
+                  ]
+                }
+              ],
+              "experience": [
+                {
+                  "company": "UNILEVER VIETNAM",
+                  "location": "TP. Hồ Chí Minh",
+                  "role": "Digital Marketing Manager",
+                  "period": "2021 – Hiện tại",
+                  "details": [
+                    "Quản lý ngân sách digital 500 triệu đồng/tháng",
+                    "Chạy chiến dịch trên Facebook Ads, Google Ads, TikTok Ads",
+                    "Tăng 42% traffic organic qua SEO và Content Marketing",
+                    "Dẫn dắt team 5 người marketing executives"
+                  ]
+                },
+                {
+                  "company": "SHOPEE",
+                  "location": "TP. Hồ Chí Minh",
+                  "role": "Performance Marketing Specialist",
+                  "period": "2019 – 2021",
+                  "details": [
+                    "Optimize campaign performance, đạt ROAS 4x cho campaigns fashion",
+                    "Phân tích dữ liệu và báo cáo hiệu suất hàng tuần",
+                    "Làm việc với Product team để cải thiện conversion funnel"
+                  ]
+                }
+              ],
+              "skills": [
+                { "category": "Digital Marketing", "items": ["Facebook Ads", "Google Ads", "TikTok Ads", "Performance Marketing"] },
+                { "category": "Analytics", "items": ["Google Analytics 4", "Google Tag Manager", "Facebook Pixel", "Hotjar"] },
+                { "category": "Tools", "items": ["HubSpot", "Mailchimp", "Canva", "Hootsuite"] },
+                { "category": "Soft Skills", "items": ["Leadership", "Communication", "Strategic Planning", "Team Management"] },
+                { "category": "Languages", "items": ["Tiếng Anh (IELTS 7.5)", "Tiếng Việt"] }
+              ],
+              "achievements": [
+                { "name": "Top Performer – Unilever Vietnam Q4 2023", "year": "2023" },
+                { "name": "Best Campaign – Shopee Mall Brand Festival 2020", "year": "2020" }
+              ]
+            }
+            """);
+        return t;
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    //  NGÀNH NGHỀ MỚI - HOT INDUSTRIES
+    // ────────────────────────────────────────────────────────────────
+
+    // ── 21. Data Analyst & BI ──────────────────────────────────────────────
+    private CvTemplate buildDataAnalystTemplate() {
+        CvTemplate t = new CvTemplate();
+        t.setName("Data Analyst & BI Specialist");
+        t.setDescription("Mẫu CV chuyên nghiệp cho Data Analyst, Business Intelligence, Data Scientist. Nổi bật kỹ năng phân tích dữ liệu, SQL, Python và visualization.");
+        t.setPreviewColor("#059669");
+        t.setBadgeLabel("Data & Analytics");
+        t.setBadgeBgColor("#d1fae5");
+        t.setBadgeTextColor("#059669");
+        t.setCategory("Công nghệ & Data");
+        t.setStyleTag("professional");
+        t.setSortOrder(21);
+        t.setActive(true);
+        t.setTemplateContent("""
+            {
+              "name": "NGUYỄN MINH QUÂN",
+              "subtitle": "Data Analyst & BI Specialist | Python | SQL | Tableau",
+              "email": "minhquan.data@gmail.com",
+              "phone": "0982 333 444",
+              "address": "Cầu Giấy, Hà Nội",
+              "summary": "Data Analyst với 4 năm kinh nghiệm phân tích dữ liệu kinh doanh và xây dựng dashboard báo cáo. Thành thạo Python, SQL, Tableau và Power BI. Đã giúp các doanh nghiệp đưa ra quyết định dựa trên dữ liệu, tiết kiệm 20% chi phí vận hành.",
+              "education": [
+                {
+                  "school": "ĐẠI HỌC BÁCH KHOA HÀ NỘI",
+                  "location": "Hà Nội",
+                  "degree": "Cử nhân Khoa Toán – Ứng Dụng Toán",
+                  "period": "2017 – 2021",
+                  "details": [
+                    "GPA: 3.5/4.0",
+                    "Đồ án tốt nghiệp: Ứng dụng Machine Learning trong dự báo giá bất động sản",
+                    "Chứng chỉ: Microsoft Certified: Data Analyst Associate (DA-100, 2022)",
+                    "Chứng chỉ: Google Data Analytics Professional (2021)"
+                  ]
+                }
+              ],
+              "experience": [
+                {
+                  "company": "TECH COM VN",
+                  "location": "Hà Nội",
+                  "role": "Senior Data Analyst",
+                  "period": "2022 – Hiện tại",
+                  "details": [
+                    "Phân tích dữ liệu bán hàng từ 50+ nền tảng thương mại điện tử",
+                    "Xây dựng dashboard giám sát KPIs theo thời gian thực với Tableau",
+                    "Tạo báo cáo tự động bằng Python, tiết kiệm 15 giờ/tuần cho team BI",
+                    "Dự báo doanh thu bán hàng với độ chính xác 90%"
+                  ]
+                },
+                {
+                  "company": "MASSAN GROUP",
+                  "location": "Hà Nội",
+                  "role": "Data Analyst",
+                  "period": "2021 – 2022",
+                  "details": [
+                    "Làm sạch và xử lý dữ liệu thô từ nhiều nguồn (ERP, CRM, Website)",
+                    "Xây dựng mô hình RFM để phân khúc khách hàng",
+                    "Hỗ trợ Marketing team tối ưu hóa các chiến dịch quảng cáo"
+                  ]
+                }
+              ],
+              "skills": [
+                { "category": "Programming", "items": ["Python (Pandas, NumPy)", "R", "SQL (PostgreSQL, MySQL)", "Spark"] },
+                { "category": "Visualization", "items": ["Tableau", "Power BI", "Google Data Studio", "Matplotlib"] },
+                { "category": "Data Engineering", "items": ["ETL", "Data Warehousing", "BigQuery", "AWS S3"] },
+                { "category": "Analytics", "items": ["Descriptive Analytics", "Predictive Analytics", "A/B Testing", "Cohort Analysis"] },
+                { "category": "Soft Skills", "items": ["Data Storytelling", "Critical Thinking", "Business Acumen", "Communication"] }
+              ],
+              "tools": ["Excel Advanced", "SQL Server Management Studio", "Jupyter Notebook", "Google Analytics 4"],
+              "certifications": [
+                { "name": "Microsoft Certified: Data Analyst Associate", "issuer": "Microsoft", "year": "2022" },
+                { "name": "Google Data Analytics Professional Certificate", "issuer": "Google", "year": "2021" }
+              ]
+            }
+            """);
+        return t;
+    }
+
+    // ── 22. Product Manager ────────────────────────────────────────────────
+    private CvTemplate buildProductManagerTemplate() {
+        CvTemplate t = new CvTemplate();
+        t.setName("Product Manager (Tech/SaaS)");
+        t.setDescription("Mẫu CV cho Product Manager, Product Owner trong các công ty công nghệ. Nổi bật kỹ năng lãnh đạo sản phẩm, Agile/Scrum và roadmap.");
+        t.setPreviewColor("#4f46e5");
+        t.setBadgeLabel("Product");
+        t.setBadgeBgColor("#eef2ff");
+        t.setBadgeTextColor("#4f46e5");
+        t.setCategory("Sản phẩm & Quản trị");
+        t.setStyleTag("professional");
+        t.setSortOrder(22);
+        t.setActive(true);
+        t.setTemplateContent("""
+            {
+              "name": "TRẦN THỊ TÚNG",
+              "subtitle": "Senior Product Manager | FinTech & SaaS",
+              "email": "thitung.pm@gmail.com",
+              "phone": "0909 123 456",
+              "address": "Thảo Điền, Hà Nội",
+              "linkedin": "linkedin.com/in/thitung-product",
+              "summary": "Senior Product Manager với 7 năm kinh nghiệm trong Fintech và SaaS. Đã lead 15+ sản phẩm từ ý tưởng đến launch, đạt tổng cộng 2 triệu người dùng. Thành thạo Agile/Scrum, Product Discovery và Go-to-Market Strategy. Chứng chỉ Professional Scrum Master (PSM II).",
+              "education": [
+                {
+                  "school": "ĐẠI HỌC FPT",
+                  "location": "Hà Nội",
+                  "degree": "Cử nhân Quản trị Kinh doanh – Chương trình Chất lượng cao",
+                  "period": "2014 – 2018",
+                  "details": [
+                    "GPA: 3.8/4.0 – Top 5% khóa",
+                    "Học bổng toàn phần 4 năm",
+                    "Đổi优异成绩 sang Đại học Birmingham (Anh) – Chương trình 2+2"
+                  ]
+                },
+                {
+                  "school": "UNIVERSITY OF BIRMINGHAM (UK)",
+                  "location": "Birmingham, UK",
+                  "degree": "Bachelor of Science – Business Management",
+                  "period": "2016 – 2018",
+                  "details": [
+                    "First Class Honours – Top 10% chương trình",
+                    "Dissertation: Disruptive Technology in Emerging Markets"
+                  ]
+                }
+              ],
+              "experience": [
+                {
+                  "company": "VNPAY (E-WALLET)",
+                  "location": "Hà Nội",
+                  "role": "Senior Product Manager – Digital Payments",
+                  "period": "2021 – Hiện tại",
+                  "details": [
+                    "Lead Product cho ví điện tử VNPAY-QR với 5 triệu người dùng",
+                    "Xây dựng roadmap và backlog cho team 15 developers & designers",
+                    "Chạy thử nghiệm A/B testing, tăng conversion rate 25%",
+                    "Phối hợp với Tech, Design, Marketing, Business teams để định hướng sản phẩm"
+                  ]
+                },
+                {
+                  "company": "MOVI GROUP",
+                  "location": "Hà Nội",
+                  "role": "Product Manager – E-Commerce",
+                  "period": "2019 – 2021",
+                  "details": [
+                    "Quản lý nền tảng E-commerce cho hơn 1.000 SME sellers",
+                    "Ra mắt tính năng Multi-vendor và Flash Sale, tăng GMV 40%",
+                    "Thiết kế và chạy 50+ experiments để optimize conversion funnel"
+                  ]
+                },
+                {
+                  "company": "GRAB",
+                  "location": "Singapore",
+                  "role": "Associate Product Manager",
+                  "period": "2018 – 2019",
+                  "details": [
+                    "Tham gia phát triển GrabFood – tính năng đặt đồ ăn theo nhóm",
+                    "Product Discovery với 50+ người dùng qua interviews và surveys",
+                    "Viết PRDs và user stories cho development teams"
+                  ]
+                }
+              ],
+              "skills": [
+                { "category": "Product Management", "items": ["Product Strategy", "Roadmap Planning", "Agile/Scrum", "Product Discovery"] },
+                { "category": "Data & Analytics", "items": ["Product Analytics", "A/B Testing", "SQL", "Tableau", "Google Analytics 4"] },
+                { "category": "Design", "items": ["Figma", "Wireframing", "User Journey Mapping", "Prototyping"] },
+                { "category": "Technical", "items": ["API Design", "Basic Frontend (HTML/CSS)", "Understanding Architecture"] },
+                { "category": "Soft Skills", "items": ["Stakeholder Management", "Prioritization", "Communication", "Leadership"] }
+              ],
+              "achievements": [
+                { "name": "Top 5 PM – VNPAY All Hands 2023", "year": "2023" },
+                { "name: "Best New Feature – MOVY Product Awards 2020", "year": "2020" }
+              ],
+              "certifications": [
+                { "name": "Professional Scrum Master II (PSM II)", "issuer": "Scrum Alliance", "year": "2022" },
+                { "name": "Google Product Analytics Certified", "issuer": "Google", "year": "2020" }
+              ]
+            }
+            """);
+        return t;
+    }
+
+    // ── 23. DevOps & SRE ────────────────────────────────────────────────────────
+    private CvTemplate buildDevOpsTemplate() {
+        CvTemplate t = new CvTemplate();
+        t.setName("DevOps & SRE Engineer");
+        t.setDescription("Mẫu CV chuyên nghiệp cho DevOps Engineer, SRE, Cloud Engineer. Nổi bật kỹ năng CI/CD, Cloud, Containerization.");
+        t.setPreviewColor("#0f172a");
+        t.setBadgeLabel("DevOps");
+        t.setBadgeBgColor("#e2e8f0");
+        t.setBadgeTextColor("#0f172a");
+        t.setCategory("Công nghệ & DevOps");
+        t.setStyleTag("professional");
+        t.setSortOrder(23);
+        t.setActive(true);
+        t.setTemplateContent("""
+            {
+              "name": "PHẠM HỮNG KHÁNH",
+              "subtitle": "DevOps Engineer | AWS Certified Solutions Architect",
+              "email": "khanh.devops@gmail.com",
+              "phone": "0918 777 888",
+              "address": "Nam Từ Liêm, Hà Nội",
+              "summary": "DevOps Engineer với 5 năm kinh nghiệm xây dựng và quản lý infrastructure on-premise và cloud. AWS Certified Solutions Architect với chuyên sâu về Kubernetes, Terraform và CI/CD. Đã hỗ trợ migration từ monolith sang microservices cho nhiều khách hàng enterprise.",
+              "education": [
+                {
+                  "school": "ĐẠI HỌC BÁCH KHOA HÀ NỘI",
+                  "location": "Hà Nội",
+                  "degree": "Kỹ sư Công nghệ Thông tin",
+                  "period": "2015 – 2019",
+                  "details": [
+                    "GPA: 3.6/4.0",
+                    "Chứng chỉ: AWS Certified Solutions Architect – Associate (2022)",
+                    "Chứng chỉ: Certified Kubernetes Administrator (CKA, 2021)"
+                  ]
+                }
+              ],
+              "experience": [
+                {
+                  "company": "FPT SMART CLOUD",
+                  "location": "Hà Nội",
+                  "role": "Senior DevOps Engineer",
+                  "period": "2021 – Hiện tại",
+                  "details": [
+                    "Thiết kế và triển khai Kubernetes cluster phục vụ 50+ microservices",
+                    "Xây dựng CI/CD pipeline với Jenkins, GitLab CI, ArgoCD",
+                    "Automate infrastructure provisioning với Terraform, giảm 80% thời gian setup",
+                    "Monitoring & Alerting với Prometheus, Grafana, ELK Stack",
+                    "Giảm incident response time từ 2 tiếng xuống 15 phút"
+                  ]
+                },
+                {
+                  "company": "VIN GROUP",
+                  "location": "Hà Nội",
+                  "role": "DevOps Engineer",
+                  "period": "2019 – 2021",
+                  "details": [
+                    "Quản lý Jenkins server và 200+ jobs CI/CD",
+                    "Dockerize applications và orchestrate với Docker Swarm",
+                    "Maintain GitLab Runner và self-hosted GitLab instance",
+                    "Support development teams với 30+ projects"
+                  ]
+                }
+              ],
+              "skills": [
+                { "category": "Cloud", "items": ["AWS (EC2, S3, RDS, Lambda)", "Azure", "Google Cloud"] },
+                { "category": "Container Orchestration", "items": ["Kubernetes", "Docker Swarm", "EKS", "AKS", "GKE"] },
+                { "category": "IaC", "items": ["Terraform", "CloudFormation", "Ansible", "Puppet"] },
+                { "category": "CI/CD", "items": ["Jenkins", "GitLab CI", "GitHub Actions", "ArgoCD", "Flux"] },
+                { "category": "Monitoring", "items": ["Prometheus", "Grafana", "ELK Stack", "Datadog"] },
+                { "category": "OS & Scripting", "items": ["Linux", "Bash", "Python", "Go"] }
+              ],
+              "projects": [
+                {
+                  "name": "Open Source: Kubernetes Auto-scaler",
+                  "period": "2022 – Hiện tại",
+                  "tech": "Go, Kubernetes, Helm",
+                  "github": "github.com/khanh-devops/k8s-autoscaler",
+                  "details": [
+                    "Auto-scaling dựa trên custom metrics (500+ GitHub stars)",
+                    "Used bởi 100+ companies worldwide",
+                    "Contributed to upstream Kubernetes community"
+                  ]
+                }
+              ],
+              "certifications": [
+                { "name": "AWS Certified Solutions Architect – Professional", "issuer": "Amazon Web Services", "year": "2023" },
+                { "name": "Certified Kubernetes Administrator (CKA)", "issuer": "CNCF", "year": "2021" },
+                { "name": "HashiCorp Certified: Terraform Associate", "issuer": "HashiCorp", "year": "2022" }
+              ]
+            }
+            """);
+        return t;
+    }
+
+    // ── 24. Customer Success & CX ──────────────────────────────────────────
+    private CvTemplate buildCustomerSuccessTemplate() {
+        CvTemplate t = new CvTemplate();
+        t.setName("Customer Success Manager");
+        t.setDescription("Mẫu CV cho Customer Success Manager, Customer Experience Lead. Nổi bật kỹ năng quản lý quan hệ khách hàng, retention và upsell.");
+        t.setPreviewColor("#ea580c");
+        t.setBadgeLabel("Customer Success");
+        t.setBadgeBgColor("#fff7ed");
+        t.setBadgeTextColor("#ea580c");
+        t.setCategory("Khách hàng & CS");
+        t.setStyleTag("professional");
+        t.setSortOrder(24);
+        t.setActive(true);
+        t.setTemplateContent("""
+            {
+              "name": "PHẠM LÊ THỊ HIỀN",
+              "subtitle": "Senior Customer Success Manager | B2B SaaS",
+              "email": "hien.cs.manager@gmail.com",
+              "phone": "0945 666 777",
+              "address": "Tân Bình, TP. Hồ Chí Minh",
+              "linkedin": "linkedin.com/in/phamthihien-cs",
+              "summary": "Customer Success Manager với 6 năm kinh nghiệm quản lý portfolio 200+ khách hàng doanh nghiệp B2B. Chuyên về customer retention, upsell/cross-sell và building customer advocacy. Đã giúp tăng 30% retention rate và 25% upsell revenue.",
+              "education": [
+                {
+                  "school": "ĐẠI HỌC KINH TẾ TP. HCM (UEH)",
+                  "location": "TP. Hồ Chí Minh",
+                  "degree": "Cử nhân Quản trị Kinh doanh – Marketing",
+                  "period": "2014 – 2018",
+                  "details": [
+                    "GPA: 3.5/4.0",
+                    "Chứng chỉ: Customer Success Management (CSM) – Google Hub (2021)",
+                    "Chứng chỉ: Salesforce Administration (2020)"
+                  ]
+                }
+              ],
+              "experience": [
+                {
+                  "company": "KATONA",
+                  "location": "TP. Hồ Chí Minh",
+                  "role": "Senior Customer Success Manager",
+                  "period": "2021 – Hiện tại",
+                  "details": [
+                    "Quản lý portfolio 50+ enterprise customers, tổng giá ARR $2M",
+                    "Giảm churn rate từ 25% xuống 15% qua proactive customer engagement",
+                    "Identify and close upsell opportunities, đạt 120% upsell target 2023",
+                    "Train và mentor team 5 CSMs",
+                    "Build customer advocacy program với 20+ case studies"
+                  ]
+                },
+                {
+                  "company": "SHOPEE",
+                  "location": "TP. Hồ Chí Minh",
+                  "role": "Customer Success Specialist",
+                  "period": "2019 – 2021",
+                  "details": [
+                    "Manage 200+ active sellers, đảm bảo satisfaction rate > 90%",
+                    "Handle escalations và resolve critical issues trong 24h",
+                    "Organize quarterly business reviews cho key accounts",
+                    "Collaborate with Product team to feedback customer insights"
+                  ]
+                }
+              ],
+              "skills": [
+                { "category": "Customer Success", "items": ["Customer Onboarding", "Customer Retention", "Churn Management", "Upsell/Cross-sell"] },
+                { "category": "Communication", "items": ["Stakeholder Management", "Presentation Skills", "Conflict Resolution", "Empathy"] },
+                { "category": "Tools", "items": ["Salesforce", "Gainsight", "HubSpot CRM", "Zendesk"] },
+                { "category": "Data Analysis", "items": ["Health Scoring", "Usage Analytics", "NPS Survey", "Churn Prediction"] },
+                { "category": "Languages", "items": ["Tiếng Anh (IELTS 7.5)", "Tiếng Việt"] }
+              ],
+              "achievements": [
+                { "name": "Top CSM – Katona All Hands 2023", "year": "2023" },
+                { "name": "Best Customer Retention – Shopee CS Team 2020", "year": "2020" }
+              ]
+            }
+            """);
+        return t;
+    }
+
+    // ── 25. Content Creator ───────────────────────────────────────────────────
+    private CvTemplate buildContentCreatorTemplate() {
+        CvTemplate t = new CvTemplate();
+        t.setName("Content Creator & Social Media Manager");
+        t.setDescription("Mẫu CV năng động cho Content Creator, Social Media Manager, Copywriter. Nổi bật portfolio, KPIs social media và skills tạo nội dung.");
+        t.setPreviewColor("#db2777");
+        t.setBadgeLabel("Creative Content");
+        t.setBadgeBgColor("#ffe4e6");
+        t.setBadgeTextColor("#db2777");
+        t.setCategory("Marketing & Creative");
+        t.setStyleTag("creative");
+        t.setSortOrder(25);
+        t.setActive(true);
+        t.setTemplateContent("""
+            {
+              "name": "NGUYỄN MINH ANH",
+              "subtitle": "Content Creator & Social Media Manager | 500K+ Followers",
+              "email": "minhanh.content@gmail.com",
+              "phone": "0906 111 222",
+              "address": "Hà Đông, Hà Nội",
+              "linkedin": "linkedin.com/in/nguyenminhanh-content",
+              "portfolio": "behance.net/minhanh-content",
+              "summary": "Content Creator với 4 năm kinh nghiệm tạo content cho social media và brand campaigns. Có 500K+ followers trên TikTok và 200K+ trên Instagram. Đã hợp tác với 50+ brands lớn như Shopee, Unilever, Samsung. Chuyên về short-form video, copywriting và social media strategy.",
+              "education": [
+                {
+                  "school": "HỌC VIỆT NAM TRƯỜNG THỜNG MỸ THUẬT",
+                  "location": "Hà Nội",
+                  "degree": "Cử nhân Quan hệ Công chúng – Chuyên ngành Truyền thông Đa phương tiện",
+                  "period": "2017 – 2021",
+                  "details": [
+                    "Tốt nghiệp loại Giỏi",
+                    "Dự án tốt nghiệp: Chiến lược Content Marketing cho Startup",
+                    "Nghiên cứu về Short-form Video Marketing (TikTok, Reels)"
+                  ]
+                }
+              ],
+              "experience": [
+                {
+                  "company": "FREELANCE CONTENT CREATOR",
+                  "location": "Remote",
+                  "role": "Social Media Manager & Content Creator",
+                  "period": "2021 – Hiện tại",
+                  "details": [
+                    "Quản lý social media cho 5 brands đồng thời với tổng cộng 1M+ followers",
+                    "Sản xuất 100+ videos/tháng, đạt average engagement rate 8%",
+                    "Tăng organic followers 300% trong 12 tháng cho brand FMCG",
+                    "Collaborate với sales team để drive traffic từ social sang website"
+                  ]
+                },
+                {
+                  "company": "DIGITAL AGENCY VN",
+                  "location": "Hà Nội",
+                  "role": "Content Specialist",
+                  "period": "2020 – 2021",
+                  "details": [
+                    "Viết content cho Facebook Ads, Instagram Ads, TikTok Ads cho 20+ clients",
+                    "Sản xuất creative briefs cho design và video production teams",
+                    "Phân tích competitors và đề xuất content strategy",
+                    "Report monthly performance metrics và optimize content"
+                  ]
+                }
+              ],
+              "skills": [
+                { "category": "Content Creation", "items": ["Short-form Video (TikTok, Reels)", "Copywriting", "Script Writing", "Video Editing"] },
+                { "category": "Social Media", "items": ["TikTok", "Instagram", "Facebook", "YouTube Shorts", "LinkedIn"] },
+                { "category": "Tools", "items": ["CapCut", "Premiere Pro", "After Effects", "Canva", "Hootsuite"] },
+                { "category": "Analytics", "items": ["Instagram Insights", "TikTok Analytics", "Facebook Analytics", "Google Analytics"] },
+                { "category": "Soft Skills", "items": ["Creativity", "Trend-spotting", "Brand Voice", "Storytelling"] }
+              ],
+              "portfolio": [
+                {
+                  "name": "TikTok Series – Cooking Hacks",
+                  "period": "2023",
+                  "platform": "TikTok",
+                  "details": [
+                    "10 videos, 5M+ total views",
+                    "Series alcanzou 500K followers trong 3 tháng",
+                    "Average engagement rate 12%"
+                  ]
+                },
+                {
+                  "name": "Instagram Reels – Fashion Tips",
+                  "period": "2022 – 2023",
+                  "platform": "Instagram",
+                  "details": [
+                    "30 reels, 2M+ total views",
+                    "Collab với 10 fashion brands",
+                    "100K+ link clicks to product pages"
+                  ]
+                }
+              ],
+              "achievements": [
+                { "name": "Top Creator – TikTok Vietnam Awards 2023", "year": "2023" },
+                { "name": "Best Content Creator – Digital Agency VN 2022", "year": "2022" }
               ]
             }
             """);
