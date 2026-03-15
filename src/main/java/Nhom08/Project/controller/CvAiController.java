@@ -202,4 +202,58 @@ public class CvAiController {
             return ResponseEntity.status(500).body(error);
         }
     }
+
+    /**
+     * AI-powered dynamic chat flow.
+     * Body: { "message": "user text", "currentCv": { ...cvJson... } }
+     * Returns: { "data": { "extracted_data": {...}, "ai_response": "..." } }
+     */
+    @PostMapping("/chat")
+    public ResponseEntity<Map<String, Object>> chat(@RequestBody Map<String, Object> body) {
+        String message   = String.valueOf(body.getOrDefault("message", ""));
+        Object currentCv = body.get("currentCv");
+
+        String cvStr;
+        try { cvStr = objectMapper.writeValueAsString(currentCv); }
+        catch (Exception e) { cvStr = String.valueOf(currentCv); }
+
+        String prompt = """
+            Bạn là chuyên gia nhân sự và viết CV xuất sắc. Nhiệm vụ của bạn là trò chuyện thân thiện với người dùng để thu thập thông tin làm CV.
+            Đây là trạng thái CV hiện tại của người dùng (dạng JSON):
+            %s
+            
+            Người dùng vừa nhắn: "%s"
+            
+            Quy tắc:
+            1. Đọc tin nhắn mới của người dùng và nhận diện thông tin liên quan tới CV (tên, chức danh, email, số điện thoại, kinh nghiệm, dự án, kỹ năng, học vấn, tóm tắt bản thân...).
+            2. Nếu người dùng hỏi xin lời khuyên, hãy dời việc thu thập lại và cho họ lời khuyên tận tình, sau đó gợi ý câu hỏi tiếp theo dựa trên CV.
+            3. Nếu người dùng kể sơ sài về kinh nghiệm, hãy đào sâu hỏi thêm về thành tích, số liệu, thời gian làm việc.
+            4. Trả lời DƯỚI DẠNG ĐÚNG CHUẨN JSON (thay vì markdown text):
+            {
+               "extracted_data": { 
+                  // Bất kỳ dữ liệu mới nào bạn nhận diện được từ câu nói vừa rồi của người dùng.
+                  // Các trường hợp lệ: name, subtitle, email, phone, address, linkedin, portfolio, summary, education (array), experience (array), projects (array), skills (array), certifications (array), awards (array), activities (array).
+                  // Nếu trường nào không có thông tin mới, BỎ QUA không ghi vào.
+                  // Nếu là thông tin dạng danh sách (kinh nghiệm, dự án, học vấn...), luôn trả về dưới dạng JSON object thích hợp để Frontend có thể add (hoặc array các object mới).
+               },
+               "ai_response": "Câu trả lời hoặc câu hỏi tiếp theo bạn nói với người dùng, dựa trên những trường dữ liệu CV CÒN THIẾU. Hãy giao tiếp tự nhiên và khen ngợi."
+            }
+            KHÔNG xuất bất kỳ nội dung markdown hay giải thích nào khác ngoài chuỗi JSON hợp lệ.
+            """.formatted(cvStr, message);
+
+        try {
+            String jsonStr = geminiService.callGeminiJson(prompt);
+            Object parsed = objectMapper.readValue(jsonStr, Object.class);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("data", parsed);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("error", "AI đang bận: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
 }
