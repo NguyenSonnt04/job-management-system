@@ -39,6 +39,9 @@ public class CvTemplateSeeder implements ApplicationRunner {
         seedTemplate(buildSeniorItTemplate());
         seedTemplate(buildManagerTemplate());
         seedTemplate(buildFreelancerTemplate());
+
+        // === STYLE ĐẶC BIỆT ===
+        seedTemplate(buildHarvardTemplate());
     }
 
     /**
@@ -915,6 +918,122 @@ public class CvTemplateSeeder implements ApplicationRunner {
               "certifications": [{ "name": "AWS Certified Developer – Associate", "issuer": "Amazon Web Services", "year": "2023" }, { "name": "Google UX Design Certificate", "issuer": "Google / Coursera", "year": "2021" }],
               "awards": [{ "name": "Upwork Top Rated Plus", "year": "2022" }, { "name": "Toptal Top 3% Developers", "year": "2023" }],
               "activities": [{ "name": "Mentor tại DaN Tech Community", "role": "Volunteer Mentor", "period": "2020 – Hiện tại", "details": ["Hướng dẫn 30+ junior developers chuyển ngành vào lập trình"] }]
+            }
+            """);
+        return t;
+    }
+
+    // ── 16. Harvard Style ─────────────────────────────────────────────────────
+    private CvTemplate buildHarvardTemplate() {
+        CvTemplate t = new CvTemplate();
+        t.setName("Harvard Classic");
+        t.setDescription("Mẫu CV cổ điển kiểu Harvard – Typography trang trọng, đen trắng, phù hợp cho academic, nghiên cứu sinh, ứng viên MBA và các vị trí cấp cao tại tổ chức quốc tế.");
+        t.setPreviewColor("#1a1a1a");
+        t.setBadgeLabel("Harvard Style");
+        t.setBadgeBgColor("#f5f5f4");
+        t.setBadgeTextColor("#1a1a1a");
+        t.setCategory("Giáo dục & Hàn lâm");
+        t.setStyleTag("harvard");
+        t.setSortOrder(16);
+        t.setActive(true);
+        t.setTemplateContent("""
+            {
+              "name": "TRAN THI MINH NGUYET",
+              "subtitle": "MBA Candidate | Former Management Consultant at McKinsey",
+              "email": "minhnguyet.mba@gmail.com",
+              "phone": "+65 9123 4567",
+              "address": "Singapore",
+              "linkedin": "linkedin.com/in/minhnguyet-mba",
+              "portfolio": "",
+              "summary": "MBA candidate at Harvard Business School with 5 years of management consulting experience at McKinsey & Company across Southeast Asia. Passionate about strategy development, digital transformation, and sustainable business practices. Seeking summer associate roles in strategy consulting or private equity.",
+              "education": [
+                {
+                  "school": "HARVARD BUSINESS SCHOOL",
+                  "location": "Boston, MA",
+                  "degree": "Master of Business Administration (MBA)",
+                  "period": "2024 – 2026 (Expected)",
+                  "details": [
+                    "Recipient of Dean's Award for Academic Excellence",
+                    "Co-President of Digital Healthcare Club",
+                    "Member of Consulting Club and Women in Business"
+                  ]
+                },
+                {
+                  "school": "NATIONAL UNIVERSITY OF SINGAPORE (NUS)",
+                  "location": "Singapore",
+                  "degree": "Bachelor of Business Administration (First Class Honors)",
+                  "period": "2016 – 2020",
+                  "details": [
+                    "GPA: 4.7/5.0 – Top 3% of cohort",
+                    "Valedictorian, Business School",
+                    "President's Graduate Fellowship recipient"
+                  ]
+                }
+              ],
+              "experience": [
+                {
+                  "company": "MCKINSEY & COMPANY",
+                  "location": "Singapore & Ho Chi Minh City",
+                  "role": "Engagement Manager",
+                  "period": "2022 – 2024",
+                  "details": [
+                    "Led 8+ consulting engagements for Fortune 500 clients across Southeast Asia, focusing on digital transformation and growth strategy",
+                    "Managed project teams of 4–6 consultants, delivering $50M+ in identified client impact",
+                    "Developed go-to-market strategy for a regional e-commerce platform, resulting in 35% market share increase within 18 months",
+                    "Mentored 3 junior consultants to promotion; designed training program adopted firm-wide"
+                  ]
+                },
+                {
+                  "company": "MCKINSEY & COMPANY",
+                  "location": "Singapore",
+                  "role": "Associate",
+                  "period": "2020 – 2022",
+                  "details": [
+                    "Supported due diligence for $200M+ PE investments in Southeast Asian technology sector",
+                    "Built financial models and conducted market analysis for consumer goods entry into Vietnam",
+                    "Co-authored firm knowledge piece on digital banking trends in ASEAN"
+                  ]
+                }
+              ],
+              "projects": [
+                {
+                  "name": "Impact Investment in Vietnamese Agritech",
+                  "period": "2023 – 2024",
+                  "tech": "Strategy, Financial Modeling, Impact Assessment",
+                  "github": "",
+                  "details": [
+                    "Pro bono consulting for impact fund assessing $10M investment in climate-smart agriculture",
+                    "Developed impact measurement framework aligned with UN SDGs"
+                  ]
+                }
+              ],
+              "skills": [
+                { "category": "Strategic Consulting", "items": ["Growth Strategy", "Due Diligence", "Market Entry", "Digital Transformation", "M&A Advisory"] },
+                { "category": "Analytical Tools", "items": ["Financial Modeling", "Excel (Advanced)", "Python (Pandas)", "Tableau", "PowerPoint"] },
+                { "category": "Languages", "items": ["English (Native)", "Vietnamese (Native)", "Mandarin (Business Proficient)"] }
+              ],
+              "certifications": [
+                { "name": "CFA Level III Candidate", "issuer": "CFA Institute", "year": "2023" },
+                { "name": "GMAT 760", "issuer": "GMAC", "year": "2023" }
+              ],
+              "awards": [
+                { "name": "Dean's Award for Academic Excellence", "year": "2024" },
+                { "name": "McKinsey Engagement Manager of the Year – APAC", "year": "2023" }
+              ],
+              "activities": [
+                {
+                  "name": "Harvard Business School – Consulting Club",
+                  "role": "Co-President",
+                  "period": "2024 – Present",
+                  "details": []
+                },
+                {
+                  "name": "Teach For Malaysia – Board of Advisors",
+                  "role": "Pro Bono Advisor",
+                  "period": "2022 – Present",
+                  "details": []
+                }
+              ]
             }
             """);
         return t;

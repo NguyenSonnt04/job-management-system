@@ -124,16 +124,19 @@
             const accent = t.previewColor || '#2E3B8E';
             const esc = escHtml;
 
-            // Skills HTML (left column)
-            const skillsHtml = (cv.skills || []).slice(0, 3).map(sg => `
+            // Skills HTML (left column) — using tag pills for clean uniform look
+            const skillsHtml = (cv.skills || []).map(sg => `
                 <div class="cvm-skill-group">
                     <div class="cvm-skill-cat">${esc(sg.category)}</div>
-                    ${(sg.items || []).slice(0, 4).map((item, i) => `
-                        <div class="cvm-skill-bar">
-                            <span>${esc(item)}</span>
-                            <div class="cvm-bar"><div class="cvm-bar-fill" style="width:${95 - i * 12}%;background:${accent};"></div></div>
-                        </div>`).join('')}
-                </div>`).join('');
+                    <div class="cvm-skill-list" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:3px;">
+                        ${(sg.items || []).map(item => `
+                            <span class="cvm-skill-item">
+                                <span style="color:${accent}; font-size:8px;">●</span> ${esc(item)}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
 
             // Education HTML (left column)
             const eduHtml = (cv.education || []).slice(0, 1).map(e => `

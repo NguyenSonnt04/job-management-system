@@ -51,6 +51,55 @@
         /* Grid */
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .section-title { font-size: 18px; font-weight: 600; color: #1a1a2e; }
+
+        /* Style Filters */
+        .style-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .filter-icon { font-size: 16px; }
+        .filter-count {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .filter-btn:not(.active) .filter-count {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
         .templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 20px; }
 
         .template-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent; }
@@ -225,6 +274,41 @@
         <span class="section-title">Danh sách mẫu CV</span>
         <a href="/tao-cv-ai.html" target="_blank" style="font-size:13px;color:#667eea;text-decoration:none;">→ Xem trang người dùng ↗</a>
     </div>
+
+    <!-- Style Filters -->
+    <div class="style-filters" id="styleFilters">
+        <button class="filter-btn active" data-style="all" onclick="filterByStyle('all')">
+            <span class="filter-icon">📋</span>
+            <span>Tất cả</span>
+            <span class="filter-count" id="count-all">0</span>
+        </button>
+        <button class="filter-btn" data-style="professional" onclick="filterByStyle('professional')">
+            <span class="filter-icon">💼</span>
+            <span>Chuyên nghiệp</span>
+            <span class="filter-count" id="count-professional">0</span>
+        </button>
+        <button class="filter-btn" data-style="creative" onclick="filterByStyle('creative')">
+            <span class="filter-icon">🎨</span>
+            <span>Sáng tạo</span>
+            <span class="filter-count" id="count-creative">0</span>
+        </button>
+        <button class="filter-btn" data-style="minimalist" onclick="filterByStyle('minimalist')">
+            <span class="filter-icon">✨</span>
+            <span>Tối giản</span>
+            <span class="filter-count" id="count-minimalist">0</span>
+        </button>
+        <button class="filter-btn" data-style="classic" onclick="filterByStyle('classic')">
+            <span class="filter-icon">📜</span>
+            <span>Cổ điển</span>
+            <span class="filter-count" id="count-classic">0</span>
+        </button>
+        <button class="filter-btn" data-style="harvard" onclick="filterByStyle('harvard')">
+            <span class="filter-icon">🎓</span>
+            <span>Harvard</span>
+            <span class="filter-count" id="count-harvard">0</span>
+        </button>
+    </div>
+
     <div class="templates-grid" id="templatesGrid">
         <div style="text-align:center;padding:40px;color:#999;grid-column:1/-1;">Đang tải...</div>
     </div>
@@ -277,9 +361,11 @@
                 <label>Phong cách</label>
                 <select id="tStyle" class="form-control">
                     <option value="">-- Chọn --</option>
-                    <option value="minimalist">Tối giản</option>
                     <option value="professional">Chuyên nghiệp</option>
                     <option value="creative">Sáng tạo</option>
+                    <option value="minimalist">Tối giản</option>
+                    <option value="classic">Cổ điển</option>
+                    <option value="harvard">Harvard</option>
                 </select>
             </div>
         </div>
@@ -435,18 +521,51 @@ function updateStats() {
     document.getElementById('statTotal').textContent = templates.length;
     document.getElementById('statActive').textContent = active;
     document.getElementById('statHidden').textContent = templates.length - active;
+
+    // Update style filter counts
+    updateStyleCounts();
+}
+
+function updateStyleCounts() {
+    document.getElementById('count-all').textContent = templates.length;
+    document.getElementById('count-professional').textContent = templates.filter(t => t.styleTag === 'professional').length;
+    document.getElementById('count-creative').textContent = templates.filter(t => t.styleTag === 'creative').length;
+    document.getElementById('count-minimalist').textContent = templates.filter(t => t.styleTag === 'minimalist').length;
+    document.getElementById('count-classic').textContent = templates.filter(t => t.styleTag === 'classic').length;
+    document.getElementById('count-harvard').textContent = templates.filter(t => t.styleTag === 'harvard').length;
+}
+
+// Current filter state
+let currentStyleFilter = 'all';
+
+function filterByStyle(style) {
+    currentStyleFilter = style;
+
+    // Update active button
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.style === style);
+    });
+
+    renderGrid();
 }
 
 function renderGrid() {
     const g = document.getElementById('templatesGrid');
-    if (!templates.length) {
+
+    // Filter templates by current style
+    let filteredTemplates = templates;
+    if (currentStyleFilter !== 'all') {
+        filteredTemplates = templates.filter(t => t.styleTag === currentStyleFilter);
+    }
+
+    if (!filteredTemplates.length) {
         g.innerHTML = `<div class="empty-state">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-            <h3>Chưa có mẫu CV nào</h3><p>Nhấn "Thêm mẫu CV" để bắt đầu</p>
+            <h3>${currentStyleFilter === 'all' ? 'Chưa có mẫu CV nào' : 'Không có mẫu CV nào theo phong cách này'}</h3><p>${currentStyleFilter === 'all' ? 'Nhấn "Thêm mẫu CV" để bắt đầu' : 'Hãy thử chọn phong cách khác'}</p>
         </div>`;
         return;
     }
-    g.innerHTML = templates.map(t => {
+    g.innerHTML = filteredTemplates.map(t => {
         let content = null;
         try { content = t.templateContent ? JSON.parse(t.templateContent) : null; } catch {}
         const hasContent = content && content.name;
@@ -470,7 +589,7 @@ function renderGrid() {
                 <p class="template-desc">${esc(t.description||'—')}</p>
                 <div class="template-meta">
                     ${t.category ? `<span class="meta-tag">📂 ${esc(t.category)}</span>` : ''}
-                    ${t.styleTag ? `<span class="meta-tag">🎨 ${esc(t.styleTag)}</span>` : ''}
+                    ${t.styleTag ? `<span class="meta-tag">🎨 ${esc(getStyleName(t.styleTag))}</span>` : ''}
                     ${hasContent ? `<span class="meta-tag" style="color:#059669;">⚡ ${getContentSummary(content)}</span>` : '<span class="meta-tag" style="color:#d97706;">⚠ Chưa có nội dung</span>'}
                 </div>
                 <div class="template-actions">
@@ -487,6 +606,17 @@ function renderGrid() {
             </div>
         </div>`;
     }).join('');
+}
+
+function getStyleName(styleTag) {
+    const styleNames = {
+        'professional': 'Chuyên nghiệp',
+        'creative': 'Sáng tạo',
+        'minimalist': 'Tối giản',
+        'classic': 'Cổ điển',
+        'harvard': 'Harvard'
+    };
+    return styleNames[styleTag] || styleTag;
 }
 
 function getContentSummary(c) {
