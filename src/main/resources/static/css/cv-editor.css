@@ -1058,13 +1058,9 @@ input:checked + .slider:before {
     color: #000;
 }
 
-.cvm-skill-group { margin-bottom: 20px; }
-.cvm-skill-cat { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 10px; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
-.cvm-skill-bar { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-.cvm-skill-bar span { font-size: 13px; font-weight: 500; color: #334155; }
-
-.cvm-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
-.cvm-bar-fill { height: 100%; border-radius: 3px; }
+.cvm-skill-group { margin-bottom: 15px; }
+.cvm-skill-cat { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 6px; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+.cvm-skill-list { font-size: 13px; color: #475569; line-height: 1.6; }
 
 .cvm-edu-item { margin-bottom: 16px; }
 .cvm-edu-degree { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 2px; }

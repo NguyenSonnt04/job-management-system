@@ -916,11 +916,9 @@
         const skillsHtml = (c.skills || []).map(sg => `
             <div class="cvm-skill-group">
                 <div class="cvm-skill-cat">${ed(sg.category)}</div>
-                ${(sg.items || []).map((item) => `
-                    <div class="cvm-skill-bar">
-                        <span>${ed(item)}</span>
-                        <div class="cvm-bar"><div class="cvm-bar-fill" style="width:${SKILL_WIDTHS[skillWidthIdx++ % SKILL_WIDTHS.length]}%;background:${accent};"></div></div>
-                    </div>`).join('')}
+                <div class="cvm-skill-list">
+                    ${(sg.items || []).map(item => ed(item)).join(', ')}
+                </div>
             </div>`).join('');
 
         const eduHtml = (c.education || []).map(e => `
