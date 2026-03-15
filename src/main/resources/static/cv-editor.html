@@ -79,6 +79,37 @@
         .btn-upload-avatar:hover { background: #0d6361; }
         .btn-edit-toggle { background: white; color: #2e3b8e; border: 2px solid #2e3b8e; }
         .btn-edit-toggle.active { background: #2e3b8e; color: white; }
+        .btn-my-cvs { background: #7c3aed; color: white; }
+        .btn-my-cvs:hover { background: #6d28d9; }
+
+        /* ── Save Name Modal ── */
+        .cv-modal-backdrop {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45); z-index: 9000;
+            align-items: center; justify-content: center;
+        }
+        .cv-modal-backdrop.show { display: flex; }
+        .cv-modal {
+            background: white; border-radius: 16px;
+            padding: 32px; width: 420px; max-width: 90vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            animation: modalIn 0.22s ease;
+        }
+        @keyframes modalIn { from { opacity:0; transform:scale(0.94) translateY(-12px); } to { opacity:1; transform:none; } }
+        .cv-modal h3 { font-size: 18px; font-weight: 800; color: #1e293b; margin: 0 0 6px; }
+        .cv-modal p { font-size: 13px; color: #64748b; margin: 0 0 20px; }
+        .cv-modal input {
+            width: 100%; padding: 11px 14px; border-radius: 8px;
+            border: 2px solid #e2e8f0; font-size: 14px;
+            box-sizing: border-box; outline: none; transition: border 0.15s;
+        }
+        .cv-modal input:focus { border-color: #2e3b8e; }
+        .cv-modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        .cv-modal-actions button { padding: 10px 20px; border-radius: 8px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+        .btn-modal-cancel { background: #f1f5f9; color: #475569; }
+        .btn-modal-cancel:hover { background: #e2e8f0; }
+        .btn-modal-confirm { background: #2e3b8e; color: white; }
+        .btn-modal-confirm:hover { background: #1e2a6e; }
 
         /* ── Inline editing glow ── */
         .cv-editable-mode [contenteditable] {
@@ -187,20 +218,36 @@
             <!-- CV Action Toolbar: shown after CV is generated -->
             <div class="cv-action-toolbar" id="cvToolbar">
                 <button class="btn-cv-action btn-upload-avatar" onclick="triggerAvatarUpload()" title="Tải ảnh đại diện">
-                    🖼️ Ảnh đại diện
+                    🖼️ Ảnh
                 </button>
                 <button class="btn-cv-action btn-edit-toggle" id="btnEditToggle" onclick="toggleEditMode()" title="Chỉnh sửa trực tiếp">
-                    ✏️ Chỉnh sửa thủ công
+                    ✏️ Chỉnh sửa
                 </button>
-                <button class="btn-cv-action btn-save-cv" id="btnSaveCv" onclick="saveCv()">
+                <button class="btn-cv-action btn-save-cv" id="btnSaveCv" onclick="openSaveModal()">
                     💾 Lưu CV
                 </button>
                 <button class="btn-cv-action btn-pdf" onclick="downloadPdf()">
                     📄 Tải PDF
                 </button>
+                <button class="btn-cv-action btn-my-cvs" onclick="window.location.href='/my-cvs.html'">
+                    📂 CV của tôi
+                </button>
             </div>
             <!-- Hidden avatar input -->
             <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)">
+
+            <!-- Save Name Modal -->
+            <div class="cv-modal-backdrop" id="saveModal">
+                <div class="cv-modal">
+                    <h3>💾 Lưu CV</h3>
+                    <p>Đặt tên để dễ nhận biết CV này sau này</p>
+                    <input type="text" id="cvNameInput" placeholder="VD: CV Software Engineer 2024" maxlength="100">
+                    <div class="cv-modal-actions">
+                        <button class="btn-modal-cancel" onclick="closeSaveModal()">Hủy</button>
+                        <button class="btn-modal-confirm" id="btnConfirmSave" onclick="confirmSave()">Lưu ngay</button>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- ── Right: AI Chat ── -->
@@ -725,21 +772,45 @@
     // ── Save CV to DB ─────────────────────────────────────────────────────────
     let savedCvId = null;
 
-    async function saveCv() {
+    function openSaveModal() {
         if (!currentCvJson) { addAiMsg('Chưa có CV để lưu.'); return; }
+        const defaultName = currentCvJson.name
+            ? `CV của ${currentCvJson.name}`
+            : 'CV của tôi';
+        document.getElementById('cvNameInput').value = savedCvId ? (currentCvJson._savedName || defaultName) : defaultName;
+        document.getElementById('saveModal').classList.add('show');
+        setTimeout(() => document.getElementById('cvNameInput').focus(), 80);
+    }
+
+    function closeSaveModal() {
+        document.getElementById('saveModal').classList.remove('show');
+    }
+
+    // Close on backdrop click
+    document.getElementById('saveModal').addEventListener('click', function(e) {
+        if (e.target === this) closeSaveModal();
+    });
+
+    // Enter to confirm
+    document.getElementById('cvNameInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') confirmSave();
+        if (e.key === 'Escape') closeSaveModal();
+    });
+
+    async function confirmSave() {
+        const cvName = (document.getElementById('cvNameInput').value || '').trim()
+            || (currentCvJson.name ? `CV của ${currentCvJson.name}` : 'CV của tôi');
+
+        closeSaveModal();
 
         const btnSave = document.getElementById('btnSaveCv');
         btnSave.textContent = '⏳ Đang lưu...';
         btnSave.disabled = true;
 
-        const cvName = currentCvJson.name
-            ? `CV của ${currentCvJson.name}`
-            : 'CV của tôi';
-
         const params = new URLSearchParams(window.location.search);
 
         try {
-            const url  = savedCvId ? `/api/user-cv/${savedCvId}` : '/api/user-cv/save';
+            const url    = savedCvId ? `/api/user-cv/${savedCvId}` : '/api/user-cv/save';
             const method = savedCvId ? 'PUT' : 'POST';
 
             const res = await fetch(url, {
@@ -764,12 +835,13 @@
 
             if (!data.success) throw new Error(data.message);
 
-            if (data.id) savedCvId = data.id;
+            if (data.id) { savedCvId = data.id; }
+            if (currentCvJson) currentCvJson._savedName = cvName;
 
             btnSave.textContent = '✅ Đã lưu';
             btnSave.classList.add('saved');
             btnSave.disabled = false;
-            addAiMsg(`💾 <strong>CV đã được lưu thành công</strong> vào tài khoản của bạn!`);
+            addAiMsg(`💾 CV <strong>"${cvName}"</strong> đã được lưu thành công! <a href="/my-cvs.html" style="color:#2e3b8e;font-weight:700;">Xem CV của tôi →</a>`);
 
         } catch (e) {
             btnSave.textContent = '💾 Lưu CV';
@@ -778,12 +850,20 @@
         }
     }
 
+    // Keep backward-compat alias
+    function saveCv() { openSaveModal(); }
+
     // ── Download PDF ─────────────────────────────────────────────────────────
     function downloadPdf() {
-        // Ensure edit mode is off before printing
         if (isEditMode) toggleEditMode();
-        // Brief delay to let DOM settle
-        setTimeout(() => window.print(), 150);
+        // Update document title temporarily for the print dialog filename
+        const name = currentCvJson?.name || 'CV';
+        const orig = document.title;
+        document.title = `CV_${name.replace(/\s+/g, '_')}`;
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => { document.title = orig; }, 500);
+        }, 150);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -802,6 +882,7 @@
         if (style === 'creative')    html = renderCreativeStyle(c, accent);
         else if (style === 'minimalist') html = renderMinimalistStyle(c, accent);
         else if (style === 'classic')    html = renderClassicStyle(c, accent);
+        else if (style === 'harvard')    html = renderHarvardStyle(c, accent);
         else                             html = renderProfessionalStyle(c, accent);
 
         document.getElementById('cvPreview').innerHTML = html;
@@ -828,13 +909,17 @@
 
     // ── STYLE 1: Professional (2-column with color header) ──────
     function renderProfessionalStyle(c, accent) {
+        // Pre-defined widths create a natural, varied look across all skill groups
+        const SKILL_WIDTHS = [92, 78, 85, 65, 88, 72, 80, 68, 76, 70, 83, 60, 90, 75, 64];
+        let skillWidthIdx = 0;
+
         const skillsHtml = (c.skills || []).map(sg => `
             <div class="cvm-skill-group">
                 <div class="cvm-skill-cat">${ed(sg.category)}</div>
-                ${(sg.items || []).map((item, i) => `
+                ${(sg.items || []).map((item) => `
                     <div class="cvm-skill-bar">
                         <span>${ed(item)}</span>
-                        <div class="cvm-bar"><div class="cvm-bar-fill" style="width:${95-(i%5)*8}%;background:${accent};"></div></div>
+                        <div class="cvm-bar"><div class="cvm-bar-fill" style="width:${SKILL_WIDTHS[skillWidthIdx++ % SKILL_WIDTHS.length]}%;background:${accent};"></div></div>
                     </div>`).join('')}
             </div>`).join('');
 
@@ -889,271 +974,130 @@
         const portfolioHtml = c.portfolio ? `<span>🌐 <a href="${esc(c.portfolio)}" target="_blank" style="color:rgba(255,255,255,0.9);text-decoration:none;">${ed(c.portfolio)}</a></span>` : '';
 
         return `<div class="cv-full" style="--cv-accent:${accent};">
-            <div class="cvm-header" style="background:${accent};">
+            <header class="cvm-header" style="background: linear-gradient(135deg, ${accent}, ${accent}dd);">
                 ${getAvatarHtml()}
                 <div class="cvm-header-info">
-                    <div class="cvm-name cv-editable">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</div>
+                    <h1 class="cvm-name cv-editable">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</h1>
                     <div class="cvm-job-title cv-editable">${esc(c.subtitle||'Vị trí công việc mong muốn')}</div>
                     <div class="cvm-contact-row">
-                        ${c.email?`<span>✉ <span class="cv-editable">${esc(c.email)}</span></span>`:''}
-                        ${c.phone?`<span>☎ <span class="cv-editable">${esc(c.phone)}</span></span>`:''}
+                        ${c.email?`<span>📧 <span class="cv-editable">${esc(c.email)}</span></span>`:''}
+                        ${c.phone?`<span>📱 <span class="cv-editable">${esc(c.phone)}</span></span>`:''}
                         ${c.address?`<span>📍 <span class="cv-editable">${esc(c.address)}</span></span>`:''}
-                        ${linkedinHtml}${portfolioHtml}
+                        ${c.linkedin?`<span>🔗 <span class="cv-editable">${esc(c.linkedin)}</span></span>`:''}
                     </div>
                 </div>
-            </div>
+            </header>
             <div class="cvm-body">
-                <div class="cvm-left">
-                    ${skillsHtml?`<div class="cvm-section"><div class="cvm-section-title" style="color:${accent};">KỸ NĂNG</div>${skillsHtml}</div>`:''}
-                    ${eduHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};">HỌC VẤN</div>${eduHtml}</div>`:''}
-                    ${certHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};">CHỨNG CHỈ</div>${certHtml}</div>`:''}
-                    ${awardsHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};">GIẢI THƯỞNG</div>${awardsHtml}</div>`:''}
-                </div>
-                <div class="cvm-right">
+                <aside class="cvm-left">
+                    ${skillsHtml?`<section class="cvm-section"><h2 class="cvm-section-title" style="color:${accent};">KỸ NĂNG</h2>${skillsHtml}</section>`:''}
+                    ${eduHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">HỌC VẤN</h2>${eduHtml}</section>`:''}
+                    ${certHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">CHỨNG CHỈ</h2>${certHtml}</section>`:''}
+                </aside>
+                <main class="cvm-right">
                     ${summaryHtml}
-                    ${expHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};border-bottom:1.5px solid ${accent};">KINH NGHIỆM LÀM VIỆC</div>${expHtml}</div>`:''}
-                    ${projHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};border-bottom:1.5px solid ${accent};">DỰ ÁN / CÔNG TRÌNH</div>${projHtml}</div>`:''}
-                    ${actHtml?`<div class="cvm-section" style="margin-top:20px;"><div class="cvm-section-title" style="color:${accent};border-bottom:1.5px solid ${accent};">HOẠT ĐỘNG NGOẠI KHÓA</div>${actHtml}</div>`:''}
-                </div>
+                    ${expHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">KINH NGHIỆM LÀM VIỆC</h2>${expHtml}</section>`:''}
+                    ${projHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">DỰ ÁN NỔI BẬT</h2>${projHtml}</section>`:''}
+                </main>
             </div>
         </div>`;
     }
 
-    // ── STYLE 2: Creative (Dark sidebar + geometric accents) ────
+    // ── STYLE 2: Creative (Modern Card Layout) ──────
     function renderCreativeStyle(c, accent) {
-        // Compute a lighter tint for the sidebar bg
-        const sidebarBg = accent;
-
-        const skillTagsHtml = (c.skills||[]).flatMap(sg=>
-            (sg.items||[]).map(item=>`<span class="cvc-skill-tag">${ed(item)}</span>`)
-        ).join('');
-
         const skillGroupsHtml = (c.skills||[]).map(sg=>`
-            <div style="margin-bottom:16px;">
-                <div class="cvc-section-sub">${ed(sg.category)}</div>
-                <div class="cvc-tags">${(sg.items||[]).map(item=>`<span class="cvc-tag">${ed(item)}</span>`).join('')}</div>
-            </div>`).join('');
-
-        const eduSideHtml = (c.education||[]).map(e=>`
-            <div class="cvc-side-item">
-                <div class="cvc-side-title">${ed(e.degree||'')}</div>
-                <div class="cvc-side-sub">${ed(e.school||e.location||'')}</div>
-                <div class="cvc-side-year">${ed(e.period||'')}</div>
-            </div>`).join('');
-
-        const certSideHtml = (c.certifications||[]).map(cert=>`
-            <div class="cvc-side-item">
-                <div class="cvc-side-title">${ed(cert.name||cert.raw||'')}</div>
-                ${cert.issuer?`<div class="cvc-side-sub">${ed(cert.issuer)}</div>`:''}
-                ${cert.year?`<div class="cvc-side-year">${ed(cert.year)}</div>`:''}
-            </div>`).join('');
-
-        const awardSideHtml = (c.awards||[]).map(aw=>`
-            <div class="cvc-side-item">
-                <span style="font-size:18px;">🏆</span>
-                <div>
-                    <div class="cvc-side-title">${ed(aw.name||aw.raw||'')}</div>
-                    ${aw.year?`<div class="cvc-side-year">${ed(aw.year)}</div>`:''}
-                </div>
+            <div class="cvc2-skill-group">
+                <div class="cvc2-skill-cat">${ed(sg.category)}</div>
+                <div class="cvc2-tags">${(sg.items||[]).map(i=>`<span class="cvc2-tag">${ed(i)}</span>`).join('')}</div>
             </div>`).join('');
 
         const expHtml = (c.experience||[]).map(e=>`
-            <div class="cvc-timeline-item">
-                <div class="cvc-timeline-dot" style="background:${accent};"></div>
-                <div class="cvc-timeline-content">
-                    <div class="cvc-exp-role">${ed(e.role||'')}</div>
-                    <div class="cvc-exp-meta" style="color:${accent};">${ed(e.company||'')} · ${ed(e.period||'')}</div>
-                    ${(e.details||[]).map(d=>`<div class="cvc-detail">▸ ${ed(d)}</div>`).join('')}
-                </div>
+            <div class="cvc2-card">
+                <div class="cvc2-card-title">${ed(e.role||'')}</div>
+                <div class="cvc2-card-sub" style="color:${accent}">${ed(e.company||'')} &nbsp;|&nbsp; ${ed(e.period||'')}</div>
+                ${(e.details||[]).map(d=>`<div class="cvc2-card-bullet">◈ ${ed(d)}</div>`).join('')}
             </div>`).join('');
-
-        const projHtml = (c.projects||[]).map(p=>`
-            <div class="cvc-timeline-item">
-                <div class="cvc-timeline-dot" style="background:${accent};"></div>
-                <div class="cvc-timeline-content">
-                    <div class="cvc-exp-role">${ed(p.name||'')}</div>
-                    <div class="cvc-exp-meta" style="color:${accent};">${p.period||''} ${p.tech?`· ${p.tech}`:''}</div>
-                    ${p.github?`<div class="cvc-detail">🔗 <a href="${esc(p.github)}" target="_blank" style="color:${accent};">${ed(p.github)}</a></div>`:''}
-                    ${(p.details||[]).map(d=>`<div class="cvc-detail">▸ ${ed(d)}</div>`).join('')}
-                </div>
-            </div>`).join('');
-
-        const actHtml = (c.activities||[]).map(a=>`
-            <div class="cvc-timeline-item">
-                <div class="cvc-timeline-dot" style="background:${accent};"></div>
-                <div class="cvc-timeline-content">
-                    <div class="cvc-exp-role">${ed(a.name||a.raw||'')}</div>
-                    ${a.role||a.period?`<div class="cvc-exp-meta" style="color:${accent};">${a.role?ed(a.role):''} ${a.period?'· '+ed(a.period):''}</div>`:''}
-                    ${(a.details||[]).map(d=>`<div class="cvc-detail">▸ ${ed(d)}</div>`).join('')}
-                </div>
-            </div>`).join('');
-
-        return `<div class="cv-full cvc-root" style="--cv-accent:${accent};">
-            <!-- Top banner -->
-            <div class="cvc-banner" style="background:${accent};">
-                <div class="cvc-banner-shape"></div>
-                <div class="cvc-banner-inner">
-                    ${getAvatarHtml('rgba(255,255,255,0.8)', 100, 'square')}
-                    <div class="cvc-banner-info">
-                        <div class="cvc-name cv-editable">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</div>
-                        <div class="cvc-subtitle cv-editable">${esc(c.subtitle||'Chức danh / Vị trí')}</div>
-                        <div class="cvc-contacts">
-                            ${c.email?`<span>✉ <span class="cv-editable">${esc(c.email)}</span></span>`:''}
-                            ${c.phone?`<span>☎ <span class="cv-editable">${esc(c.phone)}</span></span>`:''}
-                            ${c.address?`<span>📍 <span class="cv-editable">${esc(c.address)}</span></span>`:''}
-                            ${c.linkedin?`<span>🔗 <span class="cv-editable">${esc(c.linkedin)}</span></span>`:''}
-                            ${c.portfolio?`<span>🌐 <span class="cv-editable">${esc(c.portfolio)}</span></span>`:''}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Body: sidebar + main -->
-            <div class="cvc-body">
-                <!-- Left sidebar -->
-                <div class="cvc-sidebar" style="background:#f8fafc;">
-                    ${c.summary?`<div class="cvc-side-block">
-                        <div class="cvc-side-heading" style="color:${accent};">GIỚI THIỆU</div>
-                        <div class="cvc-summary cv-editable" style="font-size:13px;color:#475569;line-height:1.7;">${esc(c.summary).replace(/\n/g,'<br>')}</div>
-                    </div>`:''}
-                    ${skillGroupsHtml?`<div class="cvc-side-block">
-                        <div class="cvc-side-heading" style="color:${accent};">KỸ NĂNG</div>
-                        ${skillGroupsHtml}
-                    </div>`:''}
-                    ${eduSideHtml?`<div class="cvc-side-block">
-                        <div class="cvc-side-heading" style="color:${accent};">HỌC VẤN</div>
-                        ${eduSideHtml}
-                    </div>`:''}
-                    ${certSideHtml?`<div class="cvc-side-block">
-                        <div class="cvc-side-heading" style="color:${accent};">CHỨNG CHỈ</div>
-                        ${certSideHtml}
-                    </div>`:''}
-                    ${awardSideHtml?`<div class="cvc-side-block">
-                        <div class="cvc-side-heading" style="color:${accent};">THÀNH TÍCH</div>
-                        ${awardSideHtml}
-                    </div>`:''}
-                </div>
-                <!-- Right main -->
-                <div class="cvc-main">
-                    ${expHtml?`<div class="cvc-main-block">
-                        <div class="cvc-main-heading" style="border-color:${accent};color:${accent};">KINH NGHIỆM LÀM VIỆC</div>
-                        <div class="cvc-timeline">${expHtml}</div>
-                    </div>`:''}
-                    ${projHtml?`<div class="cvc-main-block">
-                        <div class="cvc-main-heading" style="border-color:${accent};color:${accent};">DỰ ÁN NỔI BẬT</div>
-                        <div class="cvc-timeline">${projHtml}</div>
-                    </div>`:''}
-                    ${actHtml?`<div class="cvc-main-block">
-                        <div class="cvc-main-heading" style="border-color:${accent};color:${accent};">HOẠT ĐỘNG</div>
-                        <div class="cvc-timeline">${actHtml}</div>
-                    </div>`:''}
-                </div>
-            </div>
-        </div>`;
-    }
-
-    // ── STYLE 3: Minimalist (clean 1-col, subtle accent line) ──
-    function renderMinimalistStyle(c, accent) {
-        const contactItems = [
-            c.email    ? `<span class="cvm1-contact-item">✉ <span class="cv-editable">${esc(c.email)}</span></span>` : '',
-            c.phone    ? `<span class="cvm1-contact-item">☎ <span class="cv-editable">${esc(c.phone)}</span></span>` : '',
-            c.address  ? `<span class="cvm1-contact-item">📍 <span class="cv-editable">${esc(c.address)}</span></span>` : '',
-            c.linkedin ? `<span class="cvm1-contact-item">🔗 <span class="cv-editable">${esc(c.linkedin)}</span></span>` : '',
-            c.portfolio? `<span class="cvm1-contact-item">🌐 <span class="cv-editable">${esc(c.portfolio)}</span></span>` : ''
-        ].filter(Boolean).join('');
-
-        const section = (title, content) => content ? `
-            <div class="cvm1-section">
-                <div class="cvm1-section-title" style="color:${accent};border-bottom:2px solid ${accent}15;">${title}</div>
-                ${content}
-            </div>` : '';
 
         const eduHtml = (c.education||[]).map(e=>`
-            <div class="cvm1-item">
-                <div class="cvm1-item-head">
-                    <div>
-                        <div class="cvm1-item-title">${ed(e.degree||'')}</div>
-                        <div class="cvm1-item-sub">${ed(e.school||e.location||'')}</div>
+            <div class="cvc2-card">
+                <div class="cvc2-card-title">${ed(e.degree||'')}</div>
+                <div class="cvc2-card-sub" style="color:${accent}">${ed(e.school||e.location||'')}</div>
+                <div class="cvc2-card-sub">${ed(e.period||'')}</div>
+            </div>`).join('');
+
+        return `<div class="cv-full cvc2-root" style="--cv-accent:${accent};">
+            <header class="cvc2-header" style="background: linear-gradient(45deg, ${accent}, ${accent}cc);">
+                ${getAvatarHtml('rgba(255,255,255,0.8)', 110, 'square')}
+                <div class="cvc2-header-right">
+                    <h1 class="cvc2-name cv-editable">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</h1>
+                    <div class="cvc2-title cv-editable">${esc(c.subtitle||'Vị trí / Chức danh')}</div>
+                    <div class="cvc2-contacts">
+                        ${c.email?`<span>📧 <span class="cv-editable">${esc(c.email)}</span></span>`:''}
+                        ${c.phone?`<span>📱 <span class="cv-editable">${esc(c.phone)}</span></span>`:''}
                     </div>
-                    <div class="cvm1-item-date" style="color:${accent};">${ed(e.period||'')}</div>
                 </div>
-                ${(e.details||[]).map(d=>`<div class="cvm1-detail">• ${ed(d)}</div>`).join('')}
-            </div>`).join('');
-
-        const expHtml = (c.experience||[]).map(e=>`
-            <div class="cvm1-item">
-                <div class="cvm1-item-head">
-                    <div>
-                        <div class="cvm1-item-title">${ed(e.role||'')}</div>
-                        <div class="cvm1-item-sub">${ed(e.company||'')}</div>
-                    </div>
-                    <div class="cvm1-item-date" style="color:${accent};">${ed(e.period||'')}</div>
-                </div>
-                ${(e.details||[]).map(d=>`<div class="cvm1-detail">• ${ed(d)}</div>`).join('')}
-            </div>`).join('');
-
-        const projHtml = (c.projects||[]).map(p=>`
-            <div class="cvm1-item">
-                <div class="cvm1-item-head">
-                    <div class="cvm1-item-title">${ed(p.name||'')}</div>
-                    <div class="cvm1-item-date" style="color:${accent};">${ed(p.period||'')}</div>
-                </div>
-                ${p.tech?`<div class="cvm1-item-sub">Tech: ${ed(p.tech)}</div>`:''}
-                ${p.github?`<div class="cvm1-detail">🔗 <a href="${esc(p.github)}" target="_blank" style="color:${accent}">${ed(p.github)}</a></div>`:''}
-                ${(p.details||[]).map(d=>`<div class="cvm1-detail">• ${ed(d)}</div>`).join('')}
-            </div>`).join('');
-
-        const skillHtml = (c.skills||[]).map(sg=>`
-            <div class="cvm1-skill-row">
-                <div class="cvm1-skill-cat">${ed(sg.category)}</div>
-                <div class="cvm1-skill-pills">${(sg.items||[]).map(item=>`<span class="cvm1-pill" style="background:${accent}18;color:${accent};border:1px solid ${accent}40;">${ed(item)}</span>`).join('')}</div>
-            </div>`).join('');
-
-        const certHtml = (c.certifications||[]).map(cert=>`
-            <div class="cvm1-cert">
-                <span class="cvm1-cert-name">${ed(cert.name||cert.raw||'')}</span>
-                ${cert.issuer?`<span class="cvm1-cert-issuer"> — ${ed(cert.issuer)}</span>`:''}
-                ${cert.year?`<span class="cvm1-cert-year" style="color:${accent};"> (${ed(cert.year)})</span>`:''}
-            </div>`).join('');
-
-        const awardsHtml = (c.awards||[]).map(aw=>`
-            <div class="cvm1-cert">🏆 <span class="cvm1-cert-name">${ed(aw.name||aw.raw||'')}</span>
-                ${aw.year?`<span class="cvm1-cert-year" style="color:${accent};"> — ${ed(aw.year)}</span>`:''}
-            </div>`).join('');
-
-        const actHtml = (c.activities||[]).map(a=>`
-            <div class="cvm1-item">
-                <div class="cvm1-item-head">
-                    <div class="cvm1-item-title">${ed(a.name||a.raw||'')}</div>
-                    ${a.period?`<div class="cvm1-item-date" style="color:${accent};">${ed(a.period)}</div>`:''}
-                </div>
-                ${a.role?`<div class="cvm1-item-sub">${ed(a.role)}</div>`:''}
-                ${(a.details||[]).map(d=>`<div class="cvm1-detail">• ${ed(d)}</div>`).join('')}
-            </div>`).join('');
-
-        return `<div class="cv-full cvm1-root" style="--cv-accent:${accent};">
-            <div class="cvm1-header">
-                <div class="cvm1-avatar-area">${getAvatarHtml('#e2e8f0', 90, 'circle')}</div>
-                <div class="cvm1-header-text">
-                    <div class="cvm1-name cv-editable" style="color:${accent};">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</div>
-                    <div class="cvm1-subtitle cv-editable">${esc(c.subtitle||'')}</div>
-                    <div class="cvm1-contacts">${contactItems}</div>
-                </div>
-            </div>
-            <div class="cvm1-divider" style="background:${accent};"></div>
-            <div class="cvm1-body">
-                ${section('GIỚI THIỆU BẢN THÂN', c.summary?`<div class="cvm1-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</div>`:'')}
-                ${section('KINH NGHIỆM LÀM VIỆC', expHtml)}
-                ${section('HỌC VẤN', eduHtml)}
-                ${section('DỰ ÁN', projHtml)}
-                ${section('KỸ NĂNG', skillHtml)}
-                ${section('CHỨNG CHỈ', certHtml)}
-                ${section('GIẢI THƯỞNG', awardsHtml)}
-                ${section('HOẠT ĐỘNG NGOẠI KHÓA', actHtml)}
+            </header>
+            <div class="cvc2-body">
+                <aside class="cvc2-left">
+                    ${c.summary?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">GIỚI THIỆU</h3><div class="cvc2-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</div></section>`:''}
+                    ${skillGroupsHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">KỸ NĂNG</h3>${skillGroupsHtml}</section>`:''}
+                    ${eduHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">HỌC VẤN</h3>${eduHtml}</section>`:''}
+                </aside>
+                <main class="cvc2-right">
+                    ${expHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">KINH NGHIỆM</h3>${expHtml}</section>`:''}
+                </main>
             </div>
         </div>`;
     }
 
-    // ── STYLE 4: Classic (Harvard-inspired, black & white) ─────
+
+
+    // ── STYLE 3: Minimalist (High-end Typography) ──
+    function renderMinimalistStyle(c, accent) {
+        const block = (title, content) => content ? `
+            <div class="cvm2-block">
+                <div class="cvm2-block-label" style="background:${accent};">${title}</div>
+                <div class="cvm2-block-body">${content}</div>
+            </div>` : '';
+
+        const expHtml = (c.experience||[]).map(e=>`
+            <div class="cvm2-row">
+                <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
+                <div class="cvm2-row-content">
+                    <div class="cvm2-row-title">${esc(e.role||'')}</div>
+                    <div class="cvm2-row-org">${esc(e.company||'')}</div>
+                    ${(e.details||[]).map(d=>`<div class="cvm2-bullet">${ed(d)}</div>`).join('')}
+                </div>
+            </div>`).join('');
+
+        const eduHtml = (c.education||[]).map(e=>`
+            <div class="cvm2-row">
+                <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
+                <div class="cvm2-row-content">
+                    <div class="cvm2-row-title">${esc(e.degree||'')}</div>
+                    <div class="cvm2-row-org">${esc(e.school||e.location||'')}</div>
+                </div>
+            </div>`).join('');
+
+        return `<div class="cv-full cvm2-root">
+            <header class="cvm2-header">
+                <h1 class="cvm2-name cv-editable">${esc(c.name||'HỌ TÊN')}</h1>
+                <div class="cvm2-subtitle cv-editable">${esc(c.subtitle||'')}</div>
+                <div class="cvm2-contacts">
+                    ${c.email?`<span>✉ ${esc(c.email)}</span>`:''}
+                    ${c.phone?`<span>✆ ${esc(c.phone)}</span>`:''}
+                    ${c.address?`<span>📍 ${esc(c.address)}</span>`:''}
+                </div>
+            </header>
+            <div class="cvm2-body">
+                ${c.summary?block('GIỚI THIỆU',`<p class="cvm2-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>`)  :''}
+                ${expHtml?block('KINH NGHIỆM',expHtml):''}
+                ${eduHtml?block('HỌ C VẤN',eduHtml):''}
+            </div>
+        </div>`;
+    }
+
+    // ── STYLE 4: Classic (Center name + 2-col split body) ───────
+    // Structure: Centered header with accent border + left=experience, right=edu+skills
     function renderClassicStyle(c, accent) {
         const hrColor = accent || '#1a1a1a';
 
@@ -1163,90 +1107,187 @@
             c.address  ? `<span class="cv-editable">${esc(c.address)}</span>` : '',
             c.linkedin ? `<span class="cv-editable">${esc(c.linkedin)}</span>` : '',
             c.portfolio? `<span class="cv-editable">${esc(c.portfolio)}</span>` : ''
-        ].filter(Boolean).join(' &nbsp;•&nbsp; ');
+        ].filter(Boolean).join(' · ');
 
-        const section = (title, content) => content ? `
-            <div class="cvcl-section">
-                <div class="cvcl-title" style="border-bottom:2px solid ${hrColor};color:${hrColor};">${title}</div>
+        const lsec = (title, content) => content ? `
+            <div class="cvcl2-section">
+                <div class="cvcl2-sec-title" style="color:${hrColor};border-left:4px solid ${hrColor};">${title}</div>
                 ${content}
             </div>` : '';
 
-        const eduHtml = (c.education||[]).map(e=>`
-            <div class="cvcl-item">
-                <div class="cvcl-item-head">
-                    <strong class="cv-editable">${esc(e.degree||'')}</strong>
-                    <span class="cvcl-date cv-editable">${esc(e.period||'')}</span>
-                </div>
-                <div class="cvcl-item-sub cv-editable">${esc(e.school||e.location||'')}</div>
-                ${(e.details||[]).map(d=>`<div class="cvcl-bullet">– ${ed(d)}</div>`).join('')}
-            </div>`).join('');
+        const rsec = (title, content) => content ? `
+            <div class="cvcl2-section">
+                <div class="cvcl2-sec-title-r" style="border-bottom:2px solid ${hrColor};color:${hrColor};">${title}</div>
+                ${content}
+            </div>` : '';
 
         const expHtml = (c.experience||[]).map(e=>`
-            <div class="cvcl-item">
-                <div class="cvcl-item-head">
-                    <strong class="cv-editable">${esc(e.role||'')}</strong>
-                    <span class="cvcl-date cv-editable">${esc(e.period||'')}</span>
+            <div class="cvcl2-item">
+                <div class="cvcl2-item-top">
+                    <span class="cvcl2-role cv-editable">${esc(e.role||'')}</span>
+                    <span class="cvcl2-date" style="color:${hrColor}">${ed(e.period||'')}</span>
                 </div>
-                <div class="cvcl-item-sub cv-editable">${esc(e.company||'')}</div>
-                ${(e.details||[]).map(d=>`<div class="cvcl-bullet">– ${ed(d)}</div>`).join('')}
+                <div class="cvcl2-company cv-editable">${esc(e.company||'')}</div>
+                ${(e.details||[]).map(d=>`<div class="cvcl2-bullet">▪ ${ed(d)}</div>`).join('')}
             </div>`).join('');
 
         const projHtml = (c.projects||[]).map(p=>`
-            <div class="cvcl-item">
-                <div class="cvcl-item-head">
-                    <strong class="cv-editable">${esc(p.name||'')}</strong>
-                    <span class="cvcl-date">${esc(p.period||'')}</span>
+            <div class="cvcl2-item">
+                <div class="cvcl2-item-top">
+                    <span class="cvcl2-role cv-editable">${esc(p.name||'')}</span>
+                    <span class="cvcl2-date" style="color:${hrColor}">${ed(p.period||'')}</span>
                 </div>
-                ${p.tech?`<div class="cvcl-item-sub">Tech: ${ed(p.tech)}</div>`:''}
-                ${p.github?`<div class="cvcl-bullet"><a href="${esc(p.github)}" target="_blank" style="color:${hrColor}">${ed(p.github)}</a></div>`:''}
-                ${(p.details||[]).map(d=>`<div class="cvcl-bullet">– ${ed(d)}</div>`).join('')}
+                ${p.tech?`<div class="cvcl2-company">Tech: ${ed(p.tech)}</div>`:''}
+                ${(p.details||[]).map(d=>`<div class="cvcl2-bullet">▪ ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const eduHtml = (c.education||[]).map(e=>`
+            <div class="cvcl2-r-item">
+                <div class="cvcl2-r-degree cv-editable">${esc(e.degree||'')}</div>
+                <div class="cvcl2-r-school cv-editable">${esc(e.school||e.location||'')}</div>
+                <div class="cvcl2-r-period" style="color:${hrColor}">${ed(e.period||'')}</div>
             </div>`).join('');
 
         const skillHtml = (c.skills||[]).map(sg=>`
-            <div class="cvcl-skill-row">
-                <span class="cvcl-skill-label"><strong>${ed(sg.category)}:</strong></span>
-                <span class="cvcl-skill-vals">${(sg.items||[]).map(i=>ed(i)).join(', ')}</span>
+            <div class="cvcl2-skill">
+                <div class="cvcl2-skill-cat">${ed(sg.category)}</div>
+                <div class="cvcl2-skill-vals">${(sg.items||[]).map(i=>`<span class="cvcl2-pill" style="border-color:${hrColor}40;color:#333">${ed(i)}</span>`).join('')}</div>
             </div>`).join('');
 
         const certHtml = (c.certifications||[]).map(cert=>`
-            <div class="cvcl-item" style="margin-bottom:8px;">
+            <div class="cvcl2-r-item"><span class="cv-editable">${esc(cert.name||cert.raw||'')}</span>${cert.year?` <span style="color:${hrColor};font-size:11px">(${esc(cert.year)})</span>`:''}</div>`).join('');
+
+        const awardsHtml = (c.awards||[]).map(aw=>`
+            <div class="cvcl2-r-item">🏆 <span class="cv-editable">${esc(aw.name||aw.raw||'')}</span>${aw.year?` <span style="color:${hrColor};font-size:11px">(${esc(aw.year)})</span>`:''}</div>`).join('');
+
+        const actHtml = (c.activities||[]).map(a=>`
+            <div class="cvcl2-r-item"><span class="cv-editable">${esc(a.name||a.raw||'')}</span>${a.period?` <span style="color:${hrColor};font-size:11px">(${esc(a.period)})</span>`:''}</div>`).join('');
+
+        return `<div class="cv-full cvcl2-root" style="--cv-accent:${hrColor};">
+            <!-- Centered header with avatar -->
+            <div class="cvcl2-header" style="border-top:5px solid ${hrColor};">
+                <div class="cvcl2-header-left">
+                    ${getAvatarHtml(hrColor+'80', 100, 'square')}
+                </div>
+                <div class="cvcl2-header-center">
+                    <div class="cvcl2-name cv-editable">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</div>
+                    <div class="cvcl2-subtitle cv-editable" style="color:${hrColor}">${esc(c.subtitle||'')}</div>
+                    <div class="cvcl2-contact">${contactBits}</div>
+                </div>
+            </div>
+            ${c.summary?`<div class="cvcl2-summary-bar" style="border-left:4px solid ${hrColor};">
+                <p class="cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>
+            </div>`:''}
+            <!-- 2-col body: left=exp+proj, right=edu+skills+certs -->
+            <div class="cvcl2-body">
+                <div class="cvcl2-left">
+                    ${lsec('KINH NGHIỆM', expHtml)}
+                    ${lsec('DỰ ÁN', projHtml)}
+                </div>
+                <div class="cvcl2-right">
+                    ${rsec('HỌC VẤN', eduHtml)}
+                    ${rsec('KỸ NĂNG', skillHtml)}
+                    ${rsec('CHỨNG CHỈ', certHtml)}
+                    ${rsec('THÀNH TÍCH', awardsHtml)}
+                    ${rsec('HOẠT ĐỘNG', actHtml)}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // ── STYLE 5: Harvard (Authentic Harvard resume format) ─────
+    function renderHarvardStyle(c, accent) {
+        // Harvard uses Times New Roman, very traditional formatting
+        // Clean layout with left-aligned name, centered contact info
+
+        const contactLine = [
+            c.email    ? `${esc(c.email)}` : '',
+            c.phone    ? `${esc(c.phone)}` : '',
+            c.address  ? `${esc(c.address)}` : '',
+            c.linkedin ? `${esc(c.linkedin)}` : ''
+        ].filter(Boolean).join(' | ');
+
+        const section = (title, content) => content ? `
+            <div class="cvh-section">
+                <div class="cvh-title">${title}</div>
+                ${content}
+            </div>` : '';
+
+        const expHtml = (c.experience||[]).map(e=>`
+            <div class="cvh-item">
+                <div class="cvh-item-head">
+                    <span class="cvh-item-title cv-editable">${esc(e.role||'')}</span>
+                    <span class="cvh-item-date cv-editable">${esc(e.period||'')}</span>
+                </div>
+                <div class="cvh-item-sub">${esc(e.company||'')}</div>
+                ${(e.details||[]).map(d=>`<div class="cvh-bullet">• ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const eduHtml = (c.education||[]).map(e=>`
+            <div class="cvh-item">
+                <div class="cvh-item-head">
+                    <span class="cvh-item-title cv-editable">${esc(e.degree||'')}</span>
+                    <span class="cvh-item-date cv-editable">${esc(e.period||'')}</span>
+                </div>
+                <div class="cvh-item-sub">${esc(e.school||'')}</div>
+                ${(e.details||[]).map(d=>`<div class="cvh-bullet">• ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const projHtml = (c.projects||[]).map(p=>`
+            <div class="cvh-item">
+                <div class="cvh-item-head">
+                    <span class="cvh-item-title cv-editable">${esc(p.name||'')}</span>
+                    <span class="cvh-item-date">${esc(p.period||'')}</span>
+                </div>
+                ${p.tech?`<div class="cvh-item-sub">Technologies: ${ed(p.tech)}</div>`:''}
+                ${p.github?`<div class="cvh-bullet"><a href="${esc(p.github)}" target="_blank">${ed(p.github)}</a></div>`:''}
+                ${(p.details||[]).map(d=>`<div class="cvh-bullet">• ${ed(d)}</div>`).join('')}
+            </div>`).join('');
+
+        const skillHtml = (c.skills||[]).map(sg=>`
+            <div class="cvh-skill-group">
+                <span class="cvh-skill-cat">${ed(sg.category)}:</span>
+                <span class="cvh-skill-items">${(sg.items||[]).map(i=>ed(i)).join(', ')}</span>
+            </div>`).join('');
+
+        const certHtml = (c.certifications||[]).map(cert=>`
+            <div class="cvh-inline-item">
                 <span class="cv-editable">${esc(cert.name||cert.raw||'')}</span>
-                ${cert.issuer?`, <em class="cv-editable">${esc(cert.issuer)}</em>`:''}
+                ${cert.issuer?`, <em>${esc(cert.issuer)}</em>`:''}
                 ${cert.year?` (${ed(cert.year)})`:''}
             </div>`).join('');
 
         const awardsHtml = (c.awards||[]).map(aw=>`
-            <div class="cvcl-item" style="margin-bottom:8px;">
+            <div class="cvh-inline-item">
                 <strong class="cv-editable">${esc(aw.name||aw.raw||'')}</strong>
-                ${aw.year?` — <em>${ed(aw.year)}</em>`:''}
+                ${aw.year?`, ${ed(aw.year)}`:''}
             </div>`).join('');
 
         const actHtml = (c.activities||[]).map(a=>`
-            <div class="cvcl-item">
-                <div class="cvcl-item-head">
-                    <strong class="cv-editable">${esc(a.name||a.raw||'')}</strong>
-                    ${a.period?`<span class="cvcl-date">${ed(a.period)}</span>`:''}
+            <div class="cvh-item">
+                <div class="cvh-item-head">
+                    <span class="cvh-item-title cv-editable">${esc(a.name||a.raw||'')}</span>
+                    ${a.period?`<span class="cvh-item-date">${ed(a.period)}</span>`:''}
                 </div>
-                ${a.role?`<div class="cvcl-item-sub">${ed(a.role)}</div>`:''}
-                ${(a.details||[]).map(d=>`<div class="cvcl-bullet">– ${ed(d)}</div>`).join('')}
+                ${a.role?`<div class="cvh-item-sub">${ed(a.role)}</div>`:''}
+                ${(a.details||[]).map(d=>`<div class="cvh-bullet">• ${ed(d)}</div>`).join('')}
             </div>`).join('');
 
-        return `<div class="cv-full cvcl-root" style="--cv-accent:${hrColor};">
-            <div class="cvcl-header">
-                <div class="cvcl-name cv-editable">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</div>
-                <div class="cvcl-subtitle cv-editable">${esc(c.subtitle||'')}</div>
-                <div class="cvcl-contact">${contactBits}</div>
-                <div class="cvcl-hr" style="background:${hrColor};"></div>
+        return `<div class="cv-full cvh-root">
+            <div class="cvh-header">
+                <div class="cvh-name cv-editable">${esc(c.name||'YOUR NAME')}</div>
+                <div class="cvh-subtitle cv-editable">${esc(c.subtitle||'')}</div>
+                <div class="cvh-contact">${contactLine}</div>
             </div>
-            <div class="cvcl-body">
-                ${section('OBJECTIVE / MỤC TIÊU', c.summary?`<p class="cvcl-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>`:'')}
-                ${section('WORK EXPERIENCE / KINH NGHIỆM', expHtml)}
-                ${section('EDUCATION / HỌC VẤN', eduHtml)}
-                ${section('PROJECTS / DỰ ÁN', projHtml)}
-                ${section('SKILLS / KỸ NĂNG', skillHtml)}
-                ${section('CERTIFICATIONS / CHỨNG CHỈ', certHtml)}
-                ${section('AWARDS & HONORS / GIẢI THƯỞNG', awardsHtml)}
-                ${section('ACTIVITIES / HOẠT ĐỘNG', actHtml)}
+            <div class="cvh-body">
+                ${c.summary ? section('PROFESSIONAL SUMMARY', `<p class="cvh-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>`) : ''}
+                ${section('EXPERIENCE', expHtml)}
+                ${section('EDUCATION', eduHtml)}
+                ${section('PROJECTS', projHtml)}
+                ${section('SKILLS & EXPERTISE', skillHtml)}
+                ${section('CERTIFICATIONS', certHtml)}
+                ${section('AWARDS & HONORS', awardsHtml)}
+                ${section('LEADERSHIP & ACTIVITIES', actHtml)}
             </div>
         </div>`;
     }
