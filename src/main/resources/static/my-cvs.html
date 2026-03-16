@@ -6,697 +6,125 @@
     <title>CV của tôi | CareerViet</title>
     <meta name="description" content="Quản lý và tải về các CV bạn đã tạo bằng AI CV Builder">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cv-editor.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; }
-
-        body { font-family: 'Inter', sans-serif; background: #f1f5f9; color: #1e293b; margin: 0; }
-
-        /* ── Page layout ── */
-        .mycv-page {
-            max-width: 1100px; margin: 0 auto;
-            padding: 40px 24px 80px;
-        }
-
-        /* ── Header ── */
-        .mycv-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 36px; gap: 16px; flex-wrap: wrap;
-        }
-        .mycv-header-left h1 {
-            font-size: 28px; font-weight: 800; color: #1e293b;
-            margin: 0 0 4px;
-        }
-        .mycv-header-left p {
-            font-size: 14px; color: #64748b; margin: 0;
-        }
-        .btn-new-cv {
-            display: flex; align-items: center; gap: 8px;
-            padding: 12px 22px; background: #2e3b8e; color: white;
-            border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
-            cursor: pointer; text-decoration: none; transition: all 0.2s;
-        }
-        .btn-new-cv:hover { background: #1e2a6e; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(46,59,142,0.35); }
-
-        /* ── Stats bar ── */
-        .mycv-stats {
-            display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap;
-        }
-        .stat-chip {
-            background: white; border-radius: 10px;
-            padding: 10px 18px; font-size: 13px; color: #475569;
-            border: 1px solid #e2e8f0; font-weight: 500;
-        }
-        .stat-chip strong { color: #1e293b; }
-
-        /* ── Loading ── */
-        .mycv-loading {
-            display: flex; flex-direction: column; align-items: center;
-            padding: 80px 0; gap: 16px; color: #64748b;
-        }
-        .loader {
-            width: 40px; height: 40px; border: 4px solid #e2e8f0;
-            border-top-color: #2e3b8e; border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ── Empty state ── */
-        .mycv-empty {
-            text-align: center; padding: 80px 20px;
-            background: white; border-radius: 16px;
-            border: 2px dashed #e2e8f0;
-        }
-        .mycv-empty .empty-icon { font-size: 56px; margin-bottom: 16px; }
-        .mycv-empty h2 { font-size: 20px; font-weight: 700; color: #374151; margin: 0 0 8px; }
-        .mycv-empty p { font-size: 14px; color: #64748b; margin: 0 0 24px; }
-
-        /* ── CV Grid ── */
-        .cv-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        /* ── CV Card ── */
-        .cv-card {
-            background: white; border-radius: 14px;
-            border: 1px solid #e2e8f0;
-            overflow: hidden; transition: all 0.2s;
-            display: flex; flex-direction: column;
-        }
-        .cv-card:hover {
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-            border-color: #bfdbfe;
-        }
-
-        /* CV card thumbnail */
-        .cv-card-thumb {
-            height: 180px; background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; position: relative; overflow: hidden;
-            transition: background 0.2s;
-        }
-        .cv-card-thumb:hover .thumb-overlay { opacity: 1; }
-        .thumb-overlay {
-            position: absolute; inset: 0;
-            background: rgba(46,59,142,0.7);
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.2s;
-            gap: 10px; flex-direction: column;
-            color: white; font-size: 14px; font-weight: 700;
-        }
-        .thumb-overlay-icon { font-size: 28px; }
-        .cv-thumb-preview {
-            padding: 12px 16px; pointer-events: none;
-            transform-origin: top left;
-            transform: scale(0.32);
-            width: 312%;
-            position: absolute; top: 0; left: 0;
-        }
-
-        /* Card body */
-        .cv-card-body {
-            padding: 16px 18px; flex: 1;
-            display: flex; flex-direction: column; gap: 6px;
-        }
-        .cv-card-name {
-            font-size: 15px; font-weight: 700; color: #1e293b;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .cv-card-meta {
-            font-size: 12px; color: #94a3b8;
-            display: flex; gap: 10px; align-items: center;
-        }
-        .cv-card-template {
-            display: inline-block; padding: 2px 8px; border-radius: 20px;
-            font-size: 11px; font-weight: 600; background: #eff6ff; color: #2e3b8e;
-        }
-
-        /* Card actions */
-        .cv-card-actions {
-            padding: 12px 18px; border-top: 1px solid #f1f5f9;
-            display: flex; gap: 6px;
-        }
-        .btn-card {
-            flex: 1; padding: 8px 6px; border-radius: 7px; border: none;
-            font-size: 12px; font-weight: 600; cursor: pointer;
-            transition: all 0.15s; display: flex; align-items: center;
-            justify-content: center; gap: 4px;
-        }
-        .btn-view   { background: #eff6ff; color: #2e3b8e; }
-        .btn-view:hover { background: #dbeafe; }
-        .btn-edit-content { background: #2e3b8e; color: white; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 6px; font-size: 13px; font-weight: 700; border-radius: 8px; padding: 10px; cursor: pointer; border: none; transition: 0.15s; }
-        .btn-edit-content:hover { background: #1e2a6e; }
-        .btn-edit-cv { background: #f0fdf4; color: #16a34a; }
-        .btn-edit-cv:hover { background: #dcfce7; }
-        .btn-dl     { background: #fef3c7; color: #d97706; }
-        .btn-dl:hover { background: #fde68a; }
-        .btn-del    { background: #fef2f2; color: #dc2626; }
-        .btn-del:hover { background: #fee2e2; }
-
-        /* ── Preview Modal ── */
-        .preview-modal-backdrop {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.65); z-index: 9000;
-            align-items: flex-start; justify-content: center;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        .preview-modal-backdrop.show { display: flex; }
-        .preview-modal {
-            background: white; border-radius: 16px; width: 860px; max-width: 100%;
-            margin: auto;
-            box-shadow: 0 24px 80px rgba(0,0,0,0.4);
-            overflow: hidden; position: relative;
-            animation: modalIn 0.22s ease;
-        }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(-16px); } to { opacity: 1; transform: none; } }
-
-        .preview-modal-header {
-            padding: 16px 20px; background: #1e293b;
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 12px;
-        }
-        .preview-modal-title { color: white; font-size: 15px; font-weight: 700; }
-        .preview-modal-actions { display: flex; gap: 8px; }
-        .btn-modal-action {
-            padding: 7px 14px; border-radius: 7px; border: none;
-            font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s;
-        }
-        .btn-modal-dl   { background: #f59e0b; color: white; }
-        .btn-modal-dl:hover { background: #d97706; }
-        .btn-modal-close { background: #475569; color: white; }
-        .btn-modal-close:hover { background: #334155; }
-
-        .preview-modal-body {
-            padding: 40px; min-height: 400px;
-            overflow: auto; background: #f8fafc;
-        }
-
-        /* ── Rename / Delete confirm ── */
-        .mini-modal-backdrop {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.45); z-index: 9500;
-            align-items: center; justify-content: center;
-        }
-        .mini-modal-backdrop.show { display: flex; }
-        .mini-modal {
-            background: white; border-radius: 14px; padding: 28px;
-            width: 380px; max-width: 90vw;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.25);
-            animation: modalIn 0.2s ease;
-        }
-        .mini-modal h4 { margin: 0 0 8px; font-size: 16px; font-weight: 800; color: #1e293b; }
-        .mini-modal p  { margin: 0 0 18px; font-size: 13px; color: #64748b; }
-        .mini-modal input {
-            width: 100%; padding: 10px 13px; border-radius: 8px;
-            border: 2px solid #e2e8f0; font-size: 14px;
-            box-sizing: border-box; outline: none; margin-bottom: 18px;
-            transition: border 0.15s;
-        }
-        .mini-modal input:focus { border-color: #2e3b8e; }
-        .mini-modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
-        .mini-modal-btns button {
-            padding: 9px 18px; border-radius: 8px; border: none;
-            font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s;
-        }
-        .btn-mm-cancel { background: #f1f5f9; color: #475569; }
-        .btn-mm-confirm { background: #2e3b8e; color: white; }
-        .btn-mm-danger  { background: #dc2626; color: white; }
-
-        /* ── Toast ── */
-        .toast-wrap {
-            position: fixed; bottom: 28px; right: 28px; z-index: 99999;
-            display: flex; flex-direction: column; gap: 8px;
-        }
-        .toast {
-            background: #1e293b; color: white;
-            padding: 12px 20px; border-radius: 10px;
-            font-size: 13px; font-weight: 600;
-            animation: toastIn 0.22s ease;
-            max-width: 340px;
-        }
-        .toast.success { background: #16a34a; }
-        .toast.error   { background: #dc2626; }
-        @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-
-        /* ── Print ── */
-        @page { size: A4; margin: 0; }
-        @media print {
-            body > *:not(#printFrame) { display: none !important; }
-            #printFrame { display: block !important; }
-            .preview-modal-backdrop,
-            .mini-modal-backdrop,
-            .toast-wrap,
-            #header-placeholder, #footer-placeholder { display: none !important; }
-        }
+        :root{--p:#2e3b8e;--pd:#1a2456;--a:#ff6b00;--bg:#eef3f8;--b:#dbe4f0;--t:#112033;--m:#62748a;--ok:#0f9f6e;--err:#dc2626;--warn:#d97706;--sh:0 24px 60px rgba(15,23,42,.08)}
+        *{box-sizing:border-box} html,body{min-height:100%;overflow-y:auto} body{margin:0;font-family:'Inter',sans-serif;color:var(--t);background:radial-gradient(circle at top left,rgba(46,59,142,.16),transparent 30%),radial-gradient(circle at top right,rgba(255,107,0,.12),transparent 22%),linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%)}
+        .mycv-page{max-width:1240px;margin:0 auto;padding:36px 24px 88px}.mycv-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.9fr);gap:26px;padding:34px;border-radius:30px;background:linear-gradient(135deg,#172554 0%,#233a8b 58%,#3554b8 100%);box-shadow:0 28px 70px rgba(26,36,86,.28);margin-bottom:26px}
+        .mycv-hero:before,.mycv-hero:after{content:'';position:absolute;border-radius:999px;background:rgba(255,255,255,.08)} .mycv-hero:before{width:220px;height:220px;top:-90px;right:28%} .mycv-hero:after{width:300px;height:300px;right:-110px;bottom:-170px}
+        .mycv-header,.mycv-hero-panel{position:relative;z-index:1}.mycv-header{display:flex;flex-direction:column;justify-content:space-between;gap:26px}.mycv-kicker{display:inline-flex;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.14);color:rgba(255,255,255,.9);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+        .mycv-header h1{margin:14px 0 12px;font-size:clamp(34px,5vw,48px);line-height:1.02;font-weight:800;color:#fff;letter-spacing:-.04em}.mycv-header p{max-width:640px;margin:0;color:rgba(255,255,255,.78);font-size:16px;line-height:1.7}
+        .mycv-hero-actions,.empty-actions,.preview-modal-actions,.mini-modal-btns{display:flex;flex-wrap:wrap;gap:12px}.btn-new-cv,.btn-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:14px;font-size:14px;font-weight:700;text-decoration:none;transition:.2s}
+        .btn-new-cv{background:#fff;color:var(--pd);box-shadow:0 12px 28px rgba(15,23,42,.18)}.btn-secondary{border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.06);color:#fff}.btn-new-cv:hover,.btn-secondary:hover,.btn-card:hover,.btn-edit-content:hover,.btn-modal-action:hover,.mini-modal-btns button:hover{transform:translateY(-1px)}
+        .mycv-hero-panel{padding:24px;border-radius:24px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)} .hero-panel-label{margin-bottom:16px;color:rgba(255,255,255,.7);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}.hero-panel-title{margin:0 0 18px;color:#fff;font-size:24px;line-height:1.25;font-weight:700}
+        .hero-step-list{display:grid;gap:12px}.hero-step{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:12px;border-radius:18px;background:rgba(255,255,255,.08)}.hero-step-number{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#fff 0%,#dbeafe 100%);color:var(--pd);font-size:13px;font-weight:800}.hero-step strong{display:block;margin-bottom:4px;color:#fff;font-size:14px}.hero-step span{display:block;color:rgba(255,255,255,.72);font-size:13px;line-height:1.5}
+        .mycv-stats{display:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:28px}.stat-card,.mycv-loading,.mycv-empty,.cv-card{background:rgba(255,255,255,.92);border:1px solid rgba(219,228,240,.95);box-shadow:var(--sh);backdrop-filter:blur(10px)}.stat-card{padding:20px 22px;border-radius:22px}.stat-card.tip{background:linear-gradient(135deg,#fff7ed 0%,#fffbeb 100%);border-color:#fed7aa}
+        .stat-label,.cv-meta-label{display:block;color:var(--m);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.stat-label{margin-bottom:10px}.stat-value{display:block;font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.03em}.stat-date{font-size:20px;line-height:1.35}.stat-note{display:block;margin-top:8px;color:var(--m);font-size:13px;line-height:1.55}
+        .mycv-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px}.mycv-section-head h2{margin:0 0 4px;font-size:24px;font-weight:800;letter-spacing:-.03em}.mycv-section-head p{margin:0;color:var(--m);font-size:14px;line-height:1.65}
+        .mycv-loading,.mycv-empty{padding:72px 28px;border-radius:28px}.mycv-loading{display:flex;flex-direction:column;align-items:center;gap:16px;color:var(--m);text-align:center}.loader{width:42px;height:42px;border:4px solid #dbe4f0;border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+        .mycv-empty{text-align:center}.empty-illustration{position:relative;width:124px;height:124px;margin:0 auto 22px;border-radius:28px;background:linear-gradient(180deg,#eef4ff 0%,#dbeafe 100%)} .empty-illustration:before,.empty-illustration:after,.empty-illustration span{content:'';position:absolute;background:#fff;border-radius:16px;box-shadow:0 10px 20px rgba(46,59,142,.1)} .empty-illustration:before{width:64px;height:78px;top:20px;left:22px}.empty-illustration:after{width:46px;height:58px;top:32px;right:18px;transform:rotate(7deg)} .empty-illustration span{width:22px;height:5px;left:42px;top:42px;background:rgba(46,59,142,.18);border-radius:999px;box-shadow:0 12px 0 0 rgba(46,59,142,.14),0 24px 0 0 rgba(46,59,142,.14),0 36px 0 0 rgba(46,59,142,.14)}
+        .mycv-empty h2{margin:0 0 10px;font-size:26px;font-weight:800;letter-spacing:-.03em}.mycv-empty p{max-width:560px;margin:0 auto 24px;color:var(--m);font-size:15px;line-height:1.7}.empty-actions .btn-secondary{border-color:var(--b);background:#fff;color:var(--p)}
+        .cv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:22px}.cv-card{overflow:hidden;border-radius:28px;transition:.22s}.cv-card:hover{transform:translateY(-5px);border-color:#c3d4ff;box-shadow:0 26px 52px rgba(15,23,42,.12)}.cv-card-thumb{position:relative;display:block;width:100%;height:228px;padding:16px;border:none;background:linear-gradient(145deg,#edf4ff 0%,#dce7fb 100%);cursor:pointer;text-align:left;overflow:hidden}
+        .cv-card-topline{position:relative;z-index:2;display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}.cv-card-template,.cv-card-status{display:inline-flex;align-items:center;min-height:28px;padding:0 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.cv-card-template{background:rgba(255,255,255,.9);color:var(--pd)}.cv-card-status{background:rgba(15,159,110,.12);color:var(--ok)}
+        .cv-thumb-paper{position:relative;width:100%;height:calc(100% - 4px);overflow:hidden;border-radius:22px;background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);border:1px solid rgba(148,163,184,.16);box-shadow:0 16px 30px rgba(46,59,142,.1)}.cv-thumb-preview{pointer-events:none;position:absolute;top:0;left:0;width:294%;padding:14px 16px;transform:scale(.34);transform-origin:top left}
+        .thumb-overlay{position:absolute;inset:0;z-index:3;display:flex;align-items:flex-end;padding:18px;background:linear-gradient(180deg,rgba(17,32,51,.02) 25%,rgba(17,32,51,.68) 100%);opacity:0;transition:.2s}.cv-card-thumb:hover .thumb-overlay{opacity:1}.thumb-overlay-text{display:inline-flex;align-items:center;min-height:38px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,.94);color:var(--pd);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+        .cv-card-body{padding:20px 22px 16px}.cv-card-head{display:flex;gap:14px;align-items:center;margin-bottom:16px}.cv-card-initials{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#172554 0%,#3554b8 100%);color:#fff;font-size:16px;font-weight:800;letter-spacing:.04em;flex-shrink:0}.cv-card-copy{min-width:0}.cv-card-name{margin:0 0 4px;font-size:18px;line-height:1.35;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cv-card-subline{font-size:13px;color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .cv-card-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.cv-meta-item{padding:12px 14px;border-radius:16px;background:#f8fafc;border:1px solid #edf2f7}.cv-meta-value{display:block;margin-top:6px;font-size:13px;line-height:1.45;font-weight:600}.cv-card-actions{padding:0 22px 22px;display:flex;flex-direction:column;gap:10px}.btn-edit-content{width:100%;min-height:46px;border:none;border-radius:16px;background:linear-gradient(135deg,#233a8b 0%,#2e3b8e 100%);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+        .cv-card-action-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.btn-card,.btn-modal-action,.mini-modal-btns button{min-height:42px;border:none;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;transition:.16s}.btn-view{background:#eff6ff;color:var(--p);border:1px solid #dbeafe}.btn-edit-cv{background:#f0fdf4;color:#15803d;border:1px solid #dcfce7}.btn-dl{background:#fff7ed;color:var(--warn);border:1px solid #fed7aa}.btn-del{background:#fef2f2;color:var(--err);border:1px solid #fecaca}
+        .preview-modal-backdrop,.mini-modal-backdrop{display:none;position:fixed;inset:0;padding:24px;background:rgba(15,23,42,.72);backdrop-filter:blur(6px);align-items:center;justify-content:center}.preview-modal-backdrop{z-index:9000}.mini-modal-backdrop{z-index:9500;background:rgba(15,23,42,.5)}.preview-modal-backdrop.show,.mini-modal-backdrop.show{display:flex}
+        .preview-modal{width:min(920px,100%);overflow:hidden;border-radius:24px;background:#fff;box-shadow:0 32px 80px rgba(15,23,42,.32)}.preview-modal-header{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,#172554 0%,#253983 100%)}.preview-modal-title{color:#fff;font-size:16px;font-weight:700}.btn-modal-dl{background:#fff;color:var(--pd)}.btn-modal-close{background:rgba(255,255,255,.16);color:#fff}.preview-modal-body{min-height:420px;padding:40px;overflow:auto;background:#f8fafc}
+        .mini-modal{width:min(420px,100%);padding:28px;border-radius:22px;background:#fff;box-shadow:0 24px 50px rgba(15,23,42,.24)}.mini-modal h4{margin:0 0 8px;font-size:22px;font-weight:800;letter-spacing:-.03em}.mini-modal p{margin:0 0 18px;color:var(--m);font-size:14px;line-height:1.7}.mini-modal input{width:100%;margin-bottom:18px;padding:12px 14px;border:1.5px solid var(--b);border-radius:14px;outline:none;font-size:14px}.mini-modal input:focus{border-color:var(--p);box-shadow:0 0 0 4px rgba(46,59,142,.12)}.btn-mm-cancel{background:#f1f5f9;color:#475569}.btn-mm-confirm{background:var(--p);color:#fff}.btn-mm-danger{background:var(--err);color:#fff}
+        .toast-wrap{position:fixed;right:28px;bottom:28px;z-index:99999;display:flex;flex-direction:column;gap:10px}.toast{max-width:360px;padding:14px 18px;border-radius:16px;background:rgba(17,32,51,.96);color:#fff;font-size:13px;line-height:1.5;font-weight:600;box-shadow:0 20px 30px rgba(15,23,42,.24)}.toast.success{background:rgba(15,159,110,.96)}.toast.error{background:rgba(220,38,38,.96)}
+        @page{size:A4;margin:0} @media print{body>*:not(#printFrame){display:none!important}#printFrame{display:block!important}.preview-modal-backdrop,.mini-modal-backdrop,.toast-wrap,#header-placeholder,#footer-placeholder{display:none!important}}
+        @media (max-width:1080px){.mycv-hero{grid-template-columns:1fr}.mycv-stats{grid-template-columns:repeat(2,minmax(0,1fr))}} @media (max-width:720px){.mycv-page{padding:24px 16px 72px}.mycv-hero{padding:24px;border-radius:24px}.mycv-header h1{font-size:36px}.mycv-stats,.cv-card-meta,.cv-card-action-row{grid-template-columns:1fr}.mycv-section-head{flex-direction:column;align-items:flex-start}.preview-modal-body,.preview-modal-backdrop{padding:18px}}
     </style>
 </head>
 <body>
     <div id="header-placeholder"></div>
-
     <div class="mycv-page">
-        <!-- Header -->
-        <div class="mycv-header">
-            <div class="mycv-header-left">
-                <h1>📂 CV của tôi</h1>
-                <p>Quản lý các CV bạn đã tạo bằng AI CV Builder</p>
+        <section class="mycv-hero">
+            <div class="mycv-header">
+                <div class="mycv-header-left">
+                    <span class="mycv-kicker">Kho CV cá nhân</span>
+                    <h1>CV của tôi</h1>
+                    <p>Quản lý từng phiên bản CV ở một nơi, xem trước nhanh, đổi tên gọn gàng và tiếp tục tinh chỉnh nội dung trước khi ứng tuyển.</p>
+                </div>
+                <div class="mycv-hero-actions">
+                    <a href="/cv-editor.html" class="btn-new-cv">Tạo CV mới</a>
+                    <a href="/tao-cv-ai.html" class="btn-secondary">Xem thư viện mẫu</a>
+                </div>
             </div>
-            <a href="/cv-editor.html" class="btn-new-cv">
-                ✨ Tạo CV mới
-            </a>
-        </div>
-
-        <!-- Stats -->
+            <aside class="mycv-hero-panel">
+                <div class="hero-panel-label">Quy trình nhanh</div>
+                <h2 class="hero-panel-title">Chuẩn bị CV theo từng vị trí ứng tuyển mà không bị rối.</h2>
+                <div class="hero-step-list">
+                    <div class="hero-step"><div class="hero-step-number">01</div><div><strong>Chọn bản CV cần dùng</strong><span>Xem trước toàn màn hình trước khi gửi đi.</span></div></div>
+                    <div class="hero-step"><div class="hero-step-number">02</div><div><strong>Chỉnh sửa tiếp với AI</strong><span>Tối ưu nội dung theo vị trí hoặc mẫu khác.</span></div></div>
+                    <div class="hero-step"><div class="hero-step-number">03</div><div><strong>Xuất PDF khi sẵn sàng</strong><span>Giữ bản đặt tên rõ ràng để dùng lại về sau.</span></div></div>
+                </div>
+            </aside>
+        </section>
         <div class="mycv-stats" id="statsBar" style="display:none">
-            <div class="stat-chip">Tổng: <strong id="statTotal">0</strong> CV</div>
-            <div class="stat-chip">Cập nhật gần nhất: <strong id="statLatest">—</strong></div>
+            <div class="stat-card"><span class="stat-label">Tổng CV</span><strong class="stat-value" id="statTotal">0</strong><span class="stat-note">Số bản CV bạn đang lưu trong tài khoản.</span></div>
+            <div class="stat-card"><span class="stat-label">Cập nhật gần nhất</span><strong class="stat-value stat-date" id="statLatest">—</strong><span class="stat-note">Dùng mốc này để nhận biết bản vừa chỉnh sửa.</span></div>
+            <div class="stat-card tip"><span class="stat-label">Gợi ý</span><strong class="stat-value">Đặt tên theo vị trí</strong><span class="stat-note">Ví dụ: Frontend React - Mid Level để dễ phân biệt từng phiên bản.</span></div>
         </div>
-
-        <!-- Main content -->
+        <div class="mycv-section-head"><div><h2>Danh sách CV đã lưu</h2><p>Chọn một bản để xem trước, đổi tên, tải PDF hoặc tiếp tục chỉnh sửa.</p></div></div>
         <div id="cvListWrap">
-            <div class="mycv-loading" id="loadingState">
-                <div class="loader"></div>
-                <span>Đang tải danh sách CV...</span>
-            </div>
+            <div class="mycv-loading" id="loadingState"><div class="loader"></div><span>Đang tải danh sách CV...</span></div>
             <div id="emptyState" class="mycv-empty" style="display:none">
-                <div class="empty-icon">📄</div>
+                <div class="empty-illustration"><span></span></div>
                 <h2>Chưa có CV nào được lưu</h2>
-                <p>Hãy tạo CV đầu tiên của bạn với sự hỗ trợ của AI</p>
-                <a href="/cv-editor.html" class="btn-new-cv" style="display:inline-flex;">✨ Tạo CV ngay</a>
+                <p>Hãy bắt đầu bằng một mẫu phù hợp rồi tinh chỉnh nội dung cho từng công việc bạn muốn ứng tuyển.</p>
+                <div class="empty-actions">
+                    <a href="/cv-editor.html" class="btn-new-cv">Tạo CV đầu tiên</a>
+                    <a href="/tao-cv-ai.html" class="btn-secondary">Xem thư viện mẫu</a>
+                </div>
             </div>
             <div class="cv-grid" id="cvGrid"></div>
         </div>
     </div>
-
-    <!-- Preview Modal -->
     <div class="preview-modal-backdrop" id="previewModal">
         <div class="preview-modal">
-            <div class="preview-modal-header">
-                <span class="preview-modal-title" id="previewTitle">Preview CV</span>
-                <div class="preview-modal-actions">
-                    <button class="btn-modal-action btn-modal-dl" onclick="downloadFromPreview()">📄 Tải PDF</button>
-                    <button class="btn-modal-action btn-modal-close" onclick="closePreview()">✕ Đóng</button>
-                </div>
-            </div>
+            <div class="preview-modal-header"><span class="preview-modal-title" id="previewTitle">Bản xem trước CV</span><div class="preview-modal-actions"><button class="btn-modal-action btn-modal-dl" onclick="downloadFromPreview()">Tải PDF</button><button class="btn-modal-action btn-modal-close" onclick="closePreview()">Đóng</button></div></div>
             <div class="preview-modal-body" id="previewBody"></div>
         </div>
     </div>
-
-    <!-- Rename Modal -->
-    <div class="mini-modal-backdrop" id="renameModal">
-        <div class="mini-modal">
-            <h4>✏️ Đổi tên CV</h4>
-            <p>Nhập tên mới cho CV này</p>
-            <input type="text" id="renameInput" placeholder="Tên CV..." maxlength="100">
-            <div class="mini-modal-btns">
-                <button class="btn-mm-cancel" onclick="closeRename()">Hủy</button>
-                <button class="btn-mm-confirm" onclick="confirmRename()">Lưu tên</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Confirm Modal -->
-    <div class="mini-modal-backdrop" id="deleteModal">
-        <div class="mini-modal">
-            <h4>🗑️ Xóa CV</h4>
-            <p id="deleteMsg">Bạn có chắc muốn xóa CV này? Hành động này không thể hoàn tác.</p>
-            <div class="mini-modal-btns">
-                <button class="btn-mm-cancel" onclick="closeDelete()">Hủy</button>
-                <button class="btn-mm-danger" onclick="confirmDelete()">Xóa</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast container -->
+    <div class="mini-modal-backdrop" id="renameModal"><div class="mini-modal"><h4>Đổi tên CV</h4><p>Nhập tên mới cho CV này</p><input type="text" id="renameInput" placeholder="Tên CV..." maxlength="100"><div class="mini-modal-btns"><button class="btn-mm-cancel" onclick="closeRename()">Hủy</button><button class="btn-mm-confirm" onclick="confirmRename()">Lưu tên</button></div></div></div>
+    <div class="mini-modal-backdrop" id="deleteModal"><div class="mini-modal"><h4>Xóa CV</h4><p id="deleteMsg">Bạn có chắc muốn xóa CV này? Hành động này không thể hoàn tác.</p><div class="mini-modal-btns"><button class="btn-mm-cancel" onclick="closeDelete()">Hủy</button><button class="btn-mm-danger" onclick="confirmDelete()">Xóa</button></div></div></div>
     <div class="toast-wrap" id="toastWrap"></div>
-
     <div id="footer-placeholder"></div>
-
-    <!-- Reuse CV rendering styles from cv-editor.css -->
-    <link rel="stylesheet" href="css/cv-editor.css">
-
     <script src="js/main.js"></script>
     <script>
-    // ═══════════════════════════════════════════════════════════
-    //  STATE
-    // ═══════════════════════════════════════════════════════════
-    let cvList = [];
-    let activePreviewId = null;
-    let renameTargetId  = null;
-    let deleteTargetId  = null;
+        let cvList=[],activePreviewId=null,renameTargetId=null,deleteTargetId=null;
+        document.addEventListener('DOMContentLoaded',()=>{document.documentElement.style.overflowY='auto';document.body.style.overflow='auto';loadCvList()});
+        document.getElementById('previewModal').addEventListener('click',e=>{if(e.target.id==='previewModal')closePreview()});
+        document.getElementById('renameModal').addEventListener('click',e=>{if(e.target.id==='renameModal')closeRename()});
+        document.getElementById('deleteModal').addEventListener('click',e=>{if(e.target.id==='deleteModal')closeDelete()});
+        document.getElementById('renameInput').addEventListener('keydown',e=>{if(e.key==='Enter')confirmRename();if(e.key==='Escape')closeRename()});
 
-    // ═══════════════════════════════════════════════════════════
-    //  INIT
-    // ═══════════════════════════════════════════════════════════
-    document.addEventListener('DOMContentLoaded', loadCvList);
-
-    // Close modals on backdrop click
-    document.getElementById('previewModal').addEventListener('click', e => { if (e.target.id === 'previewModal') closePreview(); });
-    document.getElementById('renameModal').addEventListener('click',  e => { if (e.target.id === 'renameModal')  closeRename(); });
-    document.getElementById('deleteModal').addEventListener('click',  e => { if (e.target.id === 'deleteModal')  closeDelete(); });
-    document.getElementById('renameInput').addEventListener('keydown', e => {
-        if (e.key === 'Enter') confirmRename();
-        if (e.key === 'Escape') closeRename();
-    });
-
-    // ═══════════════════════════════════════════════════════════
-    //  LOAD LIST
-    // ═══════════════════════════════════════════════════════════
-    async function loadCvList() {
-        show('loadingState'); hide('emptyState'); clear('cvGrid');
-
-        try {
-            const res  = await fetch('/api/user-cv');
-            if (res.status === 401) {
-                window.location.href = '/login.html?redirect=/my-cvs.html';
-                return;
-            }
-            const data = await res.json();
-            cvList = Array.isArray(data) ? data : [];
-        } catch (e) {
-            toast('Không thể tải danh sách CV: ' + e.message, 'error');
-            cvList = [];
-        }
-
-        hide('loadingState');
-
-        if (cvList.length === 0) { show('emptyState'); return; }
-
-        // Stats
-        document.getElementById('statTotal').textContent = cvList.length;
-        const latest = cvList[0]?.updatedAt;
-        document.getElementById('statLatest').textContent = latest ? fmtDate(latest) : '—';
-        document.getElementById('statsBar').style.display = 'flex';
-
-        // Render grid
-        const grid = document.getElementById('cvGrid');
-        cvList.forEach(cv => grid.appendChild(buildCard(cv)));
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  CARD BUILDER
-    // ═══════════════════════════════════════════════════════════
-    function buildCard(cv) {
-        const card = document.createElement('div');
-        card.className = 'cv-card';
-        card.id = `card-${cv.id}`;
-
-        const templateLabel = cv.templateName || 'Standard';
-        const dateStr = cv.updatedAt ? fmtDate(cv.updatedAt) : '—';
-
-        card.innerHTML = `
-            <div class="cv-card-thumb" onclick="openPreview(${cv.id})">
-                <div class="cv-thumb-preview" id="thumb-${cv.id}">
-                    <div style="padding:20px;font-family:Inter,sans-serif;font-size:8px;line-height:1.4;color:#475569;">
-                        <div style="font-size:14px;font-weight:800;color:#1e293b;margin-bottom:4px;">${esc(cv.cvName)}</div>
-                        <div style="font-size:9px;color:#94a3b8;margin-bottom:8px;">${esc(templateLabel)}</div>
-                        <div style="height:2px;background:#e2e8f0;margin-bottom:8px;border-radius:1px;"></div>
-                        <div style="font-size:8px;color:#64748b;">Nhấn để xem trước CV đầy đủ</div>
-                    </div>
-                </div>
-                <div class="thumb-overlay">
-                    <span class="thumb-overlay-icon">👁️</span>
-                    <span>Xem trước</span>
-                </div>
-            </div>
-            <div class="cv-card-body">
-                <div class="cv-card-name" title="${esc(cv.cvName)}">${esc(cv.cvName)}</div>
-                <div class="cv-card-meta">
-                    <span class="cv-card-template">${esc(templateLabel)}</span>
-                    <span>🕐 ${dateStr}</span>
-                </div>
-            </div>
-            <div class="cv-card-actions" style="flex-wrap: wrap;">
-                <button class="btn-edit-content" onclick="window.location.href='/cv-editor.html?cvId=${cv.id}'" title="Chỉnh sửa tiếp với AI">🤖 Tiếp tục làm đẹp với AI</button>
-                <div style="display: flex; gap: 6px; width: 100%;">
-                    <button class="btn-card btn-view" onclick="openPreview(${cv.id})" title="Xem trước">👁️ Xem</button>
-                    <button class="btn-card btn-edit-cv" onclick="renameCV(${cv.id}, '${esc(cv.cvName)}')" title="Đổi tên">✏️</button>
-                    <button class="btn-card btn-dl" onclick="downloadCV(${cv.id})" title="Tải PDF">📄 PDF</button>
-                    <button class="btn-card btn-del" onclick="deleteCV(${cv.id}, '${esc(cv.cvName)}')" title="Xóa">🗑️</button>
-                </div>
-            </div>`;
-        return card;
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  PREVIEW
-    // ═══════════════════════════════════════════════════════════
-    async function openPreview(id) {
-        activePreviewId = id;
-        const body = document.getElementById('previewBody');
-        body.innerHTML = '<div style="display:flex;justify-content:center;padding:40px;"><div class="loader"></div></div>';
-        document.getElementById('previewModal').classList.add('show');
-
-        try {
-            const res  = await fetch(`/api/user-cv/${id}`);
-            const data = await res.json();
-
-            if (!data.cvContent) throw new Error('Không có nội dung CV');
-
-            document.getElementById('previewTitle').textContent = data.cvName || 'CV Preview';
-
-            const cvJson = JSON.parse(data.cvContent);
-
-            // Inline render using same functions as cv-editor
-            const accent = cvJson._accent || '#2E3B8E';
-            const style  = cvJson._styleTag || 'professional';
-            window.avatarDataUrl = null; // reset avatar for preview
-
-            let html = '';
-            if (style === 'creative')    html = renderCreativeStyle   ? renderCreativeStyle(cvJson, accent)    : renderProfessionalStyle(cvJson, accent);
-            else if (style === 'minimalist') html = renderMinimalistStyle ? renderMinimalistStyle(cvJson, accent) : renderProfessionalStyle(cvJson, accent);
-            else if (style === 'classic')    html = renderClassicStyle    ? renderClassicStyle(cvJson, accent)    : renderProfessionalStyle(cvJson, accent);
-            else if (style === 'harvard')    html = renderHarvardStyle    ? renderHarvardStyle(cvJson, accent)    : renderProfessionalStyle(cvJson, accent);
-            else                             html = renderProfessionalStyle(cvJson, accent);
-
-            body.innerHTML = html;
-
-        } catch (e) {
-            body.innerHTML = `<div style="padding:40px;text-align:center;color:#dc2626;">Không thể tải CV: ${e.message}</div>`;
-        }
-    }
-
-    function closePreview() {
-        document.getElementById('previewModal').classList.remove('show');
-        activePreviewId = null;
-    }
-
-    async function downloadFromPreview() {
-        if (activePreviewId) await downloadCV(activePreviewId);
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  DOWNLOAD PDF
-    // ═══════════════════════════════════════════════════════════
-    async function downloadCV(id) {
-        const cv = cvList.find(c => c.id === id);
-        if (!cv) return;
-
-        // Fetch full content then print the preview
-        if (activePreviewId !== id) await openPreview(id);
-
-        const title  = cv.cvName || 'CV';
-        const orig   = document.title;
-        document.title = `${title.replace(/\s+/g, '_')}`;
-
-        setTimeout(() => {
-            window.print();
-            setTimeout(() => { document.title = orig; }, 600);
-        }, 300);
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  RENAME
-    // ═══════════════════════════════════════════════════════════
-    function renameCV(id, currentName) {
-        renameTargetId = id;
-        document.getElementById('renameInput').value = currentName;
-        document.getElementById('renameModal').classList.add('show');
-        setTimeout(() => document.getElementById('renameInput').select(), 80);
-    }
-
-    function closeRename() {
-        document.getElementById('renameModal').classList.remove('show');
-        renameTargetId = null;
-    }
-
-    async function confirmRename() {
-        const newName = (document.getElementById('renameInput').value || '').trim();
-        if (!newName) { toast('Tên CV không được để trống', 'error'); return; }
-
-        closeRename();
-
-        try {
-            const res  = await fetch(`/api/user-cv/${renameTargetId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cvName: newName })
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.message);
-
-            // Update local list + DOM
-            const cv = cvList.find(c => c.id === renameTargetId);
-            if (cv) cv.cvName = newName;
-            const card = document.getElementById(`card-${renameTargetId}`);
-            if (card) {
-                card.querySelector('.cv-card-name').textContent = newName;
-            }
-            toast(`✅ Đã đổi tên thành "${newName}"`, 'success');
-
-        } catch (e) {
-            toast('Lỗi đổi tên: ' + e.message, 'error');
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  DELETE
-    // ═══════════════════════════════════════════════════════════
-    function deleteCV(id, name) {
-        deleteTargetId = id;
-        document.getElementById('deleteMsg').innerHTML =
-            `Bạn có chắc muốn xóa CV <strong>"${name}"</strong>? Hành động này không thể hoàn tác.`;
-        document.getElementById('deleteModal').classList.add('show');
-    }
-
-    function closeDelete() {
-        document.getElementById('deleteModal').classList.remove('show');
-        deleteTargetId = null;
-    }
-
-    async function confirmDelete() {
-        const id = deleteTargetId;
-        closeDelete();
-
-        try {
-            const res  = await fetch(`/api/user-cv/${id}`, { method: 'DELETE' });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.message);
-
-            // Remove from list + DOM
-            cvList = cvList.filter(c => c.id !== id);
-            const card = document.getElementById(`card-${id}`);
-            if (card) {
-                card.style.transition = 'all 0.25s';
-                card.style.opacity = '0';
-                card.style.transform = 'scale(0.9)';
-                setTimeout(() => card.remove(), 250);
-            }
-            document.getElementById('statTotal').textContent = cvList.length;
-            if (cvList.length === 0) {
-                document.getElementById('statsBar').style.display = 'none';
-                show('emptyState');
-            }
-            toast('🗑️ Đã xóa CV thành công', 'success');
-
-        } catch (e) {
-            toast('Lỗi xóa CV: ' + e.message, 'error');
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  HELPERS
-    // ═══════════════════════════════════════════════════════════
-    function esc(str) {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    function fmtDate(iso) {
-        try {
-            const d = new Date(iso);
-            return d.toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-        } catch { return iso; }
-    }
-
-    function show(id) { const el = document.getElementById(id); if (el) el.style.display = ''; }
-    function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
-    function clear(id) { const el = document.getElementById(id); if (el) el.innerHTML = ''; }
-
-    function toast(msg, type = '') {
-        const wrap = document.getElementById('toastWrap');
-        const t = document.createElement('div');
-        t.className = `toast ${type}`;
-        t.textContent = msg;
-        wrap.appendChild(t);
-        setTimeout(() => {
-            t.style.transition = 'opacity 0.3s';
-            t.style.opacity = '0';
-            setTimeout(() => t.remove(), 300);
-        }, 3000);
-    }
-
-    // Inline CV renderers (copied/imported from cv-editor.html logic)
-    // These are simplified stubs that delegate to the actual functions if cv-editor.js is available.
-    // We load them by embedding the script inline.
-
-    // ── Minimal render for preview mode (read-only, no editable) ──
-    function renderProfessionalStyle(c, accent) {
-        const ea = t => `<span>${String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>`;
-        const es = t => String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
-        const skillsHtml = (c.skills||[]).map(sg=>`
-            <div style="margin-bottom:12px;">
-                <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);margin-bottom:6px;">${ea(sg.category)}</div>
-                ${(sg.items||[]).map((item,i)=>`
-                    <div style="margin-bottom:5px;">
-                        <div style="font-size:12px;color:rgba(255,255,255,0.9);margin-bottom:3px;">${ea(item)}</div>
-                        <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:2px;">
-                            <div style="height:3px;background:rgba(255,255,255,0.8);border-radius:2px;width:${95-(i%5)*8}%;"></div>
-                        </div>
-                    </div>`).join('')}
-            </div>`).join('');
-
-        const expHtml = (c.experience||[]).map(e=>`
-            <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #f1f5f9;">
-                <div style="font-size:15px;font-weight:700;color:#1e293b;">${es(e.role||'')}</div>
-                <div style="font-size:12px;color:${accent};font-weight:600;margin:3px 0 8px;">${es(e.company||'')} · ${es(e.period||'')}</div>
-                ${(e.details||[]).map(d=>`<div style="font-size:12.5px;color:#475569;line-height:1.6;">• ${es(d)}</div>`).join('')}
-            </div>`).join('');
-
-        const eduHtml = (c.education||[]).map(e=>`
-            <div style="margin-bottom:14px;">
-                <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.95);">${es(e.degree||'')}</div>
-                <div style="font-size:12px;color:rgba(255,255,255,0.7);">${es(e.school||e.location||'')}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.55);">${es(e.period||'')}</div>
-            </div>`).join('');
-
-        return `<div style="font-family:Inter,sans-serif;background:white;display:flex;flex-direction:column;">
-            <div style="background:${accent};padding:28px 32px;display:flex;gap:20px;align-items:center;">
-                <div style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.2);border:3px solid rgba(255,255,255,0.5);flex-shrink:0;"></div>
-                <div style="color:white;">
-                    <div style="font-size:24px;font-weight:800;">${es(c.name||'')}</div>
-                    <div style="font-size:13px;opacity:0.85;margin:4px 0 10px;">${es(c.subtitle||'')}</div>
-                    <div style="font-size:12px;opacity:0.8;display:flex;gap:16px;flex-wrap:wrap;">
-                        ${c.email?`<span>✉ ${es(c.email)}</span>`:''}${c.phone?`<span>☎ ${es(c.phone)}</span>`:''}${c.address?`<span>📍 ${es(c.address)}</span>`:''}
-                    </div>
-                </div>
-            </div>
-            <div style="display:flex;flex:1;">
-                <div style="width:220px;background:#1e293b;padding:24px 20px;flex-shrink:0;">
-                    ${c.summary?`<div style="margin-bottom:20px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px;">Bản thân</div><div style="font-size:12px;color:rgba(255,255,255,0.8);line-height:1.6;">${es(c.summary)}</div></div>`:''}
-                    ${skillsHtml?`<div style="margin-bottom:20px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px;">Kỹ năng</div>${skillsHtml}</div>`:''}
-                    ${eduHtml?`<div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px;">Học vấn</div>${eduHtml}</div>`:''}
-                </div>
-                <div style="flex:1;padding:24px 28px;">
-                    ${expHtml?`<div style="margin-bottom:20px;"><div style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${accent};border-bottom:2px solid ${accent};padding-bottom:6px;margin-bottom:14px;">Kinh nghiệm làm việc</div>${expHtml}</div>`:''}
-                    ${(c.projects||[]).length?`<div style="margin-bottom:20px;"><div style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${accent};border-bottom:2px solid ${accent};padding-bottom:6px;margin-bottom:14px;">Dự án nổi bật</div>
-                    ${(c.projects||[]).map(p=>`<div style="margin-bottom:14px;"><div style="font-size:14px;font-weight:700;color:#1e293b;">${es(p.name||'')}</div><div style="font-size:12px;color:${accent};">${es(p.period||'')}${p.tech?' · '+es(p.tech):''}</div>${(p.details||[]).map(d=>`<div style="font-size:12.5px;color:#475569;">• ${es(d)}</div>`).join('')}</div>`).join('')}
-                    </div>`:''}
-                </div>
-            </div>
-        </div>`;
-    }
-
-    function renderCreativeStyle(c, accent) { return renderProfessionalStyle(c, accent); }
-    function renderMinimalistStyle(c, accent) { return renderProfessionalStyle(c, accent); }
-    function renderClassicStyle(c, accent) { return renderProfessionalStyle(c, accent); }
-    function renderHarvardStyle(c, accent) { return renderProfessionalStyle(c, accent); }
+        async function loadCvList(){show('loadingState');hide('emptyState');clear('cvGrid');document.getElementById('statsBar').style.display='none';try{const res=await fetch('/api/user-cv');if(res.status===401){window.location.href='/login.html?redirect=/my-cvs.html';return}const data=await res.json();cvList=Array.isArray(data)?data.slice():[];cvList.sort((a,b)=>new Date(b.updatedAt||0)-new Date(a.updatedAt||0))}catch(e){toast('Không thể tải danh sách CV: '+e.message,'error');cvList=[]}hide('loadingState');if(cvList.length===0){show('emptyState');return}updateStats();const grid=document.getElementById('cvGrid');cvList.forEach(cv=>grid.appendChild(buildCard(cv)))}
+        function updateStats(){document.getElementById('statTotal').textContent=cvList.length;document.getElementById('statLatest').textContent=cvList[0]?.updatedAt?fmtDate(cvList[0].updatedAt):'—';document.getElementById('statsBar').style.display='grid'}
+        function buildCard(cv){const card=document.createElement('div');const templateLabel=cv.templateName||'Standard';const dateStr=cv.updatedAt?fmtDate(cv.updatedAt):'—';const safeName=JSON.stringify(cv.cvName||'');card.className='cv-card';card.id=`card-${cv.id}`;card.innerHTML=`<button type="button" class="cv-card-thumb" onclick="openPreview(${cv.id})" aria-label="Xem trước CV ${esc(cv.cvName)}"><div class="cv-card-topline"><span class="cv-card-template">${esc(templateLabel)}</span><span class="cv-card-status">Đã lưu</span></div><div class="cv-thumb-paper"><div class="cv-thumb-preview"><div style="padding:24px;font-family:Inter,sans-serif;color:#334155"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px"><div><div style="font-size:20px;font-weight:800;color:#0f172a;line-height:1.2;margin-bottom:4px">${esc(cv.cvName)}</div><div style="font-size:11px;color:#64748b;letter-spacing:.08em;text-transform:uppercase">${esc(templateLabel)}</div></div><div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%)"></div></div><div style="display:grid;grid-template-columns:118px 1fr;gap:14px"><div style="background:#172554;border-radius:18px;padding:14px 12px;min-height:150px"><div style="height:8px;width:72%;background:rgba(255,255,255,.92);border-radius:999px;margin-bottom:12px"></div><div style="height:6px;background:rgba(255,255,255,.24);border-radius:999px;margin-bottom:8px"></div><div style="height:6px;width:86%;background:rgba(255,255,255,.24);border-radius:999px;margin-bottom:8px"></div><div style="height:6px;width:74%;background:rgba(255,255,255,.24);border-radius:999px;margin-bottom:18px"></div><div style="height:8px;width:64%;background:rgba(255,255,255,.92);border-radius:999px;margin-bottom:12px"></div><div style="height:6px;width:88%;background:rgba(255,255,255,.24);border-radius:999px;margin-bottom:8px"></div><div style="height:6px;width:70%;background:rgba(255,255,255,.24);border-radius:999px"></div></div><div><div style="height:10px;width:42%;background:#2e3b8e;border-radius:999px;margin-bottom:12px"></div><div style="height:7px;background:#e2e8f0;border-radius:999px;margin-bottom:8px"></div><div style="height:7px;width:94%;background:#e2e8f0;border-radius:999px;margin-bottom:18px"></div><div style="height:10px;width:48%;background:#ff6b00;border-radius:999px;margin-bottom:12px"></div><div style="padding-left:12px;border-left:3px solid #dbeafe"><div style="height:8px;width:66%;background:#0f172a;border-radius:999px;margin-bottom:6px"></div><div style="height:6px;width:84%;background:#cbd5e1;border-radius:999px;margin-bottom:6px"></div><div style="height:6px;width:76%;background:#cbd5e1;border-radius:999px;margin-bottom:14px"></div></div><div style="padding-left:12px;border-left:3px solid #dbeafe"><div style="height:8px;width:58%;background:#0f172a;border-radius:999px;margin-bottom:6px"></div><div style="height:6px;width:88%;background:#cbd5e1;border-radius:999px;margin-bottom:6px"></div><div style="height:6px;width:72%;background:#cbd5e1;border-radius:999px"></div></div></div></div></div></div></div><div class="thumb-overlay"><span class="thumb-overlay-text">Mở bản xem trước</span></div></button><div class="cv-card-body"><div class="cv-card-head"><div class="cv-card-initials">${esc(getInitials(cv.cvName))}</div><div class="cv-card-copy"><div class="cv-card-name" title="${esc(cv.cvName)}">${esc(cv.cvName)}</div><div class="cv-card-subline">Mẫu ${esc(templateLabel)}</div></div></div><div class="cv-card-meta"><div class="cv-meta-item"><span class="cv-meta-label">Cập nhật</span><span class="cv-meta-value">${dateStr}</span></div><div class="cv-meta-item"><span class="cv-meta-label">Định dạng</span><span class="cv-meta-value">PDF và xem online</span></div></div></div><div class="cv-card-actions"><button type="button" class="btn-edit-content" onclick="window.location.href='/cv-editor.html?cvId=${cv.id}'">Tiếp tục chỉnh sửa với AI</button><div class="cv-card-action-row"><button type="button" class="btn-card btn-view" onclick="openPreview(${cv.id})">Xem trước</button><button type="button" class="btn-card btn-edit-cv" onclick='renameCV(${cv.id}, ${safeName})'>Đổi tên</button><button type="button" class="btn-card btn-dl" onclick="downloadCV(${cv.id})">Tải PDF</button><button type="button" class="btn-card btn-del" onclick='deleteCV(${cv.id}, ${safeName})'>Xóa</button></div></div>`;return card}
+        function refreshCard(id){const current=cvList.find(item=>item.id===id);const oldCard=document.getElementById(`card-${id}`);if(current&&oldCard)oldCard.replaceWith(buildCard(current))}
+        function closePreview(){document.getElementById('previewModal').classList.remove('show');activePreviewId=null}
+        async function downloadFromPreview(){if(activePreviewId)await downloadCV(activePreviewId)}
+        async function downloadCV(id){const cv=cvList.find(c=>c.id===id);if(!cv)return;if(activePreviewId!==id)await openPreview(id);const title=cv.cvName||'CV';const originalTitle=document.title;document.title=title.replace(/\s+/g,'_');setTimeout(()=>{window.print();setTimeout(()=>{document.title=originalTitle},600)},300)}
+        function renameCV(id,currentName){renameTargetId=id;document.getElementById('renameInput').value=currentName;document.getElementById('renameModal').classList.add('show');setTimeout(()=>document.getElementById('renameInput').select(),80)}
+        function closeRename(){document.getElementById('renameModal').classList.remove('show');renameTargetId=null}
+        async function confirmRename(){const newName=(document.getElementById('renameInput').value||'').trim();if(!newName){toast('Tên CV không được để trống','error');return}const targetId=renameTargetId;closeRename();try{const res=await fetch(`/api/user-cv/${targetId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({cvName:newName})});const data=await res.json();if(!data.success)throw new Error(data.message);const cv=cvList.find(c=>c.id===targetId);if(cv)cv.cvName=newName;refreshCard(targetId);if(activePreviewId===targetId)document.getElementById('previewTitle').textContent=newName;toast(`Đã đổi tên thành "${newName}"`,'success')}catch(e){toast('Lỗi đổi tên: '+e.message,'error')}}
+        function deleteCV(id,name){deleteTargetId=id;document.getElementById('deleteMsg').innerHTML=`Bạn có chắc muốn xóa CV <strong>"${esc(name)}"</strong>? Hành động này không thể hoàn tác.`;document.getElementById('deleteModal').classList.add('show')}
+        function closeDelete(){document.getElementById('deleteModal').classList.remove('show');deleteTargetId=null}
+        async function confirmDelete(){const id=deleteTargetId;closeDelete();try{const res=await fetch(`/api/user-cv/${id}`,{method:'DELETE'});const data=await res.json();if(!data.success)throw new Error(data.message);cvList=cvList.filter(c=>c.id!==id);const card=document.getElementById(`card-${id}`);if(card){card.style.transition='all .25s';card.style.opacity='0';card.style.transform='scale(.92)';setTimeout(()=>card.remove(),250)}if(activePreviewId===id)closePreview();if(cvList.length===0){document.getElementById('statsBar').style.display='none';show('emptyState')}else updateStats();toast('Đã xóa CV thành công','success')}catch(e){toast('Lỗi xóa CV: '+e.message,'error')}}
+        function getInitials(name){const parts=String(name||'CV').trim().split(/\s+/).filter(Boolean).slice(0,2);return(parts.length?parts:['CV']).map(part=>part.charAt(0)).join('').toUpperCase()}
+        function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+        function fmtDate(iso){try{return new Date(iso).toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}catch{return iso}}
+        function show(id){const el=document.getElementById(id);if(el)el.style.display=''} function hide(id){const el=document.getElementById(id);if(el)el.style.display='none'} function clear(id){const el=document.getElementById(id);if(el)el.innerHTML=''}
+        function toast(msg,type=''){const wrap=document.getElementById('toastWrap');const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;wrap.appendChild(t);setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';setTimeout(()=>t.remove(),300)},3000)}
+        async function openPreview(id){activePreviewId=id;const body=document.getElementById('previewBody');body.innerHTML='<div style="display:flex;justify-content:center;padding:40px"><div class="loader"></div></div>';document.getElementById('previewModal').classList.add('show');try{const res=await fetch(`/api/user-cv/${id}`);const data=await res.json();if(!data.cvContent)throw new Error('Không có nội dung CV');document.getElementById('previewTitle').textContent=data.cvName||'Bản xem trước CV';const cvJson=JSON.parse(data.cvContent);const accent=cvJson._accent||'#2E3B8E';const style=cvJson._styleTag||'professional';window.avatarDataUrl=null;let html='';if(style==='creative')html=renderCreativeStyle(cvJson,accent);else if(style==='minimalist')html=renderMinimalistStyle(cvJson,accent);else if(style==='classic')html=renderClassicStyle(cvJson,accent);else if(style==='harvard')html=renderHarvardStyle(cvJson,accent);else html=renderProfessionalStyle(cvJson,accent);body.innerHTML=html}catch(e){body.innerHTML=`<div style="padding:40px;text-align:center;color:#dc2626">Không thể tải CV: ${esc(e.message)}</div>`}}
+        function renderProfessionalStyle(c,accent){const es=t=>String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');const skills=(c.skills||[]).map(sg=>`<div style="margin-bottom:12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.6);margin-bottom:6px">${es(sg.category)}</div>${(sg.items||[]).map((item,i)=>`<div style="margin-bottom:5px"><div style="font-size:12px;color:rgba(255,255,255,.9);margin-bottom:3px">${es(item)}</div><div style="height:3px;background:rgba(255,255,255,.2);border-radius:2px"><div style="height:3px;background:rgba(255,255,255,.8);border-radius:2px;width:${95-(i%5)*8}%"></div></div></div>`).join('')}</div>`).join('');const exp=(c.experience||[]).map(e=>`<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #f1f5f9"><div style="font-size:15px;font-weight:700;color:#1e293b">${es(e.role||'')}</div><div style="font-size:12px;color:${accent};font-weight:600;margin:3px 0 8px">${es(e.company||'')} · ${es(e.period||'')}</div>${(e.details||[]).map(d=>`<div style="font-size:12.5px;color:#475569;line-height:1.6">• ${es(d)}</div>`).join('')}</div>`).join('');const edu=(c.education||[]).map(e=>`<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.95)">${es(e.degree||'')}</div><div style="font-size:12px;color:rgba(255,255,255,.7)">${es(e.school||e.location||'')}</div><div style="font-size:11px;color:rgba(255,255,255,.55)">${es(e.period||'')}</div></div>`).join('');const contact=[c.email?`<span>Email: ${es(c.email)}</span>`:'',c.phone?`<span>Điện thoại: ${es(c.phone)}</span>`:'',c.address?`<span>Địa chỉ: ${es(c.address)}</span>`:''].filter(Boolean).join('');return `<div style="font-family:Inter,sans-serif;background:white;display:flex;flex-direction:column"><div style="background:${accent};padding:28px 32px;display:flex;gap:20px;align-items:center"><div style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.5);flex-shrink:0"></div><div style="color:white"><div style="font-size:24px;font-weight:800">${es(c.name||'')}</div><div style="font-size:13px;opacity:.85;margin:4px 0 10px">${es(c.subtitle||'')}</div><div style="font-size:12px;opacity:.8;display:flex;gap:16px;flex-wrap:wrap">${contact}</div></div></div><div style="display:flex;flex:1"><div style="width:220px;background:#1e293b;padding:24px 20px;flex-shrink:0">${c.summary?`<div style="margin-bottom:20px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:6px">Bản thân</div><div style="font-size:12px;color:rgba(255,255,255,.8);line-height:1.6">${es(c.summary)}</div></div>`:''}${skills?`<div style="margin-bottom:20px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:6px">Kỹ năng</div>${skills}</div>`:''}${edu?`<div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:6px">Học vấn</div>${edu}</div>`:''}</div><div style="flex:1;padding:24px 28px">${exp?`<div style="margin-bottom:20px"><div style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${accent};border-bottom:2px solid ${accent};padding-bottom:6px;margin-bottom:14px">Kinh nghiệm làm việc</div>${exp}</div>`:''}${(c.projects||[]).length?`<div style="margin-bottom:20px"><div style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${accent};border-bottom:2px solid ${accent};padding-bottom:6px;margin-bottom:14px">Dự án nổi bật</div>${(c.projects||[]).map(p=>`<div style="margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1e293b">${es(p.name||'')}</div><div style="font-size:12px;color:${accent}">${es(p.period||'')}${p.tech?' · '+es(p.tech):''}</div>${(p.details||[]).map(d=>`<div style="font-size:12.5px;color:#475569">• ${es(d)}</div>`).join('')}</div>`).join('')}</div>`:''}</div></div></div>`}
+        function renderCreativeStyle(c,a){return renderProfessionalStyle(c,a)} function renderMinimalistStyle(c,a){return renderProfessionalStyle(c,a)} function renderClassicStyle(c,a){return renderProfessionalStyle(c,a)} function renderHarvardStyle(c,a){return renderProfessionalStyle(c,a)}
     </script>
 </body>
 </html>
