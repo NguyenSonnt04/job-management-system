@@ -231,7 +231,7 @@
                 <i data-lucide="layout-template"></i>
                 Tuỳ chỉnh Thiết kế
             </div>
-            
+
             <!-- Font Family -->
             <div class="design-group">
                 <label class="design-label">Phông chữ</label>
@@ -240,9 +240,11 @@
                     <option value="'Roboto', sans-serif">Roboto</option>
                     <option value="'Open Sans', sans-serif">Open Sans</option>
                     <option value="'Merriweather', serif">Merriweather (Cổ điển)</option>
+                    <option value="'Georgia', serif">Georgia</option>
+                    <option value="'Times New Roman', serif">Times New Roman</option>
                 </select>
             </div>
-            
+
             <!-- Font Size -->
             <div class="design-group">
                 <label class="design-label">Cỡ chữ: <span id="cvFontSizeLabel">100%</span></label>
@@ -251,13 +253,13 @@
                     <span>Nhỏ</span><span>Vừa</span><span>Lớn</span>
                 </div>
             </div>
-            
+
             <!-- Line Spacing -->
             <div class="design-group">
                 <label class="design-label">Giãn dòng: <span id="cvLineSpacingLabel">1.5</span></label>
                 <input type="range" class="design-input" id="cvLineSpacing" min="1.1" max="2.0" step="0.1" value="1.5" oninput="updateDesign('lineSpacing', this.value)">
             </div>
-            
+
             <!-- Accent Color -->
             <div class="design-group">
                 <label class="design-label">Màu chủ đạo</label>
@@ -268,6 +270,64 @@
                     <div class="color-dot" style="background: #1e293b" onclick="updateDesign('color', '#1e293b', this)"></div>
                     <div class="color-dot" style="background: #7c3aed" onclick="updateDesign('color', '#7c3aed', this)"></div>
                     <div class="color-dot" style="background: #ea580c" onclick="updateDesign('color', '#ea580c', this)"></div>
+                    <div class="color-dot" style="background: #059669" onclick="updateDesign('color', '#059669', this)"></div>
+                    <div class="color-dot" style="background: #be185d" onclick="updateDesign('color', '#be185d', this)"></div>
+                </div>
+            </div>
+
+            <!-- Background Pattern -->
+            <div class="design-group">
+                <label class="design-label">Hình nền CV</label>
+                <select class="design-input" id="cvBackground" onchange="updateDesign('background', this.value)">
+                    <option value="solid">Trơn (Mặc định)</option>
+                    <option value="gradient-light">Gradient nhạt</option>
+                    <option value="gradient-dark">Gradient đậm</option>
+                    <option value="pattern-dots">Chấm bi</option>
+                    <option value="pattern-lines">Kẻ sọc</option>
+                    <option value="pattern-subtle">Họa tiết mờ</option>
+                </select>
+            </div>
+
+            <!-- Section Management (Bố cục) -->
+            <div class="design-group">
+                <label class="design-label">Bố cục CV</label>
+                <div class="section-toggles" id="sectionToggles">
+                    <label class="section-toggle-item">
+                        <input type="checkbox" checked onchange="toggleSection('avatar', this.checked)">
+                        <span>📷 Ảnh đại diện</span>
+                    </label>
+                    <label class="section-toggle-item">
+                        <input type="checkbox" checked onchange="toggleSection('summary', this.checked)">
+                        <span>📝 Mục tiêu nghề nghiệp</span>
+                    </label>
+                    <label class="section-toggle-item">
+                        <input type="checkbox" checked onchange="toggleSection('experience', this.checked)">
+                        <span>💼 Kinh nghiệm làm việc</span>
+                    </label>
+                    <label class="section-toggle-item">
+                        <input type="checkbox" checked onchange="toggleSection('education', this.checked)">
+                        <span>🎓 Học vấn</span>
+                    </label>
+                    <label class="section-toggle-item">
+                        <input type="checkbox" checked onchange="toggleSection('skills', this.checked)">
+                        <span>⭐ Kỹ năng</span>
+                    </label>
+                    <label class="section-toggle-item">
+                        <input type="checkbox" checked onchange="toggleSection('projects', this.checked)">
+                        <span>🚀 Dự án</span>
+                    </label>
+                    <label class="section-toggle-item">
+                        <input type="checkbox" checked onchange="toggleSection('certifications', this.checked)">
+                        <span>📜 Chứng chỉ</span>
+                    </label>
+                    <label class="section-toggle-item">
+                        <input type="checkbox" checked onchange="toggleSection('awards', this.checked)">
+                        <span>🏆 Giải thưởng</span>
+                    </label>
+                    <label class="section-toggle-item">
+                        <input type="checkbox" checked onchange="toggleSection('activities', this.checked)">
+                        <span>🎯 Hoạt động</span>
+                    </label>
                 </div>
             </div>
         </aside>
@@ -431,18 +491,46 @@
         }
     }
 
+    // ═════════════════════════════════════════════════════════════
+    //  DESIGN STATE
+    // ═════════════════════════════════════════════════════════════
+    const designState = {
+        font: "'Inter', sans-serif",
+        fontSize: 100,
+        lineSpacing: 1.5,
+        color: '#2E3B8E',
+        background: 'solid',
+        sections: {
+            avatar: true,
+            summary: true,
+            experience: true,
+            education: true,
+            skills: true,
+            projects: true,
+            certifications: true,
+            awards: true,
+            activities: true
+        }
+    };
+
     function updateDesign(prop, value, el) {
         const cvDoc = document.getElementById('cvPreview');
         if (prop === 'font') {
+            designState.font = value;
             cvDoc.style.setProperty('--cv-font-family', value);
-            cvDoc.style.fontFamily = value; // Fallback
+            cvDoc.style.fontFamily = value;
+            // Re-render to apply font to all elements
+            if (currentCvJson) renderCvPreview(currentCvJson);
         } else if (prop === 'fontSize') {
+            designState.fontSize = value;
             cvDoc.style.fontSize = value + '%';
             document.getElementById('cvFontSizeLabel').textContent = value + '%';
         } else if (prop === 'lineSpacing') {
+            designState.lineSpacing = value;
             cvDoc.style.lineHeight = value;
             document.getElementById('cvLineSpacingLabel').textContent = value;
         } else if (prop === 'color') {
+            designState.color = value;
             window.currentTemplate = window.currentTemplate || {};
             window.currentTemplate.previewColor = value;
             cvDoc.style.setProperty('--cv-accent', value);
@@ -450,11 +538,118 @@
                 document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
                 el.classList.add('active');
             }
-            // Re-render if partial data available so colors apply natively if embedded
             if(cvData && (cvData.name || cvData.subtitle)) {
-                renderPartialPreview(); 
+                renderPartialPreview();
+            } else if (currentCvJson) {
+                renderCvPreview(currentCvJson);
             }
+        } else if (prop === 'background') {
+            designState.background = value;
+            applyBackground(value);
         }
+    }
+
+    // ── Background Patterns ───────────────────────────────────────
+    function applyBackground(pattern) {
+        const cvDoc = document.getElementById('cvPreview');
+        const cvRoot = cvDoc.querySelector('.cv-full');
+        if (!cvRoot) return;
+
+        // Reset all background styles
+        cvRoot.style.background = '';
+        cvRoot.style.backgroundImage = '';
+
+        switch(pattern) {
+            case 'solid':
+                cvRoot.style.background = '#ffffff';
+                break;
+            case 'gradient-light':
+                cvRoot.style.background = 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)';
+                break;
+            case 'gradient-dark':
+                cvRoot.style.background = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+                // Make text white for dark background
+                cvRoot.style.color = '#ffffff';
+                break;
+            case 'pattern-dots':
+                cvRoot.style.backgroundImage = 'radial-gradient(circle, #e2e8f0 1px, transparent 1px)';
+                cvRoot.style.backgroundSize = '20px 20px';
+                cvRoot.style.background = '#ffffff';
+                break;
+            case 'pattern-lines':
+                cvRoot.style.backgroundImage = 'repeating-linear-gradient(45deg, #f1f5f9 0, #f1f5f9 1px, transparent 0, transparent 50%)';
+                cvRoot.style.backgroundSize = '14px 14px';
+                cvRoot.style.backgroundColor = '#ffffff';
+                break;
+            case 'pattern-subtle':
+                cvRoot.style.backgroundImage = 'linear-gradient(120deg, #f1f5f9 0%, #e2e8f0 100%)';
+                cvRoot.style.backgroundSize = '100% 100%';
+                break;
+        }
+    }
+
+    // ── Section Toggles ───────────────────────────────────────────────
+    function toggleSection(sectionName, isVisible) {
+        designState.sections[sectionName] = isVisible;
+        const cvDoc = document.getElementById('cvPreview');
+
+        switch(sectionName) {
+            case 'avatar':
+                const avatar = cvDoc.querySelector('.cvm-avatar-wrapper');
+                const avatarImg = cvDoc.querySelector('#cvAvatarImg');
+                const avatarPlaceholder = cvDoc.querySelector('#cvAvatarPlaceholder');
+                if (isVisible) {
+                    if (avatar) avatar.style.display = '';
+                    if (avatarImg && avatarDataUrl) avatarImg.style.display = 'block';
+                    if (avatarPlaceholder && !avatarDataUrl) avatarPlaceholder.style.display = '';
+                } else {
+                    if (avatar) avatar.style.display = 'none';
+                }
+                break;
+            case 'summary':
+                toggleSectionByClass('cvm-summary-section', isVisible);
+                toggleSectionByClass('cvc2-zone:has(.cvc2-summary)', isVisible);
+                toggleSectionByClass('.cvm2-block:has(.cvm2-summary)', isVisible);
+                break;
+            case 'experience':
+                toggleSectionByClass('.cvm-right section:has(.cvm-exp-item):first-of-type', isVisible);
+                toggleSectionByClass('.cvc2-right:has(.cvc2-card .cvc2-card-title)', isVisible);
+                toggleSectionByClass('.cvm2-block:has(.cvm2-row:has(.cvm2-row-title))', isVisible);
+                break;
+            case 'education':
+                toggleSectionByClass('.cvm-left section:has(.cvm-edu-item):last-of-type', isVisible);
+                toggleSectionByClass('.cvc2-left:has(.cvc2-edu-item)', isVisible);
+                toggleSectionByClass('.cvm2-block:has(.cvm2-edu-item)', isVisible);
+                break;
+            case 'skills':
+                toggleSectionByClass('.cvm-left section:first-of-type', isVisible);
+                toggleSectionByClass('.cvc2-zone:has(.cvc2-skill-group)', isVisible);
+                toggleSectionByClass('.cvm2-block:has(.cvm2-skill-line)', isVisible);
+                break;
+            case 'projects':
+                toggleSectionByClass('.cvm-right section:has(.cvm-exp-item):nth-of-type(2)', isVisible);
+                toggleSectionByClass('.cvc2-right:has(.cvc2-card:has(.cvc2-card-bullet))', isVisible);
+                break;
+            case 'certifications':
+                toggleSectionByClass('.cvm-left section:has(.cvm-edu-item):last-of-type', isVisible);
+                toggleSectionByClass('.cvc2-zone:has(.cvc2-cert)', isVisible);
+                break;
+            case 'awards':
+                toggleSectionByClass('.cvm-right section:has(.cvm-edu-item:has(.cvm-edu-degree))', isVisible);
+                toggleSectionByClass('.cvc2-zone:has(.cvc2-card .cvc2-card-title:has(🏆))', isVisible);
+                break;
+            case 'activities':
+                toggleSectionByClass('.cvm-right section:last-of-type', isVisible);
+                toggleSectionByClass('.cvc2-zone:has(.cvc2-card:has(.cvc2-card-title:last-child))', isVisible);
+                break;
+        }
+    }
+
+    function toggleSectionByClass(selector, isVisible) {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+            el.style.display = isVisible ? '' : 'none';
+        });
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -1164,6 +1359,7 @@
     function ed(text) { return `<span class="cv-editable">${esc(text)}</span>`; }
 
     function getAvatarHtml(borderColor = 'rgba(255,255,255,0.6)', size = 120, shape = 'circle') {
+        if (!designState.sections.avatar) return '';
         const existing = avatarDataUrl;
         const radius = shape === 'square' ? '12px' : '50%';
         return `<div class="cvm-avatar-wrapper" style="width:${size}px;height:${size}px;">
