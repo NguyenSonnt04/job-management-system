@@ -61,8 +61,12 @@
         /* ── CV Action Toolbar ── */
         .cv-action-toolbar {
             display: none; align-items: center; justify-content: center; gap: 10px;
-            padding: 12px 20px; background: #f8fafc;
-            border-top: 1px solid #e8ecef; flex-wrap: wrap;
+            padding: 12px 20px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px);
+            border: 1px solid #e8ecef; flex-wrap: wrap;
+            position: fixed; bottom: 24px; left: calc(50vw - 215px);
+            transform: translateX(-50%); z-index: 100;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
         }
         .cv-action-toolbar.show { display: flex; }
         .btn-cv-action {
@@ -111,31 +115,53 @@
         .btn-modal-confirm { background: #2e3b8e; color: white; }
         .btn-modal-confirm:hover { background: #1e2a6e; }
 
-        /* ── Inline editing glow ── */
+        /* ── Inline editing ── */
+        /* Hover hint: tiny floating tooltip */
+        .cv-editable-mode .cv-editable {
+            position: relative;
+            cursor: text;
+        }
+        .cv-editable-mode .cv-editable::after {
+            content: '✏️';
+            position: absolute;
+            top: -14px; right: 0;
+            font-size: 10px;
+            background: #2e3b8e; color: white;
+            padding: 1px 5px; border-radius: 4px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            white-space: nowrap;
+        }
+        .cv-editable-mode .cv-editable:hover::after { opacity: 1; }
         .cv-editable-mode [contenteditable] {
             outline: none;
-            border-bottom: 1px dashed rgba(46,59,142,0.35);
+            border-bottom: 1.5px dashed rgba(46,59,142,0.4);
             min-width: 20px; display: inline-block;
             cursor: text;
-            transition: background 0.15s;
+            transition: background 0.15s, border-color 0.15s;
+            border-radius: 2px;
         }
         .cv-editable-mode [contenteditable]:hover {
             background: rgba(46,59,142,0.06);
-            border-radius: 2px;
         }
         .cv-editable-mode [contenteditable]:focus {
-            background: rgba(46,59,142,0.08);
+            background: rgba(46,59,142,0.1);
             border-color: #2e3b8e;
-            border-radius: 2px;
+            box-shadow: 0 0 0 2px rgba(46,59,142,0.15);
+            outline: none;
         }
+        /* Edit mode badge */
         .edit-mode-badge {
-            display: none; position: fixed; bottom: 80px; right: 20px;
-            background: #2e3b8e; color: white; border-radius: 8px;
-            padding: 6px 14px; font-size: 12px; font-weight: 700;
-            z-index: 200; box-shadow: 0 4px 12px rgba(46,59,142,0.35);
+            position: fixed; bottom: 80px; right: 20px;
+            background: linear-gradient(135deg, #2e3b8e, #1a2456); color: white;
+            border-radius: 10px;
+            padding: 8px 16px; font-size: 12px; font-weight: 700;
+            z-index: 200; box-shadow: 0 4px 16px rgba(46,59,142,0.4);
             animation: fadeIn 0.3s;
+            display: none; align-items: center; gap: 6px;
         }
-        .edit-mode-badge.show { display: block; }
+        .edit-mode-badge.show { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         /* ── Avatar upload overlay ── */
@@ -196,85 +222,6 @@
 </head>
 <body>
 
-    <!-- ── Onboarding Overlay ── -->
-    <div class="onboarding-overlay" id="onboardingOverlay">
-        <div class="onboarding-card" id="onboardingCard">
-
-            <!-- Loading state (profile auto-fill) -->
-            <div class="ob-loading" id="obLoading">
-                <div class="ob-spinner"></div>
-                <div class="ob-loading-text">Đang đọc hồ sơ của bạn...</div>
-                <div class="ob-loading-sub">AI sẽ tạo CV nháp trong giây lát ✨</div>
-            </div>
-
-            <!-- Entry selection screen -->
-            <div id="obEntries">
-                <div class="ob-header">
-                    <div class="ob-badge">✨ AI CV Builder</div>
-                    <h2 class="ob-title">Bạn muốn bắt đầu thế nào?</h2>
-                    <p class="ob-subtitle">Chọn cách phù hợp nhất — AI sẽ tạo CV nháp ngay cho bạn</p>
-                </div>
-                <div class="ob-entries">
-                    <div class="ob-entry featured" id="entryProfile" onclick="startWithProfile()">
-                        <span class="ob-entry-icon">👤</span>
-                        <div class="ob-entry-title">Dùng hồ sơ của tôi</div>
-                        <div class="ob-entry-desc">Tự động điền từ thông tin tài khoản đã đăng ký</div>
-                    </div>
-                    <div class="ob-entry" id="entryQuick" onclick="showQuickAiForm()">
-                        <span class="ob-entry-icon">⚡</span>
-                        <div class="ob-entry-title">Nhập nhanh với AI</div>
-                        <div class="ob-entry-desc">Chỉ trả lời 4 câu hỏi, AI tự sinh CV đầy đủ</div>
-                    </div>
-                    <div class="ob-entry" id="entryChat" onclick="startChatFlow()">
-                        <span class="ob-entry-icon">💬</span>
-                        <div class="ob-entry-title">Chat từng bước</div>
-                        <div class="ob-entry-desc">AI hỏi chi tiết từng mục — phù hợp người cần hướng dẫn</div>
-                    </div>
-                    <div class="ob-entry" id="entryManual" onclick="startManualForm()">
-                        <span class="ob-entry-icon">📝</span>
-                        <div class="ob-entry-title">Điền form nhanh</div>
-                        <div class="ob-entry-desc">Nhập tất cả thông tin một lúc theo cấu trúc rõ ràng</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick AI 4-field form -->
-            <div class="quick-ai-panel" id="quickAiPanel">
-                <button class="qai-back" onclick="showObEntries()">← Quay lại</button>
-                <p class="qai-title">⚡ Tạo nhanh với AI</p>
-                <p class="qai-desc">Chỉ cần 4 thông tin, AI sẽ xây dựng CV đầy đủ cho bạn ngay!</p>
-                <div class="qai-row">
-                    <div class="qai-field">
-                        <label class="qai-label">Họ và tên *</label>
-                        <input class="qai-input" id="qaiName" placeholder="VD: Nguyễn Văn A" />
-                    </div>
-                    <div class="qai-field">
-                        <label class="qai-label">Vị trí mong muốn *</label>
-                        <input class="qai-input" id="qaiRole" placeholder="VD: Software Engineer" />
-                    </div>
-                    <div class="qai-field">
-                        <label class="qai-label">Ngành nghề</label>
-                        <input class="qai-input" id="qaiIndustry" placeholder="VD: Công nghệ thông tin" />
-                    </div>
-                    <div class="qai-field">
-                        <label class="qai-label">Số năm kinh nghiệm</label>
-                        <input class="qai-input" id="qaiExp" placeholder="VD: 3 năm" />
-                    </div>
-                    <div class="qai-field" style="grid-column:1/-1">
-                        <label class="qai-label">Điểm mạnh / kỹ năng nổi bật (tuỳ chọn)</label>
-                        <input class="qai-input" id="qaiSkills" placeholder="VD: React, Node.js, quản lý dự án, tiếng Anh B2" />
-                        <span class="qai-hint">AI sẽ tự gợi ý thêm dựa trên ngành nghề của bạn</span>
-                    </div>
-                </div>
-                <div class="qai-actions">
-                    <button class="btn-qai-generate" onclick="generateFromQuickForm()">
-                        ✨ Tạo CV ngay
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </div>
     <div id="header-placeholder"></div>
 
     <div class="editor-workspace">
@@ -444,7 +391,42 @@
 
         const params = new URLSearchParams(window.location.search);
         const templateId = params.get('template');
+        const loadCvId   = params.get('cvId');
+        const method     = params.get('method');   // existing_cv | keep_template | from_profile
+        const industry   = params.get('industry'); // used with keep_template
 
+        // ── Case 1: load an existing saved CV ──
+        if (loadCvId) {
+            try {
+                const res = await fetch(`/api/user-cv/${loadCvId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.cvContent) {
+                        try {
+                            const parsedCv = JSON.parse(data.cvContent);
+                            savedCvId = data.id;
+                            Object.assign(cvData, parsedCv);
+                            window.currentTemplate = {
+                                previewColor: parsedCv._accent || data.templateName || '#2E3B8E',
+                                styleTag:     parsedCv._styleTag || 'professional',
+                                name:         data.templateName || ''
+                            };
+                            templateName = data.templateName || '';
+                            renderCvPreview(parsedCv);
+                            enablePostGenActions();
+                            addAiMsg(`👋 Chào mừng bạn trở lại! Tôi đã tải xong bản CV <strong>"${esc(data.cvName)}"</strong>. Bạn muốn chỉnh sửa thêm phần nào không?`);
+                            document.getElementById('btnSend').addEventListener('click', handleSend);
+                            document.getElementById('chatInput').addEventListener('keydown', e => {
+                                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+                            });
+                            return;
+                        } catch(e) { console.error('Error parsing saved CV', e); }
+                    }
+                }
+            } catch(e) { console.error('Fetch error for cv', e); }
+        }
+
+        // ── Fetch template data ──
         if (templateId) {
             try {
                 const res = await fetch(`/api/cv-templates/${templateId}`);
@@ -466,17 +448,26 @@
         // Show template preview in background
         if (templateData && templateData.name) {
             renderCvPreview(templateData);
-            const banner = document.createElement('div');
-            banner.id = 'templateBanner';
-            banner.style.cssText = `position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#2e3b8e,#1a2456);color:white;text-align:center;padding:10px 16px;font-size:13px;font-weight:600;`;
-            banner.innerHTML = `📋 Mẫu CV <strong>"${esc(templateName)}"</strong> — Chọn cách bắt đầu bên phải để điền thông tin của bạn`;
-            document.getElementById('cvPreview').before(banner);
         } else {
             renderLiveSkeleton();
         }
 
-        // Show onboarding overlay
-        document.getElementById('onboardingOverlay').style.display = 'flex';
+        // ── Route by method param (set from modal on tao-cv-ai.html) ──
+        if (method === 'existing_cv') {
+            // Lấy thông tin từ CV có trong hồ sơ
+            startWithProfile();
+        } else if (method === 'keep_template') {
+            // Giữ nguyên mẫu, điều chỉnh theo ngành nghề
+            const industryHint = industry ? `<strong>${esc(industry)}</strong>` : 'ngành nghề bạn chọn';
+            startChatFlow();
+            addAiMsg(`✨ Tuyệt! Tôi sẽ giúp bạn điều chỉnh mẫu <strong>"${esc(templateName)}"</strong> cho lĩnh vực ${industryHint}. Hãy cho tôi biết tên và vị trí mong muốn của bạn nhé!`);
+        } else if (method === 'from_profile') {
+            // Tạo CV mới hoàn toàn từ profile
+            startWithProfile();
+        } else {
+            // Không có method → chat mặc định
+            startChatFlow();
+        }
 
         document.getElementById('btnSend').addEventListener('click', handleSend);
         document.getElementById('chatInput').addEventListener('keydown', e => {
@@ -777,11 +768,12 @@
         disableInput(false);
         isPostGenMode = true;
         document.getElementById('chatInput').placeholder = 'Yêu cầu chỉnh sửa CV (VD: "thêm kỹ năng Python", "viết lại summary")...';
-        document.getElementById('aiStatus').textContent  = 'CV đã sẵn sàng — Chọn hướng chỉnh tiếp';
+        document.getElementById('aiStatus').textContent  = 'CV đã sẵn sàng — Click vào CV bên trái để sửa trực tiếp';
         document.getElementById('cvToolbar').classList.add('show');
-        // Show branch cards instead of quick replies
         document.getElementById('postgenBranches').classList.add('show');
         clearQuickReplies();
+        // Auto-enable edit mode so user can click directly on CV
+        if (!isEditMode) toggleEditMode();
     }
 
     // ── G1: Deep interview — AI fills missing sections ────────────────────────
@@ -861,16 +853,15 @@
             preview.classList.add('cv-editable-mode');
             preview.querySelectorAll('.cv-editable').forEach(el => el.setAttribute('contenteditable', 'true'));
             btn.classList.add('active');
-            btn.textContent = '✅ Đang chỉnh sửa';
-            badge.classList.add('show');
-            addAiMsg('✏️ <strong>Chế độ chỉnh sửa thủ công đã bật.</strong> Bạn có thể click trực tiếp vào bất kỳ đoạn văn bản nào trên CV bên trái để sửa. Nhấn nút lần nữa để tắt.');
+            btn.innerHTML = '✅ Đang chỉnh sửa';
+            badge.style.display = 'flex';
         } else {
             preview.classList.remove('cv-editable-mode');
             preview.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
             btn.classList.remove('active');
-            btn.textContent = '✏️ Chỉnh sửa thủ công';
-            badge.classList.remove('show');
-            addAiMsg('💾 Chỉnh sửa thủ công đã tắt. Mọi thay đổi đã được áp dụng vào CV.');
+            btn.innerHTML = '✏️ Chỉnh sửa';
+            badge.style.display = 'none';
+            addAiMsg('💾 Thay đổi trực tiếp đã ức áp dụng. Nhấn <strong>💾 Lưu CV</strong> để lưu lại nhé!');
         }
     }
 
