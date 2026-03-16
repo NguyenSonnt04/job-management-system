@@ -229,6 +229,45 @@ body {
     border-color: #000;
 }
 
+/* Section Toggle Items */
+.section-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.section-toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 13px;
+    color: var(--editor-text);
+}
+
+.section-toggle-item:hover {
+    background: #f8fafc;
+}
+
+.section-toggle-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--editor-primary);
+}
+
+.section-toggle-item input[type="checkbox"]:checked + span {
+    color: var(--editor-primary);
+    font-weight: 600;
+}
+
+.section-toggle-item span {
+    user-select: none;
+}
+
 /* Preview Column */
 .preview-column {
     flex: 1;
@@ -2044,6 +2083,59 @@ input:checked + .slider:before {
     color: #555;
     line-height: 1.6;
     margin-bottom: 4px;
+}
+
+/* ── Design Toggle Items ── */
+.design-toggle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 13px;
+}
+
+.design-toggle-label {
+    color: var(--editor-text);
+    font-weight: 500;
+}
+
+/* Section Toggle Items */
+.section-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.section-toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 13px;
+    color: var(--editor-text);
+}
+
+.section-toggle-item:hover {
+    background: #f8fafc;
+}
+
+.section-toggle-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--editor-primary);
+}
+
+.section-toggle-item input[type="checkbox"]:checked + span {
+    color: var(--editor-primary);
+    font-weight: 600;
+}
+
+.section-toggle-item span {
+    user-select: none;
 }
 
 /* Print styles for new templates */
