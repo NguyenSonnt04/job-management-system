@@ -1,569 +1,4 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI CV Builder | CareerViet</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/cv-editor.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        /* ── Progress steps ── */
-        .cv-progress {
-            display: flex; align-items: center; gap: 6px;
-            padding: 10px 16px; background: #f8fafc;
-            border-bottom: 1px solid #e8ecef; overflow-x: auto;
-        }
-        .cv-step {
-            display: flex; align-items: center; gap: 4px;
-            font-size: 11px; font-weight: 600; color: #94a3b8;
-            white-space: nowrap;
-        }
-        .cv-step.done  { color: #10b981; }
-        .cv-step.active { color: #2e3b8e; }
-        .cv-step-dot {
-            width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e2e8f0;
-            display: flex; align-items: center; justify-content: center; font-size: 9px;
-        }
-        .cv-step.done  .cv-step-dot { background: #10b981; border-color: #10b981; color: white; }
-        .cv-step.active .cv-step-dot { background: #2e3b8e; border-color: #2e3b8e; color: white; }
-        .cv-step-line { flex: 1; height: 2px; background: #e2e8f0; min-width: 12px; }
-        .cv-step-line.done { background: #10b981; }
 
-        /* ── Quick-reply chips ── */
-        .quick-replies {
-            display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 0;
-        }
-        .quick-reply {
-            padding: 5px 12px; background: #eff6ff; color: #2e3b8e;
-            border: 1px solid #bfdbfe; border-radius: 20px;
-            font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
-        }
-        .quick-reply:hover { background: #2e3b8e; color: white; }
-
-        /* ── Generating overlay ── */
-        .generating-overlay {
-            display: none; position: absolute; inset: 0;
-            background: rgba(255,255,255,0.9); z-index: 50;
-            align-items: center; justify-content: center; flex-direction: column;
-            gap: 16px; font-size: 15px; font-weight: 600; color: #2e3b8e;
-        }
-        .generating-overlay.show { display: flex; }
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid #e2e8f0;
-            border-top-color: #2e3b8e; border-radius: 50%; animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ── CV Action Toolbar ── */
-        .cv-action-toolbar {
-            display: none; align-items: center; justify-content: center; gap: 10px;
-            padding: 12px 20px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px);
-            border: 1px solid #e8ecef; flex-wrap: wrap;
-            position: fixed; bottom: 24px; left: calc(50vw - 215px);
-            transform: translateX(-50%); z-index: 100;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-        }
-        .cv-action-toolbar.show { display: flex; }
-        .btn-cv-action {
-            display: flex; align-items: center; gap: 6px;
-            padding: 9px 18px; border-radius: 8px; border: none;
-            font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-        }
-        .btn-save-cv  { background: #2e3b8e; color: white; }
-        .btn-save-cv:hover { background: #1e2a6e; }
-        .btn-pdf { background: #dc2626; color: white; }
-        .btn-pdf:hover { background: #b91c1c; }
-        .btn-save-cv.saved { background: #10b981; }
-        .btn-upload-avatar { background: #0f766e; color: white; }
-        .btn-upload-avatar:hover { background: #0d6361; }
-        .btn-edit-toggle { background: white; color: #2e3b8e; border: 2px solid #2e3b8e; }
-        .btn-edit-toggle.active { background: #2e3b8e; color: white; }
-        .btn-my-cvs { background: #7c3aed; color: white; }
-        .btn-my-cvs:hover { background: #6d28d9; }
-
-        /* ── Save Name Modal ── */
-        .cv-modal-backdrop {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.45); z-index: 9000;
-            align-items: center; justify-content: center;
-        }
-        .cv-modal-backdrop.show { display: flex; }
-        .cv-modal {
-            background: white; border-radius: 16px;
-            padding: 32px; width: 420px; max-width: 90vw;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-            animation: modalIn 0.22s ease;
-        }
-        @keyframes modalIn { from { opacity:0; transform:scale(0.94) translateY(-12px); } to { opacity:1; transform:none; } }
-        .cv-modal h3 { font-size: 18px; font-weight: 800; color: #1e293b; margin: 0 0 6px; }
-        .cv-modal p { font-size: 13px; color: #64748b; margin: 0 0 20px; }
-        .cv-modal input {
-            width: 100%; padding: 11px 14px; border-radius: 8px;
-            border: 2px solid #e2e8f0; font-size: 14px;
-            box-sizing: border-box; outline: none; transition: border 0.15s;
-        }
-        .cv-modal input:focus { border-color: #2e3b8e; }
-        .cv-modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
-        .cv-modal-actions button { padding: 10px 20px; border-radius: 8px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
-        .btn-modal-cancel { background: #f1f5f9; color: #475569; }
-        .btn-modal-cancel:hover { background: #e2e8f0; }
-        .btn-modal-confirm { background: #2e3b8e; color: white; }
-        .btn-modal-confirm:hover { background: #1e2a6e; }
-
-        /* ── Inline editing ── */
-        /* Hover hint: none */
-        .cv-editable-mode .cv-editable {
-            position: relative;
-            cursor: text;
-        }
-        /* Highlight border on hover to signify it's editable */
-        .cv-editable-mode .cv-editable:hover {
-            outline: 1.5px dashed rgba(46,59,142,0.6);
-            outline-offset: 2px;
-            border-radius: 2px;
-            background: rgba(46,59,142,0.04);
-        }
-        .cv-editable-mode [contenteditable] {
-            outline: none;
-            border-bottom: 1.5px dashed rgba(46,59,142,0.4);
-            cursor: text;
-            transition: background 0.15s, border-color 0.15s, outline 0.15s;
-            border-radius: 2px;
-        }
-        .cv-editable-mode [contenteditable]:empty {
-            display: inline-block;
-            min-width: 20px;
-        }
-        .cv-editable-mode [contenteditable]:hover {
-            background: rgba(46,59,142,0.08);
-            border-bottom-color: #2e3b8e;
-        }
-        .cv-editable-mode [contenteditable]:focus {
-            background: rgba(46,59,142,0.1);
-            border-color: #2e3b8e;
-            box-shadow: 0 0 0 2px rgba(46,59,142,0.15);
-            outline: none;
-        }
-        /* Edit mode badge */
-        .edit-mode-badge {
-            position: fixed; bottom: 80px; right: 20px;
-            background: linear-gradient(135deg, #2e3b8e, #1a2456); color: white;
-            border-radius: 10px;
-            padding: 8px 16px; font-size: 12px; font-weight: 700;
-            z-index: 200; box-shadow: 0 4px 16px rgba(46,59,142,0.4);
-            animation: fadeIn 0.3s;
-            display: none; align-items: center; gap: 6px;
-        }
-        .edit-mode-badge.show { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* ── Item Controls (Hover) ── */
-        .cv-editable { position: relative; }
-        .cv-item-controls {
-            position: absolute; right: 0; bottom: -28px;
-            display: none; align-items: center; gap: 4px;
-            background: white; padding: 4px 6px; border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;
-            border: 1px solid #e2e8f0;
-        }
-        .cv-editable-mode .cv-editable:hover > .cv-item-controls { display: flex; }
-        .btn-item-ctrl {
-            display: flex; align-items: center; justify-content: center; gap: 4px;
-            padding: 4px 8px; border-radius: 6px; border: none;
-            font-size: 11px; font-weight: 700; cursor: pointer; color: white;
-            transition: transform 0.1s;
-        }
-        .btn-item-ctrl:hover { transform: scale(1.05); }
-        .btn-item-ctrl:active { transform: scale(0.95); }
-        .btn-item-up   { background: #94a3b8; }
-        .btn-item-del  { background: #ef4444; }
-        .btn-item-add  { background: #10b981; }
-        .btn-item-ctrl i { width: 12px; height: 12px; }
-
-        .cv-add-item-btn {
-            display: none; align-items: center; gap: 6px;
-            margin-top: 10px; padding: 6px 12px;
-            background: #f1f5f9; color: #475569;
-            border: 1px dashed #cbd5e1; border-radius: 6px;
-            font-size: 12px; font-weight: 600; cursor: pointer;
-            transition: all 0.2s; width: fit-content;
-        }
-        .cv-editable-mode .cv-add-item-btn { display: flex; }
-        .cv-add-item-btn:hover { background: #e2e8f0; color: #2E3B8E; }
-        .cv-add-item-btn i { width: 14px; height: 14px; }
-
-        /* ── Avatar upload overlay ── */
-        .cvm-avatar-wrapper {
-            position: relative;
-            width: 120px; height: 120px;
-            flex-shrink: 0;
-        }
-        .cvm-avatar-wrapper .cvm-avatar {
-            width: 100%; height: 100%;
-            object-fit: cover;
-        }
-        .avatar-upload-overlay {
-            display: none;
-            position: absolute; inset: 0;
-            background: rgba(0,0,0,0.45);
-            border-radius: 50%;
-            align-items: center; justify-content: center;
-            cursor: pointer;
-            font-size: 22px;
-            transition: opacity 0.2s;
-        }
-        .cv-editable-mode .cvm-avatar-wrapper:hover .avatar-upload-overlay {
-            display: flex;
-        }
-        #avatarFileInput { display: none; }
-
-        /* ── Print (PDF export) ── */
-        @page {
-            size: A4;
-            margin: 0;
-        }
-        @media print {
-            #header-placeholder, #footer-placeholder,
-            .assistant-column, .cv-progress, .generating-overlay,
-            #templateBanner, .cv-action-toolbar, .edit-mode-badge { display: none !important; }
-            body { background: white !important; overflow: visible !important; }
-            .editor-workspace { display: block !important; overflow: visible !important; height: auto !important; }
-            .preview-column {
-                margin: 0 !important; padding: 0 !important;
-                box-shadow: none !important; border: none !important;
-                height: auto !important; overflow: visible !important;
-                background: white !important;
-            }
-            .cv-document {
-                box-shadow: none !important; transform: none !important;
-                border-radius: 0 !important; padding: 0 !important;
-                max-width: none !important; min-height: unset !important;
-                width: 210mm !important;
-            }
-            .cvm-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .cvm-left { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .cvm-bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .cvm-exp-item { page-break-inside: avoid; }
-            .cvm-section { page-break-inside: avoid; }
-        }
-    </style>
-</head>
-<body>
-
-    <div id="header-placeholder"></div>
-
-    <div class="editor-workspace">
-        <!-- ── Left: Design Column ── -->
-        <aside class="design-column" id="designColumn">
-            <div class="design-column-header">
-                <i data-lucide="layout-template"></i>
-                Trình chỉnh CV
-            </div>
-
-            <div class="design-shell">
-                <div class="design-nav" role="tablist" aria-label="Nhóm công cụ CV">
-                    <button class="design-nav-item active" type="button" data-panel="design" onclick="switchDesignPanel('design')">
-                        <i data-lucide="palette"></i>
-                        <span>Thiết kế & Font</span>
-                    </button>
-                    <button class="design-nav-item" type="button" data-panel="sections" onclick="switchDesignPanel('sections')">
-                        <i data-lucide="plus"></i>
-                        <span>Thêm mục</span>
-                    </button>
-                    <button class="design-nav-item" type="button" data-panel="layout" onclick="switchDesignPanel('layout')">
-                        <i data-lucide="panel-left"></i>
-                        <span>Bố cục</span>
-                    </button>
-                </div>
-
-                <div class="design-panels">
-                    <section class="design-panel active" data-panel="design">
-                        <div class="design-panel-heading">
-                            <h3>Thiết kế & Font</h3>
-                            <p>Điều chỉnh kiểu chữ và giao diện CV. Các thay đổi sẽ áp dụng ngay trên bản xem trước.</p>
-                        </div>
-
-                        <div class="design-group">
-                            <label class="design-label">Phông chữ</label>
-                            <select class="design-input" id="cvFontFamily" onchange="updateDesign('font', this.value)">
-                                <option value="'Inter', sans-serif">Inter (Mặc định)</option>
-                                <option value="'Roboto', sans-serif">Roboto</option>
-                                <option value="'Open Sans', sans-serif">Open Sans</option>
-                                <option value="'Merriweather', serif">Merriweather (Cổ điển)</option>
-                                <option value="'Georgia', serif">Georgia</option>
-                                <option value="'Times New Roman', serif">Times New Roman</option>
-                            </select>
-                        </div>
-
-                        <div class="design-group">
-                            <label class="design-label">Cỡ chữ: <span id="cvFontSizeLabel">100%</span></label>
-                            <input type="range" class="design-input" id="cvFontSize" min="80" max="130" value="100" oninput="updateDesign('fontSize', this.value)">
-                            <div class="design-range-hints">
-                                <span>Nhỏ</span><span>Vừa</span><span>Lớn</span>
-                            </div>
-                        </div>
-
-                        <div class="design-group">
-                            <label class="design-label">Giãn dòng: <span id="cvLineSpacingLabel">1.5</span></label>
-                            <input type="range" class="design-input" id="cvLineSpacing" min="1.1" max="2.0" step="0.1" value="1.5" oninput="updateDesign('lineSpacing', this.value)">
-                        </div>
-
-                        <div class="design-group">
-                            <label class="design-label">Màu chủ đạo</label>
-                            <div class="color-options" id="colorOptions">
-                                <div class="color-dot active" style="background: #2E3B8E" onclick="updateDesign('color', '#2E3B8E', this)" title="Midnight Blue"></div>
-                                <div class="color-dot" style="background: #0f766e" onclick="updateDesign('color', '#0f766e', this)" title="Teal"></div>
-                                <div class="color-dot" style="background: #b91c1c" onclick="updateDesign('color', '#b91c1c', this)" title="Crimson"></div>
-                                <div class="color-dot" style="background: #1e293b" onclick="updateDesign('color', '#1e293b', this)" title="Slate"></div>
-                                <div class="color-dot" style="background: #7c3aed" onclick="updateDesign('color', '#7c3aed', this)" title="Violet"></div>
-                                <div class="color-dot" style="background: #ea580c" onclick="updateDesign('color', '#ea580c', this)" title="Orange"></div>
-                                <div class="color-dot" style="background: #059669" onclick="updateDesign('color', '#059669', this)" title="Emerald"></div>
-                                <div class="color-dot" style="background: #be185d" onclick="updateDesign('color', '#be185d', this)" title="Pink"></div>
-                                <div class="color-dot" style="background: #1d4ed8" onclick="updateDesign('color', '#1d4ed8', this)" title="Royal Blue"></div>
-                                <div class="color-dot" style="background: #0369a1" onclick="updateDesign('color', '#0369a1', this)" title="Ocean Blue"></div>
-                                <div class="color-dot" style="background: #4338ca" onclick="updateDesign('color', '#4338ca', this)" title="Indigo"></div>
-                                <div class="color-dot" style="background: #b45309" onclick="updateDesign('color', '#b45309', this)" title="Amber"></div>
-                                <div class="color-dot" style="background: #3f3f46" onclick="updateDesign('color', '#3f3f46', this)" title="Zinc"></div>
-                                <div class="color-dot" style="background: #4d7c0f" onclick="updateDesign('color', '#4d7c0f', this)" title="Lime green"></div>
-                                <div class="color-dot" style="background: #a21caf" onclick="updateDesign('color', '#a21caf', this)" title="Fuchsia"></div>
-                                <div class="color-dot" style="background: #0f172a" onclick="updateDesign('color', '#0f172a', this)" title="Navy"></div>
-                            </div>
-                        </div>
-
-                        <div class="design-group">
-                            <label class="design-label">Hình nền CV</label>
-                            <select class="design-input" id="cvBackground" onchange="updateDesign('background', this.value)">
-                                <option value="solid">Trơn (Mặc định)</option>
-                                <option value="gradient-light">Gradient nhạt</option>
-                                <option value="gradient-dark">Gradient đậm</option>
-                                <option value="pattern-dots">Chấm bi</option>
-                                <option value="pattern-lines">Kẻ sọc</option>
-                                <option value="pattern-subtle">Họa tiết mờ</option>
-                            </select>
-                        </div>
-                    </section>
-
-                    <section class="design-panel" data-panel="sections">
-                        <div class="design-panel-heading">
-                            <h3>Thêm mục</h3>
-                            <p>Bật các phần còn thiếu để chèn nhanh nội dung mẫu, sau đó sửa trực tiếp ngay trên CV.</p>
-                        </div>
-
-                        <div class="section-library">
-                            <div class="section-library-block">
-                                <div class="section-library-title">Mục chưa dùng</div>
-                                <div class="section-library-list" id="unusedSectionList"></div>
-                            </div>
-
-                            <div class="section-library-block">
-                                <div class="section-library-title">Mục đã dùng</div>
-                                <div class="section-library-list" id="usedSectionList"></div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="design-panel" data-panel="layout">
-                        <div class="design-panel-heading">
-                            <h3>Bố cục</h3>
-                            <p>Ẩn hoặc hiện từng khối nội dung trên CV. Bố cục sẽ cập nhật ngay trên bản xem trước.</p>
-                        </div>
-
-                        <div class="design-group design-group-plain">
-                            <label class="design-label">Các phần hiển thị</label>
-                            <div class="section-toggles" id="sectionToggles">
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="avatar" checked onchange="toggleSection('avatar', this.checked)">
-                                    <span>Ảnh đại diện</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="summary" checked onchange="toggleSection('summary', this.checked)">
-                                    <span>Mục tiêu nghề nghiệp</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="experience" checked onchange="toggleSection('experience', this.checked)">
-                                    <span>Kinh nghiệm làm việc</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="education" checked onchange="toggleSection('education', this.checked)">
-                                    <span>Học vấn</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="skills" checked onchange="toggleSection('skills', this.checked)">
-                                    <span>Kỹ năng</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="projects" checked onchange="toggleSection('projects', this.checked)">
-                                    <span>Dự án</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="certifications" checked onchange="toggleSection('certifications', this.checked)">
-                                    <span>Chứng chỉ</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="awards" checked onchange="toggleSection('awards', this.checked)">
-                                    <span>Giải thưởng</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="activities" checked onchange="toggleSection('activities', this.checked)">
-                                    <span>Hoạt động</span>
-                                </label>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-        </aside>
-
-        <!-- ── Center: CV Preview ── -->
-        <section class="preview-column" style="position:relative;">
-            
-            <button id="toggleAiBtn" onclick="toggleAssistant()" style="position: absolute; top: 16px; right: 16px; background: white; border: 1px solid #e8ecef; padding: 8px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 6px; z-index: 50; color: #2e3b8e;">
-                <i data-lucide="bot" style="width: 18px; height: 18px;"></i> <span id="toggleAiText">Đóng AI</span>
-            </button>
-
-            <!-- Generating overlay -->
-            <div class="generating-overlay" id="generatingOverlay">
-                <div class="spinner"></div>
-                <span>AI đang tạo CV của bạn...</span>
-                <small style="color:#64748b; font-weight:400;">Đây có thể mất 10–20 giây</small>
-            </div>
-
-            <div class="cv-document" id="cvPreview">
-                <div id="cvPlaceholder" style="text-align:center; padding:60px 20px; color:#94a3b8;">
-                    <div style="font-size:48px; margin-bottom:16px;">✨</div>
-                    <p style="font-size:16px; font-weight:700; color:#64748b; margin-bottom:8px;">CV của bạn sẽ hiện ra ở đây</p>
-                    <p style="font-size:13px;">Hoàn thành trò chuyện với AI bên phải<br>để tạo CV theo mẫu bạn đã chọn</p>
-                </div>
-            </div>
-
-            <!-- CV Action Toolbar: shown after CV is generated -->
-            <div class="cv-action-toolbar" id="cvToolbar">
-                <button class="btn-cv-action btn-upload-avatar" onclick="triggerAvatarUpload()" title="Tải ảnh đại diện">
-                    🖼️ Ảnh
-                </button>
-                <button class="btn-cv-action btn-edit-toggle" id="btnEditToggle" onclick="toggleEditMode()" title="Chỉnh sửa trực tiếp">
-                    ✏️ Chỉnh sửa
-                </button>
-                <button class="btn-cv-action btn-save-cv" id="btnSaveCv" onclick="openSaveModal()">
-                    💾 Lưu CV
-                </button>
-                <button class="btn-cv-action btn-pdf" onclick="downloadPdf()">
-                    📄 Tải PDF
-                </button>
-                <button class="btn-cv-action btn-my-cvs" onclick="window.location.href='/my-cvs.html'">
-                    📂 CV của tôi
-                </button>
-            </div>
-            <!-- Hidden avatar input -->
-            <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)">
-
-            <!-- Save Name Modal -->
-            <div class="cv-modal-backdrop" id="saveModal">
-                <div class="cv-modal">
-                    <h3>💾 Lưu CV</h3>
-                    <p>Đặt tên để dễ nhận biết CV này sau này</p>
-                    <input type="text" id="cvNameInput" placeholder="VD: CV Software Engineer 2024" maxlength="100">
-                    <div class="cv-modal-actions">
-                        <button class="btn-modal-cancel" onclick="closeSaveModal()">Hủy</button>
-                        <button class="btn-modal-confirm" id="btnConfirmSave" onclick="confirmSave()">Lưu ngay</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ── Right: AI Chat ── -->
-        <aside class="assistant-column">
-            <!-- Header -->
-            <header class="assistant-header">
-                <div class="assistant-info">
-                    <div class="ai-icon">
-                        <i data-lucide="bot"></i>
-                    </div>
-                    <div>
-                        <div class="ai-name">AI CV Assistant</div>
-                        <div class="ai-status" id="aiStatus">Đang trực tuyến &amp; sẵn sàng hỗ trợ</div>
-                    </div>
-                </div>
-                <button id="btnRestart" title="Bắt đầu lại"
-                    style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:20px;"
-                    onclick="restartChat()">↺</button>
-            </header>
-
-            <!-- Progress steps -->
-            <div class="cv-progress" id="progressBar"></div>
-
-            <!-- Chat history -->
-            <div class="chat-history" id="chatHistory"></div>
-
-            <!-- Quick reply chips -->
-            <div class="quick-replies" id="quickReplies"></div>
-
-            <!-- Post-gen branch cards (G1-G4) -->
-            <div class="postgen-branches" id="postgenBranches">
-                <div class="branch-label">✨ Bạn muốn tiếp tục như thế nào?</div>
-                <div class="branch-cards">
-                    <div class="branch-card" onclick="branchDeepInterview()">
-                        <span class="branch-card-icon">🎙️</span>
-                        <div class="branch-card-title">AI phỏng vấn thêm</div>
-                        <div class="branch-card-desc">Làm đầy các phần còn thiếu</div>
-                    </div>
-                    <div class="branch-card" onclick="branchBlockEdit()">
-                        <span class="branch-card-icon">✏️</span>
-                        <div class="branch-card-title">Sửa từng khối</div>
-                        <div class="branch-card-desc">Click vào CV để chỉnh trực tiếp</div>
-                    </div>
-                    <div class="branch-card" onclick="branchOptimizeJD()">
-                        <span class="branch-card-icon">🎯</span>
-                        <div class="branch-card-title">Tối ưu theo JD</div>
-                        <div class="branch-card-desc">Dán JD để AI căn chỉnh CV</div>
-                    </div>
-                    <div class="branch-card" onclick="branchChangeTemplate()">
-                        <span class="branch-card-icon">🎨</span>
-                        <div class="branch-card-title">Đổi mẫu CV</div>
-                        <div class="branch-card-desc">Thử phong cách khác</div>
-                    </div>
-                </div>
-                <!-- JD Optimize panel -->
-                <div class="jd-panel" id="jdPanel">
-                    <div class="jd-label">📋 Dán nội dung Job Description vào đây:</div>
-                    <textarea class="jd-textarea" id="jdTextarea" placeholder="Dán toàn bộ JD của công ty vào đây. AI sẽ phân tích và điều chỉnh CV của bạn cho phù hợp..."></textarea>
-                    <button class="btn-jd-optimize" onclick="runJdOptimize()">🎯 Tối ưu CV theo JD này</button>
-                </div>
-            </div>
-
-            <!-- Input -->
-            <div class="chat-actions">
-                <div class="input-container">
-                    <textarea class="chat-input" id="chatInput"
-                        placeholder="Nhập câu trả lời của bạn..." rows="3"></textarea>
-                    <div class="input-footer">
-                        <span class="input-hint" id="inputHint"></span>
-                        <div class="input-btns">
-                            <div class="btn-send" id="btnSend">
-                                <i data-lucide="send" style="width:16px;"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div style="text-align:right; margin-top:6px;">
-                    <span style="font-size:0.65rem; color:#10b981; font-weight:600;" id="aiReadyLabel">
-                        ● AI Sẵn sàng
-                    </span>
-                </div>
-            </div>
-        </aside>
-    </div>
-
-    <div id="footer-placeholder"></div>
-    <!-- Edit mode floating badge -->
-    <div class="edit-mode-badge" id="editModeBadge">✏️ Đang chỉnh sửa trực tiếp</div>
-    <script src="js/main.js"></script>
-    <script>
     // ═══════════════════════════════════════════════════════════
     //  UI TOGGLES & DESIGN CONTROLS (TOPCV STYLE)
     // ═══════════════════════════════════════════════════════════
@@ -1998,7 +1433,7 @@
 
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
             <div class="cvm-edu-item cv-editable">
-                ${getItemControls('certifications', idx)}
+                ${getItemControls(\'certifications\', idx)}
                 <div class="cvm-edu-degree">${ed(cert.name||cert.raw||'')}</div>
                 ${cert.issuer?`<div class="cvm-edu-school">${ed(cert.issuer)}</div>`:''}
                 ${cert.year?`<div class="cvm-edu-year">${ed(cert.year)}</div>`:''}
@@ -2006,14 +1441,14 @@
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvm-edu-item cv-editable">
-                ${getItemControls('awards', idx)}
+                ${getItemControls(\'awards\', idx)}
                 <div class="cvm-edu-degree">🏆 ${ed(aw.name||aw.raw||'')}</div>
                 ${aw.year?`<div class="cvm-edu-year">${ed(aw.year)}</div>`:''}
             </div>`).join('');
 
         const expHtml = (c.experience||[]).map((e, idx)=>`
             <div class="cvm-exp-item cv-editable">
-                ${getItemControls('experience', idx)}
+                ${getItemControls(\'experience\', idx)}
                 <div class="cvm-exp-role">${ed(e.role||'')}</div>
                 <div class="cvm-exp-company">${ed(e.company||'')} &nbsp;|&nbsp; ${ed(e.period||'')}</div>
                 ${(e.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
@@ -2021,7 +1456,7 @@
 
         const projHtml = (c.projects||[]).map((p, idx)=>`
             <div class="cvm-exp-item cv-editable">
-                ${getItemControls('projects', idx)}
+                ${getItemControls(\'projects\', idx)}
                 <div class="cvm-exp-role">${ed(p.name||'')}</div>
                 <div class="cvm-exp-company">${p.period?`${ed(p.period)} <br>`:''} ${p.tech?`<strong>Tech:</strong> ${ed(p.tech)} <br>`:''} ${p.github?`<a href="${esc(p.github)}" target="_blank" style="color:${accent}">${ed(p.github)}</a>`:''}</div>
                 ${(p.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
@@ -2029,7 +1464,7 @@
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
             <div class="cvm-exp-item cv-editable">
-                ${getItemControls('activities', idx)}
+                ${getItemControls(\'activities\', idx)}
                 <div class="cvm-exp-role">${ed(a.name||a.raw||'')}</div>
                 ${a.role?`<div class="cvm-exp-company">${ed(a.role)}</div>`:''}
                 ${a.period?`<div class="cvm-exp-company">${ed(a.period)}</div>`:''}
@@ -2086,7 +1521,7 @@
 
         const expHtml = (c.experience||[]).map((e, idx)=>`
             <div class="cvc2-card cv-editable">
-                ${getItemControls('experience', idx)}
+                ${getItemControls(\'experience\', idx)}
                 <div class="cvc2-card-title">${ed(e.role||'')}</div>
                 <div class="cvc2-card-sub" style="color:${accent}">${ed(e.company||'')} &nbsp;|&nbsp; ${ed(e.period||'')}</div>
                 ${(e.details||[]).map(d=>`<div class="cvc2-card-bullet">◈ ${ed(d)}</div>`).join('')}
@@ -2094,7 +1529,7 @@
 
         const eduHtml = (c.education||[]).map((e, idx)=>`
             <div class="cvc2-card cv-editable">
-                ${getItemControls('education', idx)}
+                ${getItemControls(\'education\', idx)}
                 <div class="cvc2-card-title">${ed(e.degree||'')}</div>
                 <div class="cvc2-card-sub" style="color:${accent}">${ed(e.school||e.location||'')}</div>
                 <div class="cvc2-card-sub">${ed(e.period||'')}</div>
@@ -2102,7 +1537,7 @@
 
         const projHtml = (c.projects||[]).map((p, idx)=>`
             <div class="cvc2-card cv-editable">
-                ${getItemControls('projects', idx)}
+                ${getItemControls(\'projects\', idx)}
                 <div class="cvc2-card-title">${ed(p.name||'')}</div>
                 <div class="cvc2-card-sub" style="color:${accent}">${ed(p.period||'')} &nbsp;|&nbsp; ${ed(p.tech||'')}</div>
                 ${(p.details||[]).map(d=>`<div class="cvc2-card-bullet">◈ ${ed(d)}</div>`).join('')}
@@ -2110,21 +1545,21 @@
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvc2-card cv-editable">
-                ${getItemControls('awards', idx)}
+                ${getItemControls(\'awards\', idx)}
                 <div class="cvc2-card-title">🏆 ${ed(aw.name||aw.raw||'')}</div>
                 <div class="cvc2-card-sub">${ed(aw.year||'')}</div>
             </div>`).join('');
 
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
             <div class="cvc2-card cv-editable">
-                ${getItemControls('certifications', idx)}
+                ${getItemControls(\'certifications\', idx)}
                 <div class="cvc2-card-title">${ed(cert.name||cert.raw||'')}</div>
                 <div class="cvc2-card-sub">${ed(cert.issuer||'')} &nbsp;|&nbsp; ${ed(cert.year||'')}</div>
             </div>`).join('');
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
             <div class="cvc2-card cv-editable">
-                ${getItemControls('activities', idx)}
+                ${getItemControls(\'activities\', idx)}
                 <div class="cvc2-card-title">${ed(a.name||a.raw||'')}</div>
                 <div class="cvc2-card-sub">${ed(a.role||'')} &nbsp;|&nbsp; ${ed(a.period||'')}</div>
                 ${(a.details||[]).map(d=>`<div class="cvc2-card-bullet">◈ ${ed(d)}</div>`).join('')}
@@ -2172,7 +1607,7 @@
 
         const expHtml = (c.experience||[]).map((e, idx)=>`
             <div class="cvm2-row cv-editable">
-                ${getItemControls('experience', idx)}
+                ${getItemControls(\'experience\', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(e.role||'')}</div>
@@ -2183,7 +1618,7 @@
 
         const eduHtml = (c.education||[]).map((e, idx)=>`
             <div class="cvm2-row cv-editable">
-                ${getItemControls('education', idx)}
+                ${getItemControls(\'education\', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(e.degree||'')}</div>
@@ -2193,7 +1628,7 @@
 
         const projHtml = (c.projects||[]).map((p, idx)=>`
             <div class="cvm2-row cv-editable">
-                ${getItemControls('projects', idx)}
+                ${getItemControls(\'projects\', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(p.period||'')}</div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(p.name||'')}</div>
@@ -2204,7 +1639,7 @@
 
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
             <div class="cvm2-row cv-editable">
-                ${getItemControls('certifications', idx)}
+                ${getItemControls(\'certifications\', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(cert.year||'')}</div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(cert.name||cert.raw||'')}</div>
@@ -2214,7 +1649,7 @@
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvm2-row cv-editable">
-                ${getItemControls('awards', idx)}
+                ${getItemControls(\'awards\', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(aw.year||'')}</div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">🏆 ${esc(aw.name||aw.raw||'')}</div>
@@ -2223,7 +1658,7 @@
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
             <div class="cvm2-row cv-editable">
-                ${getItemControls('activities', idx)}
+                ${getItemControls(\'activities\', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(a.period||'')}</div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(a.name||a.raw||'')}</div>
@@ -2291,7 +1726,7 @@
 
         const expHtml = (c.experience||[]).map((e, idx)=>`
             <div class="cvcl2-item cv-editable">
-                ${getItemControls('experience', idx)}
+                ${getItemControls(\'experience\', idx)}
                 <div class="cvcl2-item-top">
                     <span class="cvcl2-role cv-editable">${esc(e.role||'')}</span>
                     <span class="cvcl2-date" style="color:${hrColor}">${ed(e.period||'')}</span>
@@ -2302,7 +1737,7 @@
 
         const projHtml = (c.projects||[]).map((p, idx)=>`
             <div class="cvcl2-item cv-editable">
-                ${getItemControls('projects', idx)}
+                ${getItemControls(\'projects\', idx)}
                 <div class="cvcl2-item-top">
                     <span class="cvcl2-role cv-editable">${esc(p.name||'')}</span>
                     <span class="cvcl2-date" style="color:${hrColor}">${ed(p.period||'')}</span>
@@ -2313,7 +1748,7 @@
 
         const eduHtml = (c.education||[]).map((e, idx)=>`
             <div class="cvcl2-r-item cv-editable" style="position:relative;">
-                ${getItemControls('education', idx)}
+                ${getItemControls(\'education\', idx)}
                 <div class="cvcl2-r-degree cv-editable">${esc(e.degree||'')}</div>
                 <div class="cvcl2-r-school cv-editable">${esc(e.school||e.location||'')}</div>
                 <div class="cvcl2-r-period" style="color:${hrColor}">${ed(e.period||'')}</div>
@@ -2328,15 +1763,15 @@
 
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
             <div class="cvcl2-r-item cv-editable" style="position:relative;">
-                ${getItemControls('certifications', idx)}<span class="cv-editable">${esc(cert.name||cert.raw||'')}</span>${cert.year?` <span style="color:${hrColor};font-size:11px">(${esc(cert.year)})</span>`:''}</div>`).join('');
+                ${getItemControls(\'certifications\', idx)}<span class="cv-editable">${esc(cert.name||cert.raw||'')}</span>${cert.year?` <span style="color:${hrColor};font-size:11px">(${esc(cert.year)})</span>`:''}</div>`).join('');
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvcl2-r-item cv-editable" style="position:relative;">
-                ${getItemControls('awards', idx)}🏆 <span class="cv-editable">${esc(aw.name||aw.raw||'')}</span>${aw.year?` <span style="color:${hrColor};font-size:11px">(${esc(aw.year)})</span>`:''}</div>`).join('');
+                ${getItemControls(\'awards\', idx)}🏆 <span class="cv-editable">${esc(aw.name||aw.raw||'')}</span>${aw.year?` <span style="color:${hrColor};font-size:11px">(${esc(aw.year)})</span>`:''}</div>`).join('');
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
             <div class="cvcl2-r-item cv-editable" style="position:relative;">
-                ${getItemControls('activities', idx)}<span class="cv-editable">${esc(a.name||a.raw||'')}</span>${a.period?` <span style="color:${hrColor};font-size:11px">(${esc(a.period)})</span>`:''}</div>`).join('');
+                ${getItemControls(\'activities\', idx)}<span class="cv-editable">${esc(a.name||a.raw||'')}</span>${a.period?` <span style="color:${hrColor};font-size:11px">(${esc(a.period)})</span>`:''}</div>`).join('');
 
         return `<div class="cv-full cvcl2-root" style="--cv-accent:${hrColor};">
             <!-- Centered header with avatar -->
@@ -2390,7 +1825,7 @@
 
         const expHtml = (c.experience||[]).map((e, idx)=>`
             <div class="cvh-item cv-editable">
-                ${getItemControls('experience', idx)}
+                ${getItemControls(\'experience\', idx)}
                 <div class="cvh-item-head">
                     <span class="cvh-item-title cv-editable">${esc(e.role||'')}</span>
                     <span class="cvh-item-date cv-editable">${esc(e.period||'')}</span>
@@ -2401,7 +1836,7 @@
 
         const eduHtml = (c.education||[]).map((e, idx)=>`
             <div class="cvh-item cv-editable">
-                ${getItemControls('education', idx)}
+                ${getItemControls(\'education\', idx)}
                 <div class="cvh-item-head">
                     <span class="cvh-item-title cv-editable">${esc(e.degree||'')}</span>
                     <span class="cvh-item-date cv-editable">${esc(e.period||'')}</span>
@@ -2412,7 +1847,7 @@
 
         const projHtml = (c.projects||[]).map((p, idx)=>`
             <div class="cvh-item cv-editable">
-                ${getItemControls('projects', idx)}
+                ${getItemControls(\'projects\', idx)}
                 <div class="cvh-item-head">
                     <span class="cvh-item-title cv-editable">${esc(p.name||'')}</span>
                     <span class="cvh-item-date">${esc(p.period||'')}</span>
@@ -2431,7 +1866,7 @@
 
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
             <div class="cvh-inline-item cv-editable" style="position:relative;display:inline-block;width:100%;margin-bottom:8px;">
-                ${getItemControls('certifications', idx)}
+                ${getItemControls(\'certifications\', idx)}
                 <span class="cv-editable">${esc(cert.name||cert.raw||'')}</span>
                 ${cert.issuer?`, <em>${esc(cert.issuer)}</em>`:''}
                 ${cert.year?` (${ed(cert.year)})`:''}
@@ -2439,14 +1874,14 @@
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvh-inline-item cv-editable" style="position:relative;display:inline-block;width:100%;margin-bottom:8px;">
-                ${getItemControls('awards', idx)}
+                ${getItemControls(\'awards\', idx)}
                 <strong class="cv-editable">${esc(aw.name||aw.raw||'')}</strong>
                 ${aw.year?`, ${ed(aw.year)}`:''}
             </div>`).join('');
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
             <div class="cvh-item cv-editable">
-                ${getItemControls('activities', idx)}
+                ${getItemControls(\'activities\', idx)}
                 <div class="cvh-item-head">
                     <span class="cvh-item-title cv-editable">${esc(a.name||a.raw||'')}</span>
                     ${a.period?`<span class="cvh-item-date">${ed(a.period)}</span>`:''}
@@ -3105,6 +2540,4 @@
     //  BOOT
     // ═══════════════════════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', init);
-    </script>
-</body>
-</html>
+    
