@@ -225,8 +225,60 @@
     <div id="header-placeholder"></div>
 
     <div class="editor-workspace">
-        <!-- ── Left: CV Preview ── -->
+        <!-- ── Left: Design Column ── -->
+        <aside class="design-column" id="designColumn">
+            <div class="design-column-header">
+                <i data-lucide="layout-template"></i>
+                Tuỳ chỉnh Thiết kế
+            </div>
+            
+            <!-- Font Family -->
+            <div class="design-group">
+                <label class="design-label">Phông chữ</label>
+                <select class="design-input" id="cvFontFamily" onchange="updateDesign('font', this.value)">
+                    <option value="'Inter', sans-serif">Inter (Mặc định)</option>
+                    <option value="'Roboto', sans-serif">Roboto</option>
+                    <option value="'Open Sans', sans-serif">Open Sans</option>
+                    <option value="'Merriweather', serif">Merriweather (Cổ điển)</option>
+                </select>
+            </div>
+            
+            <!-- Font Size -->
+            <div class="design-group">
+                <label class="design-label">Cỡ chữ: <span id="cvFontSizeLabel">100%</span></label>
+                <input type="range" class="design-input" id="cvFontSize" min="80" max="130" value="100" oninput="updateDesign('fontSize', this.value)">
+                <div style="display:flex; justify-content:space-between; font-size:10px; color:#94a3b8; margin-top:4px;">
+                    <span>Nhỏ</span><span>Vừa</span><span>Lớn</span>
+                </div>
+            </div>
+            
+            <!-- Line Spacing -->
+            <div class="design-group">
+                <label class="design-label">Giãn dòng: <span id="cvLineSpacingLabel">1.5</span></label>
+                <input type="range" class="design-input" id="cvLineSpacing" min="1.1" max="2.0" step="0.1" value="1.5" oninput="updateDesign('lineSpacing', this.value)">
+            </div>
+            
+            <!-- Accent Color -->
+            <div class="design-group">
+                <label class="design-label">Màu chủ đạo</label>
+                <div class="color-options" id="colorOptions">
+                    <div class="color-dot active" style="background: #2E3B8E" onclick="updateDesign('color', '#2E3B8E', this)"></div>
+                    <div class="color-dot" style="background: #0f766e" onclick="updateDesign('color', '#0f766e', this)"></div>
+                    <div class="color-dot" style="background: #b91c1c" onclick="updateDesign('color', '#b91c1c', this)"></div>
+                    <div class="color-dot" style="background: #1e293b" onclick="updateDesign('color', '#1e293b', this)"></div>
+                    <div class="color-dot" style="background: #7c3aed" onclick="updateDesign('color', '#7c3aed', this)"></div>
+                    <div class="color-dot" style="background: #ea580c" onclick="updateDesign('color', '#ea580c', this)"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ── Center: CV Preview ── -->
         <section class="preview-column" style="position:relative;">
+            
+            <button id="toggleAiBtn" onclick="toggleAssistant()" style="position: absolute; top: 16px; right: 16px; background: white; border: 1px solid #e8ecef; padding: 8px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 6px; z-index: 50; color: #2e3b8e;">
+                <i data-lucide="bot" style="width: 18px; height: 18px;"></i> <span id="toggleAiText">Đóng AI</span>
+            </button>
+
             <!-- Generating overlay -->
             <div class="generating-overlay" id="generatingOverlay">
                 <div class="spinner"></div>
@@ -365,6 +417,46 @@
     <div class="edit-mode-badge" id="editModeBadge">✏️ Đang chỉnh sửa trực tiếp</div>
     <script src="js/main.js"></script>
     <script>
+    // ═══════════════════════════════════════════════════════════
+    //  UI TOGGLES & DESIGN CONTROLS (TOPCV STYLE)
+    // ═══════════════════════════════════════════════════════════
+    function toggleAssistant() {
+        const aiCol = document.querySelector('.assistant-column');
+        aiCol.classList.toggle('collapsed');
+        const textSpan = document.getElementById('toggleAiText');
+        if (aiCol.classList.contains('collapsed')) {
+            textSpan.textContent = 'Mở AI';
+        } else {
+            textSpan.textContent = 'Đóng AI';
+        }
+    }
+
+    function updateDesign(prop, value, el) {
+        const cvDoc = document.getElementById('cvPreview');
+        if (prop === 'font') {
+            cvDoc.style.setProperty('--cv-font-family', value);
+            cvDoc.style.fontFamily = value; // Fallback
+        } else if (prop === 'fontSize') {
+            cvDoc.style.fontSize = value + '%';
+            document.getElementById('cvFontSizeLabel').textContent = value + '%';
+        } else if (prop === 'lineSpacing') {
+            cvDoc.style.lineHeight = value;
+            document.getElementById('cvLineSpacingLabel').textContent = value;
+        } else if (prop === 'color') {
+            window.currentTemplate = window.currentTemplate || {};
+            window.currentTemplate.previewColor = value;
+            cvDoc.style.setProperty('--cv-accent', value);
+            if (el) {
+                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+                el.classList.add('active');
+            }
+            // Re-render if partial data available so colors apply natively if embedded
+            if(cvData && (cvData.name || cvData.subtitle)) {
+                renderPartialPreview(); 
+            }
+        }
+    }
+
     // ═══════════════════════════════════════════════════════════
     //  CONSTANTS & STATE
     // ═══════════════════════════════════════════════════════════
