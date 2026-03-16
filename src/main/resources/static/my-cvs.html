@@ -147,6 +147,8 @@
         }
         .btn-view   { background: #eff6ff; color: #2e3b8e; }
         .btn-view:hover { background: #dbeafe; }
+        .btn-edit-content { background: #2e3b8e; color: white; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 6px; font-size: 13px; font-weight: 700; border-radius: 8px; padding: 10px; cursor: pointer; border: none; transition: 0.15s; }
+        .btn-edit-content:hover { background: #1e2a6e; }
         .btn-edit-cv { background: #f0fdf4; color: #16a34a; }
         .btn-edit-cv:hover { background: #dcfce7; }
         .btn-dl     { background: #fef3c7; color: #d97706; }
@@ -427,11 +429,14 @@
                     <span>🕐 ${dateStr}</span>
                 </div>
             </div>
-            <div class="cv-card-actions">
-                <button class="btn-card btn-view" onclick="openPreview(${cv.id})" title="Xem trước">👁️ Xem</button>
-                <button class="btn-card btn-edit-cv" onclick="renameCV(${cv.id}, '${esc(cv.cvName)}')" title="Đổi tên">✏️</button>
-                <button class="btn-card btn-dl" onclick="downloadCV(${cv.id})" title="Tải PDF">📄 PDF</button>
-                <button class="btn-card btn-del" onclick="deleteCV(${cv.id}, '${esc(cv.cvName)}')" title="Xóa">🗑️</button>
+            <div class="cv-card-actions" style="flex-wrap: wrap;">
+                <button class="btn-edit-content" onclick="window.location.href='/cv-editor.html?cvId=${cv.id}'" title="Chỉnh sửa tiếp với AI">🤖 Tiếp tục làm đẹp với AI</button>
+                <div style="display: flex; gap: 6px; width: 100%;">
+                    <button class="btn-card btn-view" onclick="openPreview(${cv.id})" title="Xem trước">👁️ Xem</button>
+                    <button class="btn-card btn-edit-cv" onclick="renameCV(${cv.id}, '${esc(cv.cvName)}')" title="Đổi tên">✏️</button>
+                    <button class="btn-card btn-dl" onclick="downloadCV(${cv.id})" title="Tải PDF">📄 PDF</button>
+                    <button class="btn-card btn-del" onclick="deleteCV(${cv.id}, '${esc(cv.cvName)}')" title="Xóa">🗑️</button>
+                </div>
             </div>`;
         return card;
     }
