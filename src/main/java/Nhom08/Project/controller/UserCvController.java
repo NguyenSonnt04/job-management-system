@@ -122,6 +122,14 @@ public class UserCvController {
                 if (body.containsKey("cvName"))
                     cv.setCvName(String.valueOf(body.get("cvName")));
 
+                if (body.containsKey("templateId") && body.get("templateId") != null) {
+                    try { cv.setTemplateId(Long.parseLong(String.valueOf(body.get("templateId")))); } catch (Exception ignored) {}
+                }
+                
+                if (body.containsKey("templateName") && body.get("templateName") != null) {
+                    cv.setTemplateName(String.valueOf(body.get("templateName")));
+                }
+
                 Object cvContent = body.get("cvContent");
                 if (cvContent != null) {
                     cv.setCvContent(cvContent instanceof String s

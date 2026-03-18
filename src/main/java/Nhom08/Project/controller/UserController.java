@@ -1,14 +1,18 @@
 package Nhom08.Project.controller;
 
+import Nhom08.Project.dto.UserProfileUpdateDTO;
 import Nhom08.Project.entity.Employer;
 import Nhom08.Project.entity.User;
 import Nhom08.Project.repository.EmployerRepository;
 import Nhom08.Project.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,17 +36,8 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser() {
         Map<String, Object> response = new HashMap<>();
-        
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-            response.put("authenticated", false);
-            return ResponseEntity.ok(response);
-        }
 
-        String email = auth.getName();
-        Optional<User> userOpt = userRepository.findByEmail(email);
-
+        Optional<User> userOpt = getAuthenticatedUser();
         if (userOpt.isEmpty()) {
             response.put("authenticated", false);
             return ResponseEntity.ok(response);
@@ -87,5 +82,50 @@ public class UserController {
 
 
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<Map<String, Object>> updateProfile(@Valid @RequestBody UserProfileUpdateDTO dto) {
+        Map<String, Object> response = new HashMap<>();
+
+        Optional<User> userOpt = getAuthenticatedUser();
+        if (userOpt.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Ban can dang nhap de cap nhat ho so");
+            response.put("authenticated", false);
+            return ResponseEntity.status(401).body(response);
+        }
+
+        User user = userOpt.get();
+        user.setFullName(normalize(dto.getFullName()));
+        user.setPhone(normalize(dto.getPhone()));
+        userRepository.save(user);
+
+        response.put("success", true);
+        response.put("message", "Cap nhat thong tin thanh cong");
+        response.put("authenticated", true);
+        response.put("fullName", user.getFullName());
+        response.put("phone", user.getPhone());
+        response.put("email", user.getEmail());
+        return ResponseEntity.ok(response);
+    }
+
+    private Optional<User> getAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            return Optional.empty();
+        }
+
+        return userRepository.findByEmail(auth.getName());
+    }
+
+    private String normalize(String value) {
+        if (value == null) {
+            return null;
+        }
+
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

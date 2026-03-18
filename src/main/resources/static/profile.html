@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ người dùng | CareerViet</title>
+    <meta name="description" content="Quản lý và cập nhật thông tin tài khoản người dùng trên CareerViet.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background:
+                radial-gradient(circle at top right, rgba(255, 107, 0, 0.12), transparent 24%),
+                linear-gradient(180deg, #fff8f3 0%, #f5f7fa 38%, #eef6ff 100%);
+        }
+
+        .profile-shell {
+            padding: 32px 0 72px;
+        }
+
+        .profile-hero {
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            padding: 36px;
+            background: linear-gradient(135deg, #1a2456 0%, #2e3b8e 52%, #00bfa5 100%);
+            box-shadow: 0 24px 60px rgba(26, 36, 86, 0.18);
+            color: #fff;
+            margin-bottom: 28px;
+        }
+
+        .profile-hero::after {
+            content: "";
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            top: -80px;
+            right: -40px;
+        }
+
+        .profile-hero-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .profile-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .profile-title {
+            font-size: clamp(28px, 4vw, 40px);
+            line-height: 1.15;
+            margin-bottom: 10px;
+        }
+
+        .profile-subtitle {
+            max-width: 720px;
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 15px;
+        }
+
+        .hero-badge-list {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-badge {
+            min-width: 120px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+        }
+
+        .hero-badge-label {
+            display: block;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.74);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .hero-badge strong {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 320px minmax(0, 1fr);
+            gap: 24px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            border-radius: 24px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+            backdrop-filter: blur(14px);
+        }
+
+        .sidebar-panel {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .avatar-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 14px;
+            padding: 12px 0 8px;
+        }
+
+        .avatar-circle {
+            width: 92px;
+            height: 92px;
+            border-radius: 28px;
+            display: grid;
+            place-items: center;
+            font-size: 34px;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, #ff6b00 0%, #ff9b54 100%);
+            box-shadow: 0 16px 28px rgba(255, 107, 0, 0.25);
+        }
+
+        .avatar-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a2456;
+        }
+
+        .avatar-email {
+            color: #6c757d;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .mini-card {
+            padding: 16px 18px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+            border: 1px solid #e7edf5;
+        }
+
+        .mini-card-label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #7b8794;
+            margin-bottom: 6px;
+        }
+
+        .mini-card-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .helper-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .helper-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: #fff7ef;
+            color: #6a3f15;
+        }
+
+        .helper-item svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+            color: #ff6b00;
+        }
+
+        .content-panel {
+            padding: 28px;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .section-heading h2 {
+            font-size: 26px;
+            color: #1a2456;
+            margin-bottom: 8px;
+        }
+
+        .section-heading p {
+            color: #6c757d;
+            font-size: 14px;
+            max-width: 560px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            padding: 10px 14px;
+            background: #e8fbf7;
+            color: #0d8b77;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .message-box {
+            display: none;
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .message-box.error {
+            display: block;
+            background: #fff0f0;
+            color: #c62828;
+            border: 1px solid #ffd9d9;
+        }
+
+        .message-box.success {
+            display: block;
+            background: #ebfff8;
+            color: #147d64;
+            border: 1px solid #c7f3e5;
+        }
+
+        .message-box.info {
+            display: block;
+            background: #edf5ff;
+            color: #2459a6;
+            border: 1px solid #d7e5ff;
+        }
+
+        .profile-form {
+            display: grid;
+            gap: 18px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .form-group {
+            display: grid;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1f2937;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .form-input {
+            width: 100%;
+            border: 1px solid #d9e2ec;
+            border-radius: 16px;
+            background: #fbfdff;
+            padding: 15px 16px;
+            font-size: 15px;
+            font-family: inherit;
+            color: #1f2937;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00bfa5;
+            box-shadow: 0 0 0 4px rgba(0, 191, 165, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .form-input[readonly] {
+            background: #f3f6fa;
+            color: #617081;
+            cursor: not-allowed;
+        }
+
+        .input-note {
+            font-size: 12px;
+            color: #7b8794;
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-top: 6px;
+        }
+
+        .btn-secondary,
+        .btn-primary {
+            padding: 14px 22px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #1a2456;
+            border: 1px solid #d9e2ec;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b00 0%, #ff8f32 100%);
+            color: #fff;
+            box-shadow: 0 16px 24px rgba(255, 107, 0, 0.22);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 26px rgba(255, 107, 0, 0.28);
+        }
+
+        .btn-primary:disabled,
+        .btn-secondary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .skeleton {
+            position: relative;
+            overflow: hidden;
+            background: #eef3f8;
+            color: transparent;
+        }
+
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+            animation: shimmer 1.4s infinite;
+        }
+
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 18px;
+            }
+
+            .profile-shell {
+                padding: 20px 0 52px;
+            }
+
+            .profile-hero,
+            .content-panel,
+            .sidebar-panel {
+                border-radius: 22px;
+            }
+
+            .profile-hero,
+            .content-panel,
+            .sidebar-panel {
+                padding: 22px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-heading {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .profile-actions {
+                justify-content: stretch;
+            }
+
+            .profile-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="profile-shell">
+        <div class="container">
+            <section class="profile-hero">
+                <div class="profile-hero-content">
+                    <div>
+                        <span class="profile-eyebrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            Hồ sơ cá nhân
+                        </span>
+                        <h1 class="profile-title">Lưu và cập nhật thông tin người dùng của bạn</h1>
+                        <p class="profile-subtitle">
+                            Trang này giúp bạn quản lý thông tin cơ bản của tài khoản CareerViet để dùng nhất quán trong các thao tác tạo CV, ứng tuyển và theo dõi hồ sơ.
+                        </p>
+                    </div>
+
+                    <div class="hero-badge-list">
+                        <div class="hero-badge">
+                            <span class="hero-badge-label">Trạng thái</span>
+                            <strong id="heroStatus">Đang tải...</strong>
+                        </div>
+                        <div class="hero-badge">
+                            <span class="hero-badge-label">Vai trò</span>
+                            <strong id="heroRole">Đang tải...</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="profile-grid">
+                <aside class="panel sidebar-panel">
+                    <div class="avatar-block">
+                        <div class="avatar-circle" id="avatarInitial">...</div>
+                        <div>
+                            <div class="avatar-name skeleton" id="sidebarName">Đang tải thông tin</div>
+                            <div class="avatar-email skeleton" id="sidebarEmail">example@careerviet.vn</div>
+                        </div>
+                    </div>
+
+                    <div class="mini-card">
+                        <span class="mini-card-label">Tài khoản</span>
+                        <div class="mini-card-value" id="sidebarRole">Đang tải...</div>
+                    </div>
+
+                    <div class="mini-card">
+                        <span class="mini-card-label">Số điện thoại</span>
+                        <div class="mini-card-value" id="sidebarPhone">Chưa cập nhật</div>
+                    </div>
+
+                    <div class="helper-list">
+                        <div class="helper-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 20h9"></path>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                            </svg>
+                            <div>
+                                <strong>Cập nhật tên và số điện thoại</strong>
+                                <div style="font-size:13px; margin-top:4px;">Thông tin này sẽ được dùng lại thuận tiện hơn cho các luồng ứng tuyển sau.</div>
+                            </div>
+                        </div>
+
+                        <div class="helper-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 12l2 2 4-4"></path>
+                                <path d="M21 12c.552 0 1 .448 1 1v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7c0-.552.448-1 1-1"></path>
+                                <path d="M16 6l-4-4-4 4"></path>
+                                <path d="M12 2v12"></path>
+                            </svg>
+                            <div>
+                                <strong>Email được giữ cố định</strong>
+                                <div style="font-size:13px; margin-top:4px;">Địa chỉ email hiện là định danh đăng nhập nên trang này chỉ cho phép xem.</div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="panel content-panel">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Thông tin tài khoản</h2>
+                            <p>Chỉnh sửa các trường cơ bản được hệ thống hỗ trợ cho hồ sơ người dùng hiện tại.</p>
+                        </div>
+                        <div class="status-pill">
+                            <span class="status-dot"></span>
+                            <span id="accountState">Sẵn sàng đồng bộ</span>
+                        </div>
+                    </div>
+
+                    <div id="messageBox" class="message-box"></div>
+
+                    <form id="profileForm" class="profile-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="fullName">Họ và tên</label>
+                                <input class="form-input" id="fullName" name="fullName" type="text" maxlength="100" placeholder="Nhập họ tên của bạn">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="phone">Số điện thoại</label>
+                                <input class="form-input" id="phone" name="phone" type="tel" maxlength="20" placeholder="Ví dụ: 0901 234 567">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="form-label" for="email">Email đăng nhập</label>
+                                <input class="form-input" id="email" name="email" type="email" readonly>
+                                <div class="input-note">Email hiện được lấy từ tài khoản đăng nhập và chưa hỗ trợ chỉnh sửa tại đây.</div>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button type="button" class="btn-secondary" id="resetBtn">Khôi phục</button>
+                            <button type="submit" class="btn-primary" id="saveBtn">Lưu thông tin</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        const profileState = {
+            data: null
+        };
+
+        const elements = {
+            form: document.getElementById('profileForm'),
+            fullName: document.getElementById('fullName'),
+            phone: document.getElementById('phone'),
+            email: document.getElementById('email'),
+            saveBtn: document.getElementById('saveBtn'),
+            resetBtn: document.getElementById('resetBtn'),
+            messageBox: document.getElementById('messageBox'),
+            avatarInitial: document.getElementById('avatarInitial'),
+            sidebarName: document.getElementById('sidebarName'),
+            sidebarEmail: document.getElementById('sidebarEmail'),
+            sidebarPhone: document.getElementById('sidebarPhone'),
+            sidebarRole: document.getElementById('sidebarRole'),
+            heroStatus: document.getElementById('heroStatus'),
+            heroRole: document.getElementById('heroRole'),
+            accountState: document.getElementById('accountState')
+        };
+
+        function setMessage(type, text) {
+            elements.messageBox.className = 'message-box ' + type;
+            elements.messageBox.textContent = text;
+        }
+
+        function clearMessage() {
+            elements.messageBox.className = 'message-box';
+            elements.messageBox.textContent = '';
+        }
+
+        function toDisplayRole(role) {
+            switch (role) {
+                case 'ROLE_ADMIN':
+                    return 'Quản trị viên';
+                case 'ROLE_EMPLOYER':
+                    return 'Nhà tuyển dụng';
+                case 'ROLE_CANDIDATE':
+                    return 'Ứng viên';
+                default:
+                    return 'Người dùng';
+            }
+        }
+
+        function getInitial(name, email) {
+            const source = (name || email || '?').trim();
+            return source.charAt(0).toUpperCase();
+        }
+
+        function fillForm(data) {
+            profileState.data = {
+                fullName: data.fullName || '',
+                phone: data.phone || '',
+                email: data.email || '',
+                role: data.role || '',
+                displayName: data.displayName || data.fullName || data.email || 'Người dùng'
+            };
+
+            elements.fullName.value = profileState.data.fullName;
+            elements.phone.value = profileState.data.phone;
+            elements.email.value = profileState.data.email;
+
+            elements.avatarInitial.textContent = getInitial(profileState.data.fullName, profileState.data.email);
+            elements.sidebarName.textContent = profileState.data.displayName;
+            elements.sidebarEmail.textContent = profileState.data.email || 'Chưa có email';
+            elements.sidebarPhone.textContent = profileState.data.phone || 'Chưa cập nhật';
+            elements.sidebarRole.textContent = toDisplayRole(profileState.data.role);
+            elements.heroRole.textContent = toDisplayRole(profileState.data.role);
+            elements.heroStatus.textContent = 'Đã đăng nhập';
+            elements.accountState.textContent = 'Thông tin đã sẵn sàng';
+
+            elements.sidebarName.classList.remove('skeleton');
+            elements.sidebarEmail.classList.remove('skeleton');
+        }
+
+        function resetForm() {
+            if (!profileState.data) {
+                return;
+            }
+
+            elements.fullName.value = profileState.data.fullName;
+            elements.phone.value = profileState.data.phone;
+            clearMessage();
+        }
+
+        function setLoading(isLoading) {
+            elements.saveBtn.disabled = isLoading;
+            elements.resetBtn.disabled = isLoading;
+            elements.saveBtn.textContent = isLoading ? 'Đang lưu...' : 'Lưu thông tin';
+        }
+
+        async function loadProfile() {
+            setMessage('info', 'Đang tải dữ liệu tài khoản...');
+
+            try {
+                const response = await fetch('/api/user/me', {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (!data.authenticated) {
+                    setMessage('error', 'Bạn cần đăng nhập để xem trang hồ sơ. Hệ thống sẽ chuyển về trang chủ để đăng nhập.');
+                    setTimeout(() => {
+                        window.location.href = '/index.html';
+                    }, 1500);
+                    return;
+                }
+
+                fillForm(data);
+                clearMessage();
+            } catch (error) {
+                setMessage('error', 'Không tải được thông tin người dùng. Vui lòng thử lại.');
+            }
+        }
+
+        elements.form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            clearMessage();
+
+            const payload = {
+                fullName: elements.fullName.value.trim(),
+                phone: elements.phone.value.trim()
+            };
+
+            setLoading(true);
+
+            try {
+                const response = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể lưu thông tin.');
+                }
+
+                fillForm({
+                    ...profileState.data,
+                    fullName: data.fullName,
+                    phone: data.phone,
+                    email: data.email,
+                    displayName: data.fullName || data.email
+                });
+                setMessage('success', data.message || 'Đã cập nhật hồ sơ thành công.');
+            } catch (error) {
+                setMessage('error', error.message || 'Có lỗi xảy ra khi lưu thông tin.');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        elements.resetBtn.addEventListener('click', resetForm);
+
+        document.addEventListener('DOMContentLoaded', loadProfile);
+    </script>
+</body>
+</html>

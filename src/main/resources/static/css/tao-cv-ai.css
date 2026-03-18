@@ -634,3 +634,399 @@ body {
     .main-layout { grid-template-columns: 1fr; }
     .sidebar { display: none; }
 }
+
+/* ========================= CV METHOD MODAL ========================= */
+
+/* Backdrop */
+.cv-method-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.60);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.cv-method-modal-backdrop.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Modal Container */
+.cv-method-modal {
+    background: var(--color-white);
+    border-radius: 1.25rem;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    max-width: 780px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cv-method-modal-backdrop.visible .cv-method-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* Left Pane: CV Preview */
+.cv-method-preview-pane {
+    background: linear-gradient(160deg, #1A2456 0%, #2E3B8E 100%);
+    padding: 1.75rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.cv-method-preview-pane::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.cv-method-preview-pane::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    left: -30px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.cv-method-preview-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    align-self: flex-start;
+    position: relative;
+    z-index: 1;
+}
+
+.cv-method-preview-wrapper {
+    width: 100%;
+    flex: 1;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    aspect-ratio: 3/4;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+/* Scale the mini CV tighter inside modal */
+.cv-method-preview-wrapper .cv-miniature {
+    transform: scale(0.27);
+    transform-origin: top center;
+}
+
+.cv-method-preview-templ-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* Right Pane: Options */
+.cv-method-options-pane {
+    padding: 2rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    overflow-y: auto;
+    position: relative;
+}
+
+.cv-method-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: all 0.2s;
+}
+
+.cv-method-close:hover {
+    background: #e2e8f0;
+    color: var(--color-text);
+}
+
+.cv-method-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-text);
+    margin: 0;
+    padding-right: 2rem;
+    line-height: 1.25;
+}
+
+.cv-method-subtitle {
+    font-size: 0.825rem;
+    color: var(--color-text-muted);
+    margin: -0.75rem 0 0;
+    line-height: 1.5;
+}
+
+/* Option Cards */
+.cv-method-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.cv-method-option {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--color-white);
+    position: relative;
+    user-select: none;
+}
+
+.cv-method-option:hover {
+    border-color: #93C5FD;
+    background: #F8FAFF;
+}
+
+.cv-method-option.selected {
+    border-color: var(--color-primary);
+    background: #EFF6FF;
+    box-shadow: 0 0 0 3px rgba(46, 59, 142, 0.1);
+}
+
+/* Hide native radio */
+.cv-method-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+/* Icon box */
+.cv-method-option-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 0.625rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.cv-method-option:hover .cv-method-option-icon,
+.cv-method-option.selected .cv-method-option-icon {
+    transform: scale(1.08);
+}
+
+/* Text content */
+.cv-method-option-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.cv-method-option-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.3;
+}
+
+.cv-method-option-desc {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    line-height: 1.4;
+}
+
+/* Check indicator */
+.cv-method-option-check {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: transparent;
+    transition: all 0.2s;
+}
+
+.cv-method-option.selected .cv-method-option-check {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+/* Industry Selector (conditional) */
+.cv-method-industry-selector {
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 0.75rem;
+    animation: slideDown 0.2s ease;
+}
+
+.cv-method-industry-selector.visible {
+    display: flex;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.cv-industry-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #92400E;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.cv-industry-select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cv-industry-select-wrapper > svg:first-child {
+    position: absolute;
+    left: 0.75rem;
+    color: #D97706;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.cv-industry-select {
+    width: 100%;
+    padding: 0.625rem 2.5rem 0.625rem 2.25rem;
+    border: 1.5px solid #FCD34D;
+    border-radius: 0.5rem;
+    background: #ffffff;
+    font-family: var(--font-family);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s;
+}
+
+.cv-industry-select:focus {
+    outline: none;
+    border-color: #D97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+}
+
+.cv-industry-chevron {
+    position: absolute;
+    right: 0.75rem;
+    color: #D97706;
+    pointer-events: none;
+}
+
+/* Proceed Button */
+.cv-method-proceed-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    width: 100%;
+    padding: 0.875rem;
+    border-radius: 0.75rem;
+    border: none;
+    background: var(--color-primary);
+    color: white;
+    font-family: var(--font-family);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: auto;
+}
+
+.cv-method-proceed-btn:not(:disabled):hover {
+    background: var(--color-primary-dark);
+    box-shadow: 0 6px 18px rgba(46, 59, 142, 0.35);
+    transform: translateY(-1px);
+}
+
+.cv-method-proceed-btn:disabled {
+    background: #CBD5E1;
+    color: #94A3B8;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.cv-method-proceed-btn svg {
+    transition: transform 0.2s;
+}
+
+.cv-method-proceed-btn:not(:disabled):hover svg {
+    transform: translateX(4px);
+}
+
+/* Responsive: hide preview pane on small screens */
+@media (max-width: 640px) {
+    .cv-method-modal {
+        grid-template-columns: 1fr;
+        max-height: 96vh;
+    }
+    .cv-method-preview-pane {
+        display: none;
+    }
+    .cv-method-options-pane {
+        padding: 1.5rem 1.25rem;
+    }
+}
+
+/* ================================================================== */
