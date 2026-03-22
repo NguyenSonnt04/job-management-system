@@ -1,6 +1,7 @@
 package Nhom08.Project.service;
 
 import Nhom08.Project.entity.*;
+import Nhom08.Project.repository.CvJobMatchRepository;
 import Nhom08.Project.repository.CvScoringCriteriaRepository;
 import Nhom08.Project.repository.CvScoreSessionRepository;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,6 +19,7 @@ public class CvScoringService {
 
     @Autowired private CvScoringCriteriaRepository criteriaRepo;
     @Autowired private CvScoreSessionRepository    sessionRepo;
+    @Autowired private CvJobMatchRepository        matchRepo;
     @Autowired private GeminiService               geminiService;
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -111,6 +113,20 @@ public class CvScoringService {
             throw new RuntimeException("Bạn không có quyền xem phiên này");
         }
         return session;
+    }
+
+    /** Delete one session by ID (with auth check). */
+    @Transactional
+    public void deleteSession(Long sessionId, Long userId) {
+        CvScoreSession session = sessionRepo.findById(sessionId)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy phiên chấm điểm"));
+        if (!session.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Bạn không có quyền xóa phiên này");
+        }
+
+        // Match cache is stored in a separate table, so remove it first.
+        matchRepo.deleteBySessionId(sessionId);
+        sessionRepo.delete(session);
     }
 
     /** Get all active criteria. */
