@@ -202,7 +202,7 @@
          * Default answer (fallback)
          */
         getDefaultAnswer: function() {
-            return `🤔 Xin lỗi, tôi đang gặp sự cố kết nối.
+            return `1Xin lỗi, tôi đang gặp sự cố kết nối.
 
 **Bạn có thể:**
 • Thử hỏi lại sau giây lát
