@@ -9,27 +9,52 @@
 <body>
     <div class="history-container">
         <div class="history-header">
-            <h2>📜 Lịch sử Chat</h2>
+            <h2>Lịch sử chat</h2>
             <button class="history-close" onclick="closeHistory()">✕</button>
         </div>
 
         <div class="history-list" id="historyList">
             <!-- Dynamic content -->
         </div>
-
-        <div class="history-actions">
-            <button class="btn btn-secondary" onclick="exportHistory()">📥 Export</button>
-            <button class="btn btn-danger" onclick="clearHistory()">🗑️ Xóa tất cả</button>
-        </div>
     </div>
 
     <script>
-        let currentUserId = null;
+        // Nhận userId từ parent (vì iframe có localStorage riêng)
+        let receivedUserId = null;
+        let lastReceivedUserId = null; // Để detect userId thay đổi
 
-        // Get user ID từ localStorage
+        // Lắng nghe message từ parent
+        window.addEventListener('message', function(event) {
+            if (event.data.action === 'setUserId') {
+                const newUserId = event.data.userId;
+                console.log('History: Received userId from parent:', newUserId);
+
+                // Nếu userId thay đổi, reset cache
+                if (newUserId !== lastReceivedUserId) {
+                    receivedUserId = newUserId;
+                    lastReceivedUserId = newUserId;
+                    cachedHistory = null; // Reset cache
+                    console.log('History: UserId changed, reloading...');
+                    // Reload history khi nhận userId mới
+                    loadHistory();
+                }
+            }
+            if (event.data.action === 'reloadHistory') {
+                loadHistory();
+            }
+            if (event.data.action === 'historyData') {
+                // Nhận history data từ parent và hiển thị
+                displayHistory(event.data.history);
+            }
+        });
+
+        // Get user ID - ưu tiên userId từ parent
         async function getUserId() {
-            if (currentUserId) return currentUserId;
+            if (receivedUserId) {
+                return receivedUserId;
+            }
 
+            // Fallback: lấy từ localStorage của iframe (hoặc gọi API)
             let userId = localStorage.getItem('chatbot_user_id');
             if (!userId) {
                 try {
@@ -41,7 +66,26 @@
                 }
                 localStorage.setItem('chatbot_user_id', userId);
             }
-            currentUserId = userId;
+            return userId;
+        }
+
+        function getHistoryKey(userId) {
+            return 'chatbot_history_' + userId;
+        }
+        async function getUserId() {
+            let userId = localStorage.getItem('chatbot_user_id');
+
+            if (!userId) {
+                try {
+                    const response = await fetch('/api/user/me', { credentials: 'include' });
+                    const data = await response.json();
+                    userId = data.authenticated && data.id ? 'user_' + data.id : 'guest_' + Date.now();
+                } catch {
+                    userId = 'guest_' + Date.now();
+                }
+                localStorage.setItem('chatbot_user_id', userId);
+            }
+
             return userId;
         }
 
@@ -49,11 +93,29 @@
             return 'chatbot_history_' + userId;
         }
 
+        // Cache history để tránh request liên tục
+        let cachedHistory = null;
+
         async function loadHistory() {
             const list = document.getElementById('historyList');
             const userId = await getUserId();
-            const historyKey = getHistoryKey(userId);
-            const history = getHistory(historyKey);
+
+            // Gửi message đến parent để request history
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    action: 'loadHistory',
+                    userId: userId
+                }, '*');
+            }
+        }
+
+        // Xử lý khi nhận history data từ parent
+        function displayHistory(history) {
+            const list = document.getElementById('historyList');
+            if (!list) return;
+
+            // Cache history để export dùng
+            cachedHistory = history;
 
             if (history.length === 0) {
                 list.innerHTML = `
@@ -84,51 +146,12 @@
             }
         }
 
-        async function clearHistory() {
-            if (confirm('Xóa toàn bộ lịch sử chat?')) {
-                const userId = await getUserId();
-                const historyKey = getHistoryKey(userId);
-                localStorage.removeItem(historyKey);
-                await loadHistory();
-            }
-        }
-
         function closeHistory() {
             // Gửi message về parent window để đóng
             if (window.parent !== window) {
                 window.parent.postMessage({ action: 'closeHistory' }, '*');
             }
             window.close();
-        }
-
-        async function exportHistory() {
-            const userId = await getUserId();
-            const historyKey = getHistoryKey(userId);
-            const history = getHistory(historyKey);
-
-            if (history.length === 0) {
-                alert('Không có lịch sử để export!');
-                return;
-            }
-
-            let text = 'Lịch sử Chat - AI Assistant\n';
-            text += `User: ${userId}\n`;
-            text += '='.repeat(40) + '\n\n';
-
-            history.forEach(item => {
-                text += `Q: ${item.question}\n`;
-                text += `A: ${item.answer}\n`;
-                text += `Thời gian: ${new Date(item.timestamp).toLocaleString('vi-VN')}\n`;
-                text += '-'.repeat(40) + '\n\n';
-            });
-
-            const blob = new Blob([text], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `chat-history-${userId.substring(5, 15)}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
         }
 
         function copyToClipboard(text) {

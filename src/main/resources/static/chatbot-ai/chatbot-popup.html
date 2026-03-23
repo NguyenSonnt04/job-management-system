@@ -12,7 +12,7 @@
         <div class="chatbot-header">
             <div class="chatbot-header-left">
                 <div class="chatbot-avatar">
-                    <img src="../images/logo_chatbot.png" alt="AI">
+                    <img src="../../images/logo_chatbot.png" alt="AI">
                 </div>
                 <div class="chatbot-title">
                     <h3>Kroos AI </h3>
@@ -25,7 +25,7 @@
         <div class="chatbot-messages" id="chatbotMessages">
             <div class="chatbot-message bot">
                 <div class="chatbot-avatar bot-avatar">
-                    <img src="../images/logo_chatbot.png" alt="AI">
+                    <img src="../../images/logo_chatbot.png" alt="AI">
                 </div>
                 <div class="chatbot-message-content">
                     <div class="chatbot-bubble bot-bubble">
@@ -45,17 +45,16 @@
 
         <!-- Quick Questions -->
         <div class="chatbot-quick-questions">
-            <button class="quick-question" onclick="askChatbot('Hệ thống có những chức năng chính nào?')">🔍 Chức năng</button>
-            <button class="quick-question" onclick="askChatbot('Làm thế nào để tạo công việc mới?')">📝 Tạo việc</button>
-            <button class="quick-question" onclick="askChatbot('Đổi mật khẩu ở đâu?')">🔑 Mật khẩu</button>
-            <button class="quick-question" onclick="askChatbot('Xem thống kê ở đâu?')">📊 Thống kê</button>
+            <button class="quick-question" onclick="askChatbot('Cách để tạo một CV ?')">Tạo CV</button>
+            <button class="quick-question" onclick="askChatbot('Cách để chấm điểm CV bằng AI ?')">Chấm điểm CV</button>
+            <button class="quick-question" onclick="askChatbot('Cách đăng bài tuyển dụng ứng viên ?')">Đăng bài tuyển dụng</button>
         </div>
 
         <!-- Input -->
         <div class="chatbot-input-area">
             <div class="chatbot-actions">
-                <button type="button" class="chatbot-action-btn" onclick="openHistory()">🕒 Lịch sử</button>
-                <button type="button" class="chatbot-action-btn" onclick="clearHistory()">🗑️ Xóa</button>
+                <button type="button" class="chatbot-action-btn" onclick="openHistory()">Lịch sử</button>
+                <button type="button" class="chatbot-action-btn1" onclick="clearHistory()">Xóa</button>
             </div>
             <div class="chatbot-input-wrapper">
                 <textarea id="chatbotInput" class="chatbot-input" placeholder="Đặt câu hỏi..." rows="1"></textarea>
@@ -75,32 +74,54 @@
         const CHAT_HISTORY_KEY = 'chatbot_history';
         let currentUserId = null;
 
-        // Get user ID from backend
+        // Lắng nghe userId từ parent
+        window.addEventListener('message', function(event) {
+            if (event.data.action === 'setUserId') {
+                console.log('Popup: Received userId from parent:', event.data.userId);
+                currentUserId = event.data.userId;
+            }
+            if (event.data.action === 'clearChat') {
+                // Xóa tin nhắn hiện tại khi logout
+                const messagesDiv = document.getElementById('chatbotMessages');
+                if (messagesDiv) {
+                    messagesDiv.innerHTML = `
+                        <div class="chatbot-message bot">
+                            <div class="chatbot-avatar bot-avatar">
+                                <img src="../images/logo_chatbot.png" alt="AI">
+                            </div>
+                            <div class="chatbot-message-content">
+                                <div class="chatbot-bubble bot-bubble">
+                                    <p>Xin chào! Tôi là AI Assistant. Hãy hỏi tôi về dự án của bạn!</p>
+                                </div>
+                                <span class="chatbot-time">Bây giờ</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        // Get user ID - ưu tiên nhận từ parent, nếu chưa có thì lấy từ API
         async function getUserId() {
-            if (currentUserId) return currentUserId;
+            if (currentUserId) {
+                console.log('Popup: Using cached userId:', currentUserId);
+                return currentUserId;
+            }
 
             try {
                 const response = await fetch('/api/user/me', { credentials: 'include' });
                 const data = await response.json();
 
                 if (data.authenticated && data.id) {
-                    // Đã đăng nhập - dùng user ID
                     currentUserId = 'user_' + data.id;
-                    localStorage.setItem('chatbot_user_id', currentUserId);
-                    return currentUserId;
                 } else {
-                    // Chưa đăng nhập - xóa old user ID, tạo guest mới
-                    localStorage.removeItem('chatbot_user_id');
                     currentUserId = 'guest_' + Date.now();
-                    localStorage.setItem('chatbot_user_id', currentUserId);
-                    return currentUserId;
                 }
+                console.log('Popup: Fetched userId from API:', currentUserId);
+                return currentUserId;
             } catch (e) {
                 console.error('Error getting user ID:', e);
-                // Lỗi - tạo guest session mới
-                localStorage.removeItem('chatbot_user_id');
                 currentUserId = 'guest_' + Date.now();
-                localStorage.setItem('chatbot_user_id', currentUserId);
                 return currentUserId;
             }
         }
@@ -111,18 +132,15 @@
 
         async function saveToHistory(sessionId, question, answer) {
             try {
-                const historyKey = CHAT_HISTORY_KEY + '_' + sessionId;
-                const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
-                history.push({
-                    question: question,
-                    answer: answer,
-                    timestamp: Date.now()
-                });
-                // Keep only last 50 messages
-                if (history.length > 50) {
-                    history.splice(0, history.length - 50);
+                // Gửi message đến parent để lưu vào localStorage của parent
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        action: 'saveHistory',
+                        userId: sessionId,
+                        question: question,
+                        answer: answer
+                    }, '*');
                 }
-                localStorage.setItem(historyKey, JSON.stringify(history));
             } catch (e) {
                 console.error('Error saving chat history:', e);
             }
@@ -210,7 +228,7 @@
             avatarDiv.className = sender === 'bot' ? 'chatbot-avatar bot-avatar' : '';
 
             if (sender === 'bot') {
-                avatarDiv.innerHTML = '<img src="../images/logo_chatbot.png" alt="AI">';
+                avatarDiv.innerHTML = '<img src="../../images/logo_chatbot.png" alt="AI">';
             }
 
             const messageContent = document.createElement('div');
@@ -257,7 +275,7 @@
 
             const avatarDiv = document.createElement('div');
             avatarDiv.className = 'chatbot-avatar bot-avatar';
-            avatarDiv.innerHTML = '<img src="../images/logo_chatbot.png" alt="AI">';
+            avatarDiv.innerHTML = '<img src="../../images/logo_chatbot.png" alt="AI">';
 
             const typingBubble = document.createElement('div');
             typingBubble.className = 'chatbot-typing';
