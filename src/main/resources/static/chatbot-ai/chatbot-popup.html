@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - Chatbot</title>
+    <link rel="stylesheet" href="chatbot-popup.css">
+</head>
+<body>
+    <div class="chatbot-container">
+        <!-- Header -->
+        <div class="chatbot-header">
+            <div class="chatbot-header-left">
+                <div class="chatbot-avatar">
+                    <img src="../../images/logo_chatbot.png" alt="AI">
+                </div>
+                <div class="chatbot-title">
+                    <h3>Kroos AI </h3>
+                </div>
+            </div>
+            <button class="chatbot-close" onclick="closeChatbot()">✕</button>
+        </div>
+
+        <!-- Messages -->
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chatbot-message bot">
+                <div class="chatbot-avatar bot-avatar">
+                    <img src="../../images/logo_chatbot.png" alt="AI">
+                </div>
+                <div class="chatbot-message-content">
+                    <div class="chatbot-bubble bot-bubble">
+                        <p>Xin chào! Tôi là Kroos AI.</p>
+                        <p>Tôi có thể giúp bạn:</p>
+                        <ul>
+                            <li>Đăng ký hoặc đăng nhập.</li>
+                            <li>Cách tạo CV theo mẫu.</li>
+                            <li>Chấm điểm CV bằng AI.</li>
+                            <li>Đăng bài tuyển dụng.</li>
+                        </ul>
+                    </div>
+                    <span class="chatbot-time">Bây giờ</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Questions -->
+        <div class="chatbot-quick-questions">
+            <button class="quick-question" onclick="askChatbot('Cách để tạo một CV ?')">Tạo CV</button>
+            <button class="quick-question" onclick="askChatbot('Cách để chấm điểm CV bằng AI ?')">Chấm điểm CV</button>
+            <button class="quick-question" onclick="askChatbot('Cách đăng bài tuyển dụng ứng viên ?')">Đăng bài tuyển dụng</button>
+        </div>
+
+        <!-- Input -->
+        <div class="chatbot-input-area">
+            <div class="chatbot-actions">
+                <button type="button" class="chatbot-action-btn" onclick="openHistory()">Lịch sử</button>
+                <button type="button" class="chatbot-action-btn1" onclick="clearHistory()">Xóa</button>
+            </div>
+            <div class="chatbot-input-wrapper">
+                <textarea id="chatbotInput" class="chatbot-input" placeholder="Đặt câu hỏi..." rows="1"></textarea>
+                <button class="chatbot-send" id="chatbotSend" onclick="sendChatbotMessage()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        // ===== Session Management =====
+        const CHAT_HISTORY_KEY = 'chatbot_history';
+        let currentUserId = null;
+
+        // Lắng nghe userId từ parent
+        window.addEventListener('message', function(event) {
+            if (event.data.action === 'setUserId') {
+                console.log('Popup: Received userId from parent:', event.data.userId);
+                currentUserId = event.data.userId;
+            }
+            if (event.data.action === 'clearChat') {
+                // Xóa tin nhắn hiện tại khi logout
+                const messagesDiv = document.getElementById('chatbotMessages');
+                if (messagesDiv) {
+                    messagesDiv.innerHTML = `
+                        <div class="chatbot-message bot">
+                            <div class="chatbot-avatar bot-avatar">
+                                <img src="../images/logo_chatbot.png" alt="AI">
+                            </div>
+                            <div class="chatbot-message-content">
+                                <div class="chatbot-bubble bot-bubble">
+                                    <p>Xin chào! Tôi là AI Assistant. Hãy hỏi tôi về dự án của bạn!</p>
+                                </div>
+                                <span class="chatbot-time">Bây giờ</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        // Get user ID - ưu tiên nhận từ parent, nếu chưa có thì lấy từ API
+        async function getUserId() {
+            if (currentUserId) {
+                console.log('Popup: Using cached userId:', currentUserId);
+                return currentUserId;
+            }
+
+            try {
+                const response = await fetch('/api/user/me', { credentials: 'include' });
+                const data = await response.json();
+
+                if (data.authenticated && data.id) {
+                    currentUserId = 'user_' + data.id;
+                } else {
+                    currentUserId = 'guest_' + Date.now();
+                }
+                console.log('Popup: Fetched userId from API:', currentUserId);
+                return currentUserId;
+            } catch (e) {
+                console.error('Error getting user ID:', e);
+                currentUserId = 'guest_' + Date.now();
+                return currentUserId;
+            }
+        }
+
+        async function getSessionId() {
+            return await getUserId();
+        }
+
+        async function saveToHistory(sessionId, question, answer) {
+            try {
+                // Gửi message đến parent để lưu vào localStorage của parent
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        action: 'saveHistory',
+                        userId: sessionId,
+                        question: question,
+                        answer: answer
+                    }, '*');
+                }
+            } catch (e) {
+                console.error('Error saving chat history:', e);
+            }
+        }
+
+        // ===== API Calls =====
+        async function sendChatbotMessage() {
+            const input = document.getElementById('chatbotInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+            showTyping();
+
+            try {
+                const sessionId = await getSessionId();
+                const response = await fetch('/api/chatbot/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: message, sessionId: sessionId })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    hideTyping();
+                    addMessage(data.answer, 'bot');
+                    saveToHistory(sessionId, message, data.answer);
+                } else {
+                    hideTyping();
+                    const defaultResponse = getDefaultResponse();
+                    addMessage(defaultResponse, 'bot');
+                    saveToHistory(sessionId, message, defaultResponse);
+                }
+            } catch (error) {
+                console.error('Chatbot error:', error);
+                hideTyping();
+                const sessionId = await getSessionId();
+                const defaultResponse = getDefaultResponse();
+                addMessage(defaultResponse, 'bot');
+                saveToHistory(sessionId, message, defaultResponse);
+            }
+        }
+
+        async function askChatbot(question) {
+            addMessage(question, 'user');
+            showTyping();
+
+            try {
+                const sessionId = await getSessionId();
+                const response = await fetch('/api/chatbot/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: question, sessionId: sessionId })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    hideTyping();
+                    addMessage(data.answer, 'bot');
+                    saveToHistory(sessionId, question, data.answer);
+                } else {
+                    hideTyping();
+                    addMessage(getDefaultResponse(), 'bot');
+                    saveToHistory(sessionId, question, getDefaultResponse());
+                }
+            } catch (error) {
+                console.error('Chatbot error:', error);
+                hideTyping();
+                const sessionId = await getSessionId();
+                addMessage(getDefaultResponse(), 'bot');
+                saveToHistory(sessionId, question, getDefaultResponse());
+            }
+        }
+
+        // ===== Message Display =====
+        function addMessage(content, sender) {
+            const container = document.getElementById('chatbotMessages');
+            if (!container) return;
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chatbot-message ${sender}`;
+
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = sender === 'bot' ? 'chatbot-avatar bot-avatar' : '';
+
+            if (sender === 'bot') {
+                avatarDiv.innerHTML = '<img src="../../images/logo_chatbot.png" alt="AI">';
+            }
+
+            const messageContent = document.createElement('div');
+            messageContent.className = 'chatbot-message-content';
+
+            const bubble = document.createElement('div');
+            bubble.className = `chatbot-bubble ${sender}-bubble`;
+            bubble.innerHTML = formatMessage(content);
+
+            const time = document.createElement('span');
+            time.className = 'chatbot-time';
+            time.textContent = getCurrentTime();
+
+            messageContent.appendChild(bubble);
+            messageContent.appendChild(time);
+
+            if (sender === 'bot') {
+                messageDiv.appendChild(avatarDiv);
+            }
+
+            messageDiv.appendChild(messageContent);
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function formatMessage(content) {
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>')
+                .replace(/^(?!<)/, '<p>')
+                .replace(/(?<!>)$/, '</p>');
+        }
+
+        function showTyping() {
+            const container = document.getElementById('chatbotMessages');
+            if (!container) return;
+
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chatbot-message bot typing-message';
+            typingDiv.id = 'chatbotTyping';
+
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'chatbot-avatar bot-avatar';
+            avatarDiv.innerHTML = '<img src="../../images/logo_chatbot.png" alt="AI">';
+
+            const typingBubble = document.createElement('div');
+            typingBubble.className = 'chatbot-typing';
+            typingBubble.innerHTML = `
+                <div class="chatbot-typing-dot"></div>
+                <div class="chatbot-typing-dot"></div>
+                <div class="chatbot-typing-dot"></div>
+            `;
+
+            typingDiv.appendChild(avatarDiv);
+            typingDiv.appendChild(typingBubble);
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('chatbotTyping');
+            if (typing) typing.remove();
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        function getDefaultResponse() {
+            return `🤔 Xin lỗi, tôi đang gặp sự cố kết nối.
+
+**Bạn có thể hỏi về:**
+• Tạo/Sửa/Xóa công việc
+• Deadline và nhắc lịch
+• Thống kê báo cáo
+• Tài khoản và bảo mật`;
+        }
+
+        // ===== History Management =====
+        function openHistory() {
+            // Gọi hàm ở parent để hiện history trên cùng trang
+            window.parent.openChatHistory();
+        }
+
+        function clearHistory() {
+            // Gọi hàm ở parent để xóa history
+            window.parent.ChatbotInclude.clearHistory();
+        }
+
+        // ===== Close Chatbot =====
+        function closeChatbot() {
+            // Gửi message về parent window để đóng popup
+            if (window.parent !== window) {
+                window.parent.postMessage({ action: 'closeChatbot' }, '*');
+            }
+            window.close();
+        }
+
+        // ===== Event Listeners =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('chatbotInput');
+            const sendBtn = document.getElementById('chatbotSend');
+
+            input.addEventListener('input', () => {
+                sendBtn.disabled = !input.value.trim();
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendChatbotMessage();
+                }
+            });
+
+            // ESC to close
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeChatbot();
+                }
+            });
+
+            // Listen for messages from parent
+            window.addEventListener('message', (event) => {
+                if (event.data.action === 'focusInput') {
+                    input.focus();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
