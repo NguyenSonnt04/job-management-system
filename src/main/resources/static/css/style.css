@@ -656,13 +656,13 @@ img {
 }
 
 /* Zalo Chat Button */
-.zalo-chat {
+.bot-chat {
     position: fixed;
     bottom: 30px;
     right: 30px;
     width: 60px;
     height: 60px;
-    background: #0068FF;
+    background: #000000;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -681,13 +681,19 @@ img {
     }
 }
 
-.zalo-chat:hover {
-    transform: scale(1.1);
+.bot-chat:hover {
+    transform: scale(1.15);
+    box-shadow: 0 12px 32px rgba(0, 104, 255, 0.4);
 }
 
-.zalo-chat img {
-    width: 35px;
-    height: 35px;
+.bot-chat img {
+    width: 60px;
+    height: 60px;
+    transition: transform 0.3s ease;
+}
+
+.bot-chat:hover img {
+    transform: scale(1.4);
 }
 
 /* ===== Top Employers Section ===== */

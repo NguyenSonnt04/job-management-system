@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử Chat - AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --chatbot-primary: #6366f1;
+            --chatbot-secondary: #8b5cf6;
+            --chatbot-bg: #ffffff;
+            --chatbot-text: #1e293b;
+            --chatbot-text-light: #64748b;
+            --chatbot-border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .history-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            max-height: 70vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50%) translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(-50%) translateX(0);
+            }
+        }
+
+        .history-header {
+            background: linear-gradient(135deg, var(--chatbot-primary) 0%, var(--chatbot-secondary) 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .history-header h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .history-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .history-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--chatbot-border);
+            border-radius: 3px;
+        }
+
+        .history-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--chatbot-border);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item:hover {
+            background: var(--chatbot-bg-alt);
+        }
+
+        .history-question {
+            font-weight: 600;
+            color: var(--chatbot-text);
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .history-answer {
+            color: var(--chatbot-text-light);
+            font-size: 12px;
+            white-space: pre-wrap;
+            margin-bottom: 4px;
+        }
+
+        .history-time {
+            font-size: 10px;
+            color: #999;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .history-actions {
+            padding: 15px 20px;
+            border-top: 1px solid var(--chatbot-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--chatbot-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4f46e5;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: var(--chatbot-bg-alt);
+            color: var(--chatbot-text);
+            border: 1px solid var(--chatbot-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--chatbot-border);
+        }
+    </style>
+</head>
+<body>
+    <div class="history-container">
+        <div class="history-header">
+            <h2>📜 Lịch sử Chat</h2>
+            <button class="history-close" onclick="closeHistory()">✕</button>
+        </div>
+
+        <div class="history-list" id="historyList">
+            <!-- Dynamic content -->
+        </div>
+
+        <div class="history-actions">
+            <button class="btn btn-secondary" onclick="exportHistory()">📥 Export</button>
+            <button class="btn btn-danger" onclick="clearHistory()">🗑️ Xóa tất cả</button>
+        </div>
+    </div>
+
+    <script>
+        const CHAT_HISTORY_KEY = 'chatbot_history';
+
+        function loadHistory() {
+            const list = document.getElementById('historyList');
+            const history = getHistory();
+
+            if (history.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💬</div>
+                        <p>Chưa có lịch sử chat</p>
+                        <small>Bắt đầu chat với AI Assistant ngay!</small>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = history.map(item => `
+                    <div class="history-item" onclick="copyToClipboard('${escapeHtml(item.answer)}')">
+                        <div class="history-question">Q: ${escapeHtml(item.question)}</div>
+                        <div class="history-answer">A: ${escapeHtml(item.answer)}</div>
+                        <div class="history-time">${new Date(item.timestamp).toLocaleString('vi-VN')}</div>
+                    </div>
+                `).reverse().join('');
+            }
+        }
+
+        function getHistory() {
+            try {
+                const history = localStorage.getItem(CHAT_HISTORY_KEY);
+                return history ? JSON.parse(history) : [];
+            } catch (e) {
+                console.error('Error loading chat history:', e);
+                return [];
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('Xóa toàn bộ lịch sử chat?')) {
+                localStorage.removeItem(CHAT_HISTORY_KEY);
+                loadHistory();
+            }
+        }
+
+        function closeHistory() {
+            window.close();
+        }
+
+        function exportHistory() {
+            const history = getHistory();
+            if (history.length === 0) {
+                alert('Không có lịch sử để export!');
+                return;
+            }
+
+            let text = 'Lịch sử Chat - AI Assistant\n';
+            text += '='.repeat(40) + '\n\n';
+
+            history.forEach(item => {
+                text += `Q: ${item.question}\n`;
+                text += `A: ${item.answer}\n`;
+                text += `Thời gian: ${new Date(item.timestamp).toLocaleString('vi-VN')}\n`;
+                text += '-'.repeat(40) + '\n\n';
+            });
+
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `chat-history-${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Hiển thị thông báo nhỏ
+                const tooltip = document.createElement('div');
+                tooltip.textContent = '✓ Đã copy!';
+                tooltip.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #10b981;
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    font-size: 12px;
+                    z-index: 10000;
+                    animation: fadeOut 2s forwards;
+                `;
+                document.body.appendChild(tooltip);
+                setTimeout(() => tooltip.remove(), 2000);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Auto refresh mỗi 5 giây
+        setInterval(loadHistory, 5000);
+
+        // ESC để đóng
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeHistory();
+            }
+        });
+
+        // Load khi mở trang
+        loadHistory();
+    </script>
+</body>
+</html>
