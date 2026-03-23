@@ -365,29 +365,87 @@
     color: var(--text-gray);
 }
 
-/* Responsive */
+/* ===== Responsive ===== */
+
+/* Extra Large Desktop */
+@media (max-width: 1400px) {
+    .job-table {
+        font-size: 14px;
+    }
+
+    .job-table th,
+    .job-table td {
+        padding: 14px 12px;
+    }
+}
+
+/* Laptop & Tablet */
 @media (max-width: 1024px) {
+    .job-management {
+        padding: 30px 0;
+    }
+
     .page-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 16px;
     }
 
+    .page-title {
+        font-size: 24px;
+    }
+
+    .page-description {
+        font-size: 14px;
+    }
+
     .filter-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .filter-group {
+        margin-bottom: 12px;
+    }
+
+    .filter-group.full-width {
+        grid-column: span 2;
     }
 
     .action-bar {
         flex-direction: column;
         align-items: stretch;
+        gap: 12px;
     }
 
     .action-buttons,
     .export-section {
         justify-content: flex-start;
+        width: 100%;
+    }
+
+    .job-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .job-table {
+        min-width: 800px;
+    }
+
+    .job-table th,
+    .job-table td {
+        padding: 12px 10px;
+        font-size: 13px;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        gap: 8px;
     }
 }
 
+/* Tablet Small */
 @media (max-width: 768px) {
     .job-management {
         padding: 20px 0;
@@ -397,21 +455,178 @@
         font-size: 22px;
     }
 
+    .page-description {
+        font-size: 13px;
+    }
+
+    .filter-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .filter-group.full-width {
+        grid-column: span 1;
+    }
+
+    .filter-input,
+    .filter-select {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
     .status-tabs {
         overflow-x: auto;
         flex-wrap: nowrap;
-        padding-bottom: 8px;
+        padding: 5px 0;
+        gap: 8px;
     }
 
     .status-tab {
         white-space: nowrap;
+        padding: 10px 16px;
+        font-size: 13px;
     }
 
-    .job-table-wrapper {
-        overflow-x: auto;
+    .btn-primary,
+    .btn-secondary {
+        padding: 10px 16px;
+        font-size: 13px;
     }
 
     .job-table {
-        min-width: 800px;
+        min-width: 700px;
+    }
+
+    .job-table th,
+    .job-table td {
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+
+    .company-cell {
+        min-width: 150px;
+    }
+
+    .job-cell {
+        min-width: 180px;
+    }
+
+    .page-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .job-management {
+        padding: 15px 0;
+    }
+
+    .page-title {
+        font-size: 20px;
+    }
+
+    .page-description {
+        font-size: 12px;
+    }
+
+    .filter-row {
+        gap: 8px;
+    }
+
+    .filter-input,
+    .filter-select {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-outline {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .export-section {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-export {
+        width: 100%;
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+
+    .per-page-select {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .job-table {
+        min-width: 600px;
+    }
+
+    .job-table th,
+    .job-table td {
+        padding: 8px 6px;
+        font-size: 11px;
+    }
+
+    .job-table th:nth-child(4),
+    .job-table td:nth-child(4),
+    .job-table th:nth-child(6),
+    .job-table td:nth-child(6) {
+        display: none;
+    }
+
+    .status-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+
+    .action-icon {
+        padding: 6px;
+    }
+
+    .action-icon svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .pagination {
+        gap: 5px;
+    }
+
+    .page-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .page-info {
+        font-size: 11px;
+    }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+    .page-title {
+        font-size: 18px;
+    }
+
+    .job-table {
+        min-width: 550px;
+    }
+
+    .job-table th:nth-child(5),
+    .job-table td:nth-child(5) {
+        display: none;
     }
 }
