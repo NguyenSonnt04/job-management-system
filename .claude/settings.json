@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"d:\\\\DuongTanHuy\\\\QLCV\\\\job-management-system\\\\target\\\\classes\\\\static\\\\chatbot-ai\"\" 2>/dev/null || dir \"d:DuongTanHuyQLCVjob-management-systemtargetclassesstaticchatbot-ai\"\")",
+      "Bash(mvn resources:resources)"
+    ],
+    "additionalDirectories": [
+      "d:\\DuongTanHuy\\QLCV\\job-management-system\\src\\main\\resources\\static\\chatbot-ai"
+    ]
+  }
+}

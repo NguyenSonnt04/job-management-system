@@ -208,6 +208,25 @@ img {
     gap: 20px;
 }
 
+/* Mobile Menu Button */
+.mobile-menu-btn {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.mobile-menu-btn span {
+    width: 24px;
+    height: 2px;
+    background: var(--text-dark);
+    border-radius: 2px;
+    transition: var(--transition);
+}
+
 .notification-link,
 .login-link {
     display: flex;
@@ -656,13 +675,13 @@ img {
 }
 
 /* Zalo Chat Button */
-.zalo-chat {
+.bot-chat {
     position: fixed;
     bottom: 30px;
     right: 30px;
     width: 60px;
     height: 60px;
-    background: #0068FF;
+    background: #000000;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -681,13 +700,19 @@ img {
     }
 }
 
-.zalo-chat:hover {
-    transform: scale(1.1);
+.bot-chat:hover {
+    transform: scale(1.15);
+    box-shadow: 0 12px 32px rgba(0, 104, 255, 0.4);
 }
 
-.zalo-chat img {
-    width: 35px;
-    height: 35px;
+.bot-chat img {
+    width: 60px;
+    height: 60px;
+    transition: transform 0.3s ease;
+}
+
+.bot-chat:hover img {
+    transform: scale(1.4);
 }
 
 /* ===== Top Employers Section ===== */
@@ -1038,65 +1063,419 @@ img {
 }
 
 /* ===== Responsive Design ===== */
+
+/* Extra Large Desktop */
+@media (max-width: 1400px) {
+    .container {
+        padding: 0 30px;
+    }
+
+    .banner-image {
+        width: 250px;
+        right: 80px;
+    }
+}
+
+/* Laptop & Tablet */
 @media (max-width: 1024px) {
+    .container {
+        padding: 0 20px;
+    }
+
     .hero-content {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
-    
+
+    .search-box {
+        order: 1;
+    }
+
+    .hero-banner {
+        order: 2;
+    }
+
+    .banner-image {
+        width: 200px;
+        right: 50px;
+    }
+
+    .banner-qr {
+        right: 20px;
+    }
+
+    .banner-qr img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .banner-title {
+        font-size: 28px;
+    }
+
     .job-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .footer-content {
         grid-template-columns: repeat(3, 1fr);
     }
+
+    .login-dropdown {
+        width: 350px;
+    }
 }
 
+/* Tablet Small */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+
+    .mobile-menu-btn {
+        display: flex;
+    }
+
     .nav {
         display: none;
-    }
-    
-    .header-actions {
-        flex-wrap: wrap;
-    }
-    
-    .banner-image {
-        width: 200px;
-        right: 80px;
-    }
-    
-    .footer-content {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .footer-bottom {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--white);
         flex-direction: column;
-        gap: 20px;
-        align-items: center;
+        padding: 15px;
+        gap: 5px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
-}
 
-@media (max-width: 480px) {
-    .search-box {
-        padding: 20px;
+    .nav.active {
+        display: flex;
     }
-    
+
+    .nav-link {
+        padding: 12px 10px;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+
+    .nav-link:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-menu {
+        position: static;
+        transform: none;
+        opacity: 1;
+        visibility: visible;
+        box-shadow: none;
+        padding-left: 20px;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .nav-dropdown.active .dropdown-menu {
+        display: block;
+    }
+
+    .header-actions {
+        gap: 10px;
+    }
+
+    .btn-employer,
+    .btn-candidate {
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+
+    .logo img {
+        width: 25px;
+    }
+
+    .banner {
+        padding: 15px 0;
+    }
+
+    .banner-image {
+        display: none;
+    }
+
+    .banner-qr {
+        position: static;
+        transform: none;
+        margin: 20px auto 0;
+    }
+
     .banner-title {
         font-size: 24px;
     }
-    
+
+    .banner-subtitle p {
+        font-size: 14px;
+    }
+
+    .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-badges {
+        justify-content: center;
+    }
+
+    .login-dropdown {
+        width: calc(100vw - 40px);
+        max-width: 350px;
+        right: -15px;
+    }
+
+    .bot-chat {
+        width: 50px;
+        height: 50px;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .bot-chat img {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 12px;
+    }
+
+    .header-content {
+        padding: 10px 0;
+        gap: 15px;
+    }
+
+    .logo img {
+        width: 22px;
+    }
+
+    .logo:hover img {
+        transform: scale(2.5) translateY(2px);
+    }
+
+    .user-greeting {
+        font-size: 12px;
+        display: none;
+    }
+
+    .hero {
+        padding: 15px 0 20px;
+    }
+
+    .search-box {
+        padding: 15px;
+    }
+
+    .search-title {
+        font-size: 16px;
+    }
+
+    .search-title strong {
+        font-size: 18px;
+    }
+
+    .hero-banner {
+        padding: 15px;
+    }
+
+    .banner-logo {
+        font-size: 14px;
+        padding: 6px 15px;
+        margin-bottom: 15px;
+    }
+
+    .banner-title {
+        font-size: 20px;
+    }
+
+    .banner-subtitle p {
+        font-size: 13px;
+    }
+
+    .banner-list li {
+        font-size: 13px;
+        padding-left: 15px;
+    }
+
     .banner-features {
         gap: 8px;
     }
-    
+
     .feature-item {
         font-size: 10px;
-        padding: 8px 10px;
+        padding: 8px 12px;
     }
-    
+
+    .feature-item svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .btn-search,
+    .btn-register {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .section-title {
+        font-size: 22px;
+    }
+
+    .tabs {
+        gap: 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab {
+        padding: 10px 16px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .job-card {
+        padding: 15px;
+    }
+
+    .company-logo {
+        width: 50px;
+        height: 50px;
+    }
+
+    .job-title {
+        font-size: 14px;
+    }
+
+    .company-name {
+        font-size: 13px;
+    }
+
+    .salary {
+        font-size: 13px;
+    }
+
+    .location {
+        font-size: 12px;
+    }
+
+    .badge-top,
+    .badge-urgent {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+
+    .category-tabs {
+        gap: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .category-tab {
+        padding: 10px 16px;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .footer {
+        padding: 30px 0 20px;
+    }
+
     .footer-content {
         grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .footer-column h4 {
+        font-size: 13px;
+    }
+
+    .footer-column ul li a {
+        font-size: 12px;
+    }
+
+    .social-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .footer-badges img {
+        height: 40px;
+    }
+
+    .login-dropdown {
+        padding: 20px;
+    }
+
+    .login-title {
+        font-size: 20px;
+    }
+
+    .social-login {
+        gap: 8px;
+    }
+
+    .btn-social {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .bot-chat {
+        width: 45px;
+        height: 45px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .bot-chat img {
+        width: 45px;
+        height: 45px;
+    }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+    .container {
+        padding: 0 10px;
+    }
+
+    .banner-title {
+        font-size: 18px;
+    }
+
+    .search-title {
+        font-size: 14px;
+    }
+
+    .search-title strong {
+        font-size: 16px;
+    }
+
+    .btn-employer,
+    .btn-candidate {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    .chatbot-wrapper {
+        width: 100% !important;
+        height: 100vh !important;
+        bottom: 0 !important;
+        right: 0 !important;
+        border-radius: 0 !important;
     }
 }
 

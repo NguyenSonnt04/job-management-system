@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
                 .requestMatchers("/includes/**").permitAll() // Header, footer includes
                 .requestMatchers("/error").permitAll()
+                .requestMatchers("/chatbot-ai/**").permitAll() // Chatbot AI files
                 
                 // Public pages (job listing, CV, etc.)
                 .requestMatchers("/*.html").permitAll() // All root-level HTML pages
@@ -58,6 +59,7 @@ public class SecurityConfig {
                 // API endpoints for registration and user info
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/user/**").permitAll()
+                .requestMatchers("/api/chatbot/**").permitAll() // Chatbot API
                 
                 // Admin pages and API - require ADMIN role
                 .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -85,6 +87,11 @@ public class SecurityConfig {
                 
                 // All other requests - permit for now (adjust as needed)
                 .anyRequest().permitAll()
+            )
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions
+                    .sameOrigin() // Allow iframe from same origin
+                )
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED)
