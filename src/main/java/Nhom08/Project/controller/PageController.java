@@ -1,7 +1,12 @@
 package Nhom08.Project.controller;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.stereotype.Controller;
+
+import java.nio.charset.StandardCharsets;
+
+import org.springframework.web.util.UriUtils;
 
 @Controller
 public class PageController {
@@ -43,5 +48,22 @@ public class PageController {
     @GetMapping("/quan-ly-ung-vien")
     public String manageCandidates() {
         return "redirect:/quan-ly-ung-vien.html";
+    }
+
+    /**
+     * Trang cẩm nang
+     */
+    @GetMapping("/cam-nang")
+    public String careerGuideHome() {
+        return "redirect:/cam-nang.html";
+    }
+
+    /**
+     * Trang chi tiết cẩm nang
+     */
+    @GetMapping("/cam-nang/{slug}")
+    public String careerGuideDetail(@PathVariable String slug) {
+        String encodedSlug = UriUtils.encodePathSegment(slug, StandardCharsets.UTF_8);
+        return "redirect:/cam-nang-chi-tiet.html?slug=" + encodedSlug;
     }
 }

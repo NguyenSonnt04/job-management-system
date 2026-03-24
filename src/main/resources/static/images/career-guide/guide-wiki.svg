@@ -1,0 +1,24 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g9" x1="120" y1="110" x2="1480" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E293B"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" rx="48" fill="url(#g9)"/>
+  <circle cx="1240" cy="210" r="190" fill="#FFFFFF" fill-opacity="0.12"/>
+  <circle cx="330" cy="690" r="250" fill="#FFFFFF" fill-opacity="0.08"/>
+  <rect x="165" y="175" width="320" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.28"/>
+  <rect x="165" y="215" width="250" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.18"/>
+  <rect x="180" y="320" width="520" height="400" rx="36" fill="#FFFFFF" fill-opacity="0.14"/>
+  <rect x="240" y="380" width="180" height="260" rx="28" fill="#FFFFFF" fill-opacity="0.24"/>
+  <rect x="460" y="360" width="180" height="290" rx="28" fill="#FFFFFF" fill-opacity="0.18"/>
+  <rect x="820" y="240" width="620" height="500" rx="38" fill="#FFFFFF" fill-opacity="0.12"/>
+  <rect x="880" y="300" width="490" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.28"/>
+  <rect x="880" y="350" width="340" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.18"/>
+  <rect x="880" y="420" width="430" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.2"/>
+  <rect x="880" y="470" width="320" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.16"/>
+  <rect x="880" y="560" width="150" height="70" rx="18" fill="#FFFFFF" fill-opacity="0.22"/>
+  <rect x="1050" y="560" width="150" height="70" rx="18" fill="#86EFAC" fill-opacity="0.92"/>
+  <rect x="1220" y="560" width="150" height="70" rx="18" fill="#F59E0B" fill-opacity="0.92"/>
+</svg>

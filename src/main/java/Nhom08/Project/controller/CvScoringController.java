@@ -109,6 +109,36 @@ public class CvScoringController {
     }
 
     /**
+     * DELETE /api/cv-scoring/history/{id}
+     * Deletes one scoring session and its cached matches.
+     */
+    @DeleteMapping("/history/{id}")
+    public ResponseEntity<?> deleteHistory(@PathVariable Long id, Authentication auth) {
+        Optional<User> userOpt = currentUser(auth);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of(
+                "success", false,
+                "message", "Chưa đăng nhập"
+            ));
+        }
+
+        try {
+            scoringService.deleteSession(id, userOpt.get().getId());
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "deletedId", id
+            ));
+        } catch (RuntimeException e) {
+            String message = e.getMessage() != null ? e.getMessage() : "Không thể xóa phiên chấm điểm";
+            int status = message.startsWith("Không tìm thấy") ? 404 : 403;
+            return ResponseEntity.status(status).body(Map.of(
+                "success", false,
+                "message", message
+            ));
+        }
+    }
+
+    /**
      * GET /api/cv-scoring/{id}
      * Returns full session detail.
      */

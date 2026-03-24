@@ -312,21 +312,73 @@ users ──1:N── applications
 
 ## 🛠️ API Endpoints
 
-### Authentication
+> 📖 **Xem tài liệu API đầy đủ:** [`API_DOCS.md`](./API_DOCS.md)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register/user` | Register candidate |
-| POST | `/api/auth/register/employer/step1` | Employer registration (step 1) |
-| POST | `/api/auth/register/employer/step2` | Employer registration (step 2) |
-| POST | `/api/auth/login` | User login |
-| GET | `/api/auth/check-email` | Check email availability |
+### Authentication (`/api/auth`)
 
-### Admin
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|---------|
+| `GET` | `/api/auth/check-email` | ❌ | Kiểm tra email tồn tại |
+| `POST` | `/api/auth/register/user` | ❌ | Đăng ký ứng viên |
+| `POST` | `/api/auth/register/employer/step1` | ❌ | Đăng ký NTD bước 1 |
+| `POST` | `/api/auth/register/employer/step2` | Session | Đăng ký NTD bước 2 |
+| `POST` | `/api/auth/login` | ❌ | Đăng nhập (tất cả role) |
+| `GET` | `/api/auth/me` | Optional | Thông tin user hiện tại |
+| `GET` | `/logout` | ✅ | Đăng xuất |
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/admin/stats` | Dashboard statistics |
+### User (`/api/user`)
+
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|---------|
+| `GET` | `/api/user/me` | Optional | Thông tin user + employer info |
+
+### Jobs (`/api/jobs`)
+
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|---------|
+| `GET` | `/api/jobs/active` | ❌ | Tất cả tin đang tuyển (public) |
+| `GET` | `/api/jobs/{id}` | ❌ | Chi tiết một tin |
+| `GET` | `/api/jobs/search?keyword=` | ❌ | Tìm kiếm việc làm |
+| `GET` | `/api/jobs/form-options` | ❌ | Dropdown options từ DB |
+| `GET` | `/api/jobs/employer-info` | EMPLOYER | Auto-fill thông tin công ty |
+| `GET` | `/api/jobs/my-jobs` | EMPLOYER | Danh sách tin đã đăng |
+| `POST` | `/api/jobs/create` | EMPLOYER | Đăng tin tuyển dụng |
+| `PUT` | `/api/jobs/{id}` | EMPLOYER | Cập nhật tin |
+| `DELETE` | `/api/jobs/{id}` | EMPLOYER | Xóa tin (soft delete) |
+| `POST` | `/api/jobs/{id}/view` | ❌ | Tăng lượt xem |
+
+### Applications (`/api/applications`)
+
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|---------|
+| `POST` | `/api/applications/apply` | Optional | Nộp hồ sơ ứng tuyển |
+| `GET` | `/api/applications/employer` | EMPLOYER | Xem ứng viên của mình |
+| `PATCH` | `/api/applications/{id}/status` | EMPLOYER | Cập nhật trạng thái hồ sơ |
+
+### CV Scoring AI (`/api/cv-scoring`)
+
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|---------|
+| `GET` | `/api/cv-scoring/criteria` | ❌ | Tiêu chí chấm điểm |
+| `POST` | `/api/cv-scoring/score` | ✅ | Upload CV → chấm điểm AI |
+| `GET` | `/api/cv-scoring/history` | ✅ | Lịch sử chấm điểm |
+| `GET` | `/api/cv-scoring/{id}` | ✅ | Chi tiết phiên chấm |
+| `POST` | `/api/cv-scoring/match-jobs` | ✅ | AI gợi ý việc làm phù hợp |
+| `DELETE` | `/api/cv-scoring/match-jobs/{id}` | ✅ | Xóa cache matching |
+
+### Notifications (`/api/notifications`)
+
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|---------|
+| `GET` | `/api/notifications` | ✅ | Danh sách thông báo |
+| `PATCH` | `/api/notifications/read-all` | ✅ | Đánh dấu tất cả đã đọc |
+| `PATCH` | `/api/notifications/{id}/read` | ✅ | Đánh dấu 1 thông báo đã đọc |
+
+### Admin (`/api/admin`)
+
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|---------|
+| `GET` | `/api/admin/stats` | ADMIN | Thống kê dashboard |
 
 ---
 

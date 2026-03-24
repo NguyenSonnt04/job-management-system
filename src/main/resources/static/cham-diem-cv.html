@@ -239,8 +239,20 @@
 
                         <!-- Criteria info -->
                         <div class="info-card" id="criteriaInfoCard">
-                            <div class="info-card-title">Tiêu chí đánh giá</div>
-                            <div id="criteriaInfoList">
+                            <div class="info-card-title">
+                                Tiêu chí đánh giá
+                                <button
+                                    type="button"
+                                    class="criteria-toggle-btn"
+                                    id="criteriaToggleBtn"
+                                    aria-controls="criteriaInfoList"
+                                    aria-expanded="false"
+                                    aria-label="Thu gọn hoặc mở rộng tiêu chí đánh giá"
+                                    onclick="toggleCriteriaCard()">
+                                    <i class="fas fa-angle-down" id="criteriaToggleIcon"></i>
+                                </button>
+                            </div>
+                            <div id="criteriaInfoList" class="criteria-collapsed">
                                 <div style="color:#999;font-size:13px;">Đang tải...</div>
                             </div>
                         </div>
@@ -327,16 +339,28 @@
     }
 
     // ---- Load criteria from DB via API ----
+    let _criteriaExpanded = false;
+
     async function loadCriteria() {
         try {
             const res  = await fetch('/api/cv-scoring/criteria');
             const list = await res.json();
             const container = document.getElementById('criteriaInfoList');
-            container.innerHTML = list.map(c => `
-                <div class="criteria-info-item">
-                    <div class="criteria-info-name">${c.name}</div>
-                    <div class="criteria-info-desc">${c.description || ''}</div>
-                    <div class="criteria-info-max">Tối đa: <strong>${c.maxScore} điểm</strong></div>
+
+            // Render compact accordion items
+            container.innerHTML = list.map((c, i) => `
+                <div class="criteria-accordion-item" onclick="toggleCriteriaItem(this)">
+                    <div class="criteria-accordion-header">
+                        <div class="criteria-accordion-name">${c.name}</div>
+                        <div class="criteria-accordion-right">
+                            <span class="criteria-max-badge">${c.maxScore}đ</span>
+                            <i class="fas fa-chevron-right criteria-accordion-icon"></i>
+                        </div>
+                    </div>
+                    <div class="criteria-accordion-body">
+                        <div class="criteria-info-desc">${c.description || ''}</div>
+                        <div class="criteria-info-max">Tối đa: <strong>${c.maxScore} điểm</strong></div>
+                    </div>
                 </div>
             `).join('');
 
@@ -353,7 +377,29 @@
         }
     }
 
+    function toggleCriteriaItem(el) {
+        el.classList.toggle('open');
+    }
+
+    function toggleCriteriaCard() {
+        _criteriaExpanded = !_criteriaExpanded;
+        const list = document.getElementById('criteriaInfoList');
+        const icon = document.getElementById('criteriaToggleIcon');
+        const button = document.getElementById('criteriaToggleBtn');
+        if (!_criteriaExpanded) {
+            list.querySelectorAll('.criteria-accordion-item.open').forEach(item => {
+                item.classList.remove('open');
+            });
+        }
+        list.classList.toggle('criteria-collapsed', !_criteriaExpanded);
+        icon.className = _criteriaExpanded ? 'fas fa-angle-up' : 'fas fa-angle-down';
+        button.setAttribute('aria-expanded', String(_criteriaExpanded));
+    }
+
     // ---- Load history ----
+    let _historyData = [];
+    let _historyExpanded = false;
+
     async function loadHistory() {
         try {
             const res     = await fetch('/api/cv-scoring/history', { credentials: 'include' });
@@ -361,28 +407,113 @@
             const history = await res.json();
             if (history.length === 0) return;
 
+            _historyData = history;
+            _historyExpanded = false;
             document.getElementById('historyCard').style.display = 'block';
             document.getElementById('historyCount').textContent  = history.length;
+            renderHistoryList();
+        } catch { /* silent */ }
+    }
 
-            document.getElementById('historyList').innerHTML = history.map(h => {
-                const pct   = Math.round((h.totalScore / (h.maxTotalScore || 100)) * 100);
-                const grade = getGrade(pct);
-                const date  = new Date(h.createdAt).toLocaleDateString('vi-VN');
-                return `
-                    <div class="history-item" onclick="loadHistorySession(${h.id})">
-                        <div class="history-item-left">
-                            <div class="history-item-name">
-                                <i class="fas fa-file-alt"></i> ${h.fileName}
-                            </div>
-                            <div class="history-item-date">${date}</div>
+    function renderHistoryList() {
+        const history = _historyData;
+        const LIMIT = 3;
+        const showAll = _historyExpanded;
+        const items = showAll ? history : history.slice(0, LIMIT);
+
+        const itemsHtml = items.map(h => {
+            const pct   = Math.round((h.totalScore / (h.maxTotalScore || 100)) * 100);
+            const grade = getGrade(pct);
+            const date  = new Date(h.createdAt).toLocaleDateString('vi-VN');
+            return `
+                <div class="history-item" onclick="loadHistorySession(${h.id})">
+                    <div class="history-item-left">
+                        <div class="history-item-name">
+                            <i class="fas fa-file-alt"></i> ${h.fileName}
                         </div>
+                        <div class="history-item-date">${date}</div>
+                    </div>
+                    <div class="history-item-right">
                         <div class="history-item-score" style="color:${grade.color}">
                             ${h.totalScore}/${h.maxTotalScore}
                         </div>
+                        <button
+                            type="button"
+                            class="history-delete-btn"
+                            title="Xóa lịch sử"
+                            aria-label="Xóa lịch sử"
+                            data-session-id="${h.id}"
+                            data-file-name="${encodeURIComponent(h.fileName || '')}"
+                            onclick="deleteHistorySessionFromButton(this, event)">
+                            <i class="fas fa-trash-can"></i>
+                        </button>
                     </div>
-                `;
-            }).join('');
-        } catch { /* silent */ }
+                </div>
+            `;
+        }).join('');
+
+        const toggleBtn = history.length > LIMIT ? `
+            <button class="history-toggle-btn" onclick="toggleHistory()">
+                <i class="fas fa-${showAll ? 'chevron-up' : 'chevron-down'}"></i>
+                ${showAll ? 'Thu gọn' : `Xem tất cả (${history.length})`}
+            </button>
+        ` : '';
+
+        document.getElementById('historyList').innerHTML = itemsHtml + toggleBtn;
+    }
+
+    function toggleHistory() {
+        _historyExpanded = !_historyExpanded;
+        renderHistoryList();
+    }
+
+    function deleteHistorySessionFromButton(button, event) {
+        const sessionId = Number(button.dataset.sessionId);
+        const fileName = decodeURIComponent(button.dataset.fileName || '');
+        return deleteHistorySession(sessionId, fileName, event);
+    }
+
+    async function deleteHistorySession(id, fileName, event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        const safeName = fileName || 'bản chấm điểm này';
+        if (!window.confirm(`Xóa lịch sử chấm điểm "${safeName}"?`)) return;
+
+        const wasCurrentSession = currentSessionId === id;
+
+        try {
+            const res = await fetch(`/api/cv-scoring/history/${id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok || data.success === false) {
+                throw new Error(data.message || 'Không thể xóa lịch sử');
+            }
+
+            _historyData = _historyData.filter(item => item.id !== id);
+            document.getElementById('historyCount').textContent = _historyData.length;
+
+            if (wasCurrentSession) {
+                resetUpload();
+            }
+
+            if (_historyData.length === 0) {
+                document.getElementById('historyCard').style.display = 'none';
+                document.getElementById('historyList').innerHTML = '';
+            } else {
+                document.getElementById('historyCard').style.display = 'block';
+                renderHistoryList();
+            }
+
+            showToast('Đã xóa lịch sử chấm điểm', 'success');
+        } catch (err) {
+            showToast('❌ ' + err.message, 'error');
+        }
     }
 
     // ---- Load a historical session ----

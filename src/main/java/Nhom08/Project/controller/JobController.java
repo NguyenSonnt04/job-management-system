@@ -105,7 +105,10 @@ public class JobController {
         Employer employer = employerRepository.findByUserId(currentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Employer profile not found"));
 
-        List<Job> jobs = jobService.getJobsByEmployer(employer.getId());
+        List<Job> jobs = jobService.getJobsByEmployer(employer.getId())
+                .stream()
+                .filter(j -> !"DELETED".equals(j.getStatus()))
+                .collect(Collectors.toList());
         
         // Fetch statistics for these jobs
         List<Long> jobIds = jobs.stream().map(Job::getId).collect(Collectors.toList());
