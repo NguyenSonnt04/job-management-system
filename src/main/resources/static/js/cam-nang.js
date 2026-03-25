@@ -76,6 +76,17 @@
                 e.preventDefault();
                 state.activeCategory = link.dataset.category || '';
                 updateUrl();
+
+                // Thêm class category-active cho search panel khi có category được chọn
+                const searchPanel = document.querySelector('.guide-search-panel');
+                if (searchPanel) {
+                    if (state.activeCategory) {
+                        searchPanel.classList.add('category-active');
+                    } else {
+                        searchPanel.classList.remove('category-active');
+                    }
+                }
+
                 await loadArticles();
             });
         });
@@ -223,6 +234,16 @@
         renderTabs(state.categories, state.activeCategory, state.articles.length);
         renderFeatured(state.articles);
         renderGrid(state.articles);
+
+        // Update search panel state
+        const searchPanel = document.querySelector('.guide-search-panel');
+        if (searchPanel) {
+            if (state.activeCategory) {
+                searchPanel.classList.add('category-active');
+            } else {
+                searchPanel.classList.remove('category-active');
+            }
+        }
     }
 
     function bindListPage(home) {
@@ -245,6 +266,16 @@
         renderTabs(state.categories, state.activeCategory, state.articles.length);
         renderFeatured(state.articles);
         renderGrid(state.articles);
+
+        // Update search panel state
+        const searchPanel = document.querySelector('.guide-search-panel');
+        if (searchPanel) {
+            if (state.activeCategory) {
+                searchPanel.classList.add('category-active');
+            } else {
+                searchPanel.classList.remove('category-active');
+            }
+        }
 
         if (searchForm) {
             searchForm.addEventListener('submit', async event => {
