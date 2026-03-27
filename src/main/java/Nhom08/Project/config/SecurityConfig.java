@@ -80,6 +80,7 @@ public class SecurityConfig {
                 // Employer-only Job API (write operations)
                 .requestMatchers("/api/jobs/create").hasRole("EMPLOYER")
                 .requestMatchers("/api/jobs/employer-info").hasRole("EMPLOYER")
+                .requestMatchers("/api/jobs/employer-logo").hasRole("EMPLOYER")
                 .requestMatchers("/api/jobs/my-jobs").hasRole("EMPLOYER")
                 .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/jobs/**").hasRole("EMPLOYER")
                 .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/jobs/**").hasRole("EMPLOYER")

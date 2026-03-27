@@ -3,6 +3,7 @@ package Nhom08.Project.controller;
 import Nhom08.Project.dto.JobCreateDTO;
 import Nhom08.Project.entity.*;
 import Nhom08.Project.repository.*;
+import Nhom08.Project.service.FirebaseImageStorageService;
 import Nhom08.Project.service.JobService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +35,7 @@ public class JobController {
     @Autowired private ProvinceRepository        provinceRepository;
     @Autowired private JobRepository             jobRepository;
     @Autowired private JobStatisticsRepository   jobStatisticsRepository;
+    @Autowired private FirebaseImageStorageService imageStorageService;
 
     /**
      * Get employer info for auto-fill
@@ -60,8 +65,49 @@ public class JobController {
         info.put("contactPhone", employer.getContactPhone());
         info.put("email", currentUser.getEmail());
         info.put("description", employer.getDescription());
+        info.put("logoUrl", employer.getLogoUrl());
 
         return ResponseEntity.ok(info);
+    }
+
+    @PostMapping("/employer-logo")
+    public ResponseEntity<?> uploadEmployerLogo(@RequestParam("file") MultipartFile file) {
+        try {
+            User currentUser = getCurrentUser();
+            if (!currentUser.isEmployer()) {
+                return ResponseEntity.status(403).body(Map.of("error", "Unauthorized"));
+            }
+
+            Employer employer = employerRepository.findByUserId(currentUser.getId())
+                    .orElseThrow(() -> new RuntimeException("Employer profile not found"));
+
+            String objectPath = imageStorageService.uploadImage(file, "employer-logos");
+            String logoUrl = "/api/uploads/image?path=" + encode(objectPath);
+
+            employer.setLogoUrl(logoUrl);
+            employerRepository.save(employer);
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "logoUrl", logoUrl,
+                    "message", "Cập nhật logo công ty thành công"
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(503).body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "Không thể cập nhật logo công ty lúc này"
+            ));
+        }
     }
 
     /**
@@ -282,5 +328,9 @@ public class JobController {
         String email = auth.getName();
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    private String encode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 }

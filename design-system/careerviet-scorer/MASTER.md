@@ -1,14 +1,38 @@
-# Design System Master File
+# CareerViet Home UI Master File
 
-> **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
-> If that file exists, its rules **override** this Master file.
-> If not, strictly follow the rules below.
+> LOGIC: When building a specific page, first check `design-system/careerviet-scorer/pages/[page-name].md`.
+> If that file exists, its rules override this master file.
+> If not, follow the rules below.
 
 ---
 
-**Project:** CareerViet Scorer
-**Generated:** 2026-02-03 18:28:21
-**Category:** Micro SaaS
+Project: CareerViet
+Source of truth: `src/main/resources/static/index.html` + `src/main/resources/static/css/style.css` + shared `includes/header.html` / `includes/footer.html`
+Updated: 2026-03-28
+Category: Job portal / recruitment marketplace
+
+---
+
+## Design Intent
+
+This UI is not a generic SaaS dashboard.
+It is a high-energy recruitment homepage that combines:
+
+- trust and structure from a corporate job portal
+- strong conversion focus around search and registration
+- promotional hero storytelling for featured employers
+- dense but readable listing surfaces for job discovery
+
+The visual language should feel:
+
+- energetic
+- commercial
+- recruitment-focused
+- modern but familiar
+- information-rich without looking cluttered
+
+Do not drift into minimalist startup SaaS styling.
+Do not replace the current recruitment-marketplace feel with flat, sparse, app-like layouts.
 
 ---
 
@@ -18,185 +42,451 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#2563EB` | `--color-primary` |
-| Secondary | `#3B82F6` | `--color-secondary` |
-| CTA/Accent | `#F97316` | `--color-cta` |
-| Background | `#F8FAFC` | `--color-background` |
-| Text | `#1E293B` | `--color-text` |
+| Primary Orange | `#FF6B00` | `--primary-orange` |
+| Warm Orange | `#FF8C00` | custom gradient stop |
+| Gold Accent | `#FFB800` | custom gradient stop |
+| Primary Teal | `#00BFA5` | `--primary-teal` |
+| Primary Blue | `#2E3B8E` | `--primary-blue` |
+| Dark Blue | `#1A2456` | `--dark-blue` |
+| Light Gray Surface | `#F5F7FA` | `--light-gray` |
+| Medium Gray Border | `#E8ECEF` | `--medium-gray` |
+| Main Text | `#2C3E50` | `--text-dark` |
+| Secondary Text | `#6C757D` | `--text-gray` |
+| White | `#FFFFFF` | `--white` |
+| Highlight Badge | `#FFD700` | `--yellow-badge` |
+| Urgent Badge | `#FF4444` | `--red-urgent` |
 
-**Color Notes:** Trust blue + accent contrast
+### Color Usage Rules
+
+- Orange is the primary commercial accent for tabs, links, highlights, badges, and hero emphasis.
+- Teal is used for the main action path for candidates, especially search and success states.
+- Dark blue and primary blue are used for employer or account-related actions and trust-building UI.
+- Light gray is the default background for secondary sections and footer surfaces.
+- White cards sit on top of tinted or gray section backgrounds.
+- Avoid introducing purple, neon tones, or low-saturation pastel palettes.
+
+### Gradients
+
+- Hero page band: `linear-gradient(90deg, #FF8C00 0%, #FFB800 50%, #FF6B00 100%)`
+- Featured employer banner: `linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%)`
+- Search panel background: soft peach gradient, not a flat fill
+
+Gradients are a core part of the homepage identity.
+Do not flatten the hero into a single-color block unless the page context requires it.
 
 ### Typography
 
-- **Heading Font:** Plus Jakarta Sans
-- **Body Font:** Plus Jakarta Sans
-- **Mood:** friendly, modern, saas, clean, approachable, professional
-- **Google Fonts:** [Plus Jakarta Sans + Plus Jakarta Sans](https://fonts.google.com/share?selection.family=Plus+Jakarta+Sans:wght@300;400;500;600;700)
+- Heading font: Inter
+- Body font: Inter
+- Fallback stack: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
 
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-```
+### Typography Rules
 
-### Spacing Variables
+- Use large, bold, sales-oriented headings in hero and section titles.
+- Use medium to strong font weight for interactive text, tabs, buttons, and job titles.
+- Job titles should read as the primary text in listing cards.
+- Company and metadata text should be one level lower in contrast and weight.
+- Avoid decorative display fonts and avoid overly editorial serif treatment.
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
+### Spacing Scale
+
+| Token | Value |
+|------|-------|
+| `--space-xs` | `4px` |
+| `--space-sm` | `8px` |
+| `--space-md` | `12px` |
+| `--space-lg` | `16px` |
+| `--space-xl` | `20px` |
+| `--space-2xl` | `30px` |
+| `--space-3xl` | `40px` |
+| `--space-4xl` | `50px` |
+
+Use compact spacing inside cards and controls.
+Use larger spacing only between major sections and hero modules.
+
+### Radius
+
+| Token | Value |
+|------|-------|
+| Small | `6px` |
+| Medium | `8px` |
+| Large | `10px` |
+| XL | `12px` |
+| Pill | `20px` |
 
 ### Shadow Depths
 
 | Level | Value | Usage |
-|-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
+|------|-------|-------|
+| `--shadow-sm` | `0 2px 8px rgba(0, 0, 0, 0.08)` | header, small buttons, cards |
+| `--shadow-md` | `0 4px 16px rgba(0, 0, 0, 0.12)` | buttons, floating labels, logo pills |
+| `--shadow-lg` | `0 8px 24px rgba(0, 0, 0, 0.16)` | hero cards, hover state, chatbot, QR panel |
+
+Shadows are used intentionally.
+This system is not shadowless flat design.
+
+### Motion
+
+- Standard transition: `all 0.3s cubic-bezier(0.4, 0, 0.2, 1)`
+- Dropdown and hover transitions: `0.2s` to `0.3s`
+- Entry animations are allowed in hero, section titles, and cards
+- Hover motion should be subtle lift, not dramatic scale
+
+Allowed motion patterns:
+
+- slide down for sticky header reveal
+- fade in from left or right for hero modules
+- fade in up for job cards
+- soft bounce for floating chatbot trigger
+- pulse for branded hero labels
+
+Do not use exaggerated elastic animations or parallax-heavy scenes.
+
+---
+
+## Layout System
+
+### Container
+
+- Use full-width sections with padded inner container
+- Desktop container padding: `40px`
+- Large desktop: `30px`
+- Tablet: `20px`
+- Mobile: `12px` to `15px`
+
+### Header
+
+- Sticky top navigation
+- White background
+- Subtle shadow
+- Dense horizontal nav with business-like wording
+- Utility actions on the right: notifications, auth, employer CTA
+
+The header should feel functional and commerce-oriented, not editorial or lifestyle-oriented.
+
+### Homepage Section Order
+
+Follow this pattern for the landing page:
+
+1. Sticky header
+2. Hero band with search module and employer promotion banner
+3. Top employer heading / brand block
+4. Featured job listings with tabs
+5. Category-driven job listings with chips or tabs
+6. Dense multi-column footer
+
+### Section Rhythm
+
+- Hero is the most visually intense zone
+- Listing sections should calm the layout slightly with white cards and gray background alternation
+- Footer returns to utility-first dense information architecture
 
 ---
 
 ## Component Specs
 
-### Buttons
+### Primary CTAs
+
+Two CTA families must exist:
+
+- Candidate CTA: teal, high-contrast, direct action
+- Employer or account CTA: blue/navy, trust-oriented
+
+#### Candidate CTA
 
 ```css
-/* Primary Button */
-.btn-primary {
-  background: #F97316;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
+.btn-search {
+  background: #00BFA5;
+  color: #FFFFFF;
+  border-radius: 6px;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #2563EB;
-  border: 2px solid #2563EB;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-```
-
-### Cards
-
-```css
-.card {
-  background: #F8FAFC;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-lg);
+.btn-search:hover {
+  background: #00A88F;
   transform: translateY(-2px);
 }
 ```
 
+#### Employer CTA
+
+```css
+.btn-employer {
+  background: #1A2456;
+  color: #FFFFFF;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.btn-employer:hover {
+  background: #2E3B8E;
+  transform: translateY(-2px);
+}
+```
+
+### Secondary Text Buttons
+
+- Use transparent background
+- Use icon + label when helpful
+- Add hover fill with a low-contrast tinted background
+- Keep radius at `6px`
+
 ### Inputs
 
 ```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
+.search-input,
+.login-form input {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #FFFFFF;
 }
 
-.input:focus {
-  border-color: #2563EB;
+.search-input:focus,
+.login-form input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px #2563EB20;
+  border-color: #00BFA5;
+  box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.1);
 }
 ```
 
-### Modals
+Inputs should feel clean and transactional.
+Avoid oversized rounded app-style fields.
+
+### Tabs
+
+Two tab styles are used:
+
+- underline tabs for ranking / listing context
+- pill tabs for category browsing
+
+#### Underline Tabs
+
+- Transparent background
+- Muted label by default
+- Orange active state
+- Orange underline bar on active
+
+#### Pill Tabs
+
+- Light gray background by default
+- Blue active state with white text
+- Orange hover state
+
+### Job Cards
 
 ```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+.job-card {
+  background: #FFFFFF;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
+.job-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
 }
 ```
+
+Job card rules:
+
+- logo on the left in a bordered square
+- title first, strong and readable
+- company, salary, location stacked beneath
+- badges sit at the top-right corner
+- hover should highlight the job title in orange
+- keep cards dense; this is not a spacious editorial card layout
+
+### Badges
+
+- `TOP`: yellow background, dark text
+- `URGENT`: red background, white text
+- badges are compact, rectangular, and clearly commercial
+
+Do not convert these into outlined tags or soft pastel chips.
+
+### Hero Search Panel
+
+The search panel is a separate card sitting on top of the hero gradient.
+
+Rules:
+
+- use soft peach gradient background
+- medium padding
+- rounded corners
+- strong box shadow
+- stacked actions
+- search CTA spans full width
+- registration prompt follows search flow, not a separate detached block
+
+### Featured Employer Banner
+
+This is a promotional surface, not a neutral carousel.
+
+Rules:
+
+- orange gradient background
+- bold white headline
+- branded pill or logo block
+- visual storytelling image
+- QR or side promo card allowed
+- supporting benefit chips can wrap underneath
+
+### Header Dropdowns
+
+- white floating panels
+- rounded 8px to 14px corners
+- stronger shadow than base cards
+- short vertical motion on open
+- compact list rows with icon + label
+
+### Footer
+
+- light gray background
+- multi-column link system
+- uppercase footer headings
+- smaller body text
+- app badges and social icons grouped in utility column
+
+The footer should remain information-dense and corporate.
+Do not simplify it into a minimal 3-link footer.
+
+### Floating Chat Trigger
+
+- fixed circular button at bottom-right
+- prominent shadow
+- playful motion is acceptable
+- must stay secondary to page CTAs
+
+---
+
+## Content and Hierarchy Rules
+
+### Homepage Messaging
+
+- Speak directly to job seekers and employers
+- Emphasize opportunity volume, urgency, trust, and speed
+- Headlines should sound commercial and action-oriented
+- Metadata should be scannable in under 2 seconds per card
+
+### Density Rules
+
+- Dense is acceptable when grouped and aligned
+- Keep each card internally structured and readable
+- Avoid empty white space for its own sake
+- Prioritize scan speed over minimalist purity
+
+### Iconography
+
+- Use inline SVG icons
+- Stroke icons for utility areas
+- Filled shapes are acceptable in promotional feature chips
+- Keep icon style simple and consistent within each component family
+
+---
+
+## Responsive Rules
+
+Primary breakpoints:
+
+- `1400px`
+- `1024px`
+- `768px`
+- `480px`
+- `360px`
+
+### Responsive Behavior
+
+- Collapse hero two-column layout into one column below `1024px`
+- Convert desktop nav into toggle menu below `768px`
+- Hide or simplify decorative hero image on smaller screens
+- Preserve CTA clarity on mobile
+- Allow tabs to scroll horizontally on narrow screens
+- Move floating or side modules into inline stacked layout on mobile
+- Footer compresses from 6 columns to 3, then 2, then 1
+
+Mobile priorities:
+
+- no horizontal scroll
+- preserve readable job card metadata
+- keep search and apply actions large enough to tap
+- do not let sticky or floating elements cover primary content
 
 ---
 
 ## Style Guidelines
 
-**Style:** Flat Design
+Style direction:
 
-**Keywords:** 2D, minimalist, bold colors, no shadows, clean lines, simple shapes, typography-focused, modern, icon-heavy
+- recruitment marketplace
+- branded portal
+- conversion-first
+- high-contrast calls to action
+- layered surfaces
+- clear commercial hierarchy
 
-**Best For:** Web apps, mobile apps, cross-platform, startup MVPs, user-friendly, SaaS, dashboards, corporate
+Keywords:
 
-**Key Effects:** No gradients/shadows, simple hover (color/opacity shift), fast loading, clean transitions (150-200ms ease), minimal icons
+- energetic
+- promotional
+- trustworthy
+- structured
+- scan-friendly
+- dense
+- modern corporate
 
-### Page Pattern
+Best for:
 
-**Pattern Name:** Minimal & Direct + Demo
-
-- **CTA Placement:** Above fold
-- **Section Order:** Hero > Features > CTA
+- homepages
+- job search pages
+- employer listing pages
+- category landing pages
+- account dropdowns
+- utility-heavy navigation
 
 ---
 
-## Anti-Patterns (Do NOT Use)
+## Anti-Patterns
 
-- ❌ Complex onboarding flow
-- ❌ Cluttered layout
+Do not use:
 
-### Additional Forbidden Patterns
+- generic SaaS blue-white minimalism as the default
+- soft pastel-only palettes
+- oversized empty whitespace that reduces listing density
+- giant rounded cards with weak hierarchy
+- centered single-column landing page layouts for recruitment pages
+- low-contrast text on gradients
+- hidden or ambiguous CTAs
+- visual styles that resemble fintech dashboards more than job portals
+- glassmorphism-heavy UI across the full page
+- luxury brand aesthetics or editorial magazine styling
 
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
+Avoid these specific regressions:
+
+- replacing orange-teal-blue contrast with one brand color only
+- removing badge urgency language
+- flattening hero promotion into a plain banner
+- turning listing tabs into generic segmented controls without hierarchy
+- weakening footer information architecture
 
 ---
 
 ## Pre-Delivery Checklist
 
-Before delivering any UI code, verify:
+Before delivering UI work, verify:
 
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
-- [ ] `prefers-reduced-motion` respected
-- [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile
+- homepage still feels like a recruitment marketplace, not a generic web app
+- orange, teal, and navy roles are used consistently
+- hero contains clear search and registration paths
+- major CTAs remain high contrast
+- job cards are dense, readable, and scannable
+- hover states use lift or color emphasis without causing layout shift
+- sticky header remains readable and functional
+- dropdowns and floating panels have clear elevation
+- mobile layout has no horizontal overflow
+- tabs remain usable on touch devices
+- footer still supports dense navigation and corporate trust signals
+- focus states remain visible
+- motion is present but restrained

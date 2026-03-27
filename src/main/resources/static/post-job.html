@@ -57,35 +57,44 @@
         </div>
     </nav>
     
+    <main class="post-job-page">
     <div class="post-job-container">
-        <div class="post-job-header">
-            <h1>ĐĂNG TUYỂN DỤNG</h1>
-            <a href="/quan-ly-dang-tuyen" class="guide-link">Hướng dẫn</a>
-        </div>
+        <form id="jobPostForm" class="post-job-layout">
+            <aside class="post-job-sidebar" id="companyInfoSidebar" style="display: none;">
+                <!-- THÔNG TIN CÔNG TY (Auto-filled) -->
+                <section class="form-section company-info-section" id="companyInfoSection" style="display: none;">
+                    <h2 class="section-title">THÔNG TIN CÔNG TY</h2>
+                    <div class="company-logo-card" id="companyLogoCard">
+                        <div class="company-logo-frame" id="companyLogoFrame">
+                            <img id="companyLogoImage" alt="Logo công ty" style="display: none;">
+                            <span class="company-logo-fallback" id="companyLogoFallback">CT</span>
+                        </div>
+                        <div class="company-logo-actions">
+                            <button type="button" class="btn-logo-upload" id="companyLogoUploadBtn">Tải logo</button>
+                            <input type="file" id="companyLogoInput" accept="image/*" hidden>
+                        </div>
+                    </div>
+                    <div class="company-info-display">
+                        <div class="info-row">
+                            <strong>Công ty</strong> <span id="displayCompanyName">-</span>
+                        </div>
+                        <div class="info-row">
+                            <strong>Địa chỉ</strong> <span id="displayAddress">-</span>
+                        </div>
+                        <div class="info-row">
+                            <strong>Người liên hệ</strong> <span id="displayContactName">-</span>
+                        </div>
+                        <div class="info-row">
+                            <strong>SĐT</strong> <span id="displayContactPhone">-</span>
+                        </div>
+                        <div class="info-row">
+                            <strong>Email</strong> <span id="displayEmail">-</span>
+                        </div>
+                    </div>
+                </section>
+            </aside>
 
-        <form id="jobPostForm">
-            <!-- THÔNG TIN CÔNG TY (Auto-filled) -->
-            <section class="form-section company-info-section" id="companyInfoSection" style="display: none;">
-                <h2 class="section-title"> THÔNG TIN CÔNG TY</h2>
-                <div class="company-info-display">
-                    <div class="info-row">
-                        <strong>Công ty:</strong> <span id="displayCompanyName">-</span>
-                    </div>
-                    <div class="info-row">
-                        <strong>Địa chỉ:</strong> <span id="displayAddress">-</span>
-                    </div>
-                    <div class="info-row">
-                        <strong>Người liên hệ:</strong> <span id="displayContactName">-</span>
-                    </div>
-                    <div class="info-row">
-                        <strong>SĐT:</strong> <span id="displayContactPhone">-</span>
-                    </div>
-                    <div class="info-row">
-                        <strong>Email:</strong> <span id="displayEmail">-</span>
-                    </div>
-                </div>
-            </section>
-
+            <div class="post-job-main">
             <!-- THÔNG TIN TUYỂN DỤNG -->
             <section class="form-section">
                 <h2 class="section-title">THÔNG TIN TUYỂN DỤNG</h2>
@@ -114,7 +123,7 @@
                         <label for="location">Nơi làm việc*</label>
                         <input type="text" id="location" name="location" placeholder="VD: Thủ Đức, TP.HCM" required list="provinceList" autocomplete="off">
                         <datalist id="provinceList"></datalist>
-                        <label class="checkbox-label">
+                        <label class="checkbox-label checkbox-label-compact">
                             <input type="checkbox" id="hideLocation" name="hideLocation">
                             <span>Bảo mật địa điểm làm việc</span>
                         </label>
@@ -124,10 +133,40 @@
                 <div class="form-group full-width">
                     <label for="description">Mô Tả Công Việc *</label>
                     <div class="editor-toolbar">
-                        <button type="button" class="btn-editor"><b>B</b></button>
-                        <button type="button" class="btn-editor"><i>I</i></button>
-                        <button type="button" class="btn-editor">• List</button>
-                        <button type="button" class="btn-editor">1. List</button>
+                        <button type="button" class="btn-editor" aria-label="In đậm" data-editor-action="bold">
+                            <span class="btn-editor-icon" aria-hidden="true"><b>B</b></span>
+                            <span class="btn-editor-text">B</span>
+                        </button>
+                        <button type="button" class="btn-editor" aria-label="In nghiêng" data-editor-action="italic">
+                            <span class="btn-editor-icon" aria-hidden="true"><i>I</i></span>
+                            <span class="btn-editor-text">I</span>
+                        </button>
+                        <button type="button" class="btn-editor" aria-label="Danh sách chấm" data-editor-action="bullet">
+                            <span class="btn-editor-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <circle cx="3" cy="4" r="1.2" fill="currentColor"></circle>
+                                    <circle cx="3" cy="8" r="1.2" fill="currentColor"></circle>
+                                    <circle cx="3" cy="12" r="1.2" fill="currentColor"></circle>
+                                    <path d="M6 4H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M6 8H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M6 12H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                </svg>
+                            </span>
+                            <span class="btn-editor-text">• List</span>
+                        </button>
+                        <button type="button" class="btn-editor" aria-label="Danh sách số" data-editor-action="number">
+                            <span class="btn-editor-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M2.4 3.2H4V7.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <path d="M1.9 7.2H4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>
+                                    <path d="M6 4H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M6 8H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M2 10.4C2.6 9.9 4.1 10.1 4.1 11.1C4.1 11.8 3.4 12.1 2.9 12.5C2.4 12.8 1.9 13.2 1.9 13.8H4.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <path d="M6 12H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                </svg>
+                            </span>
+                            <span class="btn-editor-text">1. List</span>
+                        </button>
                     </div>
                     <textarea id="description" name="description" rows="6" required></textarea>
                     <small>Nhập hơn 10.000 kí tự</small>
@@ -136,10 +175,40 @@
                 <div class="form-group full-width">
                     <label for="requirements">Kỹ năng yêu cầu *</label>
                     <div class="editor-toolbar">
-                        <button type="button" class="btn-editor"><b>B</b></button>
-                        <button type="button" class="btn-editor"><i>I</i></button>
-                        <button type="button" class="btn-editor">• List</button>
-                        <button type="button" class="btn-editor">1. List</button>
+                        <button type="button" class="btn-editor" aria-label="In đậm" data-editor-action="bold">
+                            <span class="btn-editor-icon" aria-hidden="true"><b>B</b></span>
+                            <span class="btn-editor-text">B</span>
+                        </button>
+                        <button type="button" class="btn-editor" aria-label="In nghiêng" data-editor-action="italic">
+                            <span class="btn-editor-icon" aria-hidden="true"><i>I</i></span>
+                            <span class="btn-editor-text">I</span>
+                        </button>
+                        <button type="button" class="btn-editor" aria-label="Danh sách chấm" data-editor-action="bullet">
+                            <span class="btn-editor-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <circle cx="3" cy="4" r="1.2" fill="currentColor"></circle>
+                                    <circle cx="3" cy="8" r="1.2" fill="currentColor"></circle>
+                                    <circle cx="3" cy="12" r="1.2" fill="currentColor"></circle>
+                                    <path d="M6 4H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M6 8H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M6 12H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                </svg>
+                            </span>
+                            <span class="btn-editor-text">• List</span>
+                        </button>
+                        <button type="button" class="btn-editor" aria-label="Danh sách số" data-editor-action="number">
+                            <span class="btn-editor-icon" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M2.4 3.2H4V7.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <path d="M1.9 7.2H4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>
+                                    <path d="M6 4H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M6 8H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M2 10.4C2.6 9.9 4.1 10.1 4.1 11.1C4.1 11.8 3.4 12.1 2.9 12.5C2.4 12.8 1.9 13.2 1.9 13.8H4.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <path d="M6 12H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                </svg>
+                            </span>
+                            <span class="btn-editor-text">1. List</span>
+                        </button>
                     </div>
                     <textarea id="requirements" name="requirements" rows="6" required></textarea>
                     <small>Nhập hơn 10.000 kí tự</small>
@@ -268,10 +337,23 @@
                     <label>Hình thức làm việc</label>
                     <div class="work-mode-grid">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="workFromHome" name="workFromHome"> Làm việc tại nhà
+                            <input type="checkbox" id="workFromHome" name="workFromHome">
+                            <span class="option-icon" aria-hidden="true">
+                                <svg viewBox="0 0 20 20" fill="none">
+                                    <path d="M3.3 8.7 10 3.3l6.7 5.4v7.5H3.3V8.7Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path>
+                                    <path d="M8 16.2v-4.6h4v4.6" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path>
+                                </svg>
+                            </span>
+                            <span>Làm việc tại nhà</span>
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" id="workAtOffice" name="workAtOffice" checked> Làm việc tại văn phòng
+                            <input type="checkbox" id="workAtOffice" name="workAtOffice" checked>
+                            <span class="option-icon" aria-hidden="true">
+                                <svg viewBox="0 0 20 20" fill="none">
+                                    <path d="M4 16.4V4.8c0-.7.6-1.2 1.2-1.2h6.3c.7 0 1.2.5 1.2 1.2v11.6M2.8 16.4h14.4M7 7.1h2M7 9.9h2M7 12.7h2M12.7 16.4V8.6h2.1c.7 0 1.2.5 1.2 1.2v6.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </span>
+                            <span>Làm việc tại văn phòng</span>
                         </label>
                     </div>
                 </div>
@@ -346,8 +428,10 @@
                 <button type="button" class="btn-cancel" onclick="history.back()">Hủy</button>
                 <button type="submit" class="btn-submit">Đăng Tuyển Dụng</button>
             </div>
+            </div>
         </form>
     </div>
+    </main>
 
     <!-- Footer Placeholder -->
     <div id="footer-placeholder"></div>

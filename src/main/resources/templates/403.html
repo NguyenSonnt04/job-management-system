@@ -6,7 +6,7 @@
     <title>Truy cập bị từ chối - 403</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -15,7 +15,7 @@
         }
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -23,65 +23,52 @@
         }
         .error-container {
             text-align: center;
-            background: white;
-            padding: 60px 40px;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 40px;
             max-width: 500px;
         }
         .error-code {
-            font-size: 120px;
-            font-weight: 800;
-            color: #e53e3e;
+            font-size: 80px;
+            font-weight: 700;
+            color: #1a1a1a;
             line-height: 1;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .error-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 12px;
         }
         .error-message {
-            font-size: 16px;
-            color: #718096;
-            margin-bottom: 30px;
-            line-height: 1.6;
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 24px;
+            line-height: 1.5;
         }
         .btn-home {
             display: inline-block;
-            padding: 14px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 24px;
+            background: #1a1a1a;
             color: white;
             text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
+            font-weight: 500;
             font-size: 14px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #1a1a1a;
+            transition: background 0.15s, border-color 0.15s;
         }
         .btn-home:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-        .icon-lock {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-            color: #e53e3e;
+            background: #333333;
+            border-color: #333333;
         }
     </style>
 </head>
 <body>
     <div class="error-container">
-        <svg class="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-        </svg>
         <div class="error-code">403</div>
         <h1 class="error-title">Truy cập bị từ chối</h1>
         <p class="error-message">
-            Bạn không có quyền truy cập trang này. 
-            Vui lòng đăng nhập với tài khoản có quyền phù hợp.
+            Xin lỗi, bạn không có quyền truy cập trang này.
+            Vui lòng đăng nhập hoặc liên hệ quản trị viên để được cấp quyền.
         </p>
         <a href="/" class="btn-home">Về trang chủ</a>
     </div>

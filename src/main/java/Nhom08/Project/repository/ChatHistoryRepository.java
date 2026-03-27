@@ -1,9 +1,10 @@
 package Nhom08.Project.repository;
 
-import Nhom08.Project.entity.ChatHistory;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import Nhom08.Project.entity.ChatHistory;
 
 /**
  * Repository cho Chat History
@@ -19,7 +20,7 @@ public interface ChatHistoryRepository extends JpaRepository<ChatHistory, Intege
      * Lấy lịch sử chat gần đây của một session (giới hạn số lượng)
      */
     @org.springframework.data.jpa.repository.Query(value =
-        "SELECT * FROM chat_history WHERE session_id = :sessionId ORDER BY created_at DESC LIMIT :limit",
+        "SELECT * FROM chat_history WHERE session_id = ?1 ORDER BY created_at DESC LIMIT ?2",
         nativeQuery = true)
     List<ChatHistory> findRecentBySessionId(String sessionId, int limit);
 

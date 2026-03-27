@@ -16,118 +16,49 @@
 
     <!-- Hero Section -->
     <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <!-- Search Box -->
-                <div class="search-box">
-                    <h2 class="search-title">Đón lấy thành công với<br><strong>19,490 cơ hội nghề nghiệp</strong></h2>
-                    
-                    <div class="search-form">
-                        <div class="search-input-wrapper">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M19 19L14.65 14.65" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <input type="text" placeholder="Chức danh" class="search-input">
-                        </div>
-                        
-                        <div class="search-actions">
-                            <button class="btn-reset">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M14.6667 1.33334L1.33334 14.6667M1.33334 1.33334L14.6667 14.6667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                Reset
-                            </button>
-                            <button class="btn-advanced">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M14 8.66667H2M14 3.33334H2M14 14H2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                Tìm kiếm nâng cao
-                            </button>
-                        </div>
-                    </div>
-
-                    <button class="btn-search">TÌM VIỆC NGAY</button>
-
-                    <p class="register-text">Đăng hồ sơ nghề nghiệp để dễ dàng ứng tuyển nhanh</p>
-                    <button class="btn-register">ĐĂNG NGAY</button>
+        <div class="hero-shell">
+            <div class="hero-stage">
+                <div class="hero-banner-slider" id="heroBannerSlider" aria-label="Banner nổi bật">
+                    <a class="hero-banner-slide is-active" href="/tim-viec-lam.html" aria-label="Khám phá việc làm nổi bật trên CareerViet" style="background-image: linear-gradient(120deg, rgba(13, 29, 73, 0.72), rgba(255, 122, 0, 0.42)), url('images/banner-people.png');">
+                        <span class="hero-banner-meta">CareerViet tuyển dụng nổi bật</span>
+                    </a>
                 </div>
 
-                <!-- Hero Banner Slider -->
-                <div class="hero-banner">
-                    <div class="banner-slide active">
-                        <div class="banner-content">
-                            <div class="banner-logo">HOA SEN HOME</div>
-                            <h1 class="banner-title">CƠ HỘI NGHỀ NGHIỆP<br>TRONG TẦM TAY</h1>
-                            <div class="banner-subtitle">
-                                <p>CÁC VỊ TRÍ NHÂN VIÊN, CHUYÊN VIÊN,<br>CÁN BỘ QUẢN LÝ</p>
-                                <ul class="banner-list">
-                                    <li>KIỂM VẬN PHÒNG</li>
-                                    <li>HỆ THỐNG CỬA HÀNG/SHOWROOM</li>
-                                    <li>TRÊN TOÀN QUỐC</li>
-                                </ul>
+                <div class="hero-banner-dots" id="heroBannerDots" aria-label="Chọn banner"></div>
+
+                <div class="hero-content">
+                    <div class="search-box">
+                        <h2 class="search-title">Đón lấy thành công với<br><strong>19,490 cơ hội nghề nghiệp</strong></h2>
+                        
+                        <div class="search-form">
+                            <div class="search-input-wrapper">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M19 19L14.65 14.65" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <input type="text" placeholder="Chức danh" class="search-input">
                             </div>
-                            <div class="banner-image">
-                                <img src="images/banner-people.png" alt="Professionals">
-                            </div>
-                            <div class="banner-qr">
-                                <div class="qr-icon">HOA SEN</div>
-                                <img src="images/qr-code.png" alt="QR Code">
-                                <p>ĐĂNG TUYỂN</p>
+                            
+                            <div class="search-actions">
+                                <button class="btn-reset">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M14.6667 1.33334L1.33334 14.6667M1.33334 1.33334L14.6667 14.6667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Reset
+                                </button>
+                                <button class="btn-advanced">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M14 8.66667H2M14 3.33334H2M14 14H2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Tìm kiếm nâng cao
+                                </button>
                             </div>
                         </div>
-                        <div class="banner-features">
-                            <div class="feature-item">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <rect x="3" y="3" width="7" height="7" fill="currentColor"/>
-                                    <rect x="3" y="14" width="7" height="7" fill="currentColor"/>
-                                    <rect x="14" y="3" width="7" height="7" fill="currentColor"/>
-                                    <rect x="14" y="14" width="7" height="7" fill="currentColor"/>
-                                </svg>
-                                <span>THĂNG TIẾN<br>CÔNG TRANH</span>
-                            </div>
-                            <div class="feature-item">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="12" r="9" fill="currentColor"/>
-                                </svg>
-                                <span>CÔNG VIỆC<br>ỔN ĐỊNH</span>
-                            </div>
-                            <div class="feature-item">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <path d="M12 2L15 9L22 10L17 15L18 22L12 18L6 22L7 15L2 10L9 9L12 2Z" fill="currentColor"/>
-                                </svg>
-                                <span>CƠ HỘI<br>THĂNG TIẾN</span>
-                            </div>
-                            <div class="feature-item">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" fill="currentColor"/>
-                                </svg>
-                                <span>PHÚC LỢI<br>HẤP DẪN</span>
-                            </div>
-                            <div class="feature-item">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" fill="currentColor"/>
-                                </svg>
-                                <span>HỖ TRỢ<br>LƯU TRÚ</span>
-                            </div>
-                            <div class="feature-item">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="12" r="10" fill="currentColor"/>
-                                </svg>
-                                <span>VIỆC LÀM<br>DÀI HẠN</span>
-                            </div>
-                            <div class="feature-item">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <rect x="2" y="7" width="20" height="14" rx="2" fill="currentColor"/>
-                                </svg>
-                                <span>ĐÀO TẠO<br>BÀI BẢN</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="slider-dots">
-                        <span class="dot active"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
+
+                        <button class="btn-search">TÌM VIỆC NGAY</button>
+
+                        <p class="register-text">Đăng hồ sơ nghề nghiệp để dễ dàng ứng tuyển nhanh</p>
+                        <button class="btn-register">ĐĂNG NGAY</button>
                     </div>
                 </div>
             </div>
@@ -137,6 +68,7 @@
         <a href="#" class="bot-chat" onclick="toggleChatbotPopup(); return false;">
             <img src="images/logo_chatbot.png" alt="AI Chatbot">
         </a>
+    </section>
 
     <!-- Top Employers Section -->
     <section class="top-employers">
@@ -509,6 +441,7 @@
     <div id="footer-placeholder"></div>
 
     <script src="js/main.js"></script>
+    <script src="js/hero-banner.js"></script>
 
     <!-- Chatbot AI - Include Script -->
     <script src="chatbot-ai/chatbot-include.js"></script>

@@ -1,6 +1,4 @@
-// ===== Main JavaScript for CareerViet =====
 
-// ===== Load Header and Footer =====
 async function loadHTML(elementId, filePath) {
     try {
         const response = await fetch(filePath, { credentials: 'include' });
@@ -33,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Setup login dropdown after header is loaded (with small delay to ensure DOM is ready)
     setTimeout(setupLoginDropdown, 100);
+    setTimeout(setupMobileNavigation, 100);
 });
 
 // Setup login dropdown toggle
@@ -71,6 +70,74 @@ function setupLoginDropdown() {
             });
         });
     }
+}
+
+function setupMobileNavigation() {
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const nav = document.getElementById('mainNav');
+
+    if (!mobileMenuBtn || !nav) return;
+
+    const closeMenu = () => {
+        nav.classList.remove('active');
+        mobileMenuBtn.classList.remove('active');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('menu-open');
+        nav.querySelectorAll('.nav-dropdown.active').forEach(dropdown => {
+            dropdown.classList.remove('active');
+        });
+    };
+
+    mobileMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const shouldOpen = !nav.classList.contains('active');
+        nav.classList.toggle('active', shouldOpen);
+        mobileMenuBtn.classList.toggle('active', shouldOpen);
+        mobileMenuBtn.setAttribute('aria-expanded', String(shouldOpen));
+        document.body.classList.toggle('menu-open', shouldOpen && window.innerWidth <= 768);
+    });
+
+    nav.querySelectorAll('.nav-dropdown > .nav-link').forEach(trigger => {
+        trigger.addEventListener('click', function(e) {
+            if (window.innerWidth > 768) return;
+
+            e.preventDefault();
+            const dropdown = trigger.closest('.nav-dropdown');
+            const shouldOpen = !dropdown.classList.contains('active');
+
+            nav.querySelectorAll('.nav-dropdown.active').forEach(item => {
+                if (item !== dropdown) item.classList.remove('active');
+            });
+
+            dropdown.classList.toggle('active', shouldOpen);
+        });
+    });
+
+    nav.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth > 768) return;
+
+            const isDropdownTrigger = link.parentElement?.classList.contains('nav-dropdown') &&
+                link.classList.contains('nav-link');
+
+            if (!isDropdownTrigger) {
+                closeMenu();
+            }
+        });
+    });
+
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth > 768) return;
+        if (!nav.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+            closeMenu();
+        }
+    });
+
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            closeMenu();
+        }
+    });
 }
 
 // ===== Main JavaScript for CareerViet =====
