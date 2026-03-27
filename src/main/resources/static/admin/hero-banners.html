@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Banner Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#f8fafc;--panel:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--brand:#2563eb;--brand-2:#1d4ed8;--danger:#dc2626;--sidebar:#0f172a;--sidebar-hover:#1e293b}
+        *{box-sizing:border-box}body{margin:0;font-family:Inter,sans-serif;background:var(--bg);color:var(--text);display:flex}
+        .sidebar{width:260px;background:var(--sidebar);color:#fff;position:fixed;inset:0 auto 0 0;padding:24px 12px}.sidebar a{color:inherit;text-decoration:none}
+        .brand{display:flex;align-items:center;gap:12px;padding:0 8px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:20px}.brand img{height:32px;filter:brightness(0) invert(1)}.brand b{font-size:18px}
+        .nav-title{padding:0 12px;margin:16px 0 8px;color:#94a3b8;font-size:11px;text-transform:uppercase;font-weight:700}.nav-item{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:8px;color:#94a3b8}.nav-item:hover{background:var(--sidebar-hover);color:#fff}.nav-item.active{background:var(--brand);color:#fff}.nav-item svg{width:20px;height:20px;flex-shrink:0}
+        .main{margin-left:260px;min-height:100vh;width:calc(100% - 260px)}.top{height:72px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0}.top h1{font-size:20px;margin:0}.content{padding:28px}.intro{display:flex;justify-content:space-between;gap:16px;margin-bottom:20px}.intro p{margin:8px 0 0;color:var(--muted);max-width:760px}
+        .layout{display:grid;grid-template-columns:400px minmax(0,1fr);gap:20px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 24px rgba(15,23,42,.06)}.card h2{margin:0 0 6px;font-size:20px}.card .head{padding:22px 22px 0}.card .head p{margin:0;color:var(--muted);font-size:14px}.card .body{padding:22px}
+        .msg{display:none;padding:12px 14px;border-radius:12px;font-size:14px;font-weight:600;margin-bottom:14px}.msg.show{display:block}.msg.ok{background:#ecfdf3;color:#047857;border:1px solid #a7f3d0}.msg.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+        form{display:grid;gap:14px}.group{display:grid;gap:8px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}label{font-size:13px;font-weight:700}
+        input[type=text],input[type=number],input[type=datetime-local],input[type=file]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font:inherit;background:#fff}
+        .switch{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#f8fafc}.switch small{display:block;color:var(--muted);margin-top:4px}
+        .preview{position:relative;min-height:180px;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#ff8d09,#ff6b00)}.preview img{width:100%;height:180px;object-fit:cover;display:none}.placeholder{position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:#fff;background:linear-gradient(135deg,rgba(13,29,73,.35),rgba(255,107,0,.15));font-weight:600}
+        .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:none;border-radius:12px;padding:12px 16px;font:inherit;font-weight:700;cursor:pointer}.btn.primary{background:var(--brand);color:#fff}.btn.primary:hover{background:var(--brand-2)}.btn.secondary{background:#fff;border:1px solid var(--line)}.btn.danger{background:var(--danger);color:#fff}
+        .list{display:grid;gap:14px}.item{display:grid;grid-template-columns:180px minmax(0,1fr);gap:14px;border:1px solid var(--line);border-radius:16px;padding:14px}.item img{width:100%;height:128px;object-fit:cover;border-radius:12px;background:#f1f5f9}.meta{display:flex;gap:8px;flex-wrap:wrap}.chip{display:inline-flex;align-items:center;min-height:30px;padding:0 11px;border-radius:999px;background:#f8fafc;font-size:12px;font-weight:700;color:#334155}.chip.on{background:#d1fae5;color:#047857}.chip.off{background:#fef3c7;color:#b45309}.link{color:var(--brand);font-size:13px;word-break:break-all}.item h3{margin:0 0 6px;font-size:18px}.item-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.empty{padding:40px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px}
+        @media (max-width:1180px){.layout{grid-template-columns:1fr}}@media (max-width:760px){.sidebar{display:none}.main{margin-left:0;width:100%}.top,.content{padding-left:16px;padding-right:16px}.grid,.item{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <a class="brand" href="/admin/dashboard.html"><img src="../images/logo.png" alt="CareerViet"><b>CareerViet ADMIN</b></a>
+        <div class="nav-title">Tổng quan</div>
+        <a class="nav-item" href="/admin/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>Dashboard</a>
+        <div class="nav-title">Quản lý</div>
+        <a class="nav-item" href="/admin/cv-templates.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>Mẫu CV</a>
+        <a class="nav-item active" href="/admin/hero-banners.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="14" rx="2"></rect><path d="M7 15l3-3 3 2 4-5 2 3"></path><circle cx="8.5" cy="8.5" r="1.5"></circle></svg>Hero Banner</a>
+    </aside>
+    <div class="main">
+        <div class="top"><h1>Quản lý hero banner</h1><a class="btn secondary" href="/auth/logout">Đăng xuất</a></div>
+        <div class="content">
+            <div class="intro">
+                <div><h2 style="margin:0;font-size:28px">Banner nền trang chủ</h2><p>Banner sẽ luân phiên phía sau ô tìm kiếm ở homepage. Admin chỉ quản ảnh, link, thứ tự và lịch chạy để code giữ gọn.</p></div>
+            </div>
+            <div class="layout">
+                <section class="card">
+                    <div class="head"><h2 id="formTitle">Thêm banner mới</h2><p>Ảnh nên là ảnh ngang đủ rộng để làm nền hero.</p></div>
+                    <div class="body">
+                        <div id="msg" class="msg"></div>
+                        <form id="bannerForm">
+                            <div class="preview"><img id="previewImage" alt="Preview"><div class="placeholder" id="previewPlaceholder">Chưa có ảnh banner</div></div>
+                            <div class="group"><label for="name">Tên banner</label><input id="name" type="text" maxlength="160" required placeholder="Ví dụ: Tuyển dụng tháng 4"></div>
+                            <div class="group"><label for="targetUrl">Link đích</label><input id="targetUrl" type="text" placeholder="https://example.com hoặc /tim-viec-lam.html"></div>
+                            <div class="grid">
+                                <div class="group"><label for="displayOrder">Thứ tự</label><input id="displayOrder" type="number" value="0"></div>
+                                <div class="group"><label for="imageFile">Ảnh banner</label><input id="imageFile" type="file" accept="image/*"></div>
+                            </div>
+                            <div class="grid">
+                                <div class="group"><label for="startAt">Bắt đầu</label><input id="startAt" type="datetime-local"></div>
+                                <div class="group"><label for="endAt">Kết thúc</label><input id="endAt" type="datetime-local"></div>
+                            </div>
+                            <label class="switch"><span><strong>Kích hoạt banner</strong><small>Banner chỉ chạy khi bật và hợp lịch.</small></span><input id="active" type="checkbox" checked></label>
+                            <div class="actions"><button class="btn primary" id="submitBtn" type="submit">Lưu banner</button><button class="btn secondary" id="resetBtn" type="button">Hủy chỉnh sửa</button></div>
+                        </form>
+                    </div>
+                </section>
+                <section class="card">
+                    <div class="head"><h2>Danh sách banner</h2><p>Các banner active sẽ được lấy theo thứ tự hiển thị trên homepage.</p></div>
+                    <div class="body"><div id="bannerList" class="list"><div class="empty">Đang tải danh sách banner...</div></div></div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <script>
+        const state={items:[],editingId:null,existingImageUrl:''};
+        const el={form:document.getElementById('bannerForm'),msg:document.getElementById('msg'),list:document.getElementById('bannerList'),title:document.getElementById('formTitle'),submit:document.getElementById('submitBtn'),reset:document.getElementById('resetBtn'),file:document.getElementById('imageFile'),previewImage:document.getElementById('previewImage'),previewPlaceholder:document.getElementById('previewPlaceholder')};
+        function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+        function setMsg(type,text){el.msg.className=`msg show ${type}`;el.msg.textContent=text}
+        function clearMsg(){el.msg.className='msg';el.msg.textContent=''}
+        function setPreview(url){if(url){el.previewImage.src=url;el.previewImage.style.display='block';el.previewPlaceholder.style.display='none'}else{el.previewImage.removeAttribute('src');el.previewImage.style.display='none';el.previewPlaceholder.style.display='grid'}}
+        function format(v){return v?new Date(v).toLocaleString('vi-VN'):'Không giới hạn'}
+        function toInput(v){return v?v.slice(0,16):''}
+        function resetForm(){state.editingId=null;state.existingImageUrl='';el.form.reset();document.getElementById('displayOrder').value=0;document.getElementById('active').checked=true;el.title.textContent='Thêm banner mới';el.submit.textContent='Lưu banner';setPreview('');clearMsg()}
+        function render(){if(!state.items.length){el.list.innerHTML='<div class="empty">Chưa có banner nào.</div>';return}el.list.innerHTML=state.items.map(item=>`<article class="item"><img src="${esc(item.imageUrl)}" alt="${esc(item.name)}"><div><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div><h3>${esc(item.name)}</h3>${item.targetUrl?`<a class="link" href="${esc(item.targetUrl)}" target="_blank" rel="noopener noreferrer">${esc(item.targetUrl)}</a>`:'<span class="link" style="color:#94a3b8">Không có link đích</span>'}</div><div class="meta"><span class="chip ${item.active?'on':'off'}">${item.active?'Đang bật':'Đang tắt'}</span><span class="chip">Thứ tự: ${item.displayOrder??0}</span></div></div><div class="meta" style="margin-top:10px"><span class="chip">Bắt đầu: ${esc(format(item.startAt))}</span><span class="chip">Kết thúc: ${esc(format(item.endAt))}</span></div><div class="item-actions"><button class="btn secondary" type="button" onclick="editBanner(${item.id})">Sửa</button><button class="btn secondary" type="button" onclick="toggleBanner(${item.id},${!item.active})">${item.active?'Tắt banner':'Bật banner'}</button><button class="btn danger" type="button" onclick="deleteBanner(${item.id})">Xóa</button></div></div></article>`).join('')}
+        async function load(){try{const r=await fetch('/api/admin/hero-banners',{credentials:'include'});if(!r.ok)throw new Error('Không thể tải banner');state.items=await r.json();render()}catch(e){el.list.innerHTML=`<div class="empty">${esc(e.message||'Không tải được danh sách banner.')}</div>`}}
+        function editBanner(id){const item=state.items.find(x=>x.id===id);if(!item)return;state.editingId=id;state.existingImageUrl=item.imageUrl||'';el.title.textContent=`Chỉnh sửa: ${item.name}`;el.submit.textContent='Cập nhật banner';document.getElementById('name').value=item.name||'';document.getElementById('targetUrl').value=item.targetUrl||'';document.getElementById('displayOrder').value=item.displayOrder??0;document.getElementById('startAt').value=toInput(item.startAt);document.getElementById('endAt').value=toInput(item.endAt);document.getElementById('active').checked=!!item.active;document.getElementById('imageFile').value='';setPreview(item.imageUrl||'');window.scrollTo({top:0,behavior:'smooth'});clearMsg()}
+        async function toggleBanner(id,active){try{const r=await fetch(`/api/admin/hero-banners/${id}/active`,{method:'PATCH',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({active})});const d=await r.json();if(!r.ok||!d.success)throw new Error(d.message||'Không thể đổi trạng thái');setMsg('ok',active?'Đã bật banner.':'Đã tắt banner.');await load()}catch(e){setMsg('err',e.message||'Có lỗi xảy ra.')}}
+        async function deleteBanner(id){const item=state.items.find(x=>x.id===id);if(!item||!confirm(`Xóa banner "${item.name}"?`))return;try{const r=await fetch(`/api/admin/hero-banners/${id}`,{method:'DELETE',credentials:'include'});const d=await r.json();if(!r.ok||!d.success)throw new Error(d.message||'Không thể xóa banner');if(state.editingId===id)resetForm();setMsg('ok','Đã xóa banner.');await load()}catch(e){setMsg('err',e.message||'Có lỗi xảy ra.')}}
+        el.file.addEventListener('change',e=>{const file=e.target.files?.[0];if(!file){setPreview(state.existingImageUrl);return}setPreview(URL.createObjectURL(file))});el.reset.addEventListener('click',resetForm);
+        el.form.addEventListener('submit',async e=>{e.preventDefault();clearMsg();const file=el.file.files?.[0];if(!state.editingId&&!file){setMsg('err','Vui lòng chọn ảnh banner.');return}const data=new FormData();data.append('name',document.getElementById('name').value.trim());data.append('targetUrl',document.getElementById('targetUrl').value.trim());data.append('displayOrder',document.getElementById('displayOrder').value||'0');data.append('active',document.getElementById('active').checked?'true':'false');const startAt=document.getElementById('startAt').value;const endAt=document.getElementById('endAt').value;if(startAt)data.append('startAt',startAt);if(endAt)data.append('endAt',endAt);if(file)data.append('imageFile',file);const updating=!!state.editingId;const url=updating?`/api/admin/hero-banners/${state.editingId}`:'/api/admin/hero-banners';const method=updating?'PUT':'POST';el.submit.disabled=true;el.submit.textContent=updating?'Đang cập nhật...':'Đang lưu...';try{const r=await fetch(url,{method,credentials:'include',body:data});const d=await r.json();if(!r.ok||!d.success)throw new Error(d.message||'Không thể lưu banner');resetForm();setMsg('ok',updating?'Cập nhật banner thành công.':'Tạo banner thành công.');await load()}catch(err){setMsg('err',err.message||'Có lỗi xảy ra khi lưu banner.')}finally{el.submit.disabled=false;el.submit.textContent=state.editingId?'Cập nhật banner':'Lưu banner'}});
+        window.editBanner=editBanner;window.toggleBanner=toggleBanner;window.deleteBanner=deleteBanner;resetForm();load();
+    </script>
+</body>
+</html>

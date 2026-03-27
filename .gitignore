@@ -34,6 +34,7 @@ build/
 
 ### Secrets - NEVER COMMIT ###
 src/main/resources/application-local.properties
+.secrets/
 *.env
 .env
 

@@ -1924,6 +1924,7 @@
                         try {
                             const parsedCv = JSON.parse(data.cvContent);
                             savedCvId = data.id;
+                            avatarDataUrl = parsedCv.avatarUrl || parsedCv.avatarDataUrl || null;
                             Object.assign(cvData, parsedCv);
                             hydrateDesignState(parsedCv._designState || { color: parsedCv._accent });
                             window.currentTemplate = {
@@ -2554,23 +2555,74 @@
         document.getElementById('avatarFileInput').click();
     }
 
-    function handleAvatarUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            avatarDataUrl = e.target.result;
-            // Update avatar in preview if it exists
-            const avatarEl = document.getElementById('cvAvatarImg');
-            if (avatarEl) {
+    function setAvatarPreview(url) {
+        avatarDataUrl = url || null;
+
+        const avatarEl = document.getElementById('cvAvatarImg');
+        const placeholder = document.getElementById('cvAvatarPlaceholder');
+
+        if (avatarEl) {
+            if (avatarDataUrl) {
                 avatarEl.src = avatarDataUrl;
                 avatarEl.style.display = 'block';
-                const placeholder = document.getElementById('cvAvatarPlaceholder');
-                if (placeholder) placeholder.style.display = 'none';
+            } else {
+                avatarEl.removeAttribute('src');
+                avatarEl.style.display = 'none';
             }
-            addAiMsg('🖼️ <strong>Ảnh đại diện đã được cập nhật!</strong> Ảnh sẽ xuất hiện trong CV của bạn.');
-        };
-        reader.readAsDataURL(file);
+        }
+
+        if (placeholder) {
+            placeholder.style.display = avatarDataUrl ? 'none' : 'block';
+        }
+
+        if (currentCvJson) {
+            if (avatarDataUrl) currentCvJson.avatarUrl = avatarDataUrl;
+            else delete currentCvJson.avatarUrl;
+            delete currentCvJson.avatarDataUrl;
+        }
+    }
+
+    async function handleAvatarUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (!file.type || !file.type.startsWith('image/')) {
+            addAiMsg('⚠️ Vui lòng chọn một file ảnh hợp lệ.');
+            event.target.value = '';
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            addAiMsg('⚠️ Ảnh đại diện không được vượt quá 5MB.');
+            event.target.value = '';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'cv-avatars');
+
+        try {
+            addAiMsg('⏳ Đang tải ảnh đại diện lên hệ thống...');
+            const response = await fetch('/api/uploads/images', {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (response.status === 401) {
+                throw new Error('Bạn cần đăng nhập để lưu ảnh đại diện.');
+            }
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Không thể tải ảnh lên.');
+            }
+
+            setAvatarPreview(data.url);
+            addAiMsg('🖼️ <strong>Ảnh đại diện đã được lưu!</strong> Ảnh sẽ được giữ lại khi bạn lưu CV.');
+        } catch (error) {
+            addAiMsg(`⚠️ ${error.message || 'Không thể tải ảnh đại diện lên lúc này.'}`);
+        } finally {
+            event.target.value = '';
+        }
     }
 
     // ── Post-gen: AI edit mode ────────────────────────────────────────────────
@@ -2674,6 +2726,11 @@
         try {
             const url    = savedCvId ? `/api/user-cv/${savedCvId}` : '/api/user-cv/save';
             const method = savedCvId ? 'PUT' : 'POST';
+            if (currentCvJson) {
+                if (avatarDataUrl) currentCvJson.avatarUrl = avatarDataUrl;
+                else delete currentCvJson.avatarUrl;
+                delete currentCvJson.avatarDataUrl;
+            }
 
             const res = await fetch(url, {
                 method,
@@ -2760,6 +2817,10 @@
     // ═══════════════════════════════════════════════════════════
     function renderCvPreview(c) {
         currentCvJson = c;
+        avatarDataUrl = c.avatarUrl || c.avatarDataUrl || avatarDataUrl || null;
+        if (avatarDataUrl) c.avatarUrl = avatarDataUrl;
+        else delete c.avatarUrl;
+        delete c.avatarDataUrl;
         hydrateDesignState(c._designState || {});
         const accent = c._accent || c._designState?.color || window.currentTemplate?.previewColor || designState.color || '#2E3B8E';
         designState.color = accent;
