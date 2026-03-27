@@ -429,6 +429,6 @@ This project is licensed under the MIT License.
 
 <div align="center">
 
-**Built with ❤️ for smarter hiring**
+**Built with ❤️ for smarter hiring@@**
 
 </div>
