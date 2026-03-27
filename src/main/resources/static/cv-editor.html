@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
         /* ── Progress steps ── */
         .cv-progress {
@@ -185,18 +187,6 @@
         .btn-item-add  { background: #10b981; }
         .btn-item-ctrl i { width: 12px; height: 12px; }
 
-        .cv-add-item-btn {
-            display: none; align-items: center; gap: 6px;
-            margin-top: 10px; padding: 6px 12px;
-            background: #f1f5f9; color: #475569;
-            border: 1px dashed #cbd5e1; border-radius: 6px;
-            font-size: 12px; font-weight: 600; cursor: pointer;
-            transition: all 0.2s; width: fit-content;
-        }
-        .cv-editable-mode .cv-add-item-btn { display: flex; }
-        .cv-add-item-btn:hover { background: #e2e8f0; color: #2E3B8E; }
-        .cv-add-item-btn i { width: 14px; height: 14px; }
-
         /* ── Avatar upload overlay ── */
         .cvm-avatar-wrapper {
             position: relative;
@@ -251,6 +241,538 @@
             .cvm-exp-item { page-break-inside: avoid; }
             .cvm-section { page-break-inside: avoid; }
         }
+
+        /* ── Sidebar redesign ── */
+        .editor-workspace {
+            background:
+                radial-gradient(circle at top left, rgba(255,255,255,0.95) 0, rgba(255,255,255,0) 28%),
+                linear-gradient(180deg, #f5f4ef 0%, #edf1f4 100%);
+        }
+
+        .design-column {
+            width: 520px;
+            min-width: 520px;
+            padding: 14px 10px 14px 12px;
+            box-sizing: border-box;
+            background: transparent;
+            border-right: 1px solid rgba(210, 216, 224, 0.9);
+            overflow: hidden;
+        }
+
+        .design-column-header {
+            padding: 10px 12px 14px;
+            margin-bottom: 8px;
+            border: none;
+            background: transparent;
+            color: #334155;
+            font-size: 0.94rem;
+        }
+
+        .design-shell {
+            display: grid;
+            grid-template-columns: 130px minmax(0, 1fr);
+            gap: 12px;
+            min-height: 0;
+            height: calc(100% - 56px);
+        }
+
+        .design-nav {
+            padding: 0;
+            gap: 8px;
+            background: transparent;
+            border: none;
+        }
+
+        .design-nav-item {
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            padding: 14px 14px;
+            min-height: 52px;
+            border-radius: 16px;
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            font-size: 12.5px;
+            line-height: 1.35;
+            text-align: left;
+        }
+
+        .design-nav-item span {
+            text-align: left;
+        }
+
+        .design-nav-item i {
+            width: 18px;
+            height: 18px;
+            color: #334155;
+            flex-shrink: 0;
+        }
+
+        .design-nav-item:hover {
+            background: #ffffff;
+            border-color: #d8dee6;
+            transform: translateX(2px);
+        }
+
+        .design-nav-item.active {
+            background: linear-gradient(90deg, #dcfce7 0%, #ecfdf5 100%);
+            border-color: #bbf7d0;
+            color: #166534;
+            box-shadow:
+                inset 3px 0 0 #16a34a,
+                0 14px 26px rgba(15, 23, 42, 0.06);
+        }
+
+        .design-nav-item.active i {
+            color: #15803d;
+        }
+
+        .design-panels {
+            padding: 0;
+            background: transparent;
+            overflow: hidden auto;
+        }
+
+        .design-panel {
+            padding-right: 2px;
+        }
+
+        .design-panel-heading {
+            margin-bottom: 12px;
+        }
+
+        .design-panel-heading h3 {
+            font-size: 1.35rem;
+            letter-spacing: -0.03em;
+        }
+
+        .design-panel-heading p {
+            font-size: 0.84rem;
+        }
+
+        .design-group {
+            border-radius: 18px;
+            border: 1px solid rgba(226, 232, 240, 0.96);
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05);
+        }
+
+        .layout-studio {
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(226, 232, 240, 0.96);
+            border-radius: 20px;
+            box-shadow: 0 20px 46px rgba(15, 23, 42, 0.07);
+            overflow: hidden;
+        }
+
+        .layout-studio-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .layout-studio-header h3 {
+            margin: 0 0 4px;
+            font-size: 1.28rem;
+            font-weight: 800;
+            color: #1f2937;
+            letter-spacing: -0.03em;
+        }
+
+        .layout-studio-header p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+
+        .layout-studio-close {
+            width: 38px;
+            height: 38px;
+            border: none;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: #64748b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .layout-studio-close:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .layout-studio-close i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .layout-guide-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 14px 18px 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: #16a34a;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .layout-guide-link:hover {
+            color: #15803d;
+        }
+
+        .layout-board {
+            margin: 16px;
+            padding: 10px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #f7f6f2 0%, #f7f7f5 100%);
+            border: 1px solid #eeece7;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+        }
+
+        .layout-board-scroll {
+            position: relative;
+            max-height: 360px;
+            overflow-y: auto;
+            padding: 6px;
+        }
+
+        .layout-board-scroll::before {
+            content: "";
+            position: absolute;
+            top: 6px;
+            bottom: 6px;
+            left: 50%;
+            width: 5px;
+            border-radius: 999px;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, #d8dde4 0%, #cfd5dd 100%);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+            pointer-events: none;
+        }
+
+        .layout-grid {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px 18px;
+        }
+
+        .layout-grid-unused {
+            grid-template-columns: 1fr;
+        }
+
+        .layout-section-card {
+            position: relative;
+            min-height: 64px;
+            border: 1px solid #eceff3;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #1e3a66;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+        }
+
+        .layout-section-card:hover {
+            transform: translateY(-1px);
+            border-color: #cbd5e1;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+        }
+
+        .layout-section-card.selected {
+            background: linear-gradient(135deg, #16a34a 0%, #0f8f43 100%);
+            border-color: #0f8f43;
+            color: #ffffff;
+            box-shadow: 0 14px 28px rgba(22, 163, 74, 0.2);
+        }
+
+        .layout-section-card-unused {
+            background: #ffffff;
+            color: #334155;
+        }
+
+        .layout-section-grip {
+            display: none;
+        }
+
+        .layout-section-grip i {
+            width: 14px;
+            height: 14px;
+        }
+
+        .layout-section-card:active .layout-section-grip {
+            cursor: grabbing;
+        }
+
+        .layout-section-card.selected .layout-section-grip {
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        .layout-section-title {
+            display: block;
+            overflow: visible;
+            white-space: normal;
+            word-break: break-word;
+            text-wrap: balance;
+            line-height: 1.35;
+            font-size: 0.98rem;
+            font-weight: 500;
+            padding: 0 6px;
+            max-width: 100%;
+        }
+
+        .layout-section-action {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            transform: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: #64748b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.96);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s ease, background 0.18s ease, color 0.18s ease;
+        }
+
+        .layout-section-card:hover .layout-section-action,
+        .layout-section-card:focus-visible .layout-section-action,
+        .layout-section-card-unused:hover .layout-section-action {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .layout-section-card.selected .layout-section-action {
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+        }
+
+        .layout-section-card-ghost {
+            opacity: 0.42;
+            border-color: #86efac;
+            background: #ecfdf5;
+        }
+
+        .layout-section-card-chosen {
+            box-shadow: 0 18px 30px rgba(15, 23, 42, 0.12);
+        }
+
+        .layout-section-card-drag {
+            cursor: grabbing;
+        }
+
+        .layout-section-card-dragging {
+            opacity: 0.76;
+            transform: scale(0.985);
+            box-shadow: 0 14px 24px rgba(15, 23, 42, 0.12);
+        }
+
+        .layout-section-action i {
+            width: 12px;
+            height: 12px;
+        }
+
+        .layout-unused-box {
+            margin: 0 16px 16px;
+            padding: 14px;
+            border-radius: 18px;
+            border: 1px dashed #cbd5e1;
+            background: rgba(248, 250, 252, 0.76);
+        }
+
+        .layout-unused-title {
+            margin-bottom: 12px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .layout-empty-state {
+            grid-column: 1 / -1;
+            padding: 14px 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px dashed #d5dce5;
+            color: #94a3b8;
+            font-size: 0.82rem;
+            text-align: center;
+        }
+
+        .cv-layout-columns {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            align-items: start;
+        }
+
+        .cv-layout-column {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cv-layout-column > * + * {
+            margin-top: 18px !important;
+        }
+
+        .tool-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .tool-card {
+            padding: 18px;
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%);
+            border: 1px solid rgba(226, 232, 240, 0.96);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+        }
+
+        .tool-card.soft {
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+        }
+
+        .tool-card-kicker {
+            margin-bottom: 8px;
+            color: #0f766e;
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .tool-card h4 {
+            margin: 0 0 8px;
+            font-size: 1.05rem;
+            color: #0f172a;
+        }
+
+        .tool-card p {
+            margin: 0 0 16px;
+            color: #64748b;
+            line-height: 1.6;
+            font-size: 0.87rem;
+        }
+
+        .tool-action {
+            min-height: 46px;
+            padding: 0 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        .tool-action:hover {
+            transform: translateY(-1px);
+        }
+
+        .tool-action.primary {
+            background: linear-gradient(135deg, #233a8b 0%, #2e3b8e 100%);
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(46, 59, 142, 0.2);
+        }
+
+        .tool-action.secondary {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .tool-suggestion {
+            padding: 16px 15px;
+            border-radius: 18px;
+            border: 1px solid rgba(226, 232, 240, 0.96);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.04);
+            text-align: left;
+            cursor: pointer;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .tool-suggestion:hover {
+            transform: translateY(-2px);
+            border-color: #bfdbfe;
+            box-shadow: 0 18px 30px rgba(59, 130, 246, 0.08);
+        }
+
+        .tool-suggestion strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #0f172a;
+            font-size: 0.92rem;
+        }
+
+        .tool-suggestion span {
+            display: block;
+            color: #64748b;
+            font-size: 0.8rem;
+            line-height: 1.55;
+        }
+
+        @media (max-width: 1500px) {
+            .design-column {
+                width: 470px;
+                min-width: 470px;
+            }
+
+            .design-shell {
+                grid-template-columns: 126px minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 1320px) {
+            .design-column {
+                width: 440px;
+                min-width: 440px;
+            }
+
+            .design-shell {
+                grid-template-columns: 120px minmax(0, 1fr);
+            }
+
+            .tool-grid,
+            .layout-grid-unused {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -278,6 +800,18 @@
                     <button class="design-nav-item" type="button" data-panel="layout" onclick="switchDesignPanel('layout')">
                         <i data-lucide="panel-left"></i>
                         <span>Bố cục</span>
+                    </button>
+                    <button class="design-nav-item" type="button" data-panel="templates" onclick="switchDesignPanel('templates')">
+                        <i data-lucide="layout-template"></i>
+                        <span>Đổi mẫu CV</span>
+                    </button>
+                    <button class="design-nav-item" type="button" data-panel="ai-writing" onclick="switchDesignPanel('ai-writing')">
+                        <i data-lucide="sparkles"></i>
+                        <span>Gợi ý viết CV</span>
+                    </button>
+                    <button class="design-nav-item" type="button" data-panel="library" onclick="switchDesignPanel('library')">
+                        <i data-lucide="book-open"></i>
+                        <span>Thư viện CV</span>
                     </button>
                 </div>
 
@@ -368,50 +902,94 @@
                     </section>
 
                     <section class="design-panel" data-panel="layout">
-                        <div class="design-panel-heading">
-                            <h3>Bố cục</h3>
-                            <p>Ẩn hoặc hiện từng khối nội dung trên CV. Bố cục sẽ cập nhật ngay trên bản xem trước.</p>
-                        </div>
+                        <div class="layout-studio">
+                            <div class="layout-studio-header">
+                                <div>
+                                    <h3>Bố cục CV</h3>
+                                    <p>Chọn phần đang dùng, kéo thả để đổi vị trí và ẩn hoặc thêm lại ngay trong lúc chỉnh CV.</p>
+                                </div>
+                                <button class="layout-studio-close" type="button" onclick="switchDesignPanel('design')" aria-label="Đóng bảng bố cục">
+                                    <i data-lucide="x"></i>
+                                </button>
+                            </div>
 
-                        <div class="design-group design-group-plain">
-                            <label class="design-label">Các phần hiển thị</label>
-                            <div class="section-toggles" id="sectionToggles">
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="avatar" checked onchange="toggleSection('avatar', this.checked)">
-                                    <span>Ảnh đại diện</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="summary" checked onchange="toggleSection('summary', this.checked)">
-                                    <span>Mục tiêu nghề nghiệp</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="experience" checked onchange="toggleSection('experience', this.checked)">
-                                    <span>Kinh nghiệm làm việc</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="education" checked onchange="toggleSection('education', this.checked)">
-                                    <span>Học vấn</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="skills" checked onchange="toggleSection('skills', this.checked)">
-                                    <span>Kỹ năng</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="projects" checked onchange="toggleSection('projects', this.checked)">
-                                    <span>Dự án</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="certifications" checked onchange="toggleSection('certifications', this.checked)">
-                                    <span>Chứng chỉ</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="awards" checked onchange="toggleSection('awards', this.checked)">
-                                    <span>Giải thưởng</span>
-                                </label>
-                                <label class="section-toggle-item">
-                                    <input type="checkbox" data-section-toggle="activities" checked onchange="toggleSection('activities', this.checked)">
-                                    <span>Hoạt động</span>
-                                </label>
+                            <button class="layout-guide-link" type="button" onclick="openLayoutGuide()">
+                                Xem hướng dẫn Tùy chỉnh bố cục >>
+                            </button>
+
+                            <div class="layout-board">
+                                <div class="layout-board-scroll">
+                                    <div class="layout-grid" id="layoutUsedGrid"></div>
+                                </div>
+                            </div>
+
+                            <div class="layout-unused-box">
+                                <div class="layout-unused-title">Mục chưa sử dụng</div>
+                                <div class="layout-grid layout-grid-unused" id="layoutUnusedGrid"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="design-panel" data-panel="templates">
+                        <div class="tool-panel">
+                            <div class="design-panel-heading">
+                                <h3>Đổi mẫu CV</h3>
+                                <p>Quay lại thư viện mẫu để chọn một giao diện khác mà vẫn giữ luồng chỉnh sửa hiện tại.</p>
+                            </div>
+
+                            <div class="tool-card">
+                                <div class="tool-card-kicker">Template</div>
+                                <h4>Chuyển sang một phong cách CV khác</h4>
+                                <p>Bạn có thể đổi sang mẫu tối giản, sáng tạo hoặc ATS-friendly rồi tiếp tục tinh chỉnh.</p>
+                                <button class="tool-action primary" type="button" onclick="branchChangeTemplate()">
+                                    Mở thư viện mẫu
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="design-panel" data-panel="ai-writing">
+                        <div class="tool-panel">
+                            <div class="design-panel-heading">
+                                <h3>Gợi ý viết CV</h3>
+                                <p>Đẩy nhanh quá trình viết bằng vài prompt mẫu, sau đó để AI bên phải xử lý tiếp.</p>
+                            </div>
+
+                            <div class="tool-grid">
+                                <button class="tool-suggestion" type="button" onclick="primeAssistantSuggestion('Hãy viết lại mục tiêu nghề nghiệp ngắn gọn và chuyên nghiệp hơn cho CV của tôi.')">
+                                    <strong>Viết lại mục tiêu</strong>
+                                    <span>Tạo đoạn mở đầu súc tích, hợp vai trò ứng tuyển.</span>
+                                </button>
+                                <button class="tool-suggestion" type="button" onclick="primeAssistantSuggestion('Hãy nâng cấp phần kinh nghiệm làm việc bằng các câu nhấn mạnh kết quả và thành tựu.')">
+                                    <strong>Tối ưu kinh nghiệm</strong>
+                                    <span>Biến mô tả công việc thành bullet nhấn mạnh tác động.</span>
+                                </button>
+                                <button class="tool-suggestion" type="button" onclick="primeAssistantSuggestion('Hãy gợi ý thêm các kỹ năng cứng và kỹ năng mềm phù hợp với CV hiện tại của tôi.')">
+                                    <strong>Gợi ý kỹ năng</strong>
+                                    <span>Bổ sung kỹ năng còn thiếu theo ngành và vị trí mục tiêu.</span>
+                                </button>
+                                <button class="tool-suggestion" type="button" onclick="primeAssistantSuggestion('Hãy rà lại toàn bộ CV và đề xuất chỗ nào nên viết mạnh hơn để thuyết phục nhà tuyển dụng.')">
+                                    <strong>Rà soát toàn CV</strong>
+                                    <span>Nhờ AI soi lại tổng thể trước khi lưu hoặc tải PDF.</span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="design-panel" data-panel="library">
+                        <div class="tool-panel">
+                            <div class="design-panel-heading">
+                                <h3>Thư viện CV</h3>
+                                <p>Mở danh sách CV đã lưu để quay lại các bản cũ hoặc tiếp tục chỉnh sửa với AI.</p>
+                            </div>
+
+                            <div class="tool-card soft">
+                                <div class="tool-card-kicker">Saved CVs</div>
+                                <h4>Xem lại các bản CV bạn đã lưu</h4>
+                                <p>Trang này chứa toàn bộ CV đang có, kèm tùy chọn xem trước, đổi tên và tải PDF.</p>
+                                <button class="tool-action secondary" type="button" onclick="window.location.href='/my-cvs.html'">
+                                    Mở thư viện CV
+                                </button>
                             </div>
                         </div>
                     </section>
@@ -612,16 +1190,17 @@
     ];
 
     const sectionMeta = {
-        avatar: { glyph: '🖼️', label: 'Ảnh đại diện', desc: 'Ảnh hồ sơ ở phần đầu CV.' },
-        summary: { glyph: '📝', label: 'Mục tiêu nghề nghiệp', desc: 'Phần giới thiệu ngắn về định hướng.' },
-        experience: { glyph: '💼', label: 'Kinh nghiệm làm việc', desc: 'Các vị trí và thành tựu nổi bật.' },
-        education: { glyph: '🎓', label: 'Học vấn', desc: 'Trường học, bằng cấp và thời gian.' },
-        skills: { glyph: '⭐', label: 'Kỹ năng', desc: 'Các nhóm kỹ năng chuyên môn.' },
-        projects: { glyph: '🚀', label: 'Dự án', desc: 'Dự án cá nhân hoặc công việc nổi bật.' },
-        certifications: { glyph: '📜', label: 'Chứng chỉ', desc: 'Chứng chỉ nghề nghiệp liên quan.' },
-        awards: { glyph: '🏆', label: 'Giải thưởng', desc: 'Thành tích, giải thưởng và ghi nhận.' },
-        activities: { glyph: '🎯', label: 'Hoạt động', desc: 'CLB, tình nguyện hoặc ngoại khóa.' }
+        avatar: { glyph: '🖼️', label: 'Ảnh đại diện', layoutLabel: 'Ảnh đại diện', desc: 'Ảnh hồ sơ ở phần đầu CV.' },
+        summary: { glyph: '📝', label: 'Mục tiêu nghề nghiệp', layoutLabel: 'Mục tiêu nghề nghiệp', desc: 'Phần giới thiệu ngắn về định hướng.' },
+        experience: { glyph: '💼', label: 'Kinh nghiệm làm việc', layoutLabel: 'Kinh nghiệm làm việc', desc: 'Các vị trí và thành tựu nổi bật.' },
+        education: { glyph: '🎓', label: 'Học vấn', layoutLabel: 'Học vấn', desc: 'Trường học, bằng cấp và thời gian.' },
+        skills: { glyph: '⭐', label: 'Kỹ năng', layoutLabel: 'Kỹ năng', desc: 'Các nhóm kỹ năng chuyên môn.' },
+        projects: { glyph: '🚀', label: 'Dự án', layoutLabel: 'Dự án', desc: 'Dự án cá nhân hoặc công việc nổi bật.' },
+        certifications: { glyph: '📜', label: 'Chứng chỉ', layoutLabel: 'Chứng chỉ', desc: 'Chứng chỉ nghề nghiệp liên quan.' },
+        awards: { glyph: '🏆', label: 'Giải thưởng', layoutLabel: 'Giải thưởng', desc: 'Thành tích, giải thưởng và ghi nhận.' },
+        activities: { glyph: '🎯', label: 'Hoạt động', layoutLabel: 'Hoạt động', desc: 'CLB, tình nguyện hoặc ngoại khóa.' }
     };
+    const defaultSectionOrder = [...sectionCatalog];
 
     const designState = {
         font: "'Inter', sans-serif",
@@ -639,8 +1218,54 @@
             certifications: true,
             awards: true,
             activities: true
-        }
+        },
+        order: [...defaultSectionOrder]
     };
+    let layoutSelectedSection = 'summary';
+    let layoutDraggingCard = null;
+    let layoutDraggingSection = null;
+    let layoutDragInitialOrder = '';
+
+    function sanitizeSectionOrder(order = []) {
+        const seen = new Set();
+        const normalized = [];
+        (Array.isArray(order) ? order : []).forEach(sectionName => {
+            if (sectionCatalog.includes(sectionName) && !seen.has(sectionName)) {
+                seen.add(sectionName);
+                normalized.push(sectionName);
+            }
+        });
+        defaultSectionOrder.forEach(sectionName => {
+            if (!seen.has(sectionName)) normalized.push(sectionName);
+        });
+        return normalized;
+    }
+
+    function getOrderedSections() {
+        return sanitizeSectionOrder(designState.order);
+    }
+
+    function getOrderedUsedSections() {
+        return getOrderedSections().filter(sectionEnabled);
+    }
+
+    function getOrderedUnusedSections() {
+        return getOrderedSections().filter(sectionName => !sectionEnabled(sectionName));
+    }
+
+    function mergeVisibleSectionOrder(visibleOrder = []) {
+        const fullOrder = getOrderedSections();
+        const orderedVisible = sanitizeSectionOrder(visibleOrder).filter(sectionEnabled);
+        const visibleSet = new Set(sectionCatalog.filter(sectionEnabled));
+        let nextVisibleIndex = 0;
+
+        return fullOrder.map(sectionName => {
+            if (!visibleSet.has(sectionName)) return sectionName;
+            const replacement = orderedVisible[nextVisibleIndex];
+            nextVisibleIndex += 1;
+            return replacement || sectionName;
+        });
+    }
 
     function switchDesignPanel(panelName) {
         document.querySelectorAll('.design-nav-item').forEach(btn => {
@@ -649,6 +1274,8 @@
         document.querySelectorAll('.design-panel').forEach(panel => {
             panel.classList.toggle('active', panel.dataset.panel === panelName);
         });
+        if (panelName === 'layout') renderLayoutManager();
+        if (window.lucide) lucide.createIcons();
     }
 
     function cloneDesignState() {
@@ -666,6 +1293,7 @@
             ...designState.sections,
             ...(savedState.sections || {})
         };
+        designState.order = sanitizeSectionOrder(savedState.order || designState.order);
     }
 
     function normalizeColor(color) {
@@ -925,8 +1553,8 @@
         const usedContainer = document.getElementById('usedSectionList');
         if (!unusedContainer || !usedContainer) return;
 
-        const unused = sectionCatalog.filter(key => !sectionEnabled(key));
-        const used = sectionCatalog.filter(key => sectionEnabled(key));
+        const unused = getOrderedUnusedSections();
+        const used = getOrderedUsedSections();
 
         unusedContainer.innerHTML = unused.length
             ? unused.map(key => createSectionCard(key, false)).join('')
@@ -935,6 +1563,215 @@
         usedContainer.innerHTML = used.length
             ? used.map(key => createSectionCard(key, true)).join('')
             : '<div class="section-empty-state">Chưa có mục nào được bật.</div>';
+
+        renderLayoutManager();
+    }
+
+    function ensureLayoutSelection() {
+        const used = getOrderedUsedSections();
+        if (used.includes(layoutSelectedSection)) return;
+        layoutSelectedSection = used[0] || sectionCatalog[0];
+    }
+
+    function selectLayoutSection(sectionName) {
+        layoutSelectedSection = sectionName;
+        renderLayoutManager();
+    }
+
+    function createLayoutUsedCard(sectionName) {
+        const meta = sectionMeta[sectionName];
+        const selected = layoutSelectedSection === sectionName ? ' selected' : '';
+        return `
+            <button type="button" class="layout-section-card${selected}" data-layout-section="${sectionName}" draggable="true" onclick="selectLayoutSection('${sectionName}')" title="${meta.label}">
+                <span class="layout-section-grip" aria-hidden="true">
+                    <i data-lucide="grip-vertical"></i>
+                </span>
+                <span class="layout-section-title">${meta.layoutLabel || meta.label}</span>
+                <span class="layout-section-action" onclick="event.stopPropagation(); toggleSection('${sectionName}', false)" aria-label="Ẩn ${meta.label}">
+                    <i data-lucide="minus"></i>
+                </span>
+            </button>`;
+    }
+
+    function createLayoutUnusedCard(sectionName) {
+        const meta = sectionMeta[sectionName];
+        return `
+            <button type="button" class="layout-section-card layout-section-card-unused" onclick="addSection('${sectionName}')" title="Thêm ${meta.label}">
+                <span class="layout-section-title">${meta.layoutLabel || meta.label}</span>
+                <span class="layout-section-action" aria-label="Thêm ${meta.label}">
+                    <i data-lucide="plus"></i>
+                </span>
+            </button>`;
+    }
+
+    function renderLayoutManager() {
+        const usedContainer = document.getElementById('layoutUsedGrid');
+        const unusedContainer = document.getElementById('layoutUnusedGrid');
+        if (!usedContainer || !unusedContainer) return;
+
+        ensureLayoutSelection();
+
+        const used = getOrderedUsedSections();
+        const unused = getOrderedUnusedSections();
+
+        usedContainer.innerHTML = used.length
+            ? used.map(createLayoutUsedCard).join('')
+            : '<div class="layout-empty-state">Chưa có mục nào đang hiển thị.</div>';
+
+        unusedContainer.innerHTML = unused.length
+            ? unused.map(createLayoutUnusedCard).join('')
+            : '<div class="layout-empty-state">Tất cả mục đang được dùng.</div>';
+
+        if (window.lucide) lucide.createIcons();
+        initLayoutSortable();
+    }
+
+    function syncLayoutOrderFromGrid() {
+        const usedContainer = document.getElementById('layoutUsedGrid');
+        if (!usedContainer) return;
+
+        const usedOrder = [...usedContainer.querySelectorAll('[data-layout-section]')]
+            .map(card => card.dataset.layoutSection)
+            .filter(Boolean);
+
+        if (!usedOrder.length) return;
+
+        designState.order = mergeVisibleSectionOrder(usedOrder);
+        syncDesignStateToCurrentCv();
+        renderLayoutManager();
+        renderCurrentPreview();
+        markCvDirty();
+    }
+
+    function resetLayoutDragState() {
+        if (layoutDraggingCard) {
+            layoutDraggingCard.classList.remove('layout-section-card-dragging');
+        }
+        layoutDraggingCard = null;
+        layoutDraggingSection = null;
+        layoutDragInitialOrder = '';
+    }
+
+    function commitLayoutDragOrder() {
+        if (!layoutDraggingSection) return;
+
+        const usedContainer = document.getElementById('layoutUsedGrid');
+        const currentOrder = usedContainer
+            ? [...usedContainer.querySelectorAll('[data-layout-section]')].map(card => card.dataset.layoutSection).join('|')
+            : '';
+        const changed = currentOrder && currentOrder !== layoutDragInitialOrder;
+
+        resetLayoutDragState();
+        if (changed) syncLayoutOrderFromGrid();
+    }
+
+    function handleLayoutDragStart(event) {
+        const card = event.currentTarget;
+        if (!card || event.target.closest('.layout-section-action')) {
+            event.preventDefault();
+            return;
+        }
+
+        layoutDraggingCard = card;
+        layoutDraggingSection = card.dataset.layoutSection || '';
+        layoutDragInitialOrder = [...card.parentElement.querySelectorAll('[data-layout-section]')]
+            .map(item => item.dataset.layoutSection)
+            .join('|');
+
+        card.classList.add('layout-section-card-dragging');
+
+        if (event.dataTransfer) {
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.dropEffect = 'move';
+            try {
+                event.dataTransfer.setData('text/plain', layoutDraggingSection);
+            } catch (err) {
+                // Ignore browsers that block setting custom drag data.
+            }
+        }
+    }
+
+    function handleLayoutDragOver(event) {
+        if (!layoutDraggingCard) return;
+        event.preventDefault();
+
+        const targetCard = event.currentTarget;
+        if (!targetCard || targetCard === layoutDraggingCard) return;
+
+        const rect = targetCard.getBoundingClientRect();
+        const insertAfter =
+            event.clientY > rect.top + rect.height / 2 ||
+            (Math.abs(event.clientY - (rect.top + rect.height / 2)) < 8 && event.clientX > rect.left + rect.width / 2);
+
+        if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+        targetCard.parentElement.insertBefore(layoutDraggingCard, insertAfter ? targetCard.nextSibling : targetCard);
+    }
+
+    function handleLayoutDrop(event) {
+        event.preventDefault();
+        commitLayoutDragOrder();
+    }
+
+    function handleLayoutContainerDragOver(event) {
+        if (!layoutDraggingCard) return;
+        event.preventDefault();
+        if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+
+        const container = event.currentTarget;
+        const targetCard = event.target.closest('[data-layout-section]');
+        if (!targetCard) container.appendChild(layoutDraggingCard);
+    }
+
+    function handleLayoutContainerDrop(event) {
+        event.preventDefault();
+        if (!event.target.closest('[data-layout-section]') && layoutDraggingCard) {
+            event.currentTarget.appendChild(layoutDraggingCard);
+        }
+        commitLayoutDragOrder();
+    }
+
+    function handleLayoutDragEnd() {
+        commitLayoutDragOrder();
+    }
+
+    function initLayoutSortable() {
+        const usedContainer = document.getElementById('layoutUsedGrid');
+        if (!usedContainer) return;
+
+        usedContainer.ondragover = handleLayoutContainerDragOver;
+        usedContainer.ondrop = handleLayoutContainerDrop;
+
+        usedContainer.querySelectorAll('[data-layout-section]').forEach(card => {
+            card.ondragstart = handleLayoutDragStart;
+            card.ondragover = handleLayoutDragOver;
+            card.ondrop = handleLayoutDrop;
+            card.ondragend = handleLayoutDragEnd;
+        });
+    }
+
+    function openAssistantPanel() {
+        const aiCol = document.querySelector('.assistant-column');
+        if (aiCol && aiCol.classList.contains('collapsed')) {
+            toggleAssistant();
+        }
+    }
+
+    function openLayoutGuide() {
+        openAssistantPanel();
+        addAiMsg('🧩 <strong>Mẹo chỉnh bố cục:</strong> Giữ những khối quan trọng như mục tiêu, kinh nghiệm và kỹ năng ở trạng thái hiển thị. Với mục chưa đủ nội dung, bạn có thể ẩn tạm rồi bật lại sau khi AI giúp viết.');
+        setQuickReplies([
+            'Viết lại mục tiêu nghề nghiệp',
+            'Tối ưu phần kinh nghiệm',
+            'Gợi ý thêm kỹ năng'
+        ]);
+    }
+
+    function primeAssistantSuggestion(prompt) {
+        openAssistantPanel();
+        const input = document.getElementById('chatInput');
+        if (!input) return;
+        input.value = prompt;
+        input.focus();
     }
 
     function ensureSectionContent(target, sectionName) {
@@ -1026,6 +1863,7 @@
         const target = currentCvJson || cvData;
         ensureSectionContent(target, sectionName);
         designState.sections[sectionName] = true;
+        layoutSelectedSection = sectionName;
         syncDesignStateToCurrentCv();
         renderSectionManager();
         syncDesignControls();
@@ -1308,8 +2146,11 @@
         }
         applyDesignStateToPreview();
         renderSectionManager();
+        tagPreviewSections('professional');
         applySectionVisibilityToPreview();
+        applySectionOrderToPreview('professional');
         refreshEditModeUI();
+        initSortable();
         const hint = document.createElement('div');
         hint.className = 'live-preview-hint';
         hint.style.margin = '8px 8px 0';
@@ -1563,8 +2404,11 @@
         const editable = event.target.closest('.cv-editable[data-path]');
         if (!editable || !editable.isContentEditable) return;
 
-        if (event.key === 'Enter' && editable.dataset.multiline !== 'true') {
+        if (event.key === 'Enter') {
             event.preventDefault();
+            if (editable.dataset.multiline === 'true') {
+                document.execCommand('insertLineBreak');
+            }
         }
     }
 
@@ -1610,6 +2454,52 @@
         }
     }
 
+    let sortableInstances = [];
+    function initSortable() {
+        if (typeof Sortable === 'undefined') return;
+        sortableInstances.forEach(s => s.destroy());
+        sortableInstances = [];
+        
+        if (!isEditMode) return;
+        
+        const controls = document.querySelectorAll('.cv-item-controls');
+        const parents = new Set();
+        controls.forEach(c => parents.add(c.parentElement.parentElement));
+        
+        parents.forEach(parent => {
+            if (!parent) return;
+            const instance = Sortable.create(parent, {
+                animation: 150,
+                handle: '.drag-handle, .cv-item-controls',
+                filter: 'h1, h2, h3, .cvm-section-title',
+                onEnd: function (evt) {
+                    const sortableChild = evt.item;
+                    const control = sortableChild.querySelector('.cv-item-controls');
+                    if (!control) return;
+                    
+                    const type = control.dataset.type;
+                    const oldIndex = parseInt(control.dataset.index);
+                    
+                    const newOrderControls = parent.querySelectorAll('.cv-item-controls[data-type="' + type + '"]');
+                    let newIndex = -1;
+                    newOrderControls.forEach((itemCtrl, idx) => {
+                        if (itemCtrl === control) newIndex = idx;
+                    });
+                    
+                    if (newIndex !== -1 && oldIndex !== newIndex && currentCvJson && currentCvJson[type]) {
+                        const arr = currentCvJson[type];
+                        const [movedItem] = arr.splice(oldIndex, 1);
+                        arr.splice(newIndex, 0, movedItem);
+                        
+                        renderCvPreview(currentCvJson);
+                        markCvDirty();
+                    }
+                }
+            });
+            sortableInstances.push(instance);
+        });
+    }
+
     function refreshEditModeUI() {
         const preview = document.getElementById('cvPreview');
         const badge = document.getElementById('editModeBadge');
@@ -1633,6 +2523,7 @@
             }
             if (badge) badge.style.display = 'none';
         }
+        initSortable();
     }
 
     function toggleEditMode() {
@@ -1655,6 +2546,7 @@
             badge.style.display = 'none';
             addAiMsg('💾 Thay đổi trực tiếp đã ức áp dụng. Nhấn <strong>💾 Lưu CV</strong> để lưu lại nhé!');
         }
+        initSortable();
     }
 
     // ── Avatar upload ─────────────────────────────────────────────────────────
@@ -1826,14 +2718,41 @@
     // ── Download PDF ─────────────────────────────────────────────────────────
     function downloadPdf() {
         if (isEditMode) toggleEditMode();
-        // Update document title temporarily for the print dialog filename
+        
+        const preview = document.getElementById('cvPreview');
+        const cvDoc = preview.firstElementChild;
+        if (!cvDoc) return;
+
         const name = currentCvJson?.name || 'CV';
-        const orig = document.title;
-        document.title = `CV_${name.replace(/\s+/g, '_')}`;
-        setTimeout(() => {
+        const filename = `CV_${name.replace(/\s+/g, '_')}.pdf`;
+        
+        const btn = document.querySelector('.btn-pdf');
+        const oldText = btn.innerHTML;
+        btn.innerHTML = '⏳ Đang tạo...';
+        btn.disabled = true;
+
+        if (typeof html2pdf !== 'undefined') {
+            const opt = {
+                margin: 0,
+                filename: filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(cvDoc).save().then(() => {
+                btn.innerHTML = oldText;
+                btn.disabled = false;
+            }).catch(err => {
+                btn.innerHTML = oldText;
+                btn.disabled = false;
+                alert('Có lỗi khi tải PDF. Vui lòng thử lại!');
+            });
+        } else {
+            document.title = filename;
             window.print();
-            setTimeout(() => { document.title = orig; }, 500);
-        }, 150);
+            btn.innerHTML = oldText;
+            btn.disabled = false;
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -1858,6 +2777,7 @@
         else if (style === 'minimalist') html = renderMinimalistStyle(c, accent);
         else if (style === 'classic')    html = renderClassicStyle(c, accent);
         else if (style === 'harvard')    html = renderHarvardStyle(c, accent);
+        else if (style === 'topcv')      html = renderTopcvStyle(c, accent);
         else                             html = renderProfessionalStyle(c, accent);
 
         document.getElementById('cvPreview').innerHTML = html;
@@ -1868,8 +2788,11 @@
         }
         applyDesignStateToPreview();
         renderSectionManager();
+        tagPreviewSections(style);
         applySectionVisibilityToPreview();
+        applySectionOrderToPreview(style);
         refreshEditModeUI();
+        initSortable();
         if (window.lucide) lucide.createIcons();
     }
 
@@ -1910,7 +2833,10 @@
         const isFirst = index === 0;
 
         return `
-            <div class="cv-item-controls" contenteditable="false">
+            <div class="cv-item-controls" data-type="${type}" data-index="${index}" contenteditable="false">
+                <button class="btn-item-ctrl drag-handle" title="Kéo thả" style="cursor: grab; background: #64748b;">
+                    <i data-lucide="move"></i>
+                </button>
                 <button class="btn-item-ctrl btn-item-up" onclick="moveItem('${type}', ${index}, -1)" ${isFirst ? 'style="opacity:0.5;pointer-events:none"' : ''} title="Lên">
                     <i data-lucide="arrow-up"></i>
                 </button>
@@ -2060,16 +2986,16 @@
             </header>
             <div class="cvm-body">
                 <aside class="cvm-left">
-                    ${skillsHtml?`<section class="cvm-section"><h2 class="cvm-section-title" style="color:${accent};">KỸ NĂNG</h2>${skillsHtml}<button class="cv-add-item-btn" onclick="addItem('skills')"><i data-lucide="plus-circle"></i> Thêm nhóm kỹ năng</button></section>`:''}
-                    ${eduHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">HỌC VẤN</h2>${eduHtml}<button class="cv-add-item-btn" onclick="addItem('education')"><i data-lucide="plus-circle"></i> Thêm học vấn</button></section>`:''}
-                    ${certHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">CHỨNG CHỈ</h2>${certHtml}<button class="cv-add-item-btn" onclick="addItem('certifications')"><i data-lucide="plus-circle"></i> Thêm chứng chỉ</button></section>`:''}
+                    ${skillsHtml?`<section class="cvm-section"><h2 class="cvm-section-title" style="color:${accent};">KỸ NĂNG</h2>${skillsHtml}</section>`:''}
+                    ${eduHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">HỌC VẤN</h2>${eduHtml}</section>`:''}
+                    ${certHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">CHỨNG CHỈ</h2>${certHtml}</section>`:''}
                 </aside>
                 <main class="cvm-right">
                     ${summaryHtml}
-                    ${expHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">KINH NGHIỆM LÀM VIỆC</h2>${expHtml}<button class="cv-add-item-btn" onclick="addItem('experience')"><i data-lucide="plus-circle"></i> Thêm kinh nghiệm</button></section>`:''}
-                    ${projHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">DỰ ÁN NỔI BẬT</h2>${projHtml}<button class="cv-add-item-btn" onclick="addItem('projects')"><i data-lucide="plus-circle"></i> Thêm dự án</button></section>`:''}
-                    ${awardsHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">GIẢI THƯỞNG</h2>${awardsHtml}<button class="cv-add-item-btn" onclick="addItem('awards')"><i data-lucide="plus-circle"></i> Thêm giải thưởng</button></section>`:''}
-                    ${actHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">HOẠT ĐỘNG</h2>${actHtml}<button class="cv-add-item-btn" onclick="addItem('activities')"><i data-lucide="plus-circle"></i> Thêm hoạt động</button></section>`:''}
+                    ${expHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">KINH NGHIỆM LÀM VIỆC</h2>${expHtml}</section>`:''}
+                    ${projHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">DỰ ÁN NỔI BẬT</h2>${projHtml}</section>`:''}
+                    ${awardsHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">GIẢI THƯỞNG</h2>${awardsHtml}</section>`:''}
+                    ${actHtml?`<section class="cvm-section" style="margin-top:20px;"><h2 class="cvm-section-title" style="color:${accent};">HOẠT ĐỘNG</h2>${actHtml}</section>`:''}
                 </main>
             </div>
         </div>`;
@@ -2146,15 +3072,15 @@
             <div class="cvc2-body">
                 <aside class="cvc2-left">
                     ${c.summary?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">GIỚI THIỆU</h3><div class="cvc2-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</div></section>`:''}
-                    ${skillGroupsHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">KỸ NĂNG</h3>${skillGroupsHtml}<button class="cv-add-item-btn" onclick="addItem('skills')"><i data-lucide="plus-circle"></i> Thêm nhóm kỹ năng</button></section>`:''}
-                    ${eduHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">HỌC VẤN</h3>${eduHtml}<button class="cv-add-item-btn" onclick="addItem('education')"><i data-lucide="plus-circle"></i> Thêm học vấn</button></section>`:''}
-                    ${certHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">CHỨNG CHỈ</h3>${certHtml}<button class="cv-add-item-btn" onclick="addItem('certifications')"><i data-lucide="plus-circle"></i> Thêm chứng chỉ</button></section>`:''}
-                    ${awardsHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">GIẢI THƯỞNG</h3>${awardsHtml}<button class="cv-add-item-btn" onclick="addItem('awards')"><i data-lucide="plus-circle"></i> Thêm giải thưởng</button></section>`:''}
+                    ${skillGroupsHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">KỸ NĂNG</h3>${skillGroupsHtml}</section>`:''}
+                    ${eduHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">HỌC VẤN</h3>${eduHtml}</section>`:''}
+                    ${certHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">CHỨNG CHỈ</h3>${certHtml}</section>`:''}
+                    ${awardsHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">GIẢI THƯỞNG</h3>${awardsHtml}</section>`:''}
                 </aside>
                 <main class="cvc2-right">
-                    ${expHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">KINH NGHIỆM</h3>${expHtml}<button class="cv-add-item-btn" onclick="addItem('experience')"><i data-lucide="plus-circle"></i> Thêm kinh nghiệm</button></section>`:''}
-                    ${projHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">DỰ ÁN PHÁT TRIỂN</h3>${projHtml}<button class="cv-add-item-btn" onclick="addItem('projects')"><i data-lucide="plus-circle"></i> Thêm dự án</button></section>`:''}
-                    ${actHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">HOẠT ĐỘNG</h3>${actHtml}<button class="cv-add-item-btn" onclick="addItem('activities')"><i data-lucide="plus-circle"></i> Thêm hoạt động</button></section>`:''}
+                    ${expHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">KINH NGHIỆM</h3>${expHtml}</section>`:''}
+                    ${projHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">DỰ ÁN PHÁT TRIỂN</h3>${projHtml}</section>`:''}
+                    ${actHtml?`<section class="cvc2-zone"><h3 class="cvc2-zone-title" style="color:${accent}">HOẠT ĐỘNG</h3>${actHtml}</section>`:''}
                 </main>
             </div>
         </div>`;
@@ -2253,13 +3179,13 @@
             </header>
             <div class="cvm2-body">
                 ${c.summary?block('GIỚI THIỆU',`<p class="cvm2-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>`)  :''}
-                ${expHtml?block('KINH NGHIỆM',expHtml + `<button class="cv-add-item-btn" onclick="addItem('experience')"><i data-lucide="plus-circle"></i> Thêm kinh nghiệm</button>`):''}
-                ${projHtml?block('DỰ ÁN',projHtml + `<button class="cv-add-item-btn" onclick="addItem('projects')"><i data-lucide="plus-circle"></i> Thêm dự án</button>`):''}
-                ${eduHtml?block('HỌC VẤN',eduHtml + `<button class="cv-add-item-btn" onclick="addItem('education')"><i data-lucide="plus-circle"></i> Thêm học vấn</button>`):''}
-                ${skillHtml?block('KỸ NĂNG', skillHtml + `<button class="cv-add-item-btn" onclick="addItem('skills')"><i data-lucide="plus-circle"></i> Thêm nhóm kỹ năng</button>`):''}
-                ${certHtml?block('CHỨNG CHỈ',certHtml + `<button class="cv-add-item-btn" onclick="addItem('certifications')"><i data-lucide="plus-circle"></i> Thêm chứng chỉ</button>`):''}
-                ${awardsHtml?block('GIẢI THƯỞNG',awardsHtml + `<button class="cv-add-item-btn" onclick="addItem('awards')"><i data-lucide="plus-circle"></i> Thêm giải thưởng</button>`):''}
-                ${actHtml?block('HOẠT ĐỘNG',actHtml + `<button class="cv-add-item-btn" onclick="addItem('activities')"><i data-lucide="plus-circle"></i> Thêm hoạt động</button>`):''}
+                ${expHtml?block('KINH NGHIỆM',expHtml):''}
+                ${projHtml?block('DỰ ÁN',projHtml):''}
+                ${eduHtml?block('HỌC VẤN',eduHtml):''}
+                ${skillHtml?block('KỸ NĂNG', skillHtml):''}
+                ${certHtml?block('CHỨNG CHỈ',certHtml):''}
+                ${awardsHtml?block('GIẢI THƯỞNG',awardsHtml):''}
+                ${actHtml?block('HOẠT ĐỘNG',actHtml):''}
             </div>
         </div>`;
     }
@@ -2356,15 +3282,15 @@
             <!-- 2-col body: left=exp+proj, right=edu+skills+certs -->
             <div class="cvcl2-body">
                 <div class="cvcl2-left">
-                    ${lsec('KINH NGHIỆM', expHtml + `<button class="cv-add-item-btn" onclick="addItem('experience')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
-                    ${lsec('DỰ ÁN', projHtml + `<button class="cv-add-item-btn" onclick="addItem('projects')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
+                    ${lsec('KINH NGHIỆM', expHtml)}
+                    ${lsec('DỰ ÁN', projHtml)}
                 </div>
                 <div class="cvcl2-right">
-                    ${rsec('HỌC VẤN', eduHtml + `<button class="cv-add-item-btn" onclick="addItem('education')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
-                    ${rsec('KỸ NĂNG', skillHtml + `<button class="cv-add-item-btn" onclick="addItem('skills')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
-                    ${rsec('CHỨNG CHỈ', certHtml + `<button class="cv-add-item-btn" onclick="addItem('certifications')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
-                    ${rsec('THÀNH TÍCH', awardsHtml + `<button class="cv-add-item-btn" onclick="addItem('awards')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
-                    ${rsec('HOẠT ĐỘNG', actHtml + `<button class="cv-add-item-btn" onclick="addItem('activities')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
+                    ${rsec('HỌC VẤN', eduHtml)}
+                    ${rsec('KỸ NĂNG', skillHtml)}
+                    ${rsec('CHỨNG CHỈ', certHtml)}
+                    ${rsec('THÀNH TÍCH', awardsHtml)}
+                    ${rsec('HOẠT ĐỘNG', actHtml)}
                 </div>
             </div>
         </div>`;
@@ -2463,14 +3389,119 @@
             </div>
             <div class="cvh-body">
                 ${c.summary ? section('PROFESSIONAL SUMMARY', `<p class="cvh-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>`) : ''}
-                ${section('EXPERIENCE', expHtml + `<button class="cv-add-item-btn" onclick="addItem('experience')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
-                ${section('EDUCATION', eduHtml + `<button class="cv-add-item-btn" onclick="addItem('education')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
-                ${section('PROJECTS', projHtml + `<button class="cv-add-item-btn" onclick="addItem('projects')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
-                ${section('SKILLS & EXPERTISE', skillHtml + `<button class="cv-add-item-btn" onclick="addItem('skills')"><i data-lucide="plus-circle"></i> Thêm nhóm kỹ năng</button>`)}
-                ${section('CERTIFICATIONS', certHtml + `<br><button class="cv-add-item-btn" onclick="addItem('certifications')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
-                ${section('AWARDS & HONORS', awardsHtml + `<br><button class="cv-add-item-btn" onclick="addItem('awards')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
-                ${section('LEADERSHIP & ACTIVITIES', actHtml + `<button class="cv-add-item-btn" onclick="addItem('activities')"><i data-lucide="plus-circle"></i> Thêm</button>`)}
+                ${section('EXPERIENCE', expHtml)}
+                ${section('EDUCATION', eduHtml)}
+                ${section('PROJECTS', projHtml)}
+                ${section('SKILLS & EXPERTISE', skillHtml)}
+                ${section('CERTIFICATIONS', certHtml)}
+                ${section('AWARDS & HONORS', awardsHtml)}
+                ${section('LEADERSHIP & ACTIVITIES', actHtml)}
             </div>
+        </div>`;
+    }
+
+    // ── STYLE 6: TopCV (Standard Row Layout) ──────
+    function renderTopcvStyle(c, accent) {
+        const section = (title, content, type) => content ? `
+            <div class="cv-topcv-section" style="margin-bottom: 25px;">
+                <h2 class="cv-topcv-title" style="color: #000; font-size: 18px; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 15px;">${title}</h2>
+                <div class="cv-topcv-content">
+                    ${content}
+                </div>
+            </div>` : '';
+
+        const contactStr = [
+            c.phone ? `<span><i data-lucide="phone" style="width:14px;height:14px;vertical-align:-2px;"></i> <span class="cv-editable">${esc(c.phone)}</span></span>` : '',
+            c.email ? `<span><i data-lucide="mail" style="width:14px;height:14px;vertical-align:-2px;"></i> <span class="cv-editable">${esc(c.email)}</span></span>` : '',
+            c.portfolio ? `<span><i data-lucide="link" style="width:14px;height:14px;vertical-align:-2px;"></i> <span class="cv-editable">${esc(c.portfolio)}</span></span>` : '',
+            c.linkedin ? `<span><i data-lucide="linkedin" style="width:14px;height:14px;vertical-align:-2px;"></i> <span class="cv-editable">${esc(c.linkedin)}</span></span>` : '',
+            c.address ? `<span><i data-lucide="map-pin" style="width:14px;height:14px;vertical-align:-2px;"></i> <span class="cv-editable">${esc(c.address)}</span></span>` : ''
+        ].filter(Boolean).join(' &nbsp;|&nbsp; ');
+
+        const skillHtml = (c.skills||[]).map((sg, idx) => `
+            <div class="cv-topcv-row cv-editable" style="display: flex; margin-bottom: 10px; border-bottom: 1px dotted #ccc; padding-bottom: 10px; position:relative;">
+                ${getItemControls('skills', idx)}
+                <div class="cv-topcv-left" style="flex: 0 0 30%; font-style: italic; color: #555; padding-right: 15px;">${ed(sg.category||'Tên kỹ năng')}</div>
+                <div class="cv-topcv-right" style="flex: 1; font-style: italic; color: #777;">${ed((sg.items||[]).join(', ')||"Mô tả kỹ năng")}</div>
+            </div>`).join('');
+
+        const eduHtml = (c.education||[]).map((e, idx) => `
+            <div class="cv-topcv-row cv-editable" style="margin-bottom: 15px; position:relative;">
+                ${getItemControls('education', idx)}
+                <div style="display: flex; justify-content: space-between;">
+                    <strong style="color: #333; font-size: 16px;">${ed(e.school||e.location||'Tên trường học')}</strong>
+                    <span style="font-style: italic; color: #777;">${ed(e.period||'Bắt đầu - Kết thúc')}</span>
+                </div>
+                <div style="margin-top: 4px; font-weight: 500;">${ed(e.degree||'Ngành học / Môn học')}</div>
+                ${e.details && e.details.length > 0 ? `<div style="margin-top: 4px; font-style: italic; color: #555;">${ed(e.details.join('\\n')||'Mô tả quá trình học tập hoặc thành tích của bạn')}</div>` : ''}
+            </div>`).join('');
+
+        const projHtml = (c.projects||[]).map((p, idx) => `
+            <div class="cv-topcv-row cv-editable" style="margin-bottom: 15px; position:relative;">
+                ${getItemControls('projects', idx)}
+                <div style="display: flex; justify-content: space-between;">
+                    <strong style="color: #333; font-size: 16px;">${ed(p.name||'Tên dự án')}</strong>
+                    <span style="font-style: italic; color: #777;">${ed(p.period||'Bắt đầu - Kết thúc')}</span>
+                </div>
+                <div style="margin-top: 4px; font-weight: 500;">Vị trí của bạn trong dự án: ${ed(p.tech||'Stack / Role')}</div>
+                ${p.details && p.details.length > 0 ? `<div style="margin-top: 4px; font-style: italic; color: #555;">${ed(p.details.join('\\n')||'Mô tả ngắn gọn về dự án, mục tiêu, các công nghệ sử dụng và thành tựu bạn đạt được...')}</div>` : ''}
+            </div>`).join('');
+
+        const expHtml = (c.experience||[]).map((e, idx) => `
+            <div class="cv-topcv-row cv-editable" style="margin-bottom: 15px; position:relative;">
+                ${getItemControls('experience', idx)}
+                <div style="display: flex; justify-content: space-between;">
+                    <strong style="color: #333; font-size: 16px;">${ed(e.company||'Tên công ty')}</strong>
+                    <span style="font-style: italic; color: #777;">${ed(e.period||'Bắt đầu - Kết thúc')}</span>
+                </div>
+                <div style="margin-top: 4px; font-weight: 500;">${ed(e.role||'Vị trí của bạn')}</div>
+                ${e.details && e.details.length > 0 ? `<div style="margin-top: 4px; font-style: italic; color: #555;">${ed(e.details.join('\\n')||'Mô tả chi tiết công việc, những việc bạn đã làm...')}</div>` : ''}
+            </div>`).join('');
+
+        const certHtml = (c.certifications||[]).map((cert, idx) => `
+            <div class="cv-topcv-row cv-editable" style="margin-bottom: 15px; position:relative;">
+                ${getItemControls('certifications', idx)}
+                <div style="display: flex; justify-content: space-between;">
+                    <strong style="color: #333; font-size: 16px;">${ed(cert.name||cert.raw||'Tên chứng chỉ')}</strong>
+                    <span style="font-style: italic; color: #777;">${ed(cert.year||'Năm')}</span>
+                </div>
+                ${cert.issuer ? `<div style="margin-top: 4px; color: #555;">${ed(cert.issuer||'Tổ chức cấp')}</div>` : ''}
+            </div>`).join('');
+
+        const actsHtml = (c.activities||[]).map((a, idx) => `
+            <div class="cv-topcv-row cv-editable" style="margin-bottom: 15px; position:relative;">
+                ${getItemControls('activities', idx)}
+                <div style="display: flex; justify-content: space-between;">
+                    <strong style="color: #333; font-size: 16px;">${ed(a.name||a.raw||'Tên dự án/Hoạt động')}</strong>
+                    <span style="font-style: italic; color: #777;">${ed(a.period||'Bắt đầu - Kết thúc')}</span>
+                </div>
+                ${a.role ? `<div style="margin-top: 4px; font-weight: 500;">${ed(a.role||'Vị trí của bạn')}</div>` : ''}
+                ${a.details && a.details.length > 0 ? `<div style="margin-top: 4px; font-style: italic; color: #555;">${ed(a.details.join('\\n')||'Mô tả chi tiết...')}</div>` : ''}
+            </div>`).join('');
+
+        return `<div class="cv-full cv-topcv-root" style="color: #333; font-family: 'Times New Roman', serif, sans-serif; padding: 20px;">
+            <header style="text-align: center; margin-bottom: 30px;">
+                <h1 class="cv-editable" style="font-size: 36px; font-weight: bold; margin: 0 0 10px 0; color: #111;">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</h1>
+                <div class="cv-editable" style="font-size: 16px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase;">${esc(c.subtitle||'VỊ TRÍ CÔNG VIỆC')}</div>
+                <div style="display: flex; justify-content: center; gap: 15px; font-size: 14px; align-items: center; flex-wrap: wrap;">
+                    ${contactStr}
+                </div>
+            </header>
+            <div class="cv-topcv-body" style="text-align: left;">
+                ${c.summary ? section('MỤC TIÊU NGHỀ NGHIỆP', `<div class="cv-editable" style="font-style: italic; color: #555; line-height: 1.6;">${esc(c.summary).replace(/\\n/g,'<br>')}</div>`, 'summary') : ''}
+                ${section('SKILLS', skillHtml, 'skills')}
+                ${section('EDUCATION', eduHtml, 'education')}
+                ${section('KINH NGHIỆM LÀM VIỆC', expHtml, 'experience')}
+                ${section('DỰ ÁN KHÁC', projHtml, 'projects')}
+                ${section('CHỨNG CHỈ', certHtml, 'certifications')}
+                ${section('HOẠT ĐỘNG', actsHtml, 'activities')}
+            </div>
+            <style>
+                .cv-topcv-root * { line-height: 1.5; }
+                .cv-topcv-row .cv-item-controls { opacity: 0 !important; }
+                .cv-topcv-row:hover .cv-item-controls { opacity: 1 !important; z-index: 10; }
+                .cv-editable-mode .cv-topcv-row .cv-item-controls { opacity: 1 !important; visibility: visible; }
+            </style>
         </div>`;
     }
 
@@ -2516,68 +3547,175 @@
         });
     }
 
-    function applySectionVisibilityToPreview() {
-        const style = currentCvJson?._styleTag || window.currentTemplate?.styleTag || 'professional';
-        const show = (sectionName, section) => {
-            if (section) section.style.display = sectionEnabled(sectionName) ? '' : 'none';
-        };
+    function getCurrentPreviewStyle() {
+        return currentCvJson?._styleTag || window.currentTemplate?.styleTag || 'professional';
+    }
 
-        if (style === 'creative') {
-            show('summary', findSectionByHeading('.cvc2-left .cvc2-zone', '.cvc2-zone-title', ['GIOI THIEU']));
-            show('skills', findSectionByHeading('.cvc2-left .cvc2-zone', '.cvc2-zone-title', ['KY NANG']));
-            show('education', findSectionByHeading('.cvc2-left .cvc2-zone', '.cvc2-zone-title', ['HOC VAN']));
-            show('certifications', findSectionByHeading('.cvc2-left .cvc2-zone', '.cvc2-zone-title', ['CHUNG CHI']));
-            show('awards', findSectionByHeading('.cvc2-left .cvc2-zone', '.cvc2-zone-title', ['GIAI THUONG']));
-            show('experience', findSectionByHeading('.cvc2-right .cvc2-zone', '.cvc2-zone-title', ['KINH NGHIEM']));
-            show('projects', findSectionByHeading('.cvc2-right .cvc2-zone', '.cvc2-zone-title', ['DU AN']));
-            show('activities', findSectionByHeading('.cvc2-right .cvc2-zone', '.cvc2-zone-title', ['HOAT DONG']));
-            return;
+    function getPreviewSectionCandidate(sectionName, style = getCurrentPreviewStyle()) {
+        switch (style) {
+            case 'creative':
+                if (sectionName === 'summary') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['GIOI THIEU']);
+                if (sectionName === 'skills') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['KY NANG']);
+                if (sectionName === 'education') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['HOC VAN']);
+                if (sectionName === 'certifications') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['CHUNG CHI']);
+                if (sectionName === 'awards') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['GIAI THUONG']);
+                if (sectionName === 'experience') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['KINH NGHIEM']);
+                if (sectionName === 'projects') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['DU AN']);
+                if (sectionName === 'activities') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['HOAT DONG']);
+                return null;
+            case 'minimalist':
+                if (sectionName === 'summary') return [...document.querySelectorAll('.cvm2-block')].find(block => block.querySelector('.cvm2-summary')) || null;
+                if (sectionName === 'experience') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['KINH NGHIEM']);
+                if (sectionName === 'projects') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['DU AN']);
+                if (sectionName === 'education') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['HOC VAN']);
+                if (sectionName === 'skills') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['KY NANG']);
+                if (sectionName === 'certifications') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['CHUNG CHI']);
+                if (sectionName === 'awards') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['GIAI THUONG']);
+                if (sectionName === 'activities') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['HOAT DONG']);
+                return null;
+            case 'classic':
+                if (sectionName === 'summary') return document.querySelector('.cvcl2-summary-bar');
+                if (sectionName === 'experience') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['KINH NGHIEM']);
+                if (sectionName === 'projects') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['DU AN']);
+                if (sectionName === 'education') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['HOC VAN']);
+                if (sectionName === 'skills') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['KY NANG']);
+                if (sectionName === 'certifications') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['CHUNG CHI']);
+                if (sectionName === 'awards') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['THANH TICH']);
+                if (sectionName === 'activities') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['HOAT DONG']);
+                return null;
+            case 'harvard':
+                if (sectionName === 'summary') return findSectionByHeading('.cvh-section', '.cvh-title', ['SUMMARY']);
+                if (sectionName === 'experience') return findSectionByHeading('.cvh-section', '.cvh-title', ['EXPERIENCE']);
+                if (sectionName === 'education') return findSectionByHeading('.cvh-section', '.cvh-title', ['EDUCATION']);
+                if (sectionName === 'projects') return findSectionByHeading('.cvh-section', '.cvh-title', ['PROJECTS']);
+                if (sectionName === 'skills') return findSectionByHeading('.cvh-section', '.cvh-title', ['SKILLS']);
+                if (sectionName === 'certifications') return findSectionByHeading('.cvh-section', '.cvh-title', ['CERTIFICATIONS']);
+                if (sectionName === 'awards') return findSectionByHeading('.cvh-section', '.cvh-title', ['AWARDS']);
+                if (sectionName === 'activities') return findSectionByHeading('.cvh-section', '.cvh-title', ['ACTIVITIES']);
+                return null;
+            case 'topcv':
+                if (sectionName === 'summary') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['MUC TIEU']);
+                if (sectionName === 'skills') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['SKILLS']);
+                if (sectionName === 'education') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['EDUCATION']);
+                if (sectionName === 'experience') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['KINH NGHIEM', 'EXPERIENCE']);
+                if (sectionName === 'projects') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['DU AN', 'PROJECTS']);
+                if (sectionName === 'certifications') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['CHUNG CHI', 'CERTIFICATIONS']);
+                if (sectionName === 'activities') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['HOAT DONG', 'ACTIVITIES']);
+                return null;
+            default:
+                if (sectionName === 'summary') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['MUC TIEU']);
+                if (sectionName === 'experience') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['KINH NGHIEM']);
+                if (sectionName === 'projects') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['DU AN']);
+                if (sectionName === 'awards') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['GIAI THUONG']);
+                if (sectionName === 'activities') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['HOAT DONG']);
+                if (sectionName === 'skills') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['KY NANG']);
+                if (sectionName === 'education') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['HOC VAN']);
+                if (sectionName === 'certifications') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['CHUNG CHI']);
+                return null;
+        }
+    }
+
+    function tagPreviewSections(style = getCurrentPreviewStyle()) {
+        document.querySelectorAll('[data-cv-section]').forEach(section => section.removeAttribute('data-cv-section'));
+        sectionCatalog.forEach(sectionName => {
+            if (sectionName === 'avatar') return;
+            const section = getPreviewSectionCandidate(sectionName, style);
+            if (section) section.dataset.cvSection = sectionName;
+        });
+    }
+
+    function getTaggedPreviewSection(sectionName) {
+        return document.querySelector(`[data-cv-section="${sectionName}"]`);
+    }
+
+    function reorderSectionsInContainer(sectionNames, container) {
+        if (!container) return;
+        sectionNames.forEach(sectionName => {
+            const section = getTaggedPreviewSection(sectionName);
+            if (section) container.appendChild(section);
+        });
+    }
+
+    function distributeSectionsAcrossColumns(sectionNames, containers) {
+        const targets = containers.filter(Boolean);
+        if (!targets.length) return;
+        sectionNames.forEach((sectionName, index) => {
+            const section = getTaggedPreviewSection(sectionName);
+            if (!section) return;
+            targets[index % targets.length].appendChild(section);
+        });
+    }
+
+    function ensurePreviewLayoutColumns(body) {
+        if (!body) return [];
+
+        let columnsShell = body.querySelector('.cv-layout-columns');
+        if (!columnsShell) {
+            columnsShell = document.createElement('div');
+            columnsShell.className = 'cv-layout-columns';
+            columnsShell.innerHTML = `
+                <div class="cv-layout-column" data-layout-column="left"></div>
+                <div class="cv-layout-column" data-layout-column="right"></div>
+            `;
+            body.appendChild(columnsShell);
         }
 
-        if (style === 'minimalist') {
-            show('summary', [...document.querySelectorAll('.cvm2-block')].find(block => block.querySelector('.cvm2-summary')));
-            show('experience', findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['KINH NGHIEM']));
-            show('projects', findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['DU AN']));
-            show('education', findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['HOC VAN']));
-            show('skills', findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['KY NANG']));
-            show('certifications', findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['CHUNG CHI']));
-            show('awards', findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['GIAI THUONG']));
-            show('activities', findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['HOAT DONG']));
+        return [
+            columnsShell.querySelector('[data-layout-column="left"]'),
+            columnsShell.querySelector('[data-layout-column="right"]')
+        ];
+    }
+
+    function applySectionVisibilityToPreview() {
+        const avatar = document.querySelector('.cvm-avatar-wrapper');
+        if (avatar) avatar.style.display = sectionEnabled('avatar') ? '' : 'none';
+
+        sectionCatalog.forEach(sectionName => {
+            if (sectionName === 'avatar') return;
+            const section = getTaggedPreviewSection(sectionName);
+            if (section) section.style.display = sectionEnabled(sectionName) ? '' : 'none';
+        });
+    }
+
+    function applySectionOrderToPreview(style = getCurrentPreviewStyle()) {
+        const orderedVisibleSections = getOrderedUsedSections().filter(sectionName => sectionName !== 'avatar' && getTaggedPreviewSection(sectionName));
+        if (!orderedVisibleSections.length) return;
+
+        if (style === 'creative') {
+            distributeSectionsAcrossColumns(orderedVisibleSections, [
+                document.querySelector('.cvc2-left'),
+                document.querySelector('.cvc2-right')
+            ]);
             return;
         }
 
         if (style === 'classic') {
-            show('summary', document.querySelector('.cvcl2-summary-bar'));
-            show('experience', findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['KINH NGHIEM']));
-            show('projects', findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['DU AN']));
-            show('education', findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['HOC VAN']));
-            show('skills', findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['KY NANG']));
-            show('certifications', findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['CHUNG CHI']));
-            show('awards', findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['THANH TICH']));
-            show('activities', findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['HOAT DONG']));
+            distributeSectionsAcrossColumns(orderedVisibleSections, [
+                document.querySelector('.cvcl2-left'),
+                document.querySelector('.cvcl2-right')
+            ]);
             return;
         }
 
         if (style === 'harvard') {
-            show('summary', findSectionByHeading('.cvh-section', '.cvh-title', ['SUMMARY']));
-            show('experience', findSectionByHeading('.cvh-section', '.cvh-title', ['EXPERIENCE']));
-            show('education', findSectionByHeading('.cvh-section', '.cvh-title', ['EDUCATION']));
-            show('projects', findSectionByHeading('.cvh-section', '.cvh-title', ['PROJECTS']));
-            show('skills', findSectionByHeading('.cvh-section', '.cvh-title', ['SKILLS']));
-            show('certifications', findSectionByHeading('.cvh-section', '.cvh-title', ['CERTIFICATIONS']));
-            show('awards', findSectionByHeading('.cvh-section', '.cvh-title', ['AWARDS']));
-            show('activities', findSectionByHeading('.cvh-section', '.cvh-title', ['ACTIVITIES']));
+            distributeSectionsAcrossColumns(orderedVisibleSections, ensurePreviewLayoutColumns(document.querySelector('.cvh-body')));
             return;
         }
 
-        show('summary', findSectionByHeading('.cvm-right .cvm-section', '.cvm-section-title', ['MUC TIEU']));
-        show('experience', findSectionByHeading('.cvm-right .cvm-section', '.cvm-section-title', ['KINH NGHIEM']));
-        show('projects', findSectionByHeading('.cvm-right .cvm-section', '.cvm-section-title', ['DU AN']));
-        show('awards', findSectionByHeading('.cvm-right .cvm-section', '.cvm-section-title', ['GIAI THUONG']));
-        show('activities', findSectionByHeading('.cvm-right .cvm-section', '.cvm-section-title', ['HOAT DONG']));
-        show('skills', findSectionByHeading('.cvm-left .cvm-section', '.cvm-section-title', ['KY NANG']));
-        show('education', findSectionByHeading('.cvm-left .cvm-section', '.cvm-section-title', ['HOC VAN']));
-        show('certifications', findSectionByHeading('.cvm-left .cvm-section', '.cvm-section-title', ['CHUNG CHI']));
+        if (style === 'topcv') {
+            distributeSectionsAcrossColumns(orderedVisibleSections, ensurePreviewLayoutColumns(document.querySelector('.cv-topcv-body')));
+            return;
+        }
+
+        if (style === 'minimalist') {
+            distributeSectionsAcrossColumns(orderedVisibleSections, ensurePreviewLayoutColumns(document.querySelector('.cvm2-body')));
+            return;
+        }
+
+        distributeSectionsAcrossColumns(orderedVisibleSections, [
+            document.querySelector('.cvm-left'),
+            document.querySelector('.cvm-right')
+        ]);
     }
 
     function syncPreviewToCurrentCv() {
@@ -2610,10 +3748,10 @@
             else currentCvJson.address = value;
         });
 
-        const summary = document.querySelector('.cvm-summary-text-full');
+        const summary = getTaggedPreviewSection('summary')?.querySelector('.cvm-summary-text-full') || document.querySelector('.cvm-summary-text-full');
         if (summary) currentCvJson.summary = cleanPreviewText(summary.innerText);
 
-        const skillsSection = findSectionByHeading('.cvm-left .cvm-section', '.cvm-section-title', ['KY NANG']);
+        const skillsSection = getTaggedPreviewSection('skills');
         if (skillsSection) {
             currentCvJson.skills = [...skillsSection.querySelectorAll('.cvm-skill-group')].map(group => ({
                 category: cleanPreviewText(group.querySelector('.cvm-skill-cat')?.innerText),
@@ -2621,7 +3759,7 @@
             })).filter(item => item.category || item.items.length);
         }
 
-        const eduSection = findSectionByHeading('.cvm-left .cvm-section', '.cvm-section-title', ['HOC VAN']);
+        const eduSection = getTaggedPreviewSection('education');
         if (eduSection) {
             currentCvJson.education = [...eduSection.querySelectorAll('.cvm-edu-item')].map(item => ({
                 degree: cleanPreviewText(item.querySelector('.cvm-edu-degree')?.innerText),
@@ -2631,7 +3769,7 @@
             })).filter(item => item.degree || item.school || item.period || item.details.length);
         }
 
-        const certSection = findSectionByHeading('.cvm-left .cvm-section', '.cvm-section-title', ['CHUNG CHI']);
+        const certSection = getTaggedPreviewSection('certifications');
         if (certSection) {
             currentCvJson.certifications = [...certSection.querySelectorAll('.cvm-edu-item')].map(item => ({
                 name: cleanPreviewText(item.querySelector('.cvm-edu-degree')?.innerText),
@@ -2640,7 +3778,7 @@
             })).filter(item => item.name || item.issuer || item.year);
         }
 
-        const expSection = findSectionByHeading('.cvm-right .cvm-section', '.cvm-section-title', ['KINH NGHIEM']);
+        const expSection = getTaggedPreviewSection('experience');
         if (expSection) {
             currentCvJson.experience = [...expSection.querySelectorAll('.cvm-exp-item')].map(item => {
                 const meta = parsePipeText(item.querySelector('.cvm-exp-company')?.innerText);
@@ -2653,7 +3791,7 @@
             }).filter(item => item.role || item.company || item.period || item.details.length);
         }
 
-        const projSection = findSectionByHeading('.cvm-right .cvm-section', '.cvm-section-title', ['DU AN']);
+        const projSection = getTaggedPreviewSection('projects');
         if (projSection) {
             currentCvJson.projects = [...projSection.querySelectorAll('.cvm-exp-item')].map(item => {
                 const metaLines = cleanPreviewText(item.querySelector('.cvm-exp-company')?.innerText).split('\n').map(line => line.trim()).filter(Boolean);
@@ -2669,7 +3807,7 @@
             }).filter(item => item.name || item.period || item.tech || item.github || item.details.length);
         }
 
-        const awardSection = findSectionByHeading('.cvm-right .cvm-section', '.cvm-section-title', ['GIAI THUONG']);
+        const awardSection = getTaggedPreviewSection('awards');
         if (awardSection) {
             currentCvJson.awards = [...awardSection.querySelectorAll('.cvm-edu-item')].map(item => ({
                 name: removeLeadingSymbol(item.querySelector('.cvm-edu-degree')?.innerText),
@@ -2677,7 +3815,7 @@
             })).filter(item => item.name || item.year);
         }
 
-        const actSection = findSectionByHeading('.cvm-right .cvm-section', '.cvm-section-title', ['HOAT DONG']);
+        const actSection = getTaggedPreviewSection('activities');
         if (actSection) {
             currentCvJson.activities = [...actSection.querySelectorAll('.cvm-exp-item')].map(item => {
                 const companies = [...item.querySelectorAll('.cvm-exp-company')].map(node => cleanPreviewText(node.innerText)).filter(Boolean);
@@ -2702,10 +3840,10 @@
             else currentCvJson.address = value;
         });
 
-        const summary = document.querySelector('.cvc2-summary');
+        const summary = getTaggedPreviewSection('summary')?.querySelector('.cvc2-summary') || document.querySelector('.cvc2-summary');
         if (summary) currentCvJson.summary = cleanPreviewText(summary.innerText);
 
-        const skills = findSectionByHeading('.cvc2-left .cvc2-zone', '.cvc2-zone-title', ['KY NANG']);
+        const skills = getTaggedPreviewSection('skills');
         if (skills) {
             currentCvJson.skills = [...skills.querySelectorAll('.cvc2-skill-group')].map(group => ({
                 category: cleanPreviewText(group.querySelector('.cvc2-skill-cat')?.innerText),
@@ -2713,7 +3851,7 @@
             })).filter(item => item.category || item.items.length);
         }
 
-        const edu = findSectionByHeading('.cvc2-left .cvc2-zone', '.cvc2-zone-title', ['HOC VAN']);
+        const edu = getTaggedPreviewSection('education');
         if (edu) {
             currentCvJson.education = [...edu.querySelectorAll('.cvc2-card')].map(card => {
                 const subs = [...card.querySelectorAll('.cvc2-card-sub')].map(node => cleanPreviewText(node.innerText));
@@ -2725,7 +3863,7 @@
             }).filter(item => item.degree || item.school || item.period);
         }
 
-        const cert = findSectionByHeading('.cvc2-left .cvc2-zone', '.cvc2-zone-title', ['CHUNG CHI']);
+        const cert = getTaggedPreviewSection('certifications');
         if (cert) {
             currentCvJson.certifications = [...cert.querySelectorAll('.cvc2-card')].map(card => {
                 const parts = parsePipeText(card.querySelector('.cvc2-card-sub')?.innerText);
@@ -2737,7 +3875,7 @@
             }).filter(item => item.name || item.issuer || item.year);
         }
 
-        const awards = findSectionByHeading('.cvc2-left .cvc2-zone', '.cvc2-zone-title', ['GIAI THUONG']);
+        const awards = getTaggedPreviewSection('awards');
         if (awards) {
             currentCvJson.awards = [...awards.querySelectorAll('.cvc2-card')].map(card => ({
                 name: removeLeadingSymbol(card.querySelector('.cvc2-card-title')?.innerText),
@@ -2745,7 +3883,7 @@
             })).filter(item => item.name || item.year);
         }
 
-        const exp = findSectionByHeading('.cvc2-right .cvc2-zone', '.cvc2-zone-title', ['KINH NGHIEM']);
+        const exp = getTaggedPreviewSection('experience');
         if (exp) {
             currentCvJson.experience = [...exp.querySelectorAll('.cvc2-card')].map(card => {
                 const parts = parsePipeText(card.querySelector('.cvc2-card-sub')?.innerText);
@@ -2758,7 +3896,7 @@
             }).filter(item => item.role || item.company || item.period || item.details.length);
         }
 
-        const proj = findSectionByHeading('.cvc2-right .cvc2-zone', '.cvc2-zone-title', ['DU AN']);
+        const proj = getTaggedPreviewSection('projects');
         if (proj) {
             currentCvJson.projects = [...proj.querySelectorAll('.cvc2-card')].map(card => {
                 const parts = parsePipeText(card.querySelector('.cvc2-card-sub')?.innerText);
@@ -2771,7 +3909,7 @@
             }).filter(item => item.name || item.period || item.tech || item.details.length);
         }
 
-        const act = findSectionByHeading('.cvc2-right .cvc2-zone', '.cvc2-zone-title', ['HOAT DONG']);
+        const act = getTaggedPreviewSection('activities');
         if (act) {
             currentCvJson.activities = [...act.querySelectorAll('.cvc2-card')].map(card => {
                 const parts = parsePipeText(card.querySelector('.cvc2-card-sub')?.innerText);
@@ -2874,48 +4012,69 @@
         if (contactParts[3]) currentCvJson.linkedin = contactParts[3];
         if (contactParts[4]) currentCvJson.portfolio = contactParts[4];
 
-        const summary = document.querySelector('.cvcl2-summary-bar p');
+        const summary = getTaggedPreviewSection('summary')?.querySelector('p') || document.querySelector('.cvcl2-summary-bar p');
         if (summary) currentCvJson.summary = cleanPreviewText(summary.innerText);
 
-        currentCvJson.experience = [...document.querySelectorAll('.cvcl2-left .cvcl2-section:first-child .cvcl2-item')].map(item => ({
-            role: cleanPreviewText(item.querySelector('.cvcl2-role')?.innerText),
-            period: cleanPreviewText(item.querySelector('.cvcl2-date')?.innerText),
-            company: cleanPreviewText(item.querySelector('.cvcl2-company')?.innerText),
-            details: [...item.querySelectorAll('.cvcl2-bullet')].map(node => parseBulletText(node.innerText)).filter(Boolean)
-        })).filter(item => item.role || item.company || item.period || item.details.length);
+        const expSection = getTaggedPreviewSection('experience');
+        currentCvJson.experience = expSection
+            ? [...expSection.querySelectorAll('.cvcl2-item')].map(item => ({
+                role: cleanPreviewText(item.querySelector('.cvcl2-role')?.innerText),
+                period: cleanPreviewText(item.querySelector('.cvcl2-date')?.innerText),
+                company: cleanPreviewText(item.querySelector('.cvcl2-company')?.innerText),
+                details: [...item.querySelectorAll('.cvcl2-bullet')].map(node => parseBulletText(node.innerText)).filter(Boolean)
+            })).filter(item => item.role || item.company || item.period || item.details.length)
+            : [];
 
-        currentCvJson.projects = [...document.querySelectorAll('.cvcl2-left .cvcl2-section:nth-child(2) .cvcl2-item')].map(item => ({
-            name: cleanPreviewText(item.querySelector('.cvcl2-role')?.innerText),
-            period: cleanPreviewText(item.querySelector('.cvcl2-date')?.innerText),
-            tech: cleanPreviewText(item.querySelector('.cvcl2-company')?.innerText).replace(/^Tech:\s*/i, ''),
-            details: [...item.querySelectorAll('.cvcl2-bullet')].map(node => parseBulletText(node.innerText)).filter(Boolean)
-        })).filter(item => item.name || item.tech || item.period || item.details.length);
+        const projSection = getTaggedPreviewSection('projects');
+        currentCvJson.projects = projSection
+            ? [...projSection.querySelectorAll('.cvcl2-item')].map(item => ({
+                name: cleanPreviewText(item.querySelector('.cvcl2-role')?.innerText),
+                period: cleanPreviewText(item.querySelector('.cvcl2-date')?.innerText),
+                tech: cleanPreviewText(item.querySelector('.cvcl2-company')?.innerText).replace(/^Tech:\s*/i, ''),
+                details: [...item.querySelectorAll('.cvcl2-bullet')].map(node => parseBulletText(node.innerText)).filter(Boolean)
+            })).filter(item => item.name || item.tech || item.period || item.details.length)
+            : [];
 
-        currentCvJson.education = [...document.querySelectorAll('.cvcl2-right .cvcl2-section:nth-child(1) .cvcl2-r-item')].map(item => ({
-            degree: cleanPreviewText(item.querySelector('.cvcl2-r-degree')?.innerText),
-            school: cleanPreviewText(item.querySelector('.cvcl2-r-school')?.innerText),
-            period: cleanPreviewText(item.querySelector('.cvcl2-r-period')?.innerText)
-        })).filter(item => item.degree || item.school || item.period);
+        const eduSection = getTaggedPreviewSection('education');
+        currentCvJson.education = eduSection
+            ? [...eduSection.querySelectorAll('.cvcl2-r-item')].map(item => ({
+                degree: cleanPreviewText(item.querySelector('.cvcl2-r-degree')?.innerText),
+                school: cleanPreviewText(item.querySelector('.cvcl2-r-school')?.innerText),
+                period: cleanPreviewText(item.querySelector('.cvcl2-r-period')?.innerText)
+            })).filter(item => item.degree || item.school || item.period)
+            : [];
 
-        currentCvJson.skills = [...document.querySelectorAll('.cvcl2-right .cvcl2-section:nth-child(2) .cvcl2-skill')].map(item => ({
-            category: cleanPreviewText(item.querySelector('.cvcl2-skill-cat')?.innerText),
-            items: parseCommaText(item.querySelector('.cvcl2-skill-vals')?.innerText)
-        })).filter(item => item.category || item.items.length);
+        const skillSection = getTaggedPreviewSection('skills');
+        currentCvJson.skills = skillSection
+            ? [...skillSection.querySelectorAll('.cvcl2-skill')].map(item => ({
+                category: cleanPreviewText(item.querySelector('.cvcl2-skill-cat')?.innerText),
+                items: parseCommaText(item.querySelector('.cvcl2-skill-vals')?.innerText)
+            })).filter(item => item.category || item.items.length)
+            : [];
 
-        currentCvJson.certifications = [...document.querySelectorAll('.cvcl2-right .cvcl2-section:nth-child(3) .cvcl2-r-item')].map(item => ({
-            name: cleanPreviewText(item.innerText).replace(/\(\d{4}\).*$/, '').trim(),
-            year: (cleanPreviewText(item.innerText).match(/\(([^)]+)\)/) || [])[1] || ''
-        })).filter(item => item.name || item.year);
+        const certSection = getTaggedPreviewSection('certifications');
+        currentCvJson.certifications = certSection
+            ? [...certSection.querySelectorAll('.cvcl2-r-item')].map(item => ({
+                name: cleanPreviewText(item.innerText).replace(/\(\d{4}\).*$/, '').trim(),
+                year: (cleanPreviewText(item.innerText).match(/\(([^)]+)\)/) || [])[1] || ''
+            })).filter(item => item.name || item.year)
+            : [];
 
-        currentCvJson.awards = [...document.querySelectorAll('.cvcl2-right .cvcl2-section:nth-child(4) .cvcl2-r-item')].map(item => ({
-            name: removeLeadingSymbol(item.innerText).replace(/\(\d{4}\).*$/, '').trim(),
-            year: (cleanPreviewText(item.innerText).match(/\(([^)]+)\)/) || [])[1] || ''
-        })).filter(item => item.name || item.year);
+        const awardsSection = getTaggedPreviewSection('awards');
+        currentCvJson.awards = awardsSection
+            ? [...awardsSection.querySelectorAll('.cvcl2-r-item')].map(item => ({
+                name: removeLeadingSymbol(item.innerText).replace(/\(\d{4}\).*$/, '').trim(),
+                year: (cleanPreviewText(item.innerText).match(/\(([^)]+)\)/) || [])[1] || ''
+            })).filter(item => item.name || item.year)
+            : [];
 
-        currentCvJson.activities = [...document.querySelectorAll('.cvcl2-right .cvcl2-section:nth-child(5) .cvcl2-r-item')].map(item => ({
-            name: cleanPreviewText(item.innerText).replace(/\(\d{4}.*\)$/, '').trim(),
-            period: (cleanPreviewText(item.innerText).match(/\(([^)]+)\)/) || [])[1] || ''
-        })).filter(item => item.name || item.period);
+        const activitySection = getTaggedPreviewSection('activities');
+        currentCvJson.activities = activitySection
+            ? [...activitySection.querySelectorAll('.cvcl2-r-item')].map(item => ({
+                name: cleanPreviewText(item.innerText).replace(/\(\d{4}.*\)$/, '').trim(),
+                period: (cleanPreviewText(item.innerText).match(/\(([^)]+)\)/) || [])[1] || ''
+            })).filter(item => item.name || item.period)
+            : [];
     }
 
     function syncHarvardPreview() {
