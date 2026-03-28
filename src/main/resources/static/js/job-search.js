@@ -5,8 +5,8 @@
 let allJobs = [];
 let searchDebounceTimer = null;
 let currentFilteredJobs = [];
-let visibleJobsCount = 10;
-const JOBS_PER_PAGE = 10;
+let visibleJobsCount = 5;
+const JOBS_PER_PAGE = 5;
 
 document.addEventListener('DOMContentLoaded', function () {
 
