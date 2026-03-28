@@ -153,6 +153,8 @@
             border-style: solid !important;
             box-shadow: inset 0 0 0 1.5px #1A2456, 0 0 0 1px rgba(26, 36, 86, 0.22) !important;
             background: transparent !important;
+            position: relative;
+            z-index: 3;
         }
         .cv-editable-mode .cvh-root .cv-editable.cvh-editable-active,
         .cv-editable-mode .cvh-root .cv-editable[contenteditable="true"] {
@@ -244,8 +246,62 @@
 
         .cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell):focus-within {
             box-shadow:
-                inset 0 0 0 1px rgba(26, 36, 86, 0.28),
-                0 0 0 4px rgba(26, 36, 86, 0.08);
+                inset 0 0 0 1px rgba(148, 163, 184, 0.42),
+                0 0 0 2px rgba(226, 232, 240, 0.9);
+        }
+
+        .cv-editable-mode .cv-field-shell {
+            position: relative;
+            border-radius: 8px;
+            transition: outline-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            z-index: 1;
+        }
+
+        .cv-editable-mode .cv-field-shell:hover {
+            outline: 1.5px dashed rgba(26, 36, 86, 0.58);
+            outline-offset: 1px;
+            background: transparent;
+        }
+
+        .cv-editable-mode .cv-field-shell:focus-within {
+            outline: 2px solid #1A2456;
+            outline-offset: 1px;
+            box-shadow: 0 0 0 2px rgba(26, 36, 86, 0.08);
+            background: rgba(255, 255, 255, 0.96);
+            z-index: 2;
+        }
+
+        .cv-editable-mode .cvm-exp-role.cv-field-shell,
+        .cv-editable-mode .cvm-exp-company.cv-field-shell,
+        .cv-editable-mode .cvm-exp-detail.cv-field-shell,
+        .cv-editable-mode .cvm-edu-degree.cv-field-shell,
+        .cv-editable-mode .cvm-edu-school.cv-field-shell,
+        .cv-editable-mode .cvm-edu-year.cv-field-shell,
+        .cv-editable-mode .cvm-edu-detail.cv-field-shell,
+        .cv-editable-mode .cvc2-card-title.cv-field-shell,
+        .cv-editable-mode .cvc2-card-sub.cv-field-shell,
+        .cv-editable-mode .cvc2-card-bullet.cv-field-shell,
+        .cv-editable-mode .cvm2-row-period.cv-field-shell,
+        .cv-editable-mode .cvm2-row-title.cv-field-shell,
+        .cv-editable-mode .cvm2-row-org.cv-field-shell,
+        .cv-editable-mode .cvm2-bullet.cv-field-shell,
+        .cv-editable-mode .cvcl2-role.cv-field-shell,
+        .cv-editable-mode .cvcl2-date.cv-field-shell,
+        .cv-editable-mode .cvcl2-company.cv-field-shell,
+        .cv-editable-mode .cvcl2-bullet.cv-field-shell,
+        .cv-editable-mode .cvcl2-r-degree.cv-field-shell,
+        .cv-editable-mode .cvcl2-r-school.cv-field-shell,
+        .cv-editable-mode .cvcl2-r-period.cv-field-shell {
+            padding: 3px 6px;
+            margin: 2px -6px;
+        }
+
+        .cv-editable-mode .cv-field-shell:focus-within > .cv-editable[contenteditable],
+        .cv-editable-mode .cv-field-shell:hover > .cv-editable[contenteditable] {
+            border-color: transparent !important;
+            border-style: solid !important;
+            box-shadow: none !important;
+            background: transparent !important;
         }
 
         .cv-editable-mode .cvh-edit-shell {
@@ -2577,7 +2633,6 @@
         document.getElementById('cvPreview').innerHTML = html;
         if (isEditMode) {
             document.getElementById('cvPreview').classList.add('cv-editable-mode');
-            document.getElementById('cvPreview').querySelectorAll('.cv-editable').forEach(el => el.setAttribute('contenteditable', 'true'));
         }
         applyDesignStateToPreview();
         tagPreviewSections('professional');
@@ -3416,14 +3471,14 @@
         let skillWidthIdx = 0;
 
         const skillsHtml = (c.skills || []).map((sg, idx) => `
-            <div class="cvm-skill-group cv-editable">
+            <div class="cvm-skill-group cv-edit-shell">
                 <div class="cvm-skill-cat"><strong>${esc(sg.category)}</strong></div>
                 <div class="cvm-skill-list">${esc((sg.items || []).join(', '))}</div>
                 ${getItemControls('skills', idx)}
             </div>`).join('');
 
         const eduHtml = (c.education || []).map(e => `
-            <div class="cvm-edu-item cv-editable">
+            <div class="cvm-edu-item cv-edit-shell">
                 <div class="cvm-edu-degree">${ed(e.degree||'')}</div>
                 <div class="cvm-edu-school">${ed(e.school||e.location||'')}</div>
                 <div class="cvm-edu-year">${ed(e.period||'')}</div>
@@ -3431,7 +3486,7 @@
             </div>`).join('');
 
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
-            <div class="cvm-edu-item cv-editable">
+            <div class="cvm-edu-item cv-edit-shell">
                 ${getItemControls('certifications', idx)}
                 <div class="cvm-edu-degree">${ed(cert.name||cert.raw||'')}</div>
                 ${cert.issuer?`<div class="cvm-edu-school">${ed(cert.issuer)}</div>`:''}
@@ -3439,14 +3494,14 @@
             </div>`).join('');
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
-            <div class="cvm-edu-item cv-editable">
+            <div class="cvm-edu-item cv-edit-shell">
                 ${getItemControls('awards', idx)}
                 <div class="cvm-edu-degree">🏆 ${ed(aw.name||aw.raw||'')}</div>
                 ${aw.year?`<div class="cvm-edu-year">${ed(aw.year)}</div>`:''}
             </div>`).join('');
 
         const expHtml = (c.experience||[]).map((e, idx)=>`
-            <div class="cvm-exp-item cv-editable">
+            <div class="cvm-exp-item cv-edit-shell">
                 ${getItemControls('experience', idx)}
                 <div class="cvm-exp-role">${ed(e.role||'')}</div>
                 <div class="cvm-exp-company">${ed(e.company||'')} &nbsp;|&nbsp; ${ed(e.period||'')}</div>
@@ -3454,7 +3509,7 @@
             </div>`).join('');
 
         const projHtml = (c.projects||[]).map((p, idx)=>`
-            <div class="cvm-exp-item cv-editable">
+            <div class="cvm-exp-item cv-edit-shell">
                 ${getItemControls('projects', idx)}
                 <div class="cvm-exp-role">${ed(p.name||'')}</div>
                 <div class="cvm-exp-company">${p.period?`${ed(p.period)} <br>`:''} ${p.tech?`<strong>Tech:</strong> ${ed(p.tech)} <br>`:''} ${p.github?`<a href="${esc(p.github)}" target="_blank" style="color:${accent}">${ed(p.github)}</a>`:''}</div>
@@ -3462,7 +3517,7 @@
             </div>`).join('');
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
-            <div class="cvm-exp-item cv-editable">
+            <div class="cvm-exp-item cv-edit-shell">
                 ${getItemControls('activities', idx)}
                 <div class="cvm-exp-role">${ed(a.name||a.raw||'')}</div>
                 ${a.role?`<div class="cvm-exp-company">${ed(a.role)}</div>`:''}
@@ -3512,14 +3567,14 @@
     // ── STYLE 2: Creative (Modern Card Layout) ──────
     function renderCreativeStyle(c, accent) {
         const skillGroupsHtml = (c.skills||[]).map((sg, idx)=>`
-            <div class="cvc2-skill-group cv-editable">
+            <div class="cvc2-skill-group cv-edit-shell">
                 <div class="cvc2-skill-cat">${esc(sg.category)}</div>
                 <div class="cvc2-tags">${(sg.items||[]).map(i=>`<span class="cvc2-tag">${esc(i)}</span>`).join('')}</div>
                 ${getItemControls('skills', idx)}
             </div>`).join('');
 
         const expHtml = (c.experience||[]).map((e, idx)=>`
-            <div class="cvc2-card cv-editable">
+            <div class="cvc2-card cv-edit-shell">
                 ${getItemControls('experience', idx)}
                 <div class="cvc2-card-title">${ed(e.role||'')}</div>
                 <div class="cvc2-card-sub" style="color:${accent}">${ed(e.company||'')} &nbsp;|&nbsp; ${ed(e.period||'')}</div>
@@ -3527,7 +3582,7 @@
             </div>`).join('');
 
         const eduHtml = (c.education||[]).map((e, idx)=>`
-            <div class="cvc2-card cv-editable">
+            <div class="cvc2-card cv-edit-shell">
                 ${getItemControls('education', idx)}
                 <div class="cvc2-card-title">${ed(e.degree||'')}</div>
                 <div class="cvc2-card-sub" style="color:${accent}">${ed(e.school||e.location||'')}</div>
@@ -3535,7 +3590,7 @@
             </div>`).join('');
 
         const projHtml = (c.projects||[]).map((p, idx)=>`
-            <div class="cvc2-card cv-editable">
+            <div class="cvc2-card cv-edit-shell">
                 ${getItemControls('projects', idx)}
                 <div class="cvc2-card-title">${ed(p.name||'')}</div>
                 <div class="cvc2-card-sub" style="color:${accent}">${ed(p.period||'')} &nbsp;|&nbsp; ${ed(p.tech||'')}</div>
@@ -3543,21 +3598,21 @@
             </div>`).join('');
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
-            <div class="cvc2-card cv-editable">
+            <div class="cvc2-card cv-edit-shell">
                 ${getItemControls('awards', idx)}
                 <div class="cvc2-card-title">🏆 ${ed(aw.name||aw.raw||'')}</div>
                 <div class="cvc2-card-sub">${ed(aw.year||'')}</div>
             </div>`).join('');
 
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
-            <div class="cvc2-card cv-editable">
+            <div class="cvc2-card cv-edit-shell">
                 ${getItemControls('certifications', idx)}
                 <div class="cvc2-card-title">${ed(cert.name||cert.raw||'')}</div>
                 <div class="cvc2-card-sub">${ed(cert.issuer||'')} &nbsp;|&nbsp; ${ed(cert.year||'')}</div>
             </div>`).join('');
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
-            <div class="cvc2-card cv-editable">
+            <div class="cvc2-card cv-edit-shell">
                 ${getItemControls('activities', idx)}
                 <div class="cvc2-card-title">${ed(a.name||a.raw||'')}</div>
                 <div class="cvc2-card-sub">${ed(a.role||'')} &nbsp;|&nbsp; ${ed(a.period||'')}</div>
@@ -3605,7 +3660,7 @@
             </div>` : '';
 
         const expHtml = (c.experience||[]).map((e, idx)=>`
-            <div class="cvm2-row cv-editable">
+            <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('experience', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
                 <div class="cvm2-row-content">
@@ -3616,7 +3671,7 @@
             </div>`).join('');
 
         const eduHtml = (c.education||[]).map((e, idx)=>`
-            <div class="cvm2-row cv-editable">
+            <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('education', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
                 <div class="cvm2-row-content">
@@ -3626,7 +3681,7 @@
             </div>`).join('');
 
         const projHtml = (c.projects||[]).map((p, idx)=>`
-            <div class="cvm2-row cv-editable">
+            <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('projects', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(p.period||'')}</div>
                 <div class="cvm2-row-content">
@@ -3637,7 +3692,7 @@
             </div>`).join('');
 
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
-            <div class="cvm2-row cv-editable">
+            <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('certifications', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(cert.year||'')}</div>
                 <div class="cvm2-row-content">
@@ -3647,7 +3702,7 @@
             </div>`).join('');
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
-            <div class="cvm2-row cv-editable">
+            <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('awards', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(aw.year||'')}</div>
                 <div class="cvm2-row-content">
@@ -3656,7 +3711,7 @@
             </div>`).join('');
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
-            <div class="cvm2-row cv-editable">
+            <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('activities', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(a.period||'')}</div>
                 <div class="cvm2-row-content">
@@ -3667,7 +3722,7 @@
             </div>`).join('');
 
         const skillHtml = (c.skills||[]).map((sg, idx)=>`
-             <div class="cvm2-row cv-editable">
+             <div class="cvm2-row cv-edit-shell">
                 <div class="cvm2-row-period" style="color:${accent}">${esc(sg.category||'Kỹ năng')}</div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-org">${esc((sg.items||[]).join(', '))}</div>
@@ -3724,7 +3779,7 @@
             </div>` : '';
 
         const expHtml = (c.experience||[]).map((e, idx)=>`
-            <div class="cvcl2-item cv-editable">
+            <div class="cvcl2-item cv-edit-shell">
                 ${getItemControls('experience', idx)}
                 <div class="cvcl2-item-top">
                     <span class="cvcl2-role cv-editable">${esc(e.role||'')}</span>
@@ -3735,7 +3790,7 @@
             </div>`).join('');
 
         const projHtml = (c.projects||[]).map((p, idx)=>`
-            <div class="cvcl2-item cv-editable">
+            <div class="cvcl2-item cv-edit-shell">
                 ${getItemControls('projects', idx)}
                 <div class="cvcl2-item-top">
                     <span class="cvcl2-role cv-editable">${esc(p.name||'')}</span>
@@ -3746,7 +3801,7 @@
             </div>`).join('');
 
         const eduHtml = (c.education||[]).map((e, idx)=>`
-            <div class="cvcl2-r-item cv-editable" style="position:relative;">
+            <div class="cvcl2-r-item cv-edit-shell" style="position:relative;">
                 ${getItemControls('education', idx)}
                 <div class="cvcl2-r-degree cv-editable">${esc(e.degree||'')}</div>
                 <div class="cvcl2-r-school cv-editable">${esc(e.school||e.location||'')}</div>
@@ -3754,22 +3809,22 @@
             </div>`).join('');
 
         const skillHtml = (c.skills||[]).map((sg, idx)=>`
-            <div class="cvcl2-skill cv-editable">
+            <div class="cvcl2-skill cv-edit-shell">
                 <div class="cvcl2-skill-cat"><strong>${esc(sg.category)}</strong></div>
                 <div class="cvcl2-skill-vals">${esc((sg.items||[]).join(', '))}</div>
                 ${getItemControls('skills', idx)}
             </div>`).join('');
 
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
-            <div class="cvcl2-r-item cv-editable" style="position:relative;">
+            <div class="cvcl2-r-item cv-edit-shell" style="position:relative;">
                 ${getItemControls('certifications', idx)}<span class="cv-editable">${esc(cert.name||cert.raw||'')}</span>${cert.year?` <span style="color:${hrColor};font-size:11px">(${esc(cert.year)})</span>`:''}</div>`).join('');
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
-            <div class="cvcl2-r-item cv-editable" style="position:relative;">
+            <div class="cvcl2-r-item cv-edit-shell" style="position:relative;">
                 ${getItemControls('awards', idx)}🏆 <span class="cv-editable">${esc(aw.name||aw.raw||'')}</span>${aw.year?` <span style="color:${hrColor};font-size:11px">(${esc(aw.year)})</span>`:''}</div>`).join('');
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
-            <div class="cvcl2-r-item cv-editable" style="position:relative;">
+            <div class="cvcl2-r-item cv-edit-shell" style="position:relative;">
                 ${getItemControls('activities', idx)}<span class="cv-editable">${esc(a.name||a.raw||'')}</span>${a.period?` <span style="color:${hrColor};font-size:11px">(${esc(a.period)})</span>`:''}</div>`).join('');
 
         return `<div class="cv-full cvcl2-root" style="--cv-accent:${hrColor};">
@@ -3933,14 +3988,14 @@
         ].filter(Boolean).join(' &nbsp;|&nbsp; ');
 
         const skillHtml = (c.skills||[]).map((sg, idx) => `
-            <div class="cv-topcv-row cv-editable" style="display: flex; margin-bottom: 10px; border-bottom: 1px dotted #ccc; padding-bottom: 10px; position:relative;">
+            <div class="cv-topcv-row cv-edit-shell" style="display: flex; margin-bottom: 10px; border-bottom: 1px dotted #ccc; padding-bottom: 10px; position:relative;">
                 ${getItemControls('skills', idx)}
                 <div class="cv-topcv-left" style="flex: 0 0 30%; font-style: italic; color: #555; padding-right: 15px;">${ed(sg.category||'Tên kỹ năng')}</div>
                 <div class="cv-topcv-right" style="flex: 1; font-style: italic; color: #777;">${ed((sg.items||[]).join(', ')||"Mô tả kỹ năng")}</div>
             </div>`).join('');
 
         const eduHtml = (c.education||[]).map((e, idx) => `
-            <div class="cv-topcv-row cv-editable" style="margin-bottom: 15px; position:relative;">
+            <div class="cv-topcv-row cv-edit-shell" style="margin-bottom: 15px; position:relative;">
                 ${getItemControls('education', idx)}
                 <div style="display: flex; justify-content: space-between;">
                     <strong style="color: #333; font-size: 16px;">${ed(e.school||e.location||'Tên trường học')}</strong>
@@ -3951,7 +4006,7 @@
             </div>`).join('');
 
         const projHtml = (c.projects||[]).map((p, idx) => `
-            <div class="cv-topcv-row cv-editable" style="margin-bottom: 15px; position:relative;">
+            <div class="cv-topcv-row cv-edit-shell" style="margin-bottom: 15px; position:relative;">
                 ${getItemControls('projects', idx)}
                 <div style="display: flex; justify-content: space-between;">
                     <strong style="color: #333; font-size: 16px;">${ed(p.name||'Tên dự án')}</strong>
@@ -3962,7 +4017,7 @@
             </div>`).join('');
 
         const expHtml = (c.experience||[]).map((e, idx) => `
-            <div class="cv-topcv-row cv-editable" style="margin-bottom: 15px; position:relative;">
+            <div class="cv-topcv-row cv-edit-shell" style="margin-bottom: 15px; position:relative;">
                 ${getItemControls('experience', idx)}
                 <div style="display: flex; justify-content: space-between;">
                     <strong style="color: #333; font-size: 16px;">${ed(e.company||'Tên công ty')}</strong>
@@ -3973,7 +4028,7 @@
             </div>`).join('');
 
         const certHtml = (c.certifications||[]).map((cert, idx) => `
-            <div class="cv-topcv-row cv-editable" style="margin-bottom: 15px; position:relative;">
+            <div class="cv-topcv-row cv-edit-shell" style="margin-bottom: 15px; position:relative;">
                 ${getItemControls('certifications', idx)}
                 <div style="display: flex; justify-content: space-between;">
                     <strong style="color: #333; font-size: 16px;">${ed(cert.name||cert.raw||'Tên chứng chỉ')}</strong>
@@ -3983,7 +4038,7 @@
             </div>`).join('');
 
         const actsHtml = (c.activities||[]).map((a, idx) => `
-            <div class="cv-topcv-row cv-editable" style="margin-bottom: 15px; position:relative;">
+            <div class="cv-topcv-row cv-edit-shell" style="margin-bottom: 15px; position:relative;">
                 ${getItemControls('activities', idx)}
                 <div style="display: flex; justify-content: space-between;">
                     <strong style="color: #333; font-size: 16px;">${ed(a.name||a.raw||'Tên dự án/Hoạt động')}</strong>
@@ -4059,6 +4114,16 @@
             .split(/\n+/)
             .map(line => parseBulletText(line))
             .filter(Boolean);
+    }
+
+    function readPreviewDetailLines(container, selector) {
+        if (!container || !selector) return [];
+
+        return [...container.querySelectorAll(selector)]
+            .flatMap(node => cleanPreviewText(node.innerText || '')
+                .split(/\n+/)
+                .map(line => parseBulletText(line))
+                .filter(Boolean));
     }
 
     function readHarvardItemDetails(item) {
@@ -4295,15 +4360,317 @@
         field.classList.toggle('cv-editable-empty', cleanPreviewText(field.innerText || '') === '');
     }
 
+    function getNonHarvardEditablePlaceholder(field) {
+        if (!field || field.closest('.cvh-root')) return '';
+
+        const sectionKey = getPreviewSectionKey(field);
+        const text = cleanPreviewText(field.innerText || '');
+
+        if (field.matches('.cvm-name, .cvc2-name, .cvm2-name, .cvcl2-name') || field.matches('.cv-topcv-root header h1.cv-editable')) {
+            return 'Họ và tên ứng viên';
+        }
+
+        if (field.matches('.cvm-job-title, .cvc2-title')) return 'Vị trí / Chức danh';
+        if (field.matches('.cvm2-subtitle, .cvcl2-subtitle') || field.matches('.cv-topcv-root header > div.cv-editable')) {
+            return 'Chức danh / Vị trí ứng tuyển';
+        }
+
+        if (
+            field.matches('.cvm-summary-text-full, .cvc2-summary, .cvm2-summary') ||
+            field.matches('.cvcl2-summary-bar .cv-editable') ||
+            (sectionKey === 'summary' && field.closest('.cv-topcv-section'))
+        ) {
+            return 'Giới thiệu ngắn về kinh nghiệm, thế mạnh và mục tiêu nghề nghiệp';
+        }
+
+        const professionalSkill = field.closest('.cvm-skill-group');
+        if (professionalSkill) {
+            const index = getEditableIndexWithin(professionalSkill, field);
+            return getIndexedPlaceholder(['Nhóm kỹ năng', 'Danh sách kỹ năng'], index);
+        }
+
+        const professionalEdu = field.closest('.cvm-edu-item');
+        if (professionalEdu) {
+            const index = getEditableIndexWithin(professionalEdu, field);
+            if (sectionKey === 'education') return getIndexedPlaceholder(['Tên bằng cấp/Khóa học', 'Tên trường/Trung tâm', 'Thời gian', 'Thành tích học tập hoặc kết quả nổi bật'], index);
+            if (sectionKey === 'certifications') return getIndexedPlaceholder(['Tên chứng chỉ', 'Tổ chức cấp', 'Năm'], index);
+            if (sectionKey === 'awards') return getIndexedPlaceholder(['Tên giải thưởng', 'Năm'], index);
+        }
+
+        const professionalExp = field.closest('.cvm-exp-item');
+        if (professionalExp) {
+            const index = getEditableIndexWithin(professionalExp, field);
+            if (sectionKey === 'experience') return getIndexedPlaceholder(['Vị trí công việc', 'Tên công ty', 'Thời gian', 'Chi tiết công việc, thành tựu hoặc tác động nổi bật'], index);
+            if (sectionKey === 'projects') return getIndexedPlaceholder(['Tên dự án', 'Thời gian', 'Công nghệ sử dụng', 'GitHub / Link dự án', 'Mô tả dự án, mục tiêu hoặc kết quả nổi bật'], index);
+            if (sectionKey === 'activities') return getIndexedPlaceholder(['Tên hoạt động', 'Vai trò của bạn', 'Thời gian', 'Chi tiết hoạt động hoặc đóng góp'], index);
+        }
+
+        const creativeSkill = field.closest('.cvc2-skill-group');
+        if (creativeSkill) {
+            const index = getEditableIndexWithin(creativeSkill, field);
+            return getIndexedPlaceholder(['Nhóm kỹ năng', 'Danh sách kỹ năng'], index);
+        }
+
+        const creativeCard = field.closest('.cvc2-card');
+        if (creativeCard) {
+            const index = getEditableIndexWithin(creativeCard, field);
+            if (sectionKey === 'experience') return getIndexedPlaceholder(['Vị trí công việc', 'Tên công ty', 'Thời gian', 'Chi tiết công việc, thành tựu hoặc tác động nổi bật'], index);
+            if (sectionKey === 'education') return getIndexedPlaceholder(['Bằng cấp hoặc chuyên ngành', 'Tên trường', 'Thời gian'], index);
+            if (sectionKey === 'projects') return getIndexedPlaceholder(['Tên dự án', 'Thời gian', 'Công nghệ sử dụng', 'Mô tả dự án hoặc thành quả nổi bật'], index);
+            if (sectionKey === 'certifications') return getIndexedPlaceholder(['Tên chứng chỉ', 'Tổ chức cấp', 'Năm'], index);
+            if (sectionKey === 'awards') return getIndexedPlaceholder(['Tên giải thưởng', 'Năm'], index);
+            if (sectionKey === 'activities') return getIndexedPlaceholder(['Tên hoạt động', 'Vai trò của bạn', 'Thời gian', 'Chi tiết hoạt động hoặc đóng góp'], index);
+        }
+
+        const minimalistRow = field.closest('.cvm2-row');
+        if (minimalistRow) {
+            const index = getEditableIndexWithin(minimalistRow, field);
+            if (sectionKey === 'experience') return getIndexedPlaceholder(['Thời gian', 'Vị trí công việc', 'Tên công ty', 'Chi tiết công việc, thành tựu hoặc tác động nổi bật'], index);
+            if (sectionKey === 'education') return getIndexedPlaceholder(['Thời gian', 'Bằng cấp hoặc chuyên ngành', 'Tên trường'], index);
+            if (sectionKey === 'projects') return getIndexedPlaceholder(['Thời gian', 'Tên dự án', 'Công nghệ sử dụng', 'Mô tả dự án hoặc thành quả nổi bật'], index);
+            if (sectionKey === 'certifications') return getIndexedPlaceholder(['Năm', 'Tên chứng chỉ', 'Tổ chức cấp'], index);
+            if (sectionKey === 'awards') return getIndexedPlaceholder(['Năm', 'Tên giải thưởng'], index);
+            if (sectionKey === 'activities') return getIndexedPlaceholder(['Thời gian', 'Tên hoạt động', 'Vai trò của bạn', 'Chi tiết hoạt động hoặc đóng góp'], index);
+            if (sectionKey === 'skills') return getIndexedPlaceholder(['Nhóm kỹ năng', 'Danh sách kỹ năng'], index);
+        }
+
+        const classicItem = field.closest('.cvcl2-item');
+        if (classicItem) {
+            const index = getEditableIndexWithin(classicItem, field);
+            if (sectionKey === 'experience') return getIndexedPlaceholder(['Vị trí công việc', 'Thời gian', 'Tên công ty', 'Chi tiết công việc, thành tựu hoặc tác động nổi bật'], index);
+            if (sectionKey === 'projects') return getIndexedPlaceholder(['Tên dự án', 'Thời gian', 'Công nghệ sử dụng', 'Mô tả dự án hoặc thành quả nổi bật'], index);
+        }
+
+        const classicRightItem = field.closest('.cvcl2-r-item');
+        if (classicRightItem) {
+            const index = getEditableIndexWithin(classicRightItem, field);
+            if (sectionKey === 'education') return getIndexedPlaceholder(['Bằng cấp hoặc chuyên ngành', 'Tên trường', 'Thời gian'], index);
+            if (sectionKey === 'certifications') return getIndexedPlaceholder(['Tên chứng chỉ', 'Năm'], index);
+            if (sectionKey === 'awards') return getIndexedPlaceholder(['Tên giải thưởng', 'Năm'], index);
+            if (sectionKey === 'activities') return getIndexedPlaceholder(['Tên hoạt động', 'Thời gian'], index);
+        }
+
+        const classicSkill = field.closest('.cvcl2-skill');
+        if (classicSkill) {
+            const index = getEditableIndexWithin(classicSkill, field);
+            return getIndexedPlaceholder(['Nhóm kỹ năng', 'Danh sách kỹ năng'], index);
+        }
+
+        const topcvRow = field.closest('.cv-topcv-row');
+        if (topcvRow) {
+            const index = getEditableIndexWithin(topcvRow, field);
+            if (sectionKey === 'skills') return getIndexedPlaceholder(['Tên kỹ năng', 'Mô tả kỹ năng'], index);
+            if (sectionKey === 'education') return getIndexedPlaceholder(['Tên trường học', 'Bắt đầu - Kết thúc', 'Ngành học / Môn học', 'Mô tả quá trình học tập hoặc thành tích của bạn'], index);
+            if (sectionKey === 'projects') return getIndexedPlaceholder(['Tên dự án', 'Bắt đầu - Kết thúc', 'Stack / Role', 'Mô tả ngắn gọn về dự án, mục tiêu hoặc kết quả nổi bật'], index);
+            if (sectionKey === 'experience') return getIndexedPlaceholder(['Tên công ty', 'Bắt đầu - Kết thúc', 'Vị trí của bạn', 'Mô tả chi tiết công việc, những việc bạn đã làm'], index);
+            if (sectionKey === 'certifications') return getIndexedPlaceholder(['Tên chứng chỉ', 'Năm', 'Tổ chức cấp'], index);
+            if (sectionKey === 'activities') return getIndexedPlaceholder(['Tên dự án/Hoạt động', 'Bắt đầu - Kết thúc', 'Vai trò của bạn', 'Mô tả chi tiết'], index);
+        }
+
+        if (GENERIC_EDITABLE_DEFAULT_TEXTS.has(text)) return text;
+
+        return '';
+    }
+
     function normalizeNonHarvardEditableDom(preview = document.getElementById('cvPreview')) {
         if (!preview) return;
 
         preview.querySelectorAll('.cvm-skill-group, .cvm-edu-item, .cvm-exp-item, .cvc2-skill-group, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cvcl2-skill, .cv-topcv-row').forEach(field => {
             field.classList.add('cv-edit-shell');
-            field.classList.remove('cv-editable');
-            field.removeAttribute('contenteditable');
+            if (field.querySelector('.cv-editable')) {
+                field.classList.remove('cv-editable');
+                field.removeAttribute('contenteditable');
+            }
             field.classList.remove('cv-editable-empty');
             delete field.dataset.placeholder;
+        });
+
+        preview.querySelectorAll([
+            '.cvm-name',
+            '.cvm-job-title',
+            '.cvm-summary-text-full',
+            '.cvm-skill-group',
+            '.cvm-edu-degree',
+            '.cvm-edu-school',
+            '.cvm-edu-year',
+            '.cvm-edu-detail',
+            '.cvm-exp-role',
+            '.cvm-exp-company',
+            '.cvm-exp-detail',
+            '.cvc2-name',
+            '.cvc2-title',
+            '.cvc2-summary',
+            '.cvc2-skill-group',
+            '.cvc2-card-title',
+            '.cvc2-card-sub',
+            '.cvc2-card-bullet',
+            '.cvm2-name',
+            '.cvm2-subtitle',
+            '.cvm2-summary',
+            '.cvm2-row-period',
+            '.cvm2-row-title',
+            '.cvm2-row-org',
+            '.cvm2-bullet',
+            '.cvcl2-name',
+            '.cvcl2-subtitle',
+            '.cvcl2-summary-bar p',
+            '.cvcl2-skill',
+            '.cvcl2-role',
+            '.cvcl2-date',
+            '.cvcl2-company',
+            '.cvcl2-bullet',
+            '.cvcl2-r-degree',
+            '.cvcl2-r-school',
+            '.cvcl2-r-period',
+            '.cv-topcv-root header h1.cv-editable',
+            '.cv-topcv-root header > div.cv-editable',
+            '.cv-topcv-left',
+            '.cv-topcv-right',
+            '.cv-topcv-row strong',
+            '.cv-topcv-row span',
+            '.cv-topcv-row > div'
+        ].join(', ')).forEach(field => {
+            if (field.closest('.cv-item-controls') || field.closest('.cvh-root')) return;
+            field.classList.add('cv-field-shell');
+        });
+
+        preview.querySelectorAll('.cv-editable').forEach(field => {
+            if (field.closest('.cvh-root') || field.closest('.cv-item-controls')) return;
+
+            const placeholder = getNonHarvardEditablePlaceholder(field);
+            if (placeholder) field.dataset.placeholder = placeholder;
+            else delete field.dataset.placeholder;
+
+            const text = cleanPreviewText(field.innerText || '');
+            if (!field.querySelector('.cv-editable') && text && (text === placeholder || GENERIC_EDITABLE_DEFAULT_TEXTS.has(text))) {
+                field.innerHTML = '';
+            }
+
+            updateEditableEmptyState(field);
+        });
+    }
+
+    function normalizeNonHarvardEditableDom(preview = document.getElementById('cvPreview')) {
+        if (!preview) return;
+
+        const shellSelectors = [
+            '.cvm-skill-group',
+            '.cvm-edu-item',
+            '.cvm-exp-item',
+            '.cvc2-skill-group',
+            '.cvc2-card',
+            '.cvm2-row',
+            '.cvcl2-item',
+            '.cvcl2-r-item',
+            '.cvcl2-skill',
+            '.cv-topcv-row'
+        ];
+
+        const leafSelectors = [
+            '.cvm-name',
+            '.cvm-job-title',
+            '.cvm-summary-text-full',
+            '.cvm-skill-cat',
+            '.cvm-skill-list',
+            '.cvm-edu-degree',
+            '.cvm-edu-school',
+            '.cvm-edu-year',
+            '.cvm-edu-detail',
+            '.cvm-exp-role',
+            '.cvm-exp-company',
+            '.cvm-exp-detail',
+            '.cvc2-name',
+            '.cvc2-title',
+            '.cvc2-summary',
+            '.cvc2-skill-cat',
+            '.cvc2-tags',
+            '.cvc2-card-title',
+            '.cvc2-card-sub',
+            '.cvc2-card-bullet',
+            '.cvm2-name',
+            '.cvm2-subtitle',
+            '.cvm2-summary',
+            '.cvm2-row-period',
+            '.cvm2-row-title',
+            '.cvm2-row-org',
+            '.cvm2-bullet',
+            '.cvcl2-name',
+            '.cvcl2-subtitle',
+            '.cvcl2-summary-bar p',
+            '.cvcl2-skill-cat',
+            '.cvcl2-skill-vals',
+            '.cvcl2-role',
+            '.cvcl2-date',
+            '.cvcl2-company',
+            '.cvcl2-bullet',
+            '.cvcl2-r-degree',
+            '.cvcl2-r-school',
+            '.cvcl2-r-period',
+            '.cv-topcv-root header h1.cv-editable',
+            '.cv-topcv-root header > div.cv-editable',
+            '.cv-topcv-left',
+            '.cv-topcv-right',
+            '.cv-topcv-row strong',
+            '.cv-topcv-row span',
+            '.cv-topcv-row > div'
+        ];
+
+        preview.querySelectorAll('.cv-edit-shell, .cv-field-shell').forEach(field => {
+            if (field.closest('.cvh-root')) return;
+            field.classList.remove('cv-edit-shell', 'cv-field-shell');
+        });
+
+        preview.querySelectorAll(shellSelectors.join(', ')).forEach(field => {
+            if (field.closest('.cv-item-controls') || field.closest('.cvh-root')) return;
+            field.classList.add('cv-edit-shell');
+            field.classList.remove('cv-editable', 'cv-field-shell', 'cv-editable-empty');
+            field.removeAttribute('contenteditable');
+            delete field.dataset.placeholder;
+        });
+
+        preview.querySelectorAll(leafSelectors.join(', ')).forEach(field => {
+            if (field.closest('.cv-item-controls') || field.closest('.cvh-root')) return;
+            field.classList.add('cv-field-shell', 'cv-editable');
+        });
+
+        [
+            { itemSelector: '.cvm-exp-item', detailSelector: '.cvm-exp-detail', groupClass: 'cvm-exp-detail-group' },
+            { itemSelector: '.cvm-edu-item', detailSelector: '.cvm-edu-detail', groupClass: 'cvm-edu-detail-group' },
+            { itemSelector: '.cvc2-card', detailSelector: '.cvc2-card-bullet', groupClass: 'cvc2-card-bullet-group' },
+            { itemSelector: '.cvm2-row', detailSelector: '.cvm2-bullet', groupClass: 'cvm2-bullet-group' },
+            { itemSelector: '.cvcl2-item', detailSelector: '.cvcl2-bullet', groupClass: 'cvcl2-bullet-group' }
+        ].forEach(({ itemSelector, detailSelector, groupClass }) => {
+            preview.querySelectorAll(itemSelector).forEach(item => {
+                let groupField = item.querySelector(`:scope > .${groupClass}`);
+                const detailNodes = [...item.querySelectorAll(`:scope > ${detailSelector}:not(.${groupClass})`)];
+
+                if (!groupField && detailNodes.length) {
+                    groupField = document.createElement('div');
+                    groupField.className = `${detailSelector.slice(1)} ${groupClass}`;
+                    groupField.dataset.groupedDetails = 'true';
+                    groupField.innerHTML = detailNodes
+                        .map(node => cleanPreviewText(node.innerText || ''))
+                        .filter(Boolean)
+                        .map(line => esc(line))
+                        .join('<br>');
+                    item.insertBefore(groupField, detailNodes[0]);
+                }
+
+                if (groupField) {
+                    groupField.dataset.groupedDetails = 'true';
+                    groupField.classList.add('cv-field-shell', 'cv-editable');
+                }
+
+                detailNodes.forEach(node => node.remove());
+            });
+        });
+
+        preview.querySelectorAll('.cv-field-shell.cv-editable').forEach(field => {
+            if (field.closest('.cv-item-controls') || field.closest('.cvh-root')) return;
+            if (field.querySelector('.cv-editable')) {
+                field.classList.remove('cv-editable');
+                field.removeAttribute('contenteditable');
+            }
         });
 
         preview.querySelectorAll('.cv-editable').forEach(field => {
@@ -4562,7 +4929,7 @@
                 degree: cleanPreviewText(item.querySelector('.cvm-edu-degree')?.innerText),
                 school: cleanPreviewText(item.querySelector('.cvm-edu-school')?.innerText),
                 period: cleanPreviewText(item.querySelector('.cvm-edu-year')?.innerText),
-                details: [...item.querySelectorAll('.cvm-edu-detail')].map(detail => parseBulletText(detail.innerText)).filter(Boolean)
+                details: readPreviewDetailLines(item, '.cvm-edu-detail')
             })).filter(item => item.degree || item.school || item.period || item.details.length);
         }
 
@@ -4583,7 +4950,7 @@
                     role: cleanPreviewText(item.querySelector('.cvm-exp-role')?.innerText),
                     company: meta[0] || '',
                     period: meta[1] || '',
-                    details: [...item.querySelectorAll('.cvm-exp-detail')].map(detail => parseBulletText(detail.innerText)).filter(Boolean)
+                    details: readPreviewDetailLines(item, '.cvm-exp-detail')
                 };
             }).filter(item => item.role || item.company || item.period || item.details.length);
         }
@@ -4599,7 +4966,7 @@
                     period: metaLines[0] || '',
                     tech: techLine ? techLine.replace(/^Tech:\s*/i, '') : '',
                     github: githubText || '',
-                    details: [...item.querySelectorAll('.cvm-exp-detail')].map(detail => parseBulletText(detail.innerText)).filter(Boolean)
+                    details: readPreviewDetailLines(item, '.cvm-exp-detail')
                 };
             }).filter(item => item.name || item.period || item.tech || item.github || item.details.length);
         }
@@ -4620,7 +4987,7 @@
                     name: cleanPreviewText(item.querySelector('.cvm-exp-role')?.innerText),
                     role: companies[0] || '',
                     period: companies[1] || '',
-                    details: [...item.querySelectorAll('.cvm-exp-detail')].map(detail => parseBulletText(detail.innerText)).filter(Boolean)
+                    details: readPreviewDetailLines(item, '.cvm-exp-detail')
                 };
             }).filter(item => item.name || item.role || item.period || item.details.length);
         }
@@ -4688,7 +5055,7 @@
                     role: cleanPreviewText(card.querySelector('.cvc2-card-title')?.innerText),
                     company: parts[0] || '',
                     period: parts[1] || '',
-                    details: [...card.querySelectorAll('.cvc2-card-bullet')].map(node => parseBulletText(node.innerText)).filter(Boolean)
+                    details: readPreviewDetailLines(card, '.cvc2-card-bullet')
                 };
             }).filter(item => item.role || item.company || item.period || item.details.length);
         }
@@ -4701,7 +5068,7 @@
                     name: cleanPreviewText(card.querySelector('.cvc2-card-title')?.innerText),
                     period: parts[0] || '',
                     tech: parts[1] || '',
-                    details: [...card.querySelectorAll('.cvc2-card-bullet')].map(node => parseBulletText(node.innerText)).filter(Boolean)
+                    details: readPreviewDetailLines(card, '.cvc2-card-bullet')
                 };
             }).filter(item => item.name || item.period || item.tech || item.details.length);
         }
@@ -4714,7 +5081,7 @@
                     name: cleanPreviewText(card.querySelector('.cvc2-card-title')?.innerText),
                     role: parts[0] || '',
                     period: parts[1] || '',
-                    details: [...card.querySelectorAll('.cvc2-card-bullet')].map(node => parseBulletText(node.innerText)).filter(Boolean)
+                    details: readPreviewDetailLines(card, '.cvc2-card-bullet')
                 };
             }).filter(item => item.name || item.role || item.period || item.details.length);
         }
@@ -4740,7 +5107,7 @@
                 period: cleanPreviewText(row.querySelector('.cvm2-row-period')?.innerText),
                 role: cleanPreviewText(row.querySelector('.cvm2-row-title')?.innerText),
                 company: cleanPreviewText(row.querySelector('.cvm2-row-org')?.innerText),
-                details: [...row.querySelectorAll('.cvm2-bullet')].map(node => cleanPreviewText(node.innerText)).filter(Boolean)
+                details: readPreviewDetailLines(row, '.cvm2-bullet')
             })).filter(item => item.role || item.company || item.period || item.details.length);
         }
 
@@ -4750,7 +5117,7 @@
                 period: cleanPreviewText(row.querySelector('.cvm2-row-period')?.innerText),
                 name: cleanPreviewText(row.querySelector('.cvm2-row-title')?.innerText),
                 tech: cleanPreviewText(row.querySelector('.cvm2-row-org')?.innerText),
-                details: [...row.querySelectorAll('.cvm2-bullet')].map(node => cleanPreviewText(node.innerText)).filter(Boolean)
+                details: readPreviewDetailLines(row, '.cvm2-bullet')
             })).filter(item => item.name || item.tech || item.period || item.details.length);
         }
 
@@ -4794,7 +5161,7 @@
                 period: cleanPreviewText(row.querySelector('.cvm2-row-period')?.innerText),
                 name: cleanPreviewText(row.querySelector('.cvm2-row-title')?.innerText),
                 role: cleanPreviewText(row.querySelector('.cvm2-row-org')?.innerText),
-                details: [...row.querySelectorAll('.cvm2-bullet')].map(node => cleanPreviewText(node.innerText)).filter(Boolean)
+                details: readPreviewDetailLines(row, '.cvm2-bullet')
             })).filter(item => item.name || item.role || item.period || item.details.length);
         }
     }
@@ -4818,7 +5185,7 @@
                 role: cleanPreviewText(item.querySelector('.cvcl2-role')?.innerText),
                 period: cleanPreviewText(item.querySelector('.cvcl2-date')?.innerText),
                 company: cleanPreviewText(item.querySelector('.cvcl2-company')?.innerText),
-                details: [...item.querySelectorAll('.cvcl2-bullet')].map(node => parseBulletText(node.innerText)).filter(Boolean)
+                details: readPreviewDetailLines(item, '.cvcl2-bullet')
             })).filter(item => item.role || item.company || item.period || item.details.length)
             : [];
 
@@ -4828,7 +5195,7 @@
                 name: cleanPreviewText(item.querySelector('.cvcl2-role')?.innerText),
                 period: cleanPreviewText(item.querySelector('.cvcl2-date')?.innerText),
                 tech: cleanPreviewText(item.querySelector('.cvcl2-company')?.innerText).replace(/^Tech:\s*/i, ''),
-                details: [...item.querySelectorAll('.cvcl2-bullet')].map(node => parseBulletText(node.innerText)).filter(Boolean)
+                details: readPreviewDetailLines(item, '.cvcl2-bullet')
             })).filter(item => item.name || item.tech || item.period || item.details.length)
             : [];
 
@@ -5001,7 +5368,16 @@
         if (!isHarvardPreview(preview)) {
             normalizeNonHarvardEditableDom(preview);
             preview.querySelectorAll('.cv-editable').forEach(el => {
-                const isLeafEditable = !el.classList.contains('cv-edit-shell') && !el.querySelector('.cv-editable');
+                if (el.closest('.cvh-root') || el.closest('.cv-item-controls')) return;
+                if (el.querySelector('.cv-editable')) {
+                    el.classList.remove('cv-editable', 'cv-field-shell', 'cv-editable-empty');
+                    el.classList.add('cv-edit-shell');
+                    el.removeAttribute('contenteditable');
+                    delete el.dataset.placeholder;
+                }
+            });
+            preview.querySelectorAll('.cv-editable').forEach(el => {
+                const isLeafEditable = !el.querySelector('.cv-editable');
                 if (isLeafEditable) el.setAttribute('contenteditable', 'true');
                 else el.removeAttribute('contenteditable');
                 updateEditableEmptyState(el);
@@ -5112,11 +5488,37 @@
 
     function handlePreviewShellPointerDown(event) {
         const preview = document.getElementById('cvPreview');
-        if (!isEditMode || !isHarvardPreview(preview)) return;
+        if (!isEditMode || !preview) return;
 
         const target = event.target instanceof Element ? event.target : event.target?.parentElement;
         if (!target) return;
         if (target.closest('.cv-item-controls, button, a')) return;
+
+        if (!isHarvardPreview(preview)) {
+            const directField = target.closest('.cv-editable');
+            const leafField = directField && !directField.querySelector('.cv-editable')
+                ? directField
+                : target.closest('.cv-field-shell')?.querySelector('.cv-editable');
+
+            if (!leafField || leafField.closest('.cv-item-controls')) return;
+
+            const clickedLeafDirectly = leafField === directField;
+            if (!clickedLeafDirectly) {
+                event.preventDefault();
+                leafField.focus();
+                placeCaretAtEnd(leafField);
+                return;
+            }
+
+            if (leafField.getAttribute('contenteditable') !== 'true') {
+                event.preventDefault();
+                leafField.setAttribute('contenteditable', 'true');
+                updateEditableEmptyState(leafField);
+                leafField.focus();
+                placeCaretAtEnd(leafField);
+            }
+            return;
+        }
 
         normalizeHarvardEditableDom(preview);
         const field = resolveHarvardEditableField(target);
