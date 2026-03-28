@@ -209,3 +209,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const jobAlertForm = document.getElementById('jobAlertForm');
+    const jobAlertEmail = document.getElementById('jobAlertEmail');
+    const jobAlertStatus = document.getElementById('jobAlertStatus');
+
+    if (!jobAlertForm || !jobAlertEmail || !jobAlertStatus) return;
+
+    jobAlertForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const email = jobAlertEmail.value.trim();
+        if (!email) {
+            jobAlertStatus.textContent = 'Vui lòng nhập email để nhận thông báo việc làm.';
+            return;
+        }
+
+        localStorage.setItem('careerVietJobAlertEmail', email);
+        jobAlertStatus.textContent = `Đã lưu ${email} để nhận cập nhật việc làm mới.`;
+        jobAlertEmail.value = '';
+    });
+});

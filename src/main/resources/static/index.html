@@ -19,16 +19,29 @@
         <div class="hero-shell">
             <div class="hero-stage">
                 <div class="hero-banner-slider" id="heroBannerSlider" aria-label="Banner nổi bật">
-                    <a class="hero-banner-slide is-active" href="/tim-viec-lam.html" aria-label="Khám phá việc làm nổi bật trên CareerViet" style="background-image: linear-gradient(120deg, rgba(13, 29, 73, 0.72), rgba(255, 122, 0, 0.42)), url('images/banner-people.png');">
+                    <a class="hero-banner-slide is-active" href="#" aria-label="Banner nổi bật mặc định" data-disabled="true">
                         <span class="hero-banner-meta">CareerViet tuyển dụng nổi bật</span>
                     </a>
+                </div>
+
+                <div class="hero-banner-controls" id="heroBannerControls" aria-label="Điều hướng banner">
+                    <button type="button" class="hero-banner-arrow hero-banner-arrow-prev" id="heroBannerPrev" aria-label="Banner trước">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button type="button" class="hero-banner-arrow hero-banner-arrow-next" id="heroBannerNext" aria-label="Banner tiếp theo">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
                 </div>
 
                 <div class="hero-banner-dots" id="heroBannerDots" aria-label="Chọn banner"></div>
 
                 <div class="hero-content">
                     <div class="search-box">
-                        <h2 class="search-title">Đón lấy thành công với<br><strong>19,490 cơ hội nghề nghiệp</strong></h2>
+                        <h2 class="search-title">Khởi đầu hành trình mới với<br><strong>19,490 cơ hội đang chờ bạn</strong></h2>
                         
                         <div class="search-form">
                             <div class="search-input-wrapper">
@@ -74,6 +87,9 @@
     <section class="top-employers">
         <div class="container">
             <h2 class="section-title">NHÀ TUYỂN DỤNG HÀNG ĐẦU</h2>
+            <div class="top-employer-grid" id="topEmployerGrid">
+                <div class="top-employer-empty">Chưa có nhà tuyển dụng nổi bật.</div>
+            </div>
         </div>
     </section>
 
@@ -437,11 +453,37 @@
         </div>
     </section>
 
+    <section class="job-alert-signup">
+        <div class="container">
+            <div class="job-alert-panel">
+                <div class="job-alert-copy">
+                    <span class="job-alert-kicker">Job Alert</span>
+                    <h2>Đăng ký theo dõi để nhận việc làm mới phù hợp hơn mỗi ngày</h2>
+                    <p>Nhập email để CareerViet ưu tiên gửi cơ hội phù hợp với vị trí, kỹ năng và khu vực bạn quan tâm.</p>
+                </div>
+
+                <form class="job-alert-form" id="jobAlertForm">
+                    <label class="job-alert-input" for="jobAlertEmail">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+                            <path d="M4 8l8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <input id="jobAlertEmail" type="email" placeholder="Nhập địa chỉ email của bạn" required>
+                    </label>
+                    <button type="submit" class="job-alert-submit">ĐĂNG KÝ NGAY</button>
+                </form>
+
+                <p class="job-alert-status" id="jobAlertStatus" aria-live="polite"></p>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer Placeholder -->
     <div id="footer-placeholder"></div>
 
-    <script src="js/main.js"></script>
     <script src="js/hero-banner.js"></script>
+    <script src="js/top-employer-logos.js"></script>
+    <script src="js/main.js"></script>
 
     <!-- Chatbot AI - Include Script -->
     <script src="chatbot-ai/chatbot-include.js"></script>

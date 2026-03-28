@@ -119,24 +119,34 @@
         const { rail } = buildArticleList(articles, lead);
         container.innerHTML = `
             <article class="guide-lead-card" style="--article-accent:${escapeHtml(lead.categoryAccentColor || '#1d4ed8')}">
-                <a href="${articleHref(lead.slug)}" class="guide-lead-media" style="aspect-ratio: 16/9.5;">
-                    ${lead.coverImageUrl ? `<img src="${escapeHtml(lead.coverImageUrl)}" alt="${escapeHtml(lead.coverImageAlt || lead.title)}" style="width:100%; height:100%; object-fit:cover;">` : ''}
+                <a href="${articleHref(lead.slug)}" class="guide-lead-media">
+                    ${lead.coverImageUrl ? `<img src="${escapeHtml(lead.coverImageUrl)}" alt="${escapeHtml(lead.coverImageAlt || lead.title)}">` : ''}
                 </a>
                 <div class="guide-lead-body">
-                    <div class="guide-lead-kicker" style="color: #64748b; font-size: 12px; margin-bottom: 12px; letter-spacing: 0.1em; text-transform: uppercase;">${escapeHtml(lead.categoryName || 'Cẩm nang')}</div>
+                    <div class="guide-lead-kicker">${escapeHtml(lead.categoryName || 'Cẩm nang')}</div>
                     <h2 class="guide-lead-title"><a href="${articleHref(lead.slug)}">${escapeHtml(lead.title)}</a></h2>
-                    <p class="guide-lead-excerpt" style="font-size: 16px; color: #475569; margin-top: 14px;">${escapeHtml(lead.excerpt || '')}</p>
+                    <p class="guide-lead-excerpt">${escapeHtml(lead.excerpt || '')}</p>
+                    <div class="guide-lead-meta">
+                        <span><i class="fa-regular fa-calendar"></i> ${formatDate(lead.publishedAt)}</span>
+                        <span><i class="fa-regular fa-clock"></i> ${escapeHtml(lead.readTimeMinutes || 5)} phút đọc</span>
+                        <span><i class="fa-regular fa-user"></i> ${escapeHtml(lead.authorName || 'CareerViet')}</span>
+                    </div>
+                    <a href="${articleHref(lead.slug)}" class="guide-lead-cta">Đọc bài viết <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </article>
             <div class="guide-rail">
                 ${rail.map(article => `
                     <article class="guide-rail-card" style="--article-accent:${escapeHtml(article.categoryAccentColor || '#1d4ed8')}">
-                        <a href="${articleHref(article.slug)}" class="guide-rail-media" style="aspect-ratio: 16/9; overflow: hidden; display: block;">
+                        <a href="${articleHref(article.slug)}" class="guide-rail-media">
                             ${article.coverImageUrl ? `<img src="${escapeHtml(article.coverImageUrl)}" alt="${escapeHtml(article.coverImageAlt || article.title)}">` : ''}
                         </a>
-                        <div class="guide-rail-body" style="padding: 16px;">
-                            <div class="guide-rail-kicker" style="color: #64748b; font-size: 11px; margin-bottom: 8px;">${escapeHtml(article.categoryName || 'Cẩm nang')}</div>
-                            <h3 class="guide-rail-title" style="font-size: 16px; margin: 0; line-height: 1.4;"><a href="${articleHref(article.slug)}">${escapeHtml(article.title)}</a></h3>
+                        <div class="guide-rail-body">
+                            <div class="guide-rail-kicker">${escapeHtml(article.categoryName || 'Cẩm nang')}</div>
+                            <h3 class="guide-rail-title"><a href="${articleHref(article.slug)}">${escapeHtml(article.title)}</a></h3>
+                            <div class="guide-card-meta">
+                                <span><i class="fa-regular fa-calendar"></i> ${formatDate(article.publishedAt)}</span>
+                                <span><i class="fa-regular fa-clock"></i> ${escapeHtml(article.readTimeMinutes || 5)} phút</span>
+                            </div>
                         </div>
                     </article>
                 `).join('')}
@@ -173,15 +183,15 @@
             <article class="guide-card" style="--article-accent:${escapeHtml(article.categoryAccentColor || '#1d4ed8')}">
                 <a href="${articleHref(article.slug)}" class="guide-card-media">
                     ${article.coverImageUrl ? `<img src="${escapeHtml(article.coverImageUrl)}" alt="${escapeHtml(article.coverImageAlt || article.title)}">` : ''}
-                    <span class="guide-card-badge">${escapeHtml(article.categoryName || 'Cẩm nang')}</span>
                 </a>
                 <div class="guide-card-body">
-                    <div class="guide-card-kicker">${escapeHtml(article.authorName || 'CareerViet')}</div>
+                    <div class="guide-card-kicker">${escapeHtml(article.categoryName || 'Cẩm nang')}</div>
                     <h3 class="guide-card-title"><a href="${articleHref(article.slug)}">${escapeHtml(article.title)}</a></h3>
                     <p class="guide-card-excerpt">${escapeHtml(article.excerpt || '')}</p>
                     <div class="guide-card-meta">
                         <span><i class="fa-regular fa-calendar"></i> ${formatDate(article.publishedAt)}</span>
                         <span><i class="fa-regular fa-clock"></i> ${escapeHtml(article.readTimeMinutes || 5)} phút</span>
+                        <span><i class="fa-regular fa-user"></i> ${escapeHtml(article.authorName || 'CareerViet')}</span>
                     </div>
                 </div>
             </article>

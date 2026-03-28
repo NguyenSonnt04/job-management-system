@@ -1,7 +1,7 @@
 package Nhom08.Project.controller;
 
-import Nhom08.Project.dto.AdminHeroBannerView;
-import Nhom08.Project.service.HeroBannerService;
+import Nhom08.Project.dto.AdminTopEmployerLogoView;
+import Nhom08.Project.service.TopEmployerLogoService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,18 +14,18 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin/hero-banners")
-public class AdminHeroBannerController {
+@RequestMapping("/api/admin/top-employer-logos")
+public class AdminTopEmployerLogoController {
 
-    private final HeroBannerService heroBannerService;
+    private final TopEmployerLogoService topEmployerLogoService;
 
-    public AdminHeroBannerController(HeroBannerService heroBannerService) {
-        this.heroBannerService = heroBannerService;
+    public AdminTopEmployerLogoController(TopEmployerLogoService topEmployerLogoService) {
+        this.topEmployerLogoService = topEmployerLogoService;
     }
 
     @GetMapping
-    public ResponseEntity<List<AdminHeroBannerView>> list() {
-        return ResponseEntity.ok(heroBannerService.getAdminBanners());
+    public ResponseEntity<List<AdminTopEmployerLogoView>> list() {
+        return ResponseEntity.ok(topEmployerLogoService.getAdminLogos());
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -38,15 +38,15 @@ public class AdminHeroBannerController {
             @RequestParam(value = "endAt", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endAt,
             @RequestParam("imageFile") MultipartFile imageFile) {
         try {
-            AdminHeroBannerView banner = heroBannerService.createBanner(
+            AdminTopEmployerLogoView logo = topEmployerLogoService.createLogo(
                     name, targetUrl, displayOrder, active, startAt, endAt, imageFile);
-            return ResponseEntity.ok(Map.of("success", true, "banner", banner));
+            return ResponseEntity.ok(Map.of("success", true, "logo", logo));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(503).body(Map.of("success", false, "message", e.getMessage()));
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "Không thể tải ảnh banner lên"));
+            return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "Không thể tải logo nhà tuyển dụng lên"));
         }
     }
 
@@ -61,15 +61,15 @@ public class AdminHeroBannerController {
             @RequestParam(value = "endAt", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endAt,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
         try {
-            AdminHeroBannerView banner = heroBannerService.updateBanner(
+            AdminTopEmployerLogoView logo = topEmployerLogoService.updateLogo(
                     id, name, targetUrl, displayOrder, active, startAt, endAt, imageFile);
-            return ResponseEntity.ok(Map.of("success", true, "banner", banner));
+            return ResponseEntity.ok(Map.of("success", true, "logo", logo));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(503).body(Map.of("success", false, "message", e.getMessage()));
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "Không thể tải ảnh banner lên"));
+            return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "Không thể tải logo nhà tuyển dụng lên"));
         }
     }
 
@@ -77,8 +77,8 @@ public class AdminHeroBannerController {
     public ResponseEntity<?> updateActive(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         try {
             boolean active = Boolean.TRUE.equals(body.get("active"));
-            AdminHeroBannerView banner = heroBannerService.updateActive(id, active);
-            return ResponseEntity.ok(Map.of("success", true, "banner", banner));
+            AdminTopEmployerLogoView logo = topEmployerLogoService.updateActive(id, active);
+            return ResponseEntity.ok(Map.of("success", true, "logo", logo));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         }
@@ -87,7 +87,7 @@ public class AdminHeroBannerController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
-            heroBannerService.deleteBanner(id);
+            topEmployerLogoService.deleteLogo(id);
             return ResponseEntity.ok(Map.of("success", true, "deletedId", id));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
