@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
     const slider = document.getElementById('heroBannerSlider');
     const dotsContainer = document.getElementById('heroBannerDots');
+    const controls = document.getElementById('heroBannerControls');
+    const prevButton = document.getElementById('heroBannerPrev');
+    const nextButton = document.getElementById('heroBannerNext');
 
     if (!slider || !dotsContainer) return;
 
@@ -8,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let slides = [];
     let currentIndex = 0;
     let autoplayId = null;
-    const autoplayDelay = 5500;
+    const autoplayDelay = 3000;
 
     function normalizeTarget(url) {
         return url && url.trim() ? url.trim() : '';
@@ -22,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const safeImage = escapeAttribute(item.imageUrl || '');
 
             return `
-                <a class="hero-banner-slide${index === 0 ? ' is-active' : ''}" href="${href || '#'}" aria-label="${safeName}" style="background-image: linear-gradient(120deg, rgba(13, 29, 73, 0.72), rgba(255, 122, 0, 0.42)), url('${safeImage}');"${disabledAttrs}>
+                <a class="hero-banner-slide${index === 0 ? ' is-active' : ''}" href="${href || '#'}" aria-label="${safeName}" style="background-image: linear-gradient(120deg, rgba(13, 29, 73, 0.38), rgba(13, 29, 73, 0.18)), url('${safeImage}');"${disabledAttrs}>
                     <span class="hero-banner-meta">${safeName}</span>
                 </a>
             `;
@@ -42,17 +45,21 @@ document.addEventListener('DOMContentLoaded', function () {
         dotsContainer.innerHTML = '';
         if (count <= 1) {
             dotsContainer.style.display = 'none';
+            if (controls) controls.hidden = true;
             return;
         }
 
         dotsContainer.style.display = 'flex';
+        if (controls) controls.hidden = false;
 
         for (let index = 0; index < count; index += 1) {
             const dot = document.createElement('button');
             dot.type = 'button';
             dot.className = 'dot' + (index === 0 ? ' active' : '');
             dot.setAttribute('aria-label', `Chuyển đến banner ${index + 1}`);
-            dot.addEventListener('click', function () {
+            dot.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
                 goTo(index);
                 restartAutoplay();
             });
@@ -79,6 +86,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function next() {
         goTo(currentIndex + 1);
+    }
+
+    function prev() {
+        goTo(currentIndex - 1);
     }
 
     function stopAutoplay() {
@@ -115,6 +126,26 @@ document.addEventListener('DOMContentLoaded', function () {
         heroStage.addEventListener('mouseleave', startAutoplay);
     }
 
+    function bindControls() {
+        if (prevButton) {
+            prevButton.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                prev();
+                restartAutoplay();
+            });
+        }
+
+        if (nextButton) {
+            nextButton.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                next();
+                restartAutoplay();
+            });
+        }
+    }
+
     async function loadBanners() {
         try {
             const response = await fetch('/api/hero-banners', { credentials: 'include' });
@@ -149,5 +180,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     bindHoverPause();
+    bindControls();
     loadBanners();
 });

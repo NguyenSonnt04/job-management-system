@@ -1244,3 +1244,243 @@ body.career-guide-page .header {
     background: #bfdbfe;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
+
+/* ===== Career Guide List Refresh ===== */
+body.career-guide-page {
+    background:
+        linear-gradient(180deg, #f7faff 0%, #f4f8fc 180px, #ffffff 181px, #ffffff 100%);
+}
+
+.career-guide-page .career-guide-shell {
+    max-width: 1400px;
+    padding: 24px 24px 72px;
+}
+
+.career-guide-page .guide-top-nav {
+    background: rgba(255, 255, 255, 0.94);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+}
+
+.career-guide-page .guide-nav-container {
+    max-width: 1400px;
+}
+
+.career-guide-page .guide-nav-list a {
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+}
+
+.career-guide-page .guide-nav-list a:hover {
+    color: #1a2456;
+    background: rgba(148, 163, 184, 0.08);
+}
+
+.career-guide-page .guide-nav-list li.active a {
+    color: #1a2456;
+    background: rgba(26, 36, 86, 0.08);
+}
+
+.career-guide-page .guide-nav-list li.active a::after {
+    display: none;
+}
+
+.career-guide-page .guide-nav-brand {
+    color: #1a2456;
+    font-size: 13px;
+}
+
+.career-guide-page .guide-grid-section {
+    margin-top: 34px;
+}
+
+.career-guide-page .guide-featured-layout {
+    margin-top: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.32fr) minmax(360px, 0.88fr);
+    gap: 28px;
+}
+
+.career-guide-page .guide-section-head h2 {
+    font-size: 30px;
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+}
+
+.career-guide-page .guide-overline {
+    color: #64748b;
+}
+
+.career-guide-page .guide-lead-card,
+.career-guide-page .guide-rail-card,
+.career-guide-page .guide-card {
+    border: 1px solid rgba(203, 213, 225, 0.62);
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.career-guide-page .guide-lead-card {
+    border-radius: 24px;
+}
+
+.career-guide-page .guide-rail-card,
+.career-guide-page .guide-card {
+    border-radius: 18px;
+}
+
+.career-guide-page .guide-lead-media {
+    aspect-ratio: 16 / 9.5;
+}
+
+.career-guide-page .guide-rail-media {
+    aspect-ratio: 16 / 9.6;
+}
+
+.career-guide-page .guide-card-media {
+    aspect-ratio: 16 / 10;
+}
+
+.career-guide-page .guide-lead-media::after,
+.career-guide-page .guide-rail-media::after,
+.career-guide-page .guide-card-media::after {
+    background: linear-gradient(180deg, rgba(8, 15, 32, 0.02), rgba(8, 15, 32, 0.08));
+}
+
+.career-guide-page .guide-lead-body {
+    padding: 28px 28px 30px;
+    gap: 14px;
+}
+
+.career-guide-page .guide-rail-body,
+.career-guide-page .guide-card-body {
+    padding: 18px 18px 20px;
+    gap: 10px;
+}
+
+.career-guide-page .guide-lead-kicker,
+.career-guide-page .guide-rail-kicker,
+.career-guide-page .guide-card-kicker {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: #64748b;
+}
+
+.career-guide-page .guide-lead-title {
+    font-size: clamp(30px, 2.8vw, 42px);
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+}
+
+.career-guide-page .guide-rail-title {
+    font-size: 18px;
+    line-height: 1.32;
+}
+
+.career-guide-page .guide-card-title {
+    font-size: 18px;
+    line-height: 1.36;
+}
+
+.career-guide-page .guide-lead-title a,
+.career-guide-page .guide-rail-title a,
+.career-guide-page .guide-card-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.career-guide-page .guide-lead-title a:hover,
+.career-guide-page .guide-rail-title a:hover,
+.career-guide-page .guide-card-title a:hover {
+    color: #1a2456;
+}
+
+.career-guide-page .guide-lead-excerpt,
+.career-guide-page .guide-card-excerpt {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #64748b;
+}
+
+.career-guide-page .guide-lead-meta,
+.career-guide-page .guide-card-meta {
+    gap: 8px 12px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.career-guide-page .guide-lead-cta {
+    padding-top: 2px;
+    color: #1a2456;
+    font-size: 13px;
+}
+
+.career-guide-page .guide-rail {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.career-guide-page .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.career-guide-page .guide-card::before {
+    height: 3px;
+}
+
+.career-guide-page .guide-card-badge,
+.career-guide-page .guide-lead-badge,
+.career-guide-page .guide-rail-badge {
+    display: none;
+}
+
+.career-guide-page .guide-lead-card:hover,
+.career-guide-page .guide-rail-card:hover,
+.career-guide-page .guide-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+}
+
+.career-guide-page .guide-card:hover img,
+.career-guide-page .guide-lead-card:hover img,
+.career-guide-page .guide-rail-card:hover img {
+    transform: scale(1.03);
+}
+
+@media (max-width: 1180px) {
+    .career-guide-page .guide-featured-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 980px) {
+    .career-guide-page .guide-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 680px) {
+    .career-guide-page .career-guide-shell {
+        padding: 18px 16px 56px;
+    }
+
+    .career-guide-page .guide-featured-layout,
+    .career-guide-page .guide-grid,
+    .career-guide-page .guide-rail {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .career-guide-page .guide-lead-body,
+    .career-guide-page .guide-rail-body,
+    .career-guide-page .guide-card-body {
+        padding: 16px 16px 18px;
+    }
+
+    .career-guide-page .guide-section-head h2 {
+        font-size: 24px;
+    }
+}

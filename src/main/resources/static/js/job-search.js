@@ -4,6 +4,9 @@
 
 let allJobs = [];
 let searchDebounceTimer = null;
+let currentFilteredJobs = [];
+let visibleJobsCount = 10;
+const JOBS_PER_PAGE = 10;
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -166,21 +169,41 @@ function applyClientFilters() {
         filtered.sort((a, b) => (b.salaryMax || b.salaryMin || 0) - (a.salaryMax || a.salaryMin || 0));
     }
 
-    renderJobs(filtered);
+    renderJobs(filtered, true);
 }
 
 // ─────────────────────────────────────────────────────
 // RENDER JOB CARDS - CareerViet style
 // ─────────────────────────────────────────────────────
-function renderJobs(jobs) {
+function renderJobs(jobs, resetVisibleCount = false) {
     const listEl  = document.getElementById('jobList');
     const titleEl = document.getElementById('resultsTitle');
+    const descriptionMeta = document.querySelector('meta[name="description"]');
+    const kw = (document.getElementById('searchKeyword')?.value || '').trim();
+    const formattedCount = new Intl.NumberFormat('vi-VN').format(jobs?.length || 0);
+
+    currentFilteredJobs = Array.isArray(jobs) ? [...jobs] : [];
+    if (resetVisibleCount) {
+        visibleJobsCount = JOBS_PER_PAGE;
+    }
 
     if (titleEl) {
-        const kw = (document.getElementById('searchKeyword')?.value || '').trim();
         titleEl.textContent = kw
             ? `${jobs.length} việc làm cho "${kw}"`
             : `${jobs.length} việc làm đang tuyển dụng`;
+    }
+
+    document.title = kw
+        ? `${formattedCount} việc làm cho "${kw}" | CareerViet`
+        : `${formattedCount} việc làm theo ngày cập nhật mới nhất | CareerViet`;
+
+    if (descriptionMeta) {
+        descriptionMeta.setAttribute(
+            'content',
+            kw
+                ? `Tìm thấy ${formattedCount} việc làm phù hợp với từ khóa "${kw}" trên CareerViet.`
+                : `Tìm kiếm trong ${formattedCount} việc làm đang tuyển dụng. Cập nhật hàng ngày với mức lương hấp dẫn.`
+        );
     }
 
     if (!jobs || jobs.length === 0) {
@@ -200,9 +223,13 @@ function renderJobs(jobs) {
         return;
     }
 
-    listEl.innerHTML = jobs.map((job, idx) => {
+    const visibleJobs = currentFilteredJobs.slice(0, visibleJobsCount);
+
+    listEl.innerHTML = visibleJobs.map((job, idx) => {
+        const cleanTitle = normalizeJobTitle(job.title);
         const salary   = formatSalaryCard(job.salaryMin, job.salaryMax, job.currency);
         const company  = job.employer?.companyName || 'Công ty đang ẩn tên';
+        const logoUrl  = normalizeLogoUrl(job.employer?.logoUrl);
         const isUrgent = job.urgentRecruitment;
         const isNew    = job.createdAt && (Date.now() - new Date(job.createdAt)) < 3 * 86400000;
 
@@ -211,8 +238,7 @@ function renderJobs(jobs) {
         const updatedStr  = job.createdAt ? formatDate(job.createdAt.split('T')[0]) : null;
 
         // Benefits from description keywords (fallback)
-        const benefits = job.benefits ? job.benefits.split(',').map(b => b.trim()).filter(Boolean)
-            : (job.urgentRecruitment ? ['Thưởng KPI', 'Bảo hiểm'] : []);
+        const benefits = parseBenefits(job.benefits, job.urgentRecruitment);
 
         return `
         <div class="job-card-search jcs-card" data-id="${job.id}"
@@ -221,20 +247,23 @@ function renderJobs(jobs) {
 
                 <!-- Logo -->
                 <div class="jcs-logo">
-                    <i class="fa-regular fa-building" style="font-size:28px;color:#ced4da;"></i>
+                    ${logoUrl
+                        ? `<img src="${escapeAttr(logoUrl)}" alt="${escapeAttr(company)}" class="jcs-logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                           <span class="jcs-logo-fallback" style="display:none;"><i class="fa-regular fa-building"></i></span>`
+                        : `<span class="jcs-logo-fallback"><i class="fa-regular fa-building"></i></span>`}
                 </div>
 
                 <!-- Content -->
                 <div class="job-card-content">
                     <h3 class="jcs-title">
-                        <a href="job-detail.html?id=${job.id}" class="jcs-title-link">${job.title}</a>
+                        <a href="job-detail.html?id=${job.id}" class="jcs-title-link">${escapeHtml(cleanTitle)}</a>
                         ${isUrgent ? '<span class="badge-hot">URGENT</span>' : isNew ? '<span class="badge-new">MỚI</span>' : ''}
                     </h3>
                     <p class="company-name-search">${company}</p>
 
                     <div class="jcs-meta">
                         <span class="jcs-salary">
-                            <i class="fa-solid fa-dollar-sign"></i> ${salary}
+                            <i class="fa-solid fa-wallet"></i> ${salary}
                         </span>
                         <span class="jcs-location">
                             <i class="fa-solid fa-location-dot"></i> ${job.location || 'Chưa xác định'}
@@ -245,25 +274,24 @@ function renderJobs(jobs) {
                     </div>
 
                     <div class="job-footer">
-                        <span class="deadline">
-                            ${deadlineStr ? `<i class="fa-regular fa-clock"></i> Hạn nộp: ${deadlineStr}` : ''}
-                            ${deadlineStr && updatedStr ? ' &nbsp;|&nbsp; ' : ''}
-                            ${updatedStr ? `<i class="fa-regular fa-calendar-days"></i> Cập nhật: ${updatedStr}` : ''}
-                        </span>
-                        ${benefits.length > 0 ? `<div class="job-badges">
-                            ${benefits.slice(0,4).map(b => `<span class="badge-icon">
-                                <i class="${getBenefitIcon(b)}"></i> ${b}
-                            </span>`).join('')}
-                        </div>` : ''}
+                        <div class="deadline">
+                            ${deadlineStr ? `<span class="jcs-info-pill"><i class="fa-regular fa-clock"></i> Hạn nộp: ${deadlineStr}</span>` : ''}
+                            ${updatedStr ? `<span class="jcs-info-pill"><i class="fa-regular fa-calendar-days"></i> Cập nhật: ${updatedStr}</span>` : ''}
+                        </div>
+                        <div class="job-bottom-row">
+                            ${benefits.length > 0 ? `<div class="job-badges">
+                                ${benefits.slice(0,4).map(b => `<span class="badge-icon">
+                                    <i class="${getBenefitIcon(b)}"></i> ${b}
+                                </span>`).join('')}
+                            </div>` : '<div class="job-badges"></div>'}
+                            <div class="job-actions">
+                                <button class="btn-favorite jcs-fav" onclick="toggleFav(this,${job.id})" title="Lưu">
+                                    <i class="fa-regular fa-heart" style="font-size:16px;color:#999;"></i>
+                                </button>
+                                <a href="job-detail.html?id=${job.id}" class="btn-apply">Xem chi tiết</a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="job-actions">
-                    <button class="btn-favorite jcs-fav" onclick="toggleFav(this,${job.id})" title="Lưu">
-                        <i class="fa-regular fa-heart" style="font-size:16px;color:#999;"></i>
-                    </button>
-                    <a href="job-detail.html?id=${job.id}" class="btn-apply">ỨNG TUYỂN NGAY</a>
                 </div>
             </div>
         </div>`;
@@ -276,45 +304,279 @@ function renderJobs(jobs) {
         s.textContent = `
             @keyframes jcFadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-            .jcs-card { transition: box-shadow .2s, transform .2s; }
-            .jcs-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.1); }
-
-            .jcs-logo {
-                width: 76px; height: 76px; border: 1px solid #e9ecef; border-radius: 8px;
-                display: flex; align-items: center; justify-content: center;
-                background: #f8f9fa; flex-shrink: 0;
+            .jcs-card {
+                border: 1px solid #e7edf5;
+                border-radius: 16px;
+                box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+                transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+            }
+            .jcs-card:hover {
+                transform: translateY(-1px);
+                border-color: #d8e2f0;
+                box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
             }
 
-            .jcs-title { font-size: 16px; font-weight: 700; margin-bottom: 5px; display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
-            .jcs-title-link { color: #e84141; text-decoration: none; line-height: 1.4; }
-            .jcs-title-link:hover { text-decoration: underline; }
+            .jcs-logo {
+                width: 76px; height: 76px; border: 1px solid #edf2f7; border-radius: 12px;
+                display: flex; align-items: center; justify-content: center;
+                background: #fff; flex-shrink: 0;
+                overflow: hidden;
+            }
 
-            .badge-new { background: #28a745; color: #fff; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; flex-shrink:0; }
+            .jcs-logo-image {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                display: block;
+                background: #fff;
+            }
 
-            .jcs-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; }
-            .jcs-salary { color: #e84141; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-            .jcs-location { color: #555; font-size: 13px; display: flex; align-items: center; gap: 4px; }
-            .jcs-type { color: #888; font-size: 13px; display: flex; align-items: center; gap: 4px; }
+            .jcs-logo-fallback {
+                width: 100%;
+                height: 100%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: #ced4da;
+                font-size: 28px;
+            }
 
-            .deadline { font-size: 12px; color: #888; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+            .jcs-title {
+                font-size: 17px;
+                font-weight: 700;
+                margin-bottom: 4px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+                line-height: 1.25;
+            }
+            .jcs-title-link {
+                color: #1a2456;
+                text-decoration: none;
+                line-height: 1.35;
+            }
+            .jcs-title-link:hover {
+                color: #22326f;
+            }
 
-            .badge-icon {
-                display: inline-flex; align-items: center; gap: 4px;
-                font-size: 12px; color: #555; background: #f5f5f5;
-                padding: 3px 10px; border-radius: 20px; border: 1px solid #e9ecef;
+            .company-name-search {
+                font-size: 13px;
+                color: #5b667a;
+                margin-bottom: 10px;
                 font-weight: 500;
             }
 
-            .jcs-fav { border: 1px solid #ddd; border-radius: 6px; background: #fff; width: 36px; height: 36px;
-                display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .18s; }
-            .jcs-fav:hover { border-color: #e84141; background: #fff5f5; }
+            .badge-new,
+            .badge-hot {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 22px;
+                padding: 0 9px;
+                border-radius: 999px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                flex-shrink: 0;
+            }
+
+            .badge-new {
+                background: #eef2ff;
+                color: #2e3b8e;
+                border: 1px solid #c7d2fe;
+            }
+
+            .badge-hot {
+                background: #fff1f2;
+                color: #d03a52;
+                border: 1px solid #fecdd3;
+            }
+
+            .jcs-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px 14px;
+                margin-bottom: 10px;
+            }
+            .jcs-salary,
+            .jcs-location,
+            .jcs-type {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 13px;
+            }
+            .jcs-salary {
+                color: #1f9d8f;
+                font-weight: 700;
+            }
+            .jcs-location,
+            .jcs-type {
+                color: #5f6b7c;
+                font-weight: 500;
+            }
+
+            .deadline {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .jcs-info-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                min-height: 28px;
+                padding: 0 9px;
+                border-radius: 999px;
+                background: #f7f9fc;
+                border: 1px solid #e8eef5;
+                color: #6b7280;
+                font-size: 11px;
+                font-weight: 600;
+            }
+
+            .badge-icon {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                min-height: 28px;
+                font-size: 11px;
+                color: #4d5768;
+                background: #f8fafc;
+                padding: 0 10px;
+                border-radius: 999px;
+                border: 1px solid #e6ebf2;
+                font-weight: 600;
+            }
+
+            .job-bottom-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+            }
+
+            .job-badges {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                min-width: 0;
+                flex: 1;
+            }
+
+            .job-actions {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+
+            .jcs-fav {
+                border: 1px solid #d9e2ec;
+                border-radius: 8px;
+                background: #fff;
+                width: 34px;
+                height: 34px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all .18s ease;
+            }
+            .jcs-fav:hover {
+                border-color: #b7c4d6;
+                background: #f8fafc;
+            }
             .jcs-fav.saved svg { fill: #e84141; stroke: #e84141; }
 
             .jc-empty { text-align: center; padding: 80px 20px; }
 
-            .btn-apply { display: inline-block !important; text-decoration: none !important; text-align: center; }
+            .job-load-more-wrap {
+                display: flex;
+                justify-content: center;
+                padding-top: 10px;
+            }
+
+            .job-load-more-btn {
+                min-width: 180px;
+                min-height: 42px;
+                padding: 0 18px;
+                border: 1px solid #d7e1ee;
+                border-radius: 999px;
+                background: #fff;
+                color: #1a2456;
+                font-size: 13px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all .18s ease;
+                box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+            }
+
+            .job-load-more-btn:hover {
+                border-color: #bcc9db;
+                background: #f8fafc;
+                transform: translateY(-1px);
+            }
+
+            .btn-apply {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                min-height: 36px;
+                padding: 0 14px;
+                border-radius: 8px;
+                background: #1a2456;
+                color: #fff !important;
+                text-decoration: none !important;
+                text-align: center;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.01em;
+                box-shadow: none;
+            }
+            .btn-apply:hover {
+                background: #22326f;
+                transform: none;
+                box-shadow: none;
+            }
         `;
         document.head.appendChild(s);
+    }
+
+    renderLoadMore();
+}
+
+function renderLoadMore() {
+    const listEl = document.getElementById('jobList');
+    if (!listEl) return;
+
+    const oldControl = document.getElementById('jobLoadMoreWrap');
+    if (oldControl) oldControl.remove();
+
+    if (currentFilteredJobs.length <= visibleJobsCount) return;
+
+    const remaining = currentFilteredJobs.length - visibleJobsCount;
+    const wrap = document.createElement('div');
+    wrap.id = 'jobLoadMoreWrap';
+    wrap.className = 'job-load-more-wrap';
+    wrap.innerHTML = `
+        <button type="button" class="job-load-more-btn" id="jobLoadMoreBtn">
+            Xem thêm ${Math.min(JOBS_PER_PAGE, remaining)} việc làm
+        </button>
+    `;
+
+    listEl.appendChild(wrap);
+
+    const btn = document.getElementById('jobLoadMoreBtn');
+    if (btn) {
+        btn.addEventListener('click', function () {
+            visibleJobsCount += JOBS_PER_PAGE;
+            renderJobs(currentFilteredJobs, false);
+        });
     }
 }
 
@@ -365,4 +627,60 @@ function getBenefitIcon(benefit) {
     if (b.includes('remote') || b.includes('từ xa'))                                   return 'fa-solid fa-house-laptop';
     if (b.includes('thể thao') || b.includes('gym') || b.includes('sport'))            return 'fa-solid fa-dumbbell';
     return 'fa-solid fa-circle-check'; // default
+}
+
+function normalizeLogoUrl(value) {
+    const url = (value || '').trim();
+    return url || '';
+}
+
+function parseBenefits(rawBenefits, urgentRecruitment) {
+    if (!rawBenefits) {
+        return urgentRecruitment ? ['Thưởng KPI', 'Bảo hiểm'] : [];
+    }
+
+    const normalized = String(rawBenefits).trim();
+    if (!normalized) {
+        return urgentRecruitment ? ['Thưởng KPI', 'Bảo hiểm'] : [];
+    }
+
+    try {
+        const parsed = JSON.parse(normalized);
+        if (Array.isArray(parsed)) {
+            return parsed.map(item => String(item).trim()).filter(Boolean);
+        }
+    } catch (_) {
+        // Fall back to comma-separated parsing.
+    }
+
+    return normalized
+        .split(',')
+        .map(item => item.replace(/^[\[\]"]+|[\[\]"]+$/g, '').trim())
+        .filter(Boolean);
+}
+
+function normalizeJobTitle(value) {
+    return String(value ?? '')
+        .replace(/\(\s*mới\s*\)/gi, '')
+        .replace(/\[\s*mới\s*\]/gi, '')
+        .replace(/^\s*mới\s*[:-]\s*/gi, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function escapeAttr(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
