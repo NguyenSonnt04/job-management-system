@@ -164,7 +164,7 @@
             z-index: 2;
             border-radius: 4px;
         }
-        .cv-editable-mode .cvh-root .cv-editable[data-placeholder].cv-editable-empty::before {
+        .cv-editable-mode .cv-editable[data-placeholder].cv-editable-empty::before {
             content: attr(data-placeholder);
             color: rgba(100, 116, 139, 0.82);
             font-style: italic;
@@ -218,6 +218,34 @@
                 0 0 0 1px rgba(203, 213, 225, 0.92),
                 0 0 0 6px rgba(241, 245, 249, 0.95);
             background: #ffffff;
+        }
+
+        .cv-editable-mode .cv-full:not(.cvh-root) {
+            position: relative;
+            border-radius: 12px;
+            box-shadow:
+                0 0 0 1px rgba(203, 213, 225, 0.88),
+                0 0 0 6px rgba(241, 245, 249, 0.9);
+            background: #ffffff;
+        }
+
+        .cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell) {
+            position: relative;
+            border-radius: 12px;
+            box-shadow: inset 0 0 0 1px transparent;
+            transition: box-shadow 0.16s ease, background 0.16s ease;
+        }
+
+        .cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell):hover {
+            box-shadow:
+                inset 0 0 0 1px rgba(203, 213, 225, 0.98),
+                0 0 0 4px rgba(248, 250, 252, 0.92);
+        }
+
+        .cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell):focus-within {
+            box-shadow:
+                inset 0 0 0 1px rgba(26, 36, 86, 0.28),
+                0 0 0 4px rgba(26, 36, 86, 0.08);
         }
 
         .cv-editable-mode .cvh-edit-shell {
@@ -4098,7 +4126,165 @@
         return '';
     }
 
-    function updateHarvardEditableEmptyState(field) {
+    const GENERIC_EDITABLE_DEFAULT_TEXTS = new Set([
+        'HỌ TÊN ỨNG VIÊN',
+        'HỌ TÊN',
+        'VỊ TRÍ CÔNG VIỆC',
+        'Vị trí công việc mong muốn',
+        'Vị trí / Chức danh',
+        'Tên bằng cấp/Khóa học',
+        'Tên trường/Trung tâm',
+        'Thời gian',
+        'Tên dự án',
+        'Công nghệ',
+        'Chi tiết công việc',
+        'Mô tả dự án',
+        'Tên chứng chỉ',
+        'Tổ chức cấp',
+        'Năm',
+        'Tên giải thưởng',
+        'Tên hoạt động',
+        'Vai trò',
+        'Chi tiết hoạt động',
+        'Tên kỹ năng',
+        'Mô tả kỹ năng',
+        'Tên công ty',
+        'Bắt đầu - Kết thúc',
+        'Ngành học / Môn học',
+        'Mô tả quá trình học tập hoặc thành tích của bạn',
+        'Vị trí của bạn',
+        'Stack / Role',
+        'Mô tả chi tiết công việc, những việc bạn đã làm...',
+        'Mô tả ngắn gọn về dự án, mục tiêu, các công nghệ sử dụng và thành tựu bạn đạt được...',
+        'Tên dự án/Hoạt động',
+        'Mô tả chi tiết...',
+        'Kỹ năng mới',
+        'Kỹ năng 1',
+        'Kỹ năng 2'
+    ]);
+
+    function getPreviewSectionKey(node) {
+        return node?.closest('[data-cv-section]')?.dataset?.cvSection || '';
+    }
+
+    function getEditableIndexWithin(container, field) {
+        if (!container || !field) return -1;
+
+        const nodes = [...container.querySelectorAll('.cv-editable')]
+            .filter(node => !node.closest('.cv-item-controls') && !node.closest('.cvh-root') && !node.querySelector('.cv-editable'));
+
+        return nodes.indexOf(field);
+    }
+
+    function getIndexedPlaceholder(placeholders, index) {
+        if (!placeholders?.length) return '';
+        if (index < 0) return placeholders[0];
+        return placeholders[Math.min(index, placeholders.length - 1)];
+    }
+
+    function getNonHarvardEditablePlaceholder(field) {
+        if (!field || field.closest('.cvh-root')) return '';
+
+        const sectionKey = getPreviewSectionKey(field);
+        const text = cleanPreviewText(field.innerText || '');
+
+        if (field.matches('.cvm-name, .cvc2-name, .cvm2-name, .cvcl2-name') || field.matches('.cv-topcv-root header h1.cv-editable')) {
+            return 'Họ và tên ứng viên';
+        }
+
+        if (field.matches('.cvm-job-title, .cvc2-title')) return 'Vị trí / Chức danh';
+        if (field.matches('.cvm2-subtitle, .cvcl2-subtitle') || field.matches('.cv-topcv-root header > div.cv-editable')) {
+            return 'Chức danh / Vị trí ứng tuyển';
+        }
+
+        if (
+            field.matches('.cvm-summary-text-full, .cvc2-summary, .cvm2-summary') ||
+            field.matches('.cvcl2-summary-bar .cv-editable') ||
+            (sectionKey === 'summary' && field.closest('.cv-topcv-section'))
+        ) {
+            return 'Giới thiệu ngắn về kinh nghiệm, thế mạnh và mục tiêu nghề nghiệp';
+        }
+
+        const professionalEdu = field.closest('.cvm-edu-item');
+        if (professionalEdu) {
+            const index = getEditableIndexWithin(professionalEdu, field);
+            if (sectionKey === 'education') return getIndexedPlaceholder(['Tên bằng cấp/Khóa học', 'Tên trường/Trung tâm', 'Thời gian', 'Thành tích học tập hoặc kết quả nổi bật'], index);
+            if (sectionKey === 'certifications') return getIndexedPlaceholder(['Tên chứng chỉ', 'Tổ chức cấp', 'Năm'], index);
+            if (sectionKey === 'awards') return getIndexedPlaceholder(['Tên giải thưởng', 'Năm'], index);
+        }
+
+        const professionalExp = field.closest('.cvm-exp-item');
+        if (professionalExp) {
+            const index = getEditableIndexWithin(professionalExp, field);
+            if (sectionKey === 'experience') return getIndexedPlaceholder(['Vị trí công việc', 'Tên công ty', 'Thời gian', 'Chi tiết công việc, thành tựu hoặc tác động nổi bật'], index);
+            if (sectionKey === 'projects') return getIndexedPlaceholder(['Tên dự án', 'Thời gian', 'Công nghệ sử dụng', 'GitHub / Link dự án', 'Mô tả dự án, mục tiêu hoặc kết quả nổi bật'], index);
+            if (sectionKey === 'activities') return getIndexedPlaceholder(['Tên hoạt động', 'Vai trò của bạn', 'Thời gian', 'Chi tiết hoạt động hoặc đóng góp'], index);
+        }
+
+        const creativeCard = field.closest('.cvc2-card');
+        if (creativeCard) {
+            const index = getEditableIndexWithin(creativeCard, field);
+            if (sectionKey === 'experience') return getIndexedPlaceholder(['Vị trí công việc', 'Tên công ty', 'Thời gian', 'Chi tiết công việc, thành tựu hoặc tác động nổi bật'], index);
+            if (sectionKey === 'education') return getIndexedPlaceholder(['Bằng cấp hoặc chuyên ngành', 'Tên trường', 'Thời gian'], index);
+            if (sectionKey === 'projects') return getIndexedPlaceholder(['Tên dự án', 'Thời gian', 'Công nghệ sử dụng', 'Mô tả dự án hoặc thành quả nổi bật'], index);
+            if (sectionKey === 'certifications') return getIndexedPlaceholder(['Tên chứng chỉ', 'Tổ chức cấp', 'Năm'], index);
+            if (sectionKey === 'awards') return getIndexedPlaceholder(['Tên giải thưởng', 'Năm'], index);
+            if (sectionKey === 'activities') return getIndexedPlaceholder(['Tên hoạt động', 'Vai trò của bạn', 'Thời gian', 'Chi tiết hoạt động hoặc đóng góp'], index);
+        }
+
+        if (field.closest('.cvc2-skill-group')) return 'Nhóm kỹ năng và danh sách kỹ năng';
+
+        if (field.matches('.cvm2-row')) {
+            if (sectionKey === 'experience') return 'Vị trí, công ty, thời gian và mô tả công việc';
+            if (sectionKey === 'education') return 'Bằng cấp, trường học và thời gian';
+            if (sectionKey === 'projects') return 'Tên dự án, công nghệ và mô tả';
+            if (sectionKey === 'certifications') return 'Tên chứng chỉ, đơn vị cấp và năm';
+            if (sectionKey === 'awards') return 'Tên giải thưởng và năm';
+            if (sectionKey === 'activities') return 'Tên hoạt động, vai trò và mô tả';
+            if (sectionKey === 'skills') return 'Nhóm kỹ năng và danh sách kỹ năng';
+        }
+
+        if (field.closest('.cvm2-bullet')) {
+            if (sectionKey === 'experience') return 'Chi tiết công việc, thành tựu hoặc tác động nổi bật';
+            if (sectionKey === 'projects') return 'Mô tả dự án, mục tiêu hoặc kết quả nổi bật';
+            if (sectionKey === 'activities') return 'Chi tiết hoạt động hoặc đóng góp';
+        }
+
+        const classicItem = field.closest('.cvcl2-item');
+        if (classicItem) {
+            const index = getEditableIndexWithin(classicItem, field);
+            if (sectionKey === 'experience') return getIndexedPlaceholder(['Vị trí công việc', 'Thời gian', 'Tên công ty', 'Chi tiết công việc, thành tựu hoặc tác động nổi bật'], index);
+            if (sectionKey === 'projects') return getIndexedPlaceholder(['Tên dự án', 'Thời gian', 'Công nghệ sử dụng', 'Mô tả dự án hoặc thành quả nổi bật'], index);
+        }
+
+        const classicRightItem = field.closest('.cvcl2-r-item');
+        if (classicRightItem) {
+            const index = getEditableIndexWithin(classicRightItem, field);
+            if (sectionKey === 'education') return getIndexedPlaceholder(['Bằng cấp hoặc chuyên ngành', 'Tên trường', 'Thời gian'], index);
+            if (sectionKey === 'certifications') return getIndexedPlaceholder(['Tên chứng chỉ', 'Năm'], index);
+            if (sectionKey === 'awards') return getIndexedPlaceholder(['Tên giải thưởng', 'Năm'], index);
+            if (sectionKey === 'activities') return getIndexedPlaceholder(['Tên hoạt động', 'Thời gian'], index);
+        }
+
+        if (field.closest('.cvcl2-skill')) return 'Nhóm kỹ năng và danh sách kỹ năng';
+
+        const topcvRow = field.closest('.cv-topcv-row');
+        if (topcvRow) {
+            const index = getEditableIndexWithin(topcvRow, field);
+            if (sectionKey === 'skills') return getIndexedPlaceholder(['Tên kỹ năng', 'Mô tả kỹ năng'], index);
+            if (sectionKey === 'education') return getIndexedPlaceholder(['Tên trường học', 'Bắt đầu - Kết thúc', 'Ngành học / Môn học', 'Mô tả quá trình học tập hoặc thành tích của bạn'], index);
+            if (sectionKey === 'projects') return getIndexedPlaceholder(['Tên dự án', 'Bắt đầu - Kết thúc', 'Stack / Role', 'Mô tả ngắn gọn về dự án, mục tiêu hoặc kết quả nổi bật'], index);
+            if (sectionKey === 'experience') return getIndexedPlaceholder(['Tên công ty', 'Bắt đầu - Kết thúc', 'Vị trí của bạn', 'Mô tả chi tiết công việc, những việc bạn đã làm'], index);
+            if (sectionKey === 'certifications') return getIndexedPlaceholder(['Tên chứng chỉ', 'Năm', 'Tổ chức cấp'], index);
+            if (sectionKey === 'activities') return getIndexedPlaceholder(['Tên dự án/Hoạt động', 'Bắt đầu - Kết thúc', 'Vai trò của bạn', 'Mô tả chi tiết'], index);
+        }
+
+        if (GENERIC_EDITABLE_DEFAULT_TEXTS.has(text)) return text;
+
+        return '';
+    }
+
+    function updateEditableEmptyState(field) {
         if (!field) return;
 
         if (field.getAttribute('contenteditable') !== 'true' && cleanPreviewText(field.innerText || '') === '') {
@@ -4107,6 +4293,37 @@
         }
 
         field.classList.toggle('cv-editable-empty', cleanPreviewText(field.innerText || '') === '');
+    }
+
+    function normalizeNonHarvardEditableDom(preview = document.getElementById('cvPreview')) {
+        if (!preview) return;
+
+        preview.querySelectorAll('.cvm-skill-group, .cvm-edu-item, .cvm-exp-item, .cvc2-skill-group, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cvcl2-skill, .cv-topcv-row').forEach(field => {
+            field.classList.add('cv-edit-shell');
+            field.classList.remove('cv-editable');
+            field.removeAttribute('contenteditable');
+            field.classList.remove('cv-editable-empty');
+            delete field.dataset.placeholder;
+        });
+
+        preview.querySelectorAll('.cv-editable').forEach(field => {
+            if (field.closest('.cvh-root') || field.closest('.cv-item-controls')) return;
+
+            const placeholder = getNonHarvardEditablePlaceholder(field);
+            if (placeholder) field.dataset.placeholder = placeholder;
+            else delete field.dataset.placeholder;
+
+            const text = cleanPreviewText(field.innerText || '');
+            if (!field.querySelector('.cv-editable') && text && (text === placeholder || GENERIC_EDITABLE_DEFAULT_TEXTS.has(text))) {
+                field.innerHTML = '';
+            }
+
+            updateEditableEmptyState(field);
+        });
+    }
+
+    function updateHarvardEditableEmptyState(field) {
+        updateEditableEmptyState(field);
     }
 
     function applyHarvardEditablePlaceholder(field) {
@@ -4753,6 +4970,10 @@
             preview.addEventListener('pointerdown', handlePreviewShellPointerDown, true);
             preview.dataset.shellPointerBound = 'true';
         }
+        if (!preview.dataset.shellInputBound) {
+            preview.addEventListener('input', handleHarvardEditableInput);
+            preview.dataset.shellInputBound = 'true';
+        }
 
         if (isEditMode) {
             preview.classList.add('cv-editable-mode');
@@ -4778,7 +4999,13 @@
         if (!preview) return;
 
         if (!isHarvardPreview(preview)) {
-            preview.querySelectorAll('.cv-editable').forEach(el => el.setAttribute('contenteditable', 'true'));
+            normalizeNonHarvardEditableDom(preview);
+            preview.querySelectorAll('.cv-editable').forEach(el => {
+                const isLeafEditable = !el.classList.contains('cv-edit-shell') && !el.querySelector('.cv-editable');
+                if (isLeafEditable) el.setAttribute('contenteditable', 'true');
+                else el.removeAttribute('contenteditable');
+                updateEditableEmptyState(el);
+            });
             return;
         }
 
@@ -4901,10 +5128,17 @@
 
     function handleHarvardEditableInput(event) {
         const preview = document.getElementById('cvPreview');
-        if (!isEditMode || !isHarvardPreview(preview)) return;
+        if (!isEditMode || !preview) return;
 
         const target = event.target instanceof Element ? event.target : event.target?.parentElement;
         if (!target) return;
+
+        if (!isHarvardPreview(preview)) {
+            const editable = target.closest('.cv-editable');
+            if (!editable || editable.closest('.cv-item-controls')) return;
+            updateEditableEmptyState(editable);
+            return;
+        }
 
         const field = resolveHarvardEditableField(target);
         if (!field) return;
