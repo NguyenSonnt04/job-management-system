@@ -270,7 +270,7 @@
             outline: 1px solid #1A2456;
             outline-offset: 1px;
             box-shadow: 0 0 0 1px rgba(26, 36, 86, 0.06);
-            background: rgba(255, 255, 255, 0.96);
+            background: transparent;
             z-index: 2;
         }
 
@@ -278,7 +278,7 @@
         .cv-editable-mode .cv-field-shell.cv-editable[contenteditable="true"]:focus {
             outline: none !important;
             box-shadow: inset 0 0 0 1px #1A2456 !important;
-            background: rgba(255, 255, 255, 0.96) !important;
+            background: transparent !important;
         }
 
         .cv-editable-mode .cvm-exp-role.cv-field-shell,
@@ -1527,11 +1527,463 @@
         activities: { icon: 'target', glyph: '', label: 'Hoạt động', layoutLabel: 'Hoạt động', desc: 'CLB, tình nguyện hoặc ngoại khóa.' }
     };
 
+    const SECTION_ICON_CHOICES = [
+        'id-card',
+        'image',
+        'file-pen-line',
+        'briefcase-business',
+        'graduation-cap',
+        'sparkles',
+        'rocket',
+        'scroll-text',
+        'trophy',
+        'target',
+        'folder-kanban',
+        'badge-check',
+        'star',
+        'layers-3',
+        'pen-tool'
+    ];
+
+    function inferPreviewIconKeyFromNode(node, fallbackIcon) {
+        const element = node instanceof HTMLElement ? node : node?.parentElement;
+        if (!element) return `preview-${fallbackIcon || 'icon'}-0`;
+        const section = element.closest('[data-cv-section]')?.getAttribute('data-cv-section') || '';
+        if (fallbackIcon === 'mail') return 'contact-email';
+        if (fallbackIcon === 'phone') return 'contact-phone';
+        if (fallbackIcon === 'map-pin') return 'contact-address';
+        if (fallbackIcon === 'briefcase-business') return 'contact-role';
+        if (fallbackIcon === 'camera') return 'avatar-camera';
+        const item = element.closest('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item');
+        const siblings = item?.parentElement
+            ? Array.from(item.parentElement.children).filter(child => child.matches?.('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item'))
+            : [];
+        const index = item ? Math.max(0, siblings.indexOf(item)) : 0;
+        return `${section || 'preview'}-${fallbackIcon || 'icon'}-${index}`;
+    }
+
+    const PREVIEW_ICON_CHOICES = [
+        'mail',
+        'phone',
+        'map-pin',
+        'briefcase-business',
+        'badge-check',
+        'sparkles',
+        'star',
+        'circle-dot',
+        'shield-check',
+        'trophy',
+        'rocket',
+        'globe',
+        'link',
+        'folder-kanban',
+        'target'
+    ];
+
+    let sectionIconPickerState = { sectionKey: null, selectedIcon: null };
+    let previewIconPickerState = { iconKey: null, selectedIcon: null, label: '' };
+
+    function inferSectionKeyFromText(text = '') {
+        const normalized = String(text || '').toLowerCase();
+        return Object.entries(sectionMeta).find(([, meta]) =>
+            normalized.includes((meta.label || '').toLowerCase()) ||
+            normalized.includes((meta.layoutLabel || '').toLowerCase())
+        )?.[0] || null;
+    }
+
+    function getSectionIconName(sectionKey) {
+        if (!sectionKey || !sectionMeta[sectionKey]) return '';
+        if (typeof designState === 'object' && designState?.sectionIcons?.[sectionKey]) return designState.sectionIcons[sectionKey];
+        return sectionMeta[sectionKey].icon || '';
+    }
+
+    function getPreviewIconName(iconKey, fallbackIcon) {
+        if (!iconKey) return fallbackIcon;
+        if (typeof designState === 'object' && designState?.previewIcons?.[iconKey]) return designState.previewIcons[iconKey];
+        return fallbackIcon;
+    }
+
+    function inferPreviewIconKeyFromNode(node, fallbackIcon) {
+        if (!(node instanceof Element)) return `${fallbackIcon || 'icon'}-0`;
+
+        const section = node.closest('[data-cv-section]')?.getAttribute('data-cv-section') || '';
+        if (fallbackIcon === 'mail') return 'contact-email';
+        if (fallbackIcon === 'phone') return 'contact-phone';
+        if (fallbackIcon === 'map-pin') return 'contact-address';
+        if (fallbackIcon === 'briefcase-business') return 'contact-role';
+        if (fallbackIcon === 'camera') return 'avatar-camera';
+
+        const item = node.closest('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item');
+        const siblings = item?.parentElement
+            ? [...item.parentElement.children].filter(child => child.matches?.('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item'))
+            : [];
+        const index = item ? Math.max(0, siblings.indexOf(item)) : 0;
+        return `${section || 'preview'}-${fallbackIcon}-${index}`;
+    }
+
+    function renderPreviewIconTrigger(iconKey, fallbackIcon, size = 14, style = '', label = 'icon') {
+        const iconName = getPreviewIconName(iconKey, fallbackIcon);
+        const safeLabel = String(label || 'icon').replace(/"/g, '&quot;');
+        return `<button type="button" class="preview-icon-trigger" data-preview-icon-key="${iconKey}" data-fallback-icon="${fallbackIcon}" data-label="${safeLabel}" title="Đổi icon ${safeLabel}" aria-label="Đổi icon ${safeLabel}" style="display:inline-flex;align-items:center;justify-content:center;width:${Math.max(size + 10, 24)}px;height:${Math.max(size + 10, 24)}px;padding:0;border:none;background:transparent;color:inherit;cursor:pointer;border-radius:8px;vertical-align:middle;${style}">${libIcon(iconName, size, 'color:currentColor;')}</button>`;
+    }
+
+    function renderSectionIconTrigger(sectionKey, size = 16, style = '') {
+        const meta = sectionMeta[sectionKey];
+        const iconName = getSectionIconName(sectionKey);
+        const label = meta?.label || 'mục';
+        return `<button type="button" class="section-meta-icon-trigger" data-section-key="${sectionKey}" title="Đổi icon cho ${label}" aria-label="Đổi icon cho ${label}" style="display:inline-flex;align-items:center;justify-content:center;width:${Math.max(size + 12, 28)}px;height:${Math.max(size + 12, 28)}px;padding:0;border:none;background:transparent;color:inherit;cursor:pointer;border-radius:10px;vertical-align:middle;${style}">${libIcon(iconName, size, 'color:currentColor;')}</button>`;
+    }
+
     function renderSectionMetaIcon(sectionKey, size = 16, style = '') {
         const meta = sectionMeta[sectionKey];
         if (!meta?.icon) return meta?.glyph || '';
-        return libIcon(meta.icon, size, style);
+        return renderSectionIconTrigger(sectionKey, size, style);
     }
+
+    function ensureSectionIconPickerModal() {
+        if (document.getElementById('sectionIconPickerModal')) return;
+
+        const modal = document.createElement('div');
+        modal.id = 'sectionIconPickerModal';
+        modal.className = 'cv-modal';
+        modal.style.display = 'none';
+        modal.innerHTML = `
+            <div class="cv-modal-content section-icon-modal-content">
+                <div class="cv-modal-title">Đổi icon mục</div>
+                <div class="section-icon-modal-subtitle">Chọn icon hiển thị cho mục này trong giao diện bố cục.</div>
+                <div class="section-icon-grid" id="sectionIconGrid"></div>
+                <div class="cv-modal-actions">
+                    <button type="button" class="btn-modal-cancel" id="sectionIconCancelBtn">Hủy</button>
+                    <button type="button" class="btn-modal-confirm" id="sectionIconSaveBtn">Lưu</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const grid = modal.querySelector('#sectionIconGrid');
+        if (grid) {
+            grid.innerHTML = SECTION_ICON_CHOICES.map(iconName => `
+                <button type="button" class="section-icon-option" data-icon-name="${iconName}" aria-label="${iconName}">
+                    ${libIcon(iconName, 18, 'color:currentColor;')}
+                </button>
+            `).join('');
+
+            grid.querySelectorAll('.section-icon-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    sectionIconPickerState.selectedIcon = option.dataset.iconName || '';
+                    syncSectionIconOptionState();
+                });
+            });
+        }
+
+        modal.querySelector('#sectionIconCancelBtn')?.addEventListener('click', closeSectionIconPickerModal);
+        modal.querySelector('#sectionIconSaveBtn')?.addEventListener('click', saveSectionIconSelection);
+        modal.addEventListener('click', event => {
+            if (event.target === modal) closeSectionIconPickerModal();
+        });
+    }
+
+    function syncSectionIconOptionState() {
+        const modal = document.getElementById('sectionIconPickerModal');
+        if (!modal) return;
+        modal.querySelectorAll('.section-icon-option').forEach(option => {
+            option.classList.toggle('is-active', option.dataset.iconName === sectionIconPickerState.selectedIcon);
+        });
+    }
+
+    function openSectionIconPickerModal(sectionKey) {
+        if (!sectionMeta[sectionKey]) return;
+        ensureSectionIconPickerModal();
+
+        const modal = document.getElementById('sectionIconPickerModal');
+        if (!modal) return;
+
+        sectionIconPickerState.sectionKey = sectionKey;
+        sectionIconPickerState.selectedIcon = getSectionIconName(sectionKey);
+        syncSectionIconOptionState();
+        modal.style.display = 'flex';
+    }
+
+    function closeSectionIconPickerModal() {
+        const modal = document.getElementById('sectionIconPickerModal');
+        if (modal) modal.style.display = 'none';
+        sectionIconPickerState = { sectionKey: null, selectedIcon: null };
+    }
+
+    function refreshSectionIconUI() {
+        if (typeof renderSectionManager === 'function') renderSectionManager();
+        if (typeof renderLayoutStudio === 'function') renderLayoutStudio();
+        normalizeSectionMetaIcons(document);
+        enhanceSectionIconTriggers(document);
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function saveSectionIconSelection() {
+        const { sectionKey, selectedIcon } = sectionIconPickerState;
+        if (!sectionKey || !selectedIcon) {
+            closeSectionIconPickerModal();
+            return;
+        }
+
+        if (typeof designState === 'object') {
+            designState.sectionIcons = designState.sectionIcons || {};
+            designState.sectionIcons[sectionKey] = selectedIcon;
+        }
+
+        closeSectionIconPickerModal();
+        refreshSectionIconUI();
+    }
+
+    function enhancePreviewIconTriggers(preview = document.getElementById('cvPreview')) {
+        if (!preview) return;
+        const supportedIcons = new Set([
+            'mail',
+            'phone',
+            'map-pin',
+            'briefcase-business',
+            'trophy',
+            'camera',
+            'link',
+            'rocket',
+            'target',
+            'star',
+            'sparkles',
+            'badge-check',
+            'globe',
+            'folder-kanban',
+            'circle-dot',
+            'shield-check'
+        ]);
+        preview.querySelectorAll('[data-lucide], svg.lucide').forEach(iconNode => {
+            const iconElement = iconNode instanceof SVGElement || iconNode instanceof HTMLElement ? iconNode : null;
+            if (!iconElement) return;
+            if (iconElement.closest('.preview-icon-trigger')) return;
+            if (iconElement.closest('.cv-item-controls')) return;
+            const iconName = iconElement.getAttribute('data-lucide')
+                || Array.from(iconElement.classList || []).find(cls => cls.startsWith('lucide-'))?.replace('lucide-', '')
+                || '';
+            if (!supportedIcons.has(iconName)) return;
+            const owner = iconElement.parentElement;
+            if (!(owner instanceof HTMLElement)) return;
+            const label = owner.textContent?.trim() || 'icon';
+            const iconKey = inferPreviewIconKeyFromNode(owner, iconName);
+            const trigger = document.createElement('button');
+            trigger.type = 'button';
+            trigger.className = 'preview-icon-trigger';
+            trigger.dataset.previewIconKey = iconKey;
+            trigger.dataset.fallbackIcon = iconName;
+            trigger.dataset.label = label;
+            trigger.title = `Đổi icon ${label}`;
+            trigger.setAttribute('aria-label', `Đổi icon ${label}`);
+            trigger.style.display = 'inline-flex';
+            trigger.style.alignItems = 'center';
+            trigger.style.justifyContent = 'center';
+            trigger.style.width = '24px';
+            trigger.style.height = '24px';
+            trigger.style.padding = '0';
+            trigger.style.margin = '0';
+            trigger.style.border = 'none';
+            trigger.style.background = 'transparent';
+            trigger.style.borderRadius = '8px';
+            trigger.style.color = 'inherit';
+            trigger.style.cursor = 'pointer';
+            owner.insertBefore(trigger, iconElement);
+            trigger.appendChild(iconElement);
+        });
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    }
+
+    function ensurePreviewIconPickerModal() {
+        if (document.getElementById('previewIconPickerModal')) return;
+
+        const modal = document.createElement('div');
+        modal.id = 'previewIconPickerModal';
+        modal.className = 'cv-modal';
+        modal.style.display = 'none';
+        modal.innerHTML = `
+            <div class="cv-modal-content section-icon-modal-content">
+                <div class="cv-modal-title">Đổi icon trong CV</div>
+                <div class="section-icon-modal-subtitle" id="previewIconModalSubtitle">Chọn icon mới cho mục này trong bản xem trước CV.</div>
+                <div class="section-icon-grid" id="previewIconGrid"></div>
+                <div class="cv-modal-actions">
+                    <button type="button" class="btn-modal-cancel" id="previewIconCancelBtn">Hủy</button>
+                    <button type="button" class="btn-modal-confirm" id="previewIconSaveBtn">Lưu</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const grid = modal.querySelector('#previewIconGrid');
+        if (grid) {
+            grid.innerHTML = PREVIEW_ICON_CHOICES.map(iconName => `
+                <button type="button" class="section-icon-option preview-icon-option" data-icon-name="${iconName}" aria-label="${iconName}">
+                    ${libIcon(iconName, 18, 'color:currentColor;')}
+                </button>
+            `).join('');
+
+            grid.querySelectorAll('.preview-icon-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    previewIconPickerState.selectedIcon = option.dataset.iconName || '';
+                    syncPreviewIconOptionState();
+                });
+            });
+        }
+
+        modal.querySelector('#previewIconCancelBtn')?.addEventListener('click', closePreviewIconPickerModal);
+        modal.querySelector('#previewIconSaveBtn')?.addEventListener('click', savePreviewIconSelection);
+        modal.addEventListener('click', event => {
+            if (event.target === modal) closePreviewIconPickerModal();
+        });
+    }
+
+    function syncPreviewIconOptionState() {
+        const modal = document.getElementById('previewIconPickerModal');
+        if (!modal) return;
+        modal.querySelectorAll('.preview-icon-option').forEach(option => {
+            option.classList.toggle('is-active', option.dataset.iconName === previewIconPickerState.selectedIcon);
+        });
+    }
+
+    function openPreviewIconPickerModal(iconKey, fallbackIcon, label = 'này') {
+        ensurePreviewIconPickerModal();
+        enhancePreviewIconTriggers(document.getElementById('cvPreview'));
+    enhancePreviewIconTriggers(document.getElementById('cvPreview'));
+        const modal = document.getElementById('previewIconPickerModal');
+        if (!modal) return;
+
+        previewIconPickerState.iconKey = iconKey;
+        previewIconPickerState.selectedIcon = getPreviewIconName(iconKey, fallbackIcon);
+        previewIconPickerState.label = label;
+
+        const subtitle = modal.querySelector('#previewIconModalSubtitle');
+        if (subtitle) subtitle.textContent = `Chọn icon mới cho ${label} trong bản xem trước CV.`;
+
+        syncPreviewIconOptionState();
+        modal.style.display = 'flex';
+    }
+
+    function closePreviewIconPickerModal() {
+        const modal = document.getElementById('previewIconPickerModal');
+        if (modal) modal.style.display = 'none';
+        previewIconPickerState = { iconKey: null, selectedIcon: null, label: '' };
+    }
+
+    function rerenderCurrentPreview() {
+        if (currentCvJson) {
+            renderCvPreview(currentCvJson);
+            return;
+        }
+        if (typeof templateData === 'object' && templateData) {
+            renderCvPreview(templateData);
+            return;
+        }
+        if (typeof cvData === 'object' && cvData) {
+            renderCvPreview(cvData);
+        }
+    }
+
+    function savePreviewIconSelection() {
+        const { iconKey, selectedIcon } = previewIconPickerState;
+        if (!iconKey || !selectedIcon) {
+            closePreviewIconPickerModal();
+            return;
+        }
+
+        if (typeof designState === 'object') {
+            designState.previewIcons = designState.previewIcons || {};
+            designState.previewIcons[iconKey] = selectedIcon;
+        }
+
+        closePreviewIconPickerModal();
+        rerenderCurrentPreview();
+    }
+
+    function enhanceSectionIconTriggers(root = document) {
+        root.querySelectorAll('.section-meta-icon-trigger, [data-section-meta-icon="true"]').forEach(node => {
+            if (!(node instanceof HTMLElement)) return;
+            const sectionKey = node.dataset.sectionKey || inferSectionKeyFromText(node.closest('.layout-section-card, .section-manager-item, .layout-used-card, .layout-unused-card, .sidebar-item, .layout-card, li, button, div')?.textContent || node.parentElement?.textContent || '');
+            if (!sectionKey || !sectionMeta[sectionKey]) return;
+
+            node.dataset.sectionKey = sectionKey;
+            node.classList.add('section-meta-icon-trigger');
+            node.setAttribute('title', `Đổi icon cho ${sectionMeta[sectionKey].label}`);
+            node.setAttribute('aria-label', `Đổi icon cho ${sectionMeta[sectionKey].label}`);
+            if (!node.hasAttribute('tabindex')) node.setAttribute('tabindex', '0');
+        });
+    }
+
+    function resolveSectionIconTrigger(target) {
+        if (!(target instanceof Element)) return null;
+
+        const directTrigger = target.closest('.section-meta-icon-trigger, [data-section-meta-icon="true"]');
+        if (directTrigger instanceof HTMLElement) return directTrigger;
+
+        const iconNode = target.closest('[data-lucide]');
+        if (!(iconNode instanceof HTMLElement)) return null;
+        if (iconNode.closest('#cvPreview')) return null;
+
+        const host = iconNode.closest('.layout-section-card, .section-manager-item, .layout-used-card, .layout-unused-card, .sidebar-item, .layout-card, li, button, div');
+        if (!(host instanceof HTMLElement)) return null;
+
+        const sectionKey = host.dataset.sectionKey || inferSectionKeyFromText(host.textContent || '');
+        if (!sectionKey || !sectionMeta[sectionKey]) return null;
+
+        host.dataset.sectionKey = sectionKey;
+        host.classList.add('section-meta-icon-trigger');
+        host.setAttribute('title', `Đổi icon cho ${sectionMeta[sectionKey].label}`);
+        host.setAttribute('aria-label', `Đổi icon cho ${sectionMeta[sectionKey].label}`);
+        host.style.cursor = 'pointer';
+        return host;
+    }
+
+    document.addEventListener('click', event => {
+        const trigger = resolveSectionIconTrigger(event.target);
+        if (!trigger) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const sectionKey = trigger.getAttribute('data-section-key');
+        if (sectionKey) openSectionIconPickerModal(sectionKey);
+    }, true);
+
+    document.addEventListener('pointerdown', event => {
+        const trigger = event.target instanceof Element ? event.target.closest('.preview-icon-trigger') : null;
+        if (!trigger) return;
+        event.preventDefault();
+        event.stopPropagation();
+    }, true);
+
+    document.addEventListener('click', event => {
+        const trigger = event.target instanceof Element ? event.target.closest('.preview-icon-trigger') : null;
+        if (!trigger) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const iconKey = trigger.getAttribute('data-preview-icon-key');
+        const fallbackIcon = trigger.getAttribute('data-fallback-icon') || 'star';
+        const label = trigger.getAttribute('data-label') || 'mục này';
+        if (iconKey) openPreviewIconPickerModal(iconKey, fallbackIcon, label);
+    }, true);
+
+    document.addEventListener('keydown', event => {
+        const trigger = resolveSectionIconTrigger(event.target);
+        if (!trigger) return;
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        const sectionKey = trigger.getAttribute('data-section-key');
+        if (sectionKey) openSectionIconPickerModal(sectionKey);
+    }, true);
+
+    document.addEventListener('keydown', event => {
+        const trigger = event.target instanceof Element ? event.target.closest('.preview-icon-trigger') : null;
+        if (!trigger) return;
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        const iconKey = trigger.getAttribute('data-preview-icon-key');
+        const fallbackIcon = trigger.getAttribute('data-fallback-icon') || 'star';
+        const label = trigger.getAttribute('data-label') || 'mục này';
+        if (iconKey) openPreviewIconPickerModal(iconKey, fallbackIcon, label);
+    }, true);
 
     function normalizeSectionMetaIcons(root = document) {
         const iconMap = {
@@ -1563,7 +2015,8 @@
 
             const [emoji, iconName] = matchedEntry;
             textNode.textContent = raw.replace(emoji, '').trimStart();
-            parent.insertAdjacentHTML('afterbegin', `<span data-section-meta-icon="true" style="display:inline-flex;align-items:center;margin-right:8px;vertical-align:middle;">${libIcon(iconName, 16, 'color:currentColor;')}</span>`);
+            const sectionKey = inferSectionKeyFromText(parent.closest('.layout-section-card, .section-manager-item, .layout-used-card, .layout-unused-card, .sidebar-item, .layout-card, li, button, div')?.textContent || parent.textContent || '');
+            parent.insertAdjacentHTML('afterbegin', `<span data-section-meta-icon="true" data-section-key="${sectionKey || ''}" class="section-meta-icon-trigger" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;margin-right:8px;vertical-align:middle;border-radius:10px;">${libIcon(iconName, 16, 'color:currentColor;')}</span>`);
         });
     }
     const defaultSectionOrder = [...sectionCatalog];
@@ -2696,6 +3149,8 @@
         applySectionVisibilityToPreview();
         applySectionOrderToPreview('professional');
         normalizePreviewIcons(document.getElementById('cvPreview'));
+        enhancePreviewIconTriggers(document.getElementById('cvPreview'));
+        enhancePreviewIconTriggers(document.getElementById('cvPreview'));
         normalizeSectionMetaIcons(document);
         renderSectionManager();
         refreshEditModeUI();
@@ -3463,6 +3918,20 @@
         const textNodes = [];
         while (walker.nextNode()) textNodes.push(walker.currentNode);
 
+        function inferPreviewIconKey(node, fallbackIcon) {
+            const section = node.closest('[data-cv-section]')?.getAttribute('data-cv-section') || '';
+            if (fallbackIcon === 'mail') return 'contact-email';
+            if (fallbackIcon === 'phone') return 'contact-phone';
+            if (fallbackIcon === 'map-pin') return 'contact-address';
+            if (fallbackIcon === 'briefcase-business') return 'contact-role';
+            if (fallbackIcon === 'camera') return 'avatar-camera';
+
+            const item = node.closest('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item');
+            const siblings = item?.parentElement ? [...item.parentElement.children].filter(child => child.matches?.('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item')) : [];
+            const index = item ? Math.max(0, siblings.indexOf(item)) : 0;
+            return `${section || 'preview'}-${fallbackIcon}-${index}`;
+        }
+
         textNodes.forEach(textNode => {
             const parent = textNode.parentElement;
             if (!parent || parent.closest('.cv-item-controls')) return;
@@ -3471,7 +3940,8 @@
             const trimmed = raw.trimStart();
             const matchedDef = iconDefs.find(({ chars }) => chars.some(char => trimmed.startsWith(char)));
             if (matchedDef && !parent.querySelector(':scope > [data-lucide]')) {
-                parent.insertAdjacentHTML('afterbegin', libIcon(matchedDef.icon, 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;'));
+                const iconKey = inferPreviewIconKey(parent, matchedDef.icon);
+                parent.insertAdjacentHTML('afterbegin', renderPreviewIconTrigger(iconKey, matchedDef.icon, 14, 'margin-right:6px;', parent.textContent || 'mục này'));
             }
             textNode.textContent = raw.replace(anyLeadingIconRegex, '');
         });
@@ -3492,7 +3962,8 @@
                 const value = (node.textContent || '').trim();
                 if (!value || !matcher(value)) return;
 
-                node.insertAdjacentHTML('afterbegin', libIcon(icon, 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;'));
+                const iconKey = inferPreviewIconKey(node, icon);
+                node.insertAdjacentHTML('afterbegin', renderPreviewIconTrigger(iconKey, icon, 14, 'margin-right:6px;', value));
             });
         });
     }
@@ -5827,8 +6298,8 @@
 <style>
     .cv-floating-save-btn {
         position: fixed;
-        top: 92px;
-        left: 18px;
+        top: 78px;
+        right: 18px;
         z-index: 1400;
         display: inline-flex;
         align-items: center;
@@ -5862,10 +6333,9 @@
 
     @media (max-width: 768px) {
         .cv-floating-save-btn {
-            top: 74px;
-            left: 12px;
+            top: 66px;
             right: 12px;
-            justify-content: center;
+            left: auto;
             border-radius: 12px;
         }
     }
@@ -6236,6 +6706,65 @@
     .preview-column .cv-topcv-root {
         row-gap: 10px !important;
     }
+
+    .section-meta-icon-trigger {
+        cursor: pointer !important;
+        transition: background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+    }
+
+    .section-meta-icon-trigger:hover {
+        background: rgba(26, 36, 86, 0.08) !important;
+        box-shadow: inset 0 0 0 1px rgba(26, 36, 86, 0.1);
+    }
+
+    .section-meta-icon-trigger:focus-visible {
+        outline: 2px solid rgba(37, 99, 235, 0.28);
+        outline-offset: 2px;
+    }
+
+    .section-icon-modal-content {
+        width: min(420px, calc(100vw - 32px));
+    }
+
+    .section-icon-modal-subtitle {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .section-icon-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .section-icon-option {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        border: 1px solid rgba(148, 163, 184, 0.34);
+        border-radius: 16px;
+        background: #f8fbff;
+        color: #1A2456;
+        cursor: pointer;
+        transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .section-icon-option:hover {
+        transform: translateY(-1px);
+        border-color: rgba(37, 99, 235, 0.38);
+        background: #eef4ff;
+        box-shadow: 0 10px 18px rgba(26, 36, 86, 0.08);
+    }
+
+    .section-icon-option.is-active {
+        border-color: rgba(37, 99, 235, 0.5);
+        background: #e7efff;
+        box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.22);
+    }
 </style>
 <script>
     (function () {
@@ -6285,14 +6814,25 @@
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', removeAssistantColumn);
+            document.addEventListener('DOMContentLoaded', () => {
+                removeAssistantColumn();
+                ensureSectionIconPickerModal();
+                ensurePreviewIconPickerModal();
+                enhanceSectionIconTriggers(document);
+            });
         } else {
             removeAssistantColumn();
+            ensureSectionIconPickerModal();
+            ensurePreviewIconPickerModal();
+            enhanceSectionIconTriggers(document);
         }
 
         new MutationObserver(() => {
             removeAssistantCloseButtons();
             normalizeEditorColumns();
+            ensureSectionIconPickerModal();
+            ensurePreviewIconPickerModal();
+            enhanceSectionIconTriggers(document);
         }).observe(document.documentElement, {
             childList: true,
             subtree: true
