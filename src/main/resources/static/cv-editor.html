@@ -151,7 +151,7 @@
         .cv-editable-mode [contenteditable]:focus {
             border-color: #1A2456 !important;
             border-style: solid !important;
-            box-shadow: inset 0 0 0 1.5px #1A2456, 0 0 0 1px rgba(26, 36, 86, 0.22) !important;
+            box-shadow: inset 0 0 0 1px #1A2456, 0 0 0 1px rgba(26, 36, 86, 0.12) !important;
             background: transparent !important;
             position: relative;
             z-index: 3;
@@ -160,7 +160,7 @@
         .cv-editable-mode .cvh-root .cv-editable[contenteditable="true"] {
             border-color: #1A2456 !important;
             border-style: solid !important;
-            box-shadow: inset 0 0 0 1.5px #1A2456, 0 0 0 1px rgba(26, 36, 86, 0.22) !important;
+            box-shadow: inset 0 0 0 1px #1A2456, 0 0 0 1px rgba(26, 36, 86, 0.12) !important;
             background: transparent !important;
             position: relative;
             z-index: 2;
@@ -234,6 +234,7 @@
         .cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell) {
             position: relative;
             border-radius: 12px;
+            box-sizing: border-box;
             box-shadow: inset 0 0 0 1px transparent;
             transition: box-shadow 0.16s ease, background 0.16s ease;
         }
@@ -252,9 +253,11 @@
 
         .cv-editable-mode .cv-field-shell {
             position: relative;
+            box-sizing: border-box;
             border-radius: 8px;
             transition: outline-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
             z-index: 1;
+            max-width: 100%;
         }
 
         .cv-editable-mode .cv-field-shell:hover {
@@ -264,11 +267,18 @@
         }
 
         .cv-editable-mode .cv-field-shell:focus-within {
-            outline: 2px solid #1A2456;
+            outline: 1px solid #1A2456;
             outline-offset: 1px;
-            box-shadow: 0 0 0 2px rgba(26, 36, 86, 0.08);
+            box-shadow: 0 0 0 1px rgba(26, 36, 86, 0.06);
             background: rgba(255, 255, 255, 0.96);
             z-index: 2;
+        }
+
+        .cv-editable-mode .cv-field-shell[contenteditable="true"]:focus,
+        .cv-editable-mode .cv-field-shell.cv-editable[contenteditable="true"]:focus {
+            outline: none !important;
+            box-shadow: inset 0 0 0 1px #1A2456 !important;
+            background: rgba(255, 255, 255, 0.96) !important;
         }
 
         .cv-editable-mode .cvm-exp-role.cv-field-shell,
@@ -292,8 +302,10 @@
         .cv-editable-mode .cvcl2-r-degree.cv-field-shell,
         .cv-editable-mode .cvcl2-r-school.cv-field-shell,
         .cv-editable-mode .cvcl2-r-period.cv-field-shell {
-            padding: 3px 6px;
-            margin: 2px -6px;
+            display: block;
+            width: 100%;
+            padding: 2px 4px;
+            margin: 2px 0;
         }
 
         .cv-editable-mode .cv-field-shell:focus-within > .cv-editable[contenteditable],
@@ -302,6 +314,11 @@
             border-style: solid !important;
             box-shadow: none !important;
             background: transparent !important;
+        }
+
+        .cv-editable-mode .cv-field-shell[contenteditable="true"]:focus:hover {
+            border-color: #1A2456 !important;
+            border-style: solid !important;
         }
 
         .cv-editable-mode .cvh-edit-shell {
@@ -1498,17 +1515,57 @@
     ];
 
     const sectionMeta = {
-        profileCard: { glyph: '🎴', label: 'Danh thiếp', layoutLabel: 'Danh thiếp', desc: 'Khối họ tên, chức danh và liên hệ ở phần đầu CV.' },
-        avatar: { glyph: '🖼️', label: 'Ảnh đại diện', layoutLabel: 'Ảnh đại diện', desc: 'Ảnh hồ sơ ở phần đầu CV.' },
-        summary: { glyph: '📝', label: 'Mục tiêu nghề nghiệp', layoutLabel: 'Mục tiêu nghề nghiệp', desc: 'Phần giới thiệu ngắn về định hướng.' },
-        experience: { glyph: '💼', label: 'Kinh nghiệm làm việc', layoutLabel: 'Kinh nghiệm làm việc', desc: 'Các vị trí và thành tựu nổi bật.' },
-        education: { glyph: '🎓', label: 'Học vấn', layoutLabel: 'Học vấn', desc: 'Trường học, bằng cấp và thời gian.' },
-        skills: { glyph: '⭐', label: 'Kỹ năng', layoutLabel: 'Kỹ năng', desc: 'Các nhóm kỹ năng chuyên môn.' },
-        projects: { glyph: '🚀', label: 'Dự án', layoutLabel: 'Dự án', desc: 'Dự án cá nhân hoặc công việc nổi bật.' },
-        certifications: { glyph: '📜', label: 'Chứng chỉ', layoutLabel: 'Chứng chỉ', desc: 'Chứng chỉ nghề nghiệp liên quan.' },
-        awards: { glyph: '🏆', label: 'Giải thưởng', layoutLabel: 'Giải thưởng', desc: 'Thành tích, giải thưởng và ghi nhận.' },
-        activities: { glyph: '🎯', label: 'Hoạt động', layoutLabel: 'Hoạt động', desc: 'CLB, tình nguyện hoặc ngoại khóa.' }
+        profileCard: { icon: 'id-card', glyph: '', label: 'Danh thiếp', layoutLabel: 'Danh thiếp', desc: 'Khối họ tên, chức danh và liên hệ ở phần đầu CV.' },
+        avatar: { icon: 'image', glyph: '', label: 'Ảnh đại diện', layoutLabel: 'Ảnh đại diện', desc: 'Ảnh hồ sơ ở phần đầu CV.' },
+        summary: { icon: 'file-pen-line', glyph: '', label: 'Mục tiêu nghề nghiệp', layoutLabel: 'Mục tiêu nghề nghiệp', desc: 'Phần giới thiệu ngắn về định hướng.' },
+        experience: { icon: 'briefcase-business', glyph: '', label: 'Kinh nghiệm làm việc', layoutLabel: 'Kinh nghiệm làm việc', desc: 'Các vị trí và thành tựu nổi bật.' },
+        education: { icon: 'graduation-cap', glyph: '', label: 'Học vấn', layoutLabel: 'Học vấn', desc: 'Trường học, bằng cấp và thời gian.' },
+        skills: { icon: 'sparkles', glyph: '', label: 'Kỹ năng', layoutLabel: 'Kỹ năng', desc: 'Các nhóm kỹ năng chuyên môn.' },
+        projects: { icon: 'rocket', glyph: '', label: 'Dự án', layoutLabel: 'Dự án', desc: 'Dự án cá nhân hoặc công việc nổi bật.' },
+        certifications: { icon: 'scroll-text', glyph: '', label: 'Chứng chỉ', layoutLabel: 'Chứng chỉ', desc: 'Chứng chỉ nghề nghiệp liên quan.' },
+        awards: { icon: 'trophy', glyph: '', label: 'Giải thưởng', layoutLabel: 'Giải thưởng', desc: 'Thành tích, giải thưởng và ghi nhận.' },
+        activities: { icon: 'target', glyph: '', label: 'Hoạt động', layoutLabel: 'Hoạt động', desc: 'CLB, tình nguyện hoặc ngoại khóa.' }
     };
+
+    function renderSectionMetaIcon(sectionKey, size = 16, style = '') {
+        const meta = sectionMeta[sectionKey];
+        if (!meta?.icon) return meta?.glyph || '';
+        return libIcon(meta.icon, size, style);
+    }
+
+    function normalizeSectionMetaIcons(root = document) {
+        const iconMap = {
+            '🎴': 'id-card',
+            '🖼️': 'image',
+            '📝': 'file-pen-line',
+            '💼': 'briefcase-business',
+            '🎓': 'graduation-cap',
+            '⭐': 'sparkles',
+            '🚀': 'rocket',
+            '📜': 'scroll-text',
+            '🏆': 'trophy',
+            '🎯': 'target'
+        };
+
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+        textNodes.forEach(textNode => {
+            const parent = textNode.parentElement;
+            if (!parent || parent.closest('#cvPreview')) return;
+            if (parent.querySelector(':scope > [data-section-meta-icon="true"]')) return;
+
+            const raw = textNode.textContent || '';
+            const trimmed = raw.trimStart();
+            const matchedEntry = Object.entries(iconMap).find(([emoji]) => trimmed.startsWith(emoji));
+            if (!matchedEntry) return;
+
+            const [emoji, iconName] = matchedEntry;
+            textNode.textContent = raw.replace(emoji, '').trimStart();
+            parent.insertAdjacentHTML('afterbegin', `<span data-section-meta-icon="true" style="display:inline-flex;align-items:center;margin-right:8px;vertical-align:middle;">${libIcon(iconName, 16, 'color:currentColor;')}</span>`);
+        });
+    }
     const defaultSectionOrder = [...sectionCatalog];
 
     const designState = {
@@ -2638,9 +2695,12 @@
         tagPreviewSections('professional');
         applySectionVisibilityToPreview();
         applySectionOrderToPreview('professional');
+        normalizePreviewIcons(document.getElementById('cvPreview'));
+        normalizeSectionMetaIcons(document);
         renderSectionManager();
         refreshEditModeUI();
         initSortable();
+        if (window.lucide) lucide.createIcons();
         const hint = document.createElement('div');
         hint.className = 'live-preview-hint';
         hint.style.margin = '8px 8px 0';
@@ -3008,6 +3068,10 @@
             preview.addEventListener('input', handleHarvardEditableInput);
             preview.dataset.shellInputBound = 'true';
         }
+        if (!preview.dataset.previewLinkGuardBound) {
+            preview.addEventListener('click', preventPreviewLinkNavigation, true);
+            preview.dataset.previewLinkGuardBound = 'true';
+        }
 
         if (isEditMode) {
             preview.classList.add('cv-editable-mode');
@@ -3353,6 +3417,8 @@
         tagPreviewSections(style);
         applySectionVisibilityToPreview();
         applySectionOrderToPreview(style);
+        normalizePreviewIcons(document.getElementById('cvPreview'));
+        normalizeSectionMetaIcons(document);
         renderSectionManager();
         refreshEditModeUI();
         initSortable();
@@ -3373,6 +3439,64 @@
         return editableField('span', text, path);
     }
 
+    function libIcon(name, size = 14, style = '') {
+        const mergedStyle = [`width:${size}px`, `height:${size}px`, 'stroke-width:2', style].filter(Boolean).join(';');
+        return `<i data-lucide="${name}" aria-hidden="true" style="${mergedStyle}"></i>`;
+    }
+
+    function normalizePreviewIcons(preview = document.getElementById('cvPreview')) {
+        if (!preview) return;
+
+        const iconDefs = [
+            { chars: ['📧', '✉', '✉️'], icon: 'mail' },
+            { chars: ['📱', '☎', '☏', '✆', '📞'], icon: 'phone' },
+            { chars: ['📍', '📌'], icon: 'map-pin' },
+            { chars: ['💼'], icon: 'briefcase' },
+            { chars: ['🏆'], icon: 'trophy' },
+            { chars: ['📷'], icon: 'camera' }
+        ];
+
+        const escapedCharGroups = iconDefs.map(({ chars }) => chars.map(char => char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'));
+        const anyLeadingIconRegex = new RegExp(`^(?:${escapedCharGroups.join('|')})\\s*`, 'u');
+
+        const walker = document.createTreeWalker(preview, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+        textNodes.forEach(textNode => {
+            const parent = textNode.parentElement;
+            if (!parent || parent.closest('.cv-item-controls')) return;
+            const raw = textNode.textContent || '';
+            if (!raw.trim()) return;
+            const trimmed = raw.trimStart();
+            const matchedDef = iconDefs.find(({ chars }) => chars.some(char => trimmed.startsWith(char)));
+            if (matchedDef && !parent.querySelector(':scope > [data-lucide]')) {
+                parent.insertAdjacentHTML('afterbegin', libIcon(matchedDef.icon, 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;'));
+            }
+            textNode.textContent = raw.replace(anyLeadingIconRegex, '');
+        });
+
+        const iconTargets = [
+            { selector: '.cvm-contact-item, .cvm2-contacts span, .cvcl2-contact span, .cv-topcv-root header span, .cvc2-meta span', matcher: value => /@/.test(value), icon: 'mail' },
+            { selector: '.cvm-contact-item, .cvm2-contacts span, .cvcl2-contact span, .cv-topcv-root header span, .cvc2-meta span', matcher: value => /[\d+]{6,}/.test(value.replace(/\s/g, '')), icon: 'phone' },
+            { selector: '.cvm-contact-item, .cvm2-contacts span, .cvcl2-contact span, .cv-topcv-root header span, .cvc2-meta span', matcher: value => /(quận|tp\.|thành phố|district|street|road|ward|phường|hồ chí minh|hanoi|đà nẵng)/i.test(value), icon: 'map-pin' },
+            { selector: '.cvm-edu-degree, .cvc2-card-title, .cvm2-row-title, .cvcl2-r-item, .cvh-inline-name', matcher: value => /(giải thưởng|award|winner|top|champion)/i.test(value), icon: 'trophy' }
+        ];
+
+        iconTargets.forEach(({ selector, matcher, icon }) => {
+            preview.querySelectorAll(selector).forEach(node => {
+                if (!(node instanceof HTMLElement)) return;
+                if (node.closest('.cv-item-controls')) return;
+                if (node.querySelector(':scope > [data-lucide]')) return;
+
+                const value = (node.textContent || '').trim();
+                if (!value || !matcher(value)) return;
+
+                node.insertAdjacentHTML('afterbegin', libIcon(icon, 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;'));
+            });
+        });
+    }
+
     function getAvatarHtml(borderColor = 'rgba(255,255,255,0.6)', size = 120, shape = 'circle') {
         if (!designState.sections.avatar) return '';
         const existing = avatarDataUrl;
@@ -3381,7 +3505,7 @@
             <div class="cvm-avatar" id="cvAvatarPlaceholder" style="border-radius:${radius};${existing ? 'display:none;' : ''}"></div>
             <img id="cvAvatarImg" src="${existing || ''}" alt="Avatar"
                 style="width:${size}px;height:${size}px;border-radius:${radius};object-fit:cover;border:4px solid ${borderColor};${existing ? '' : 'display:none;'}">
-            <div class="avatar-upload-overlay" onclick="triggerAvatarUpload()" title="Thay đổi ảnh" style="border-radius:${radius};">📷</div>
+            <div class="avatar-upload-overlay" onclick="triggerAvatarUpload()" title="Thay đổi ảnh" style="border-radius:${radius};">${libIcon('camera', 18, 'color:#fff;')}</div>
         </div>`;
     }
 
@@ -3496,7 +3620,7 @@
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvm-edu-item cv-edit-shell">
                 ${getItemControls('awards', idx)}
-                <div class="cvm-edu-degree">🏆 ${ed(aw.name||aw.raw||'')}</div>
+                <div class="cvm-edu-degree">${libIcon('trophy', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${ed(aw.name||aw.raw||'')}</div>
                 ${aw.year?`<div class="cvm-edu-year">${ed(aw.year)}</div>`:''}
             </div>`).join('');
 
@@ -3512,7 +3636,7 @@
             <div class="cvm-exp-item cv-edit-shell">
                 ${getItemControls('projects', idx)}
                 <div class="cvm-exp-role">${ed(p.name||'')}</div>
-                <div class="cvm-exp-company">${p.period?`${ed(p.period)} <br>`:''} ${p.tech?`<strong>Tech:</strong> ${ed(p.tech)} <br>`:''} ${p.github?`<a href="${esc(p.github)}" target="_blank" style="color:${accent}">${ed(p.github)}</a>`:''}</div>
+                <div class="cvm-exp-company">${p.period?`${ed(p.period)} <br>`:''} ${p.tech?`<strong>Tech:</strong> ${ed(p.tech)} <br>`:''} ${p.github?`${ed(p.github)}`:''}</div>
                 ${(p.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
             </div>`).join('');
 
@@ -3600,7 +3724,7 @@
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvc2-card cv-edit-shell">
                 ${getItemControls('awards', idx)}
-                <div class="cvc2-card-title">🏆 ${ed(aw.name||aw.raw||'')}</div>
+                <div class="cvc2-card-title">${libIcon('trophy', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${ed(aw.name||aw.raw||'')}</div>
                 <div class="cvc2-card-sub">${ed(aw.year||'')}</div>
             </div>`).join('');
 
@@ -3706,7 +3830,7 @@
                 ${getItemControls('awards', idx)}
                 <div class="cvm2-row-period" style="color:${accent}">${esc(aw.year||'')}</div>
                 <div class="cvm2-row-content">
-                    <div class="cvm2-row-title">🏆 ${esc(aw.name||aw.raw||'')}</div>
+                    <div class="cvm2-row-title">${libIcon('trophy', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(aw.name||aw.raw||'')}</div>
                 </div>
             </div>`).join('');
 
@@ -3735,9 +3859,9 @@
                 <h1 class="cvm2-name cv-editable">${esc(c.name||'HỌ TÊN')}</h1>
                 <div class="cvm2-subtitle cv-editable">${esc(c.subtitle||'')}</div>
                 <div class="cvm2-contacts">
-                    ${c.email?`<span>✉ ${esc(c.email)}</span>`:''}
-                    ${c.phone?`<span>✆ ${esc(c.phone)}</span>`:''}
-                    ${c.address?`<span>📍 ${esc(c.address)}</span>`:''}
+                    ${c.email?`<span>${libIcon('mail', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.email)}</span>`:''}
+                    ${c.phone?`<span>${libIcon('phone', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.phone)}</span>`:''}
+                    ${c.address?`<span>${libIcon('map-pin', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.address)}</span>`:''}
                 </div>
             </header>
             <div class="cvm2-body">
@@ -3821,7 +3945,7 @@
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvcl2-r-item cv-edit-shell" style="position:relative;">
-                ${getItemControls('awards', idx)}🏆 <span class="cv-editable">${esc(aw.name||aw.raw||'')}</span>${aw.year?` <span style="color:${hrColor};font-size:11px">(${esc(aw.year)})</span>`:''}</div>`).join('');
+                ${getItemControls('awards', idx)}${libIcon('trophy', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} <span class="cv-editable">${esc(aw.name||aw.raw||'')}</span>${aw.year?` <span style="color:${hrColor};font-size:11px">(${esc(aw.year)})</span>`:''}</div>`).join('');
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
             <div class="cvcl2-r-item cv-edit-shell" style="position:relative;">
@@ -4960,7 +5084,7 @@
             currentCvJson.projects = [...projSection.querySelectorAll('.cvm-exp-item')].map(item => {
                 const metaLines = cleanPreviewText(item.querySelector('.cvm-exp-company')?.innerText).split('\n').map(line => line.trim()).filter(Boolean);
                 const techLine = metaLines.find(line => normalizeHeading(line).startsWith('TECH'));
-                const githubText = cleanPreviewText(item.querySelector('.cvm-exp-company a')?.innerText);
+                const githubText = metaLines.find(line => /github|https?:\/\/|www\./i.test(line)) || '';
                 return {
                     name: cleanPreviewText(item.querySelector('.cvm-exp-role')?.innerText),
                     period: metaLines[0] || '',
@@ -5528,6 +5652,20 @@
         activateHarvardEditable(field, preview);
     }
 
+    function preventPreviewLinkNavigation(event) {
+        const preview = document.getElementById('cvPreview');
+        if (!isEditMode || !preview) return;
+
+        const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+        if (!target) return;
+
+        const anchor = target.closest('a');
+        if (!anchor || !preview.contains(anchor)) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
     function handleHarvardEditableInput(event) {
         const preview = document.getElementById('cvPreview');
         if (!isEditMode || !preview) return;
@@ -5686,5 +5824,480 @@
     // ═══════════════════════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', init);
     </script>
+<style>
+    .cv-floating-save-btn {
+        position: fixed;
+        top: 92px;
+        left: 18px;
+        z-index: 1400;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        border: none;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #243b7a 0%, #1a2456 100%);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        box-shadow: 0 18px 34px rgba(26, 36, 86, 0.22);
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .cv-floating-save-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 22px 38px rgba(26, 36, 86, 0.28);
+    }
+
+    .cv-floating-save-btn:active {
+        transform: translateY(0);
+    }
+
+    .cv-floating-save-btn:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.28);
+        outline-offset: 3px;
+    }
+
+    @media (max-width: 768px) {
+        .cv-floating-save-btn {
+            top: 74px;
+            left: 12px;
+            right: 12px;
+            justify-content: center;
+            border-radius: 12px;
+        }
+    }
+</style>
+<script>
+    (function () {
+        const FLOATING_SAVE_ID = 'cvFloatingSaveButton';
+
+        function removeActionToolbar() {
+            document.querySelectorAll('.cv-action-toolbar').forEach(toolbar => toolbar.remove());
+        }
+
+        function removeEditModeBadge() {
+            document.querySelectorAll('#editModeBadge, .edit-mode-badge').forEach(badge => badge.remove());
+        }
+
+        function findToolbarSaveTrigger() {
+            const toolbar = document.querySelector('.cv-action-toolbar');
+            if (!toolbar) return null;
+
+            return [...toolbar.querySelectorAll('button, a')]
+                .find(el => /lưu cv/i.test((el.textContent || '').trim()));
+        }
+
+        function clickSaveTrigger() {
+            const toolbarTrigger = findToolbarSaveTrigger();
+            if (toolbarTrigger) {
+                toolbarTrigger.click();
+                return;
+            }
+
+            if (typeof openSaveCvModal === 'function') {
+                openSaveCvModal();
+                return;
+            }
+
+            if (typeof saveCv === 'function') {
+                saveCv();
+                return;
+            }
+
+            if (typeof saveCurrentCv === 'function') {
+                saveCurrentCv();
+            }
+        }
+
+        function ensureFloatingSaveButton() {
+            removeActionToolbar();
+            removeEditModeBadge();
+
+            let button = document.getElementById(FLOATING_SAVE_ID);
+            if (!button) {
+                button = document.createElement('button');
+                button.type = 'button';
+                button.id = FLOATING_SAVE_ID;
+                button.className = 'cv-floating-save-btn';
+                button.innerHTML = '<span>💾</span><span>Lưu CV</span>';
+                button.addEventListener('click', clickSaveTrigger);
+                document.body.appendChild(button);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', ensureFloatingSaveButton);
+        } else {
+            ensureFloatingSaveButton();
+        }
+
+        new MutationObserver(ensureFloatingSaveButton).observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+    })();
+</script>
+<style>
+    .assistant-column,
+    .assistant-column.assistant-redesigned {
+        display: none !important;
+    }
+
+    .design-column {
+        position: relative;
+        z-index: 2;
+        min-width: 320px;
+        max-width: 420px;
+        width: 100%;
+    }
+
+    .preview-column {
+        position: relative !important;
+        inset: auto !important;
+        left: auto !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        z-index: 1;
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .preview-column .cvm-section,
+    .preview-column .cvc2-zone,
+    .preview-column .cvm2-block,
+    .preview-column .cvcl2-section,
+    .preview-column .cv-topcv-section,
+    .preview-column .cvh-section {
+        margin-bottom: 12px !important;
+    }
+
+    .preview-column .cvm-exp-item,
+    .preview-column .cvm-edu-item,
+    .preview-column .cvc2-card,
+    .preview-column .cvm2-row,
+    .preview-column .cvcl2-item,
+    .preview-column .cvcl2-r-item,
+    .preview-column .cv-topcv-row,
+    .preview-column .cvh-item {
+        margin-bottom: 6px !important;
+    }
+
+    .preview-column .cvm-skill-group,
+    .preview-column .cvc2-skill-group,
+    .preview-column .cvcl2-skill,
+    .preview-column .cvh-skill-group {
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-exp-detail,
+    .preview-column .cvm-edu-detail,
+    .preview-column .cvc2-card-bullet,
+    .preview-column .cvm2-bullet,
+    .preview-column .cvcl2-bullet,
+    .preview-column .cvh-bullet,
+    .preview-column .cvh-details {
+        margin-top: 2px !important;
+        margin-bottom: 0 !important;
+        line-height: 1.35 !important;
+    }
+
+    .preview-column .cvm-skill-list,
+    .preview-column .cvc2-tags,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-skill-vals,
+    .preview-column .cvh-skill-items,
+    .preview-column p,
+    .preview-column li {
+        line-height: 1.35 !important;
+    }
+
+    .preview-column .cvm-section-title,
+    .preview-column .cvc2-sec,
+    .preview-column .cvm2-title,
+    .preview-column .cvcl2-sec-title,
+    .preview-column .cvcl2-sec-title-r,
+    .preview-column .cvh-title,
+    .preview-column .cv-topcv-title {
+        margin-bottom: 8px !important;
+        padding-bottom: 6px !important;
+    }
+
+    .preview-column .cvm-exp-role,
+    .preview-column .cvm-edu-degree,
+    .preview-column .cvc2-card-title,
+    .preview-column .cvm2-row-title,
+    .preview-column .cvcl2-role,
+    .preview-column .cvcl2-r-degree,
+    .preview-column .cvh-item-title {
+        margin-bottom: 2px !important;
+        line-height: 1.25 !important;
+    }
+
+    .preview-column .cvm-exp-company,
+    .preview-column .cvm-edu-school,
+    .preview-column .cvm-edu-year,
+    .preview-column .cvc2-card-sub,
+    .preview-column .cvm2-row-period,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-company,
+    .preview-column .cvcl2-date,
+    .preview-column .cvcl2-r-school,
+    .preview-column .cvcl2-r-period,
+    .preview-column .cvh-item-sub,
+    .preview-column .cvh-item-date {
+        margin-bottom: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    .preview-column .cvm-left section,
+    .preview-column .cvm-right section,
+    .preview-column .cvm2-block,
+    .preview-column .cv-topcv-content,
+    .preview-column .cvh-section {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .preview-column .cvm-body,
+    .preview-column .cvc2-body,
+    .preview-column .cvm2-body,
+    .preview-column .cvcl2-body,
+    .preview-column .cvh-root {
+        row-gap: 12px !important;
+    }
+
+    .preview-column .cvm-right {
+        gap: 10px !important;
+    }
+
+    .preview-column .cvm-right .cvm-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvm-right .cvm-section-title {
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-item,
+    .preview-column .cvm-right .cvm-skill-group {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-role,
+    .preview-column .cvm-right .cvm-skill-cat {
+        margin-bottom: 1px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-company,
+    .preview-column .cvm-right .cvm-skill-list {
+        margin-bottom: 1px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-detail-group,
+    .preview-column .cvm-right .cvm-exp-detail {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cvm-left {
+        gap: 10px !important;
+    }
+
+    .preview-column .cvm-left .cvm-section,
+    .preview-column .cvm-left section.cvm-section,
+    .preview-column .cvm-left .cvm-summary-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvm-left .cvm-section-title {
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-left .cvm-summary-text-full {
+        margin-top: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-item,
+    .preview-column .cvm-left .cvm-exp-item {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-degree,
+    .preview-column .cvm-left .cvm-exp-role {
+        margin-bottom: 1px !important;
+        line-height: 1.22 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-school,
+    .preview-column .cvm-left .cvm-edu-year,
+    .preview-column .cvm-left .cvm-exp-company {
+        margin-bottom: 1px !important;
+        line-height: 1.26 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-detail-group,
+    .preview-column .cvm-left .cvm-edu-detail,
+    .preview-column .cvm-left .cvm-exp-detail-group,
+    .preview-column .cvm-left .cvm-exp-detail {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cvc2-header {
+        margin-bottom: 12px !important;
+        padding-bottom: 12px !important;
+    }
+
+    .preview-column .cvc2-zone,
+    .preview-column .cvm2-block,
+    .preview-column .cvcl2-section,
+    .preview-column .cv-topcv-section,
+    .preview-column .cvh-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvc2-card,
+    .preview-column .cvm2-row,
+    .preview-column .cvcl2-item,
+    .preview-column .cvcl2-r-item,
+    .preview-column .cv-topcv-row,
+    .preview-column .cvh-item,
+    .preview-column .cvh-inline-item,
+    .preview-column .cvh-skill-group {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvc2-card-title,
+    .preview-column .cvm2-row-title,
+    .preview-column .cvcl2-role,
+    .preview-column .cvcl2-r-degree,
+    .preview-column .cvh-item-title,
+    .preview-column .cvh-inline-name,
+    .preview-column .cvh-skill-cat {
+        margin-bottom: 1px !important;
+        line-height: 1.22 !important;
+    }
+
+    .preview-column .cvc2-card-sub,
+    .preview-column .cvm2-row-period,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-company,
+    .preview-column .cvcl2-date,
+    .preview-column .cvcl2-r-school,
+    .preview-column .cvcl2-r-period,
+    .preview-column .cvh-item-sub,
+    .preview-column .cvh-item-date,
+    .preview-column .cvh-inline-year,
+    .preview-column .cvh-inline-issuer,
+    .preview-column .cvh-skill-items {
+        margin-bottom: 1px !important;
+        line-height: 1.26 !important;
+    }
+
+    .preview-column .cvc2-card-bullet,
+    .preview-column .cvm2-bullet,
+    .preview-column .cvcl2-bullet,
+    .preview-column .cvh-bullet,
+    .preview-column .cvh-details,
+    .preview-column .cvh-github-bullet {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cv-topcv-content > div,
+    .preview-column .cv-topcv-row > div {
+        margin-top: 2px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .preview-column .cvh-root,
+    .preview-column .cvc2-root,
+    .preview-column .cvm2-root,
+    .preview-column .cvcl2-root,
+    .preview-column .cv-topcv-root {
+        row-gap: 10px !important;
+    }
+</style>
+<script>
+    (function () {
+        function removeAssistantCloseButtons(root = document) {
+            root.querySelectorAll('button, [role="button"], a').forEach(node => {
+                if (!(node instanceof HTMLElement)) return;
+                const signature = `${node.textContent || ''} ${node.title || ''} ${node.getAttribute('aria-label') || ''}`.toLowerCase();
+                if (/đóng ai|close ai|hide ai|thu gọn ai/.test(signature)) {
+                    node.remove();
+                }
+            });
+        }
+
+        function normalizeEditorColumns() {
+            const designColumn = document.querySelector('.design-column');
+            const previewColumn = document.querySelector('.preview-column');
+            if (!designColumn || !previewColumn) return;
+
+            const parent = designColumn.parentElement;
+            if (!(parent instanceof HTMLElement) || parent !== previewColumn.parentElement) return;
+
+            parent.style.display = 'grid';
+            parent.style.gridTemplateColumns = 'minmax(340px, 420px) minmax(0, 1fr)';
+            parent.style.alignItems = 'start';
+            parent.style.columnGap = '24px';
+            parent.style.rowGap = '0';
+
+            designColumn.style.gridColumn = '1';
+            designColumn.style.alignSelf = 'start';
+            designColumn.style.position = 'relative';
+
+            previewColumn.style.gridColumn = '2';
+            previewColumn.style.alignSelf = 'start';
+            previewColumn.style.position = 'relative';
+        }
+
+        function removeAssistantColumn() {
+            const panel = document.querySelector('.assistant-column');
+            document.querySelectorAll('#assistantChevronHandle, .assistant-chevron-handle').forEach(node => node.remove());
+            removeAssistantCloseButtons();
+
+            if (panel) {
+                panel.remove();
+            }
+
+            normalizeEditorColumns();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', removeAssistantColumn);
+        } else {
+            removeAssistantColumn();
+        }
+
+        new MutationObserver(() => {
+            removeAssistantCloseButtons();
+            normalizeEditorColumns();
+        }).observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+    })();
+</script>
 </body>
 </html>
