@@ -180,7 +180,7 @@
                             <div class="tool-card">
                                 <div class="tool-card-kicker">Template</div>
                                 <h4>Chuyển sang một phong cách CV khác</h4>
-                                <p>Bạn có thể đổi sang mẫu tối giản, sáng tạo hoặc ATS-friendly rồi tiếp tục tinh chỉnh.</p>
+                                <p>Bạn có thể đổi sang mẫu chuyên nghiệp, sáng tạo, tối giản, cổ điển hoặc Harvard rồi tiếp tục tinh chỉnh.</p>
                                 <button class="tool-action primary" type="button" onclick="branchChangeTemplate()">
                                     Mở thư viện mẫu
                                 </button>
@@ -1359,6 +1359,13 @@
             </button>`;
     }
 
+    function normalizeCvStyle(style) {
+        const normalized = String(style || '').trim().toLowerCase();
+        if (normalized === 'ats' || normalized === 'topcv') return 'classic';
+        if (['professional', 'creative', 'minimalist', 'classic', 'harvard'].includes(normalized)) return normalized;
+        return 'professional';
+    }
+
     function getDirectTaggedSections(container) {
         if (!container) return [];
         return [...container.children]
@@ -1367,8 +1374,9 @@
     }
 
     function getLayoutStudioFixedCards(style = getCurrentPreviewStyle()) {
+        style = normalizeCvStyle(style);
         const fixedCards = [];
-        const hasProfileCard = ['professional', 'creative', 'minimalist', 'classic', 'harvard', 'topcv'].includes(style);
+        const hasProfileCard = ['professional', 'creative', 'minimalist', 'classic', 'harvard'].includes(style);
 
         if (hasProfileCard) fixedCards.push('profileCard');
         if (sectionEnabled('avatar') && document.querySelector('.cvm-avatar-wrapper')) {
@@ -1379,6 +1387,7 @@
     }
 
     function getLayoutStudioColumns(style = getCurrentPreviewStyle()) {
+        style = normalizeCvStyle(style);
         let columns = [];
 
         if (style === 'creative') {
@@ -1395,8 +1404,6 @@
             columns = [leftColumn, rightColumn];
         } else if (style === 'harvard') {
             columns = [getDirectTaggedSections(document.querySelector('.cvh-body'))];
-        } else if (style === 'topcv') {
-            columns = [getDirectTaggedSections(document.querySelector('.cv-topcv-body'))];
         } else if (style === 'minimalist') {
             columns = [getDirectTaggedSections(document.querySelector('.cvm2-body'))];
         } else {
@@ -1407,7 +1414,7 @@
         }
 
         if (!columns.some(column => column.length)) {
-            const fallback = style === 'harvard' || style === 'topcv' || style === 'minimalist'
+            const fallback = style === 'harvard' || style === 'minimalist'
                 ? [getOrderedUsedSections()]
                 : [getOrderedUsedSections(), []];
             return fallback;
@@ -1844,9 +1851,10 @@
                             hydrateDesignState(parsedCv._designState || { color: parsedCv._accent });
                             window.currentTemplate = {
                                 previewColor: parsedCv._accent || data.templateName || '#2E3B8E',
-                                styleTag:     parsedCv._styleTag || 'professional',
+                                styleTag:     normalizeCvStyle(parsedCv._styleTag || 'professional'),
                                 name:         data.templateName || ''
                             };
+                            parsedCv._styleTag = normalizeCvStyle(parsedCv._styleTag || 'professional');
                             templateName = data.templateName || '';
                             renderCvPreview(parsedCv);
                             enablePostGenActions();
@@ -1871,7 +1879,7 @@
                     templateName = tpl.name || 'CV Mẫu';
                     window.currentTemplate = {
                         previewColor: tpl.previewColor || '#2E3B8E',
-                        styleTag:     tpl.styleTag     || 'professional',
+                        styleTag:     normalizeCvStyle(tpl.styleTag || 'professional'),
                         name:         tpl.name         || ''
                     };
                     if (tpl.templateContent) {
@@ -2767,7 +2775,7 @@
         c._designState = cloneDesignState();
 
         // Route to style-specific renderer based on template styleTag
-        const style = window.currentTemplate?.styleTag || c._styleTag || 'professional';
+        const style = normalizeCvStyle(window.currentTemplate?.styleTag || c._styleTag || 'professional');
         c._styleTag = style;
 
         let html = '';
@@ -2775,7 +2783,6 @@
         else if (style === 'minimalist') html = renderMinimalistStyle(c, accent);
         else if (style === 'classic')    html = renderClassicStyle(c, accent);
         else if (style === 'harvard')    html = renderHarvardStyle(c, accent);
-        else if (style === 'topcv')      html = renderTopcvStyle(c, accent);
         else                             html = renderProfessionalStyle(c, accent);
 
         document.getElementById('cvPreview').innerHTML = html;
@@ -2976,15 +2983,13 @@
 
     // ── STYLE 1: Professional (2-column with color header) ──────
     function renderProfessionalStyle(c, accent) {
-        // Pre-defined widths create a natural, varied look across all skill groups
-        const SKILL_WIDTHS = [92, 78, 85, 65, 88, 72, 80, 68, 76, 70, 83, 60, 90, 75, 64];
-        let skillWidthIdx = 0;
-
         const skillsHtml = (c.skills || []).map((sg, idx) => `
             <div class="cvm-skill-group cv-edit-shell">
-                <div class="cvm-skill-cat"><strong>${esc(sg.category)}</strong></div>
-                <div class="cvm-skill-list">${esc((sg.items || []).join(', '))}</div>
                 ${getItemControls('skills', idx)}
+                <div class="cvm-skill-cat"><strong>${ed(sg.category || '')}</strong></div>
+                <div class="cvm-skill-list">
+                    ${(sg.items || []).map(item => `<span class="cvm-skill-pill">${ed(item)}</span>`).join('')}
+                </div>
             </div>`).join('');
 
         const eduHtml = (c.education || []).map(e => `
@@ -3172,10 +3177,12 @@
         const expHtml = (c.experience||[]).map((e, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('experience', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
+                    <div class="cvm2-row-org">${esc(e.company||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(e.role||'')}</div>
-                    <div class="cvm2-row-org">${esc(e.company||'')}</div>
                     ${(e.details||[]).map(d=>`<div class="cvm2-bullet">${ed(d)}</div>`).join('')}
                 </div>
             </div>`).join('');
@@ -3183,20 +3190,25 @@
         const eduHtml = (c.education||[]).map((e, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('education', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
+                    <div class="cvm2-row-org">${esc(e.school||e.location||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(e.degree||'')}</div>
-                    <div class="cvm2-row-org">${esc(e.school||e.location||'')}</div>
+                    ${(e.details||[]).map(d=>`<div class="cvm2-bullet">${ed(d)}</div>`).join('')}
                 </div>
             </div>`).join('');
 
         const projHtml = (c.projects||[]).map((p, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('projects', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(p.period||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(p.period||'')}</div>
+                    <div class="cvm2-row-org">${esc(p.tech||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(p.name||'')}</div>
-                    <div class="cvm2-row-org">${esc(p.tech||'')}</div>
                     ${(p.details||[]).map(d=>`<div class="cvm2-bullet">${ed(d)}</div>`).join('')}
                 </div>
             </div>`).join('');
@@ -3204,17 +3216,21 @@
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('certifications', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(cert.year||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(cert.year||'')}</div>
+                    <div class="cvm2-row-org">${esc(cert.issuer||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(cert.name||cert.raw||'')}</div>
-                    <div class="cvm2-row-org">${esc(cert.issuer||'')}</div>
                 </div>
             </div>`).join('');
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('awards', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(aw.year||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(aw.year||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${libIcon('trophy', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(aw.name||aw.raw||'')}</div>
                 </div>
@@ -3223,10 +3239,12 @@
         const actHtml = (c.activities||[]).map((a, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('activities', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(a.period||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(a.period||'')}</div>
+                    <div class="cvm2-row-org">${esc(a.role||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(a.name||a.raw||'')}</div>
-                    <div class="cvm2-row-org">${esc(a.role||'')}</div>
                     ${(a.details||[]).map(d=>`<div class="cvm2-bullet">${ed(d)}</div>`).join('')}
                 </div>
             </div>`).join('');
@@ -3240,14 +3258,18 @@
                 ${getItemControls('skills', idx)}
             </div>`).join('');
 
-        return `<div class="cv-full cvm2-root">
+        return `<div class="cv-full cvm2-root" style="--cv-accent:${accent};">
             <header class="cvm2-header">
+                <div class="cvm2-header-bar" style="background:${accent};"></div>
+                <div class="cvm2-header-content">
                 <h1 class="cvm2-name cv-editable">${esc(c.name||'HỌ TÊN')}</h1>
                 <div class="cvm2-subtitle cv-editable">${esc(c.subtitle||'')}</div>
                 <div class="cvm2-contacts">
                     ${c.email?`<span>${libIcon('mail', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.email)}</span>`:''}
-                    ${c.phone?`<span>${libIcon('phone', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.phone)}</span>`:''}
-                    ${c.address?`<span>${libIcon('map-pin', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.address)}</span>`:''}
+                    ${c.phone?`<span class="cvm2-sep">•</span><span>${libIcon('phone', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.phone)}</span>`:''}
+                    ${c.address?`<span class="cvm2-sep">•</span><span>${libIcon('map-pin', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.address)}</span>`:''}
+                    ${c.linkedin?`<span class="cvm2-sep">•</span><span>${libIcon('linkedin', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.linkedin)}</span>`:''}
+                </div>
                 </div>
             </header>
             <div class="cvm2-body">
@@ -3320,9 +3342,11 @@
 
         const skillHtml = (c.skills||[]).map((sg, idx)=>`
             <div class="cvcl2-skill cv-edit-shell">
-                <div class="cvcl2-skill-cat"><strong>${esc(sg.category)}</strong></div>
-                <div class="cvcl2-skill-vals">${esc((sg.items||[]).join(', '))}</div>
                 ${getItemControls('skills', idx)}
+                <div class="cvcl2-skill-cat"><strong>${ed(sg.category || '')}</strong></div>
+                <div class="cvcl2-skill-vals">
+                    ${(sg.items || []).map(item => `<span class="cvcl2-pill" style="border-color:${hrColor}22;background:${hrColor}0d;color:${hrColor};">${ed(item)}</span>`).join('')}
+                </div>
             </div>`).join('');
 
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
@@ -4221,7 +4245,7 @@
     }
 
     function getCurrentPreviewStyle() {
-        return currentCvJson?._styleTag || window.currentTemplate?.styleTag || 'professional';
+        return normalizeCvStyle(currentCvJson?._styleTag || window.currentTemplate?.styleTag || 'professional');
     }
 
     function getPreviewSectionCandidate(sectionName, style = getCurrentPreviewStyle()) {
@@ -4395,7 +4419,7 @@
     function syncPreviewToCurrentCv() {
         if (!currentCvJson) return;
 
-        const style = currentCvJson._styleTag || window.currentTemplate?.styleTag || 'professional';
+        const style = normalizeCvStyle(currentCvJson._styleTag || window.currentTemplate?.styleTag || 'professional');
         if (style === 'creative') syncCreativePreview();
         else if (style === 'minimalist') syncMinimalistPreview();
         else if (style === 'classic') syncClassicPreview();

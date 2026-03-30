@@ -4083,3 +4083,247 @@ input:checked + .slider:before {
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Refined CV Style Polish */
+        .cvm-header {
+            padding: 44px 52px 40px;
+            align-items: center;
+            gap: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cvm-header::after {
+            content: '';
+            position: absolute;
+            right: -90px;
+            top: -70px;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 68%);
+            pointer-events: none;
+        }
+
+        .cvm-name {
+            font-size: 34px;
+            letter-spacing: -1px;
+        }
+
+        .cvm-job-title {
+            font-size: 15px;
+            letter-spacing: 2.2px;
+            text-transform: uppercase;
+        }
+
+        .cvm-contact-row {
+            gap: 10px 16px;
+        }
+
+        .cvm-contact-row span {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.14);
+        }
+
+        .cvm-body {
+            grid-template-columns: 300px 1fr;
+        }
+
+        .cvm-left {
+            background: linear-gradient(180deg, #f7f9fc 0%, #eef4fb 100%);
+            padding: 42px 28px;
+        }
+
+        .cvm-right {
+            padding: 44px 48px;
+        }
+
+        .cvm-section-title {
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding-bottom: 8px;
+            margin-bottom: 14px;
+        }
+
+        .cvm-skill-group {
+            padding-bottom: 12px;
+            border-bottom: 1px solid #dbe5f0;
+        }
+
+        .cvm-skill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .cvm-skill-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--cv-accent);
+            background: #ffffff;
+            border: 1px solid #d9e2ec;
+        }
+
+        .cvm-exp-item {
+            padding-left: 22px;
+            border-left-width: 3px;
+        }
+
+        .cvc2-root {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .cvc2-header {
+            padding: 42px 44px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cvc2-header::after {
+            content: '';
+            position: absolute;
+            right: -40px;
+            bottom: -90px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+
+        .cvc2-body {
+            gap: 34px;
+            padding: 34px 40px 44px;
+        }
+
+        .cvc2-zone {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .cvc2-zone-title {
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .cvc2-card {
+            border-left-width: 4px;
+            border-radius: 16px;
+            padding: 16px 18px;
+            background: linear-gradient(180deg, #ffffff, #f8fafc);
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+        }
+
+        .cvc2-skill-group {
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid #e6edf5;
+            background: #ffffff;
+        }
+
+        .cvc2-tag {
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 12px;
+            background: rgba(255,255,255,0.92);
+            border: 1px solid rgba(148,163,184,0.24);
+        }
+
+        .cvm2-header-content {
+            width: 100%;
+        }
+
+        .cvm2-block-body {
+            padding: 24px 44px 24px 22px;
+        }
+
+        .cvm2-row {
+            padding: 6px 0;
+        }
+
+        .cvm2-row-content {
+            min-width: 0;
+        }
+
+        .cvm2-skill-line {
+            align-items: flex-start;
+        }
+
+        .cvcl2-root {
+            background: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
+        }
+
+        .cvcl2-header {
+            gap: 28px;
+            padding: 34px 40px 26px;
+            border-bottom: 1px solid #e7dcc7;
+        }
+
+        .cvcl2-summary-bar {
+            background: #fcfaf5;
+            border-bottom: 1px solid #e7dcc7;
+        }
+
+        .cvcl2-body {
+            grid-template-columns: 1.45fr 1fr;
+            border-top: none;
+        }
+
+        .cvcl2-left {
+            border-right: 1px solid #eadfcd;
+        }
+
+        .cvcl2-right {
+            background: #fcfaf5;
+        }
+
+        .cvcl2-sec-title,
+        .cvcl2-sec-title-r {
+            letter-spacing: 1.8px;
+        }
+
+        .cvcl2-pill {
+            border-radius: 999px;
+            padding: 3px 8px;
+        }
+
+        .cvh-root {
+            padding: 54px 60px;
+            background: #ffffff;
+        }
+
+        .cvh-header {
+            margin-bottom: 24px;
+        }
+
+        .cvh-name {
+            display: block;
+            padding: 0;
+            border: none;
+            font-size: 30px;
+            letter-spacing: 0.6px;
+        }
+
+        .cvh-subtitle {
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .cvh-contact {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #111827;
+        }
+
+        .cvh-title {
+            font-size: 12px;
+            letter-spacing: 1.6px;
+        }
