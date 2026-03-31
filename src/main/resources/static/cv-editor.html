@@ -180,7 +180,7 @@
                             <div class="tool-card">
                                 <div class="tool-card-kicker">Template</div>
                                 <h4>Chuyển sang một phong cách CV khác</h4>
-                                <p>Bạn có thể đổi sang mẫu chuyên nghiệp, sáng tạo, tối giản, cổ điển hoặc Harvard rồi tiếp tục tinh chỉnh.</p>
+                                <p>Bạn có thể đổi sang mẫu chuyên nghiệp, cổ điển, hiện đại, ấn tượng, sáng tạo, ATS hoặc Harvard rồi tiếp tục tinh chỉnh.</p>
                                 <button class="tool-action primary" type="button" onclick="branchChangeTemplate()">
                                     Mở thư viện mẫu
                                 </button>
@@ -490,6 +490,7 @@
         'phone',
         'map-pin',
         'briefcase-business',
+        'badge-alert',
         'badge-check',
         'sparkles',
         'star',
@@ -1929,7 +1930,7 @@
         name: '', subtitle: '', email: '', phone: '', address: '',
         linkedin: '', portfolio: '', summary: '',
         education: [], experience: [], projects: [], skills: [],
-        certifications: [], awards: [], activities: []
+        certifications: [], awards: [], activities: [], customContacts: []
     };
 
     let avatarDataUrl = null;
@@ -3238,11 +3239,11 @@
                 <button class="btn-item-ctrl btn-item-dup" type="button" onclick="duplicateItem('${type}', ${index})" title="Nhan doi">
                     <i data-lucide="copy"></i>
                 </button>
-                <button class="btn-item-ctrl btn-item-del" type="button" onclick="removeItem('${type}', ${index})" title="Xoa">
-                    Xoa
+                <button class="btn-item-ctrl btn-item-del" type="button" onclick="removeItem('${type}', ${index})" title="Xóa">
+                    Xóa
                 </button>
-                <button class="btn-item-ctrl btn-item-add" type="button" onclick="addItem('${type}', ${index + 1})" title="Them">
-                    <i data-lucide="plus"></i> Them
+                <button class="btn-item-ctrl btn-item-add" type="button" onclick="addItem('${type}', ${index + 1})" title="Thêm">
+                    <i data-lucide="plus"></i> Thêm
                 </button>
             </div>`;
     }
@@ -3263,7 +3264,7 @@
         if (!currentCvJson || !Array.isArray(currentCvJson[type])) return;
         if (index < 0 || index >= currentCvJson[type].length) return;
 
-        if (confirm('Ban co chac chan muon xoa muc nay?')) {
+        if (confirm('Bạn có chắc muốn xóa mục này?')) {
             currentCvJson[type].splice(index, 1);
             renderCvPreview(currentCvJson);
             markCvDirty({ immediate: true });
@@ -5732,6 +5733,455 @@
             childList: true,
             subtree: true
         });
+        function renderModernStyle(c, accent) {
+            return renderMinimalistStyle(c, accent)
+                .replace('class="cv-full cvm2-root"', 'class="cv-full cvm2-root cv-modern-root"');
+        }
+
+        function renderImpactfulStyle(c, accent) {
+            return renderCreativeStyle(c, accent)
+                .replace('class="cv-full cvc2-root"', 'class="cv-full cvc2-root cv-impact-root"');
+        }
+
+        function renderAtsStyle(c, accent) {
+            const section = (title, content) => content ? `
+                <section class="cv-topcv-section">
+                    <h2 class="cv-topcv-title">${title}</h2>
+                    <div class="cv-topcv-content">
+                        ${content}
+                    </div>
+                </section>` : '';
+
+            const contactBits = [
+                c.email ? `<span class="cv-topcv-contact-item">${libIcon('mail', 13, 'margin-right:6px;color:var(--cv-accent);')}${ed(c.email)}</span>` : '',
+                c.phone ? `<span class="cv-topcv-contact-item">${libIcon('phone', 13, 'margin-right:6px;color:var(--cv-accent);')}${ed(c.phone)}</span>` : '',
+                c.address ? `<span class="cv-topcv-contact-item">${libIcon('map-pin', 13, 'margin-right:6px;color:var(--cv-accent);')}${ed(c.address)}</span>` : '',
+                c.linkedin ? `<span class="cv-topcv-contact-item">${libIcon('linkedin', 13, 'margin-right:6px;color:var(--cv-accent);')}${ed(c.linkedin)}</span>` : '',
+                c.portfolio ? `<span class="cv-topcv-contact-item">${libIcon('link', 13, 'margin-right:6px;color:var(--cv-accent);')}${ed(c.portfolio)}</span>` : ''
+            ].filter(Boolean).join('');
+
+            const summaryHtml = c.summary
+                ? `<div class="cv-topcv-summary cv-editable">${esc(c.summary).replace(/\n/g, '<br>')}</div>`
+                : '';
+
+            const skillHtml = (c.skills || []).map((sg, idx) => `
+                <div class="cv-topcv-row cv-edit-shell">
+                    ${getItemControls('skills', idx)}
+                    <div class="cv-topcv-left">${ed(sg.category || '')}</div>
+                    <div class="cv-topcv-right">${ed((sg.items || []).join(', ') || '')}</div>
+                </div>`).join('');
+
+            const expHtml = (c.experience || []).map((e, idx) => `
+                <div class="cv-topcv-row cv-edit-shell">
+                    ${getItemControls('experience', idx)}
+                    <div class="cv-topcv-row-head">
+                        <div class="cv-topcv-role">${ed(e.role || '')}</div>
+                        <div class="cv-topcv-date">${ed(e.period || '')}</div>
+                    </div>
+                    <div class="cv-topcv-meta">${ed(e.company || '')}</div>
+                    ${(e.details || []).map(detail => `<div class="cv-topcv-desc">• ${ed(detail)}</div>`).join('')}
+                </div>`).join('');
+
+            const eduHtml = (c.education || []).map((e, idx) => `
+                <div class="cv-topcv-row cv-edit-shell">
+                    ${getItemControls('education', idx)}
+                    <div class="cv-topcv-row-head">
+                        <div class="cv-topcv-role">${ed(e.degree || '')}</div>
+                        <div class="cv-topcv-date">${ed(e.period || '')}</div>
+                    </div>
+                    <div class="cv-topcv-meta">${ed(e.school || e.location || '')}</div>
+                    ${(e.details || []).map(detail => `<div class="cv-topcv-desc">• ${ed(detail)}</div>`).join('')}
+                </div>`).join('');
+
+            const projHtml = (c.projects || []).map((p, idx) => `
+                <div class="cv-topcv-row cv-edit-shell">
+                    ${getItemControls('projects', idx)}
+                    <div class="cv-topcv-row-head">
+                        <div class="cv-topcv-role">${ed(p.name || '')}</div>
+                        <div class="cv-topcv-date">${ed(p.period || '')}</div>
+                    </div>
+                    ${p.tech ? `<div class="cv-topcv-meta">${ed(p.tech || '')}</div>` : ''}
+                    ${p.github ? `<div class="cv-topcv-desc">${ed(p.github || '')}</div>` : ''}
+                    ${(p.details || []).map(detail => `<div class="cv-topcv-desc">• ${ed(detail)}</div>`).join('')}
+                </div>`).join('');
+
+            const certHtml = (c.certifications || []).map((cert, idx) => `
+                <div class="cv-topcv-row cv-edit-shell">
+                    ${getItemControls('certifications', idx)}
+                    <div class="cv-topcv-row-head">
+                        <div class="cv-topcv-role">${ed(cert.name || cert.raw || '')}</div>
+                        <div class="cv-topcv-date">${ed(cert.year || '')}</div>
+                    </div>
+                    ${cert.issuer ? `<div class="cv-topcv-meta">${ed(cert.issuer || '')}</div>` : ''}
+                </div>`).join('');
+
+            const awardsHtml = (c.awards || []).map((award, idx) => `
+                <div class="cv-topcv-row cv-edit-shell">
+                    ${getItemControls('awards', idx)}
+                    <div class="cv-topcv-row-head">
+                        <div class="cv-topcv-role">${ed(award.name || award.raw || '')}</div>
+                        <div class="cv-topcv-date">${ed(award.year || '')}</div>
+                    </div>
+                </div>`).join('');
+
+            const actHtml = (c.activities || []).map((a, idx) => `
+                <div class="cv-topcv-row cv-edit-shell">
+                    ${getItemControls('activities', idx)}
+                    <div class="cv-topcv-row-head">
+                        <div class="cv-topcv-role">${ed(a.name || a.raw || '')}</div>
+                        <div class="cv-topcv-date">${ed(a.period || '')}</div>
+                    </div>
+                    ${a.role ? `<div class="cv-topcv-meta">${ed(a.role || '')}</div>` : ''}
+                    ${(a.details || []).map(detail => `<div class="cv-topcv-desc">• ${ed(detail)}</div>`).join('')}
+                </div>`).join('');
+
+            return `<div class="cv-full cv-topcv-root cv-ats-root" style="--cv-accent:${accent};">
+                <header class="cv-topcv-header">
+                    <div class="cv-topcv-name cv-editable">${esc(c.name || 'HO TEN UNG VIEN')}</div>
+                    <div class="cv-topcv-subtitle cv-editable">${esc(c.subtitle || '')}</div>
+                    <div class="cv-topcv-contact-row">${contactBits}</div>
+                </header>
+                <div class="cv-topcv-body">
+                    ${section('TOM TAT CHUYEN MON', summaryHtml)}
+                    ${section('KINH NGHIEM', expHtml)}
+                    ${section('HOC VAN', eduHtml)}
+                    ${section('KY NANG', skillHtml)}
+                    ${section('DU AN', projHtml)}
+                    ${section('CHUNG CHI', certHtml)}
+                    ${section('THANH TICH', awardsHtml)}
+                    ${section('HOAT DONG', actHtml)}
+                </div>
+            </div>`;
+        }
+
+        function syncAtsPreview() {
+            currentCvJson.name = cleanPreviewText(document.querySelector('.cv-topcv-name')?.innerText || currentCvJson.name);
+            currentCvJson.subtitle = cleanPreviewText(document.querySelector('.cv-topcv-subtitle')?.innerText || currentCvJson.subtitle);
+
+            document.querySelectorAll('.cv-topcv-contact-item').forEach(item => {
+                const value = removeLeadingSymbol(item.innerText);
+                if (!value) return;
+                if (/@/.test(value)) currentCvJson.email = value;
+                else if (/linkedin/i.test(value)) currentCvJson.linkedin = value;
+                else if (/https?:\/\/|www\./i.test(value)) currentCvJson.portfolio = value;
+                else if (/[\d+]{6,}/.test(value.replace(/\s/g, ''))) currentCvJson.phone = value;
+                else currentCvJson.address = value;
+            });
+
+            const summarySection = getTaggedPreviewSection('summary');
+            const summary = summarySection?.querySelector('.cv-topcv-summary') || document.querySelector('.cv-topcv-summary');
+            if (summary) currentCvJson.summary = cleanPreviewText(summary.innerText);
+
+            const skillsSection = getTaggedPreviewSection('skills');
+            currentCvJson.skills = skillsSection
+                ? [...skillsSection.querySelectorAll('.cv-topcv-row')].map(row => ({
+                    category: cleanPreviewText(row.querySelector('.cv-topcv-left')?.innerText),
+                    items: parseCommaText(row.querySelector('.cv-topcv-right')?.innerText)
+                })).filter(item => item.category || item.items.length)
+                : [];
+
+            const experienceSection = getTaggedPreviewSection('experience');
+            currentCvJson.experience = experienceSection
+                ? [...experienceSection.querySelectorAll('.cv-topcv-row')].map(row => ({
+                    role: cleanPreviewText(row.querySelector('.cv-topcv-role')?.innerText),
+                    period: cleanPreviewText(row.querySelector('.cv-topcv-date')?.innerText),
+                    company: cleanPreviewText(row.querySelector('.cv-topcv-meta')?.innerText),
+                    details: readPreviewDetailLines(row, '.cv-topcv-desc')
+                })).filter(item => item.role || item.company || item.period || item.details.length)
+                : [];
+
+            const educationSection = getTaggedPreviewSection('education');
+            currentCvJson.education = educationSection
+                ? [...educationSection.querySelectorAll('.cv-topcv-row')].map(row => ({
+                    degree: cleanPreviewText(row.querySelector('.cv-topcv-role')?.innerText),
+                    period: cleanPreviewText(row.querySelector('.cv-topcv-date')?.innerText),
+                    school: cleanPreviewText(row.querySelector('.cv-topcv-meta')?.innerText),
+                    details: readPreviewDetailLines(row, '.cv-topcv-desc')
+                })).filter(item => item.degree || item.school || item.period || item.details.length)
+                : [];
+
+            const projectSection = getTaggedPreviewSection('projects');
+            currentCvJson.projects = projectSection
+                ? [...projectSection.querySelectorAll('.cv-topcv-row')].map(row => {
+                    const detailLines = readPreviewDetailLines(row, '.cv-topcv-desc');
+                    const github = detailLines.find(line => /github|https?:\/\/|www\./i.test(line)) || '';
+                    const details = detailLines.filter(line => line !== github);
+                    return {
+                        name: cleanPreviewText(row.querySelector('.cv-topcv-role')?.innerText),
+                        period: cleanPreviewText(row.querySelector('.cv-topcv-date')?.innerText),
+                        tech: cleanPreviewText(row.querySelector('.cv-topcv-meta')?.innerText),
+                        github,
+                        details
+                    };
+                }).filter(item => item.name || item.tech || item.period || item.github || item.details.length)
+                : [];
+
+            const certSection = getTaggedPreviewSection('certifications');
+            currentCvJson.certifications = certSection
+                ? [...certSection.querySelectorAll('.cv-topcv-row')].map(row => ({
+                    name: cleanPreviewText(row.querySelector('.cv-topcv-role')?.innerText),
+                    year: cleanPreviewText(row.querySelector('.cv-topcv-date')?.innerText),
+                    issuer: cleanPreviewText(row.querySelector('.cv-topcv-meta')?.innerText)
+                })).filter(item => item.name || item.issuer || item.year)
+                : [];
+
+            const awardsSection = getTaggedPreviewSection('awards');
+            currentCvJson.awards = awardsSection
+                ? [...awardsSection.querySelectorAll('.cv-topcv-row')].map(row => ({
+                    name: cleanPreviewText(row.querySelector('.cv-topcv-role')?.innerText),
+                    year: cleanPreviewText(row.querySelector('.cv-topcv-date')?.innerText)
+                })).filter(item => item.name || item.year)
+                : [];
+
+            const activitiesSection = getTaggedPreviewSection('activities');
+            currentCvJson.activities = activitiesSection
+                ? [...activitiesSection.querySelectorAll('.cv-topcv-row')].map(row => ({
+                    name: cleanPreviewText(row.querySelector('.cv-topcv-role')?.innerText),
+                    period: cleanPreviewText(row.querySelector('.cv-topcv-date')?.innerText),
+                    role: cleanPreviewText(row.querySelector('.cv-topcv-meta')?.innerText),
+                    details: readPreviewDetailLines(row, '.cv-topcv-desc')
+                })).filter(item => item.name || item.role || item.period || item.details.length)
+                : [];
+        }
+
+        function normalizeCvStyle(style) {
+            const normalized = String(style || '').trim().toLowerCase();
+            if (normalized === 'minimalist') return 'modern';
+            if (normalized === 'topcv') return 'ats';
+            if (normalized === 'impressive') return 'impactful';
+            if (['professional', 'classic', 'modern', 'impactful', 'creative', 'ats', 'harvard'].includes(normalized)) {
+                return normalized;
+            }
+            return 'professional';
+        }
+
+        function getLayoutStudioFixedCards(style = getCurrentPreviewStyle()) {
+            style = normalizeCvStyle(style);
+            const fixedCards = [];
+            const hasProfileCard = ['professional', 'classic', 'modern', 'impactful', 'creative', 'ats', 'harvard'].includes(style);
+
+            if (hasProfileCard) fixedCards.push('profileCard');
+            if (sectionEnabled('avatar') && document.querySelector('.cvm-avatar-wrapper')) {
+                fixedCards.unshift('avatar');
+            }
+            return fixedCards;
+        }
+
+        function getLayoutStudioColumns(style = getCurrentPreviewStyle()) {
+            style = normalizeCvStyle(style);
+            let columns = [];
+
+            if (style === 'creative' || style === 'impactful') {
+                columns = [
+                    getDirectTaggedSections(document.querySelector('.cvc2-left')),
+                    getDirectTaggedSections(document.querySelector('.cvc2-right'))
+                ];
+            } else if (style === 'classic') {
+                const leftColumn = getDirectTaggedSections(document.querySelector('.cvcl2-left'));
+                const rightColumn = getDirectTaggedSections(document.querySelector('.cvcl2-right'));
+                if (sectionEnabled('summary') && getTaggedPreviewSection('summary')) {
+                    leftColumn.unshift('summary');
+                }
+                columns = [leftColumn, rightColumn];
+            } else if (style === 'harvard') {
+                columns = [getDirectTaggedSections(document.querySelector('.cvh-body'))];
+            } else if (style === 'modern') {
+                columns = [getDirectTaggedSections(document.querySelector('.cvm2-body'))];
+            } else if (style === 'ats') {
+                columns = [getDirectTaggedSections(document.querySelector('.cv-topcv-body'))];
+            } else {
+                columns = [
+                    getDirectTaggedSections(document.querySelector('.cvm-left')),
+                    getDirectTaggedSections(document.querySelector('.cvm-right'))
+                ];
+            }
+
+            if (!columns.some(column => column.length)) {
+                return (style === 'harvard' || style === 'modern' || style === 'ats')
+                    ? [getOrderedUsedSections()]
+                    : [getOrderedUsedSections(), []];
+            }
+
+            return columns;
+        }
+
+        function getPreviewSectionCandidate(sectionName, style = getCurrentPreviewStyle()) {
+            style = normalizeCvStyle(style);
+            switch (style) {
+                case 'creative':
+                case 'impactful':
+                    if (sectionName === 'summary') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['GIOI THIEU']);
+                    if (sectionName === 'skills') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['KY NANG']);
+                    if (sectionName === 'education') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['HOC VAN']);
+                    if (sectionName === 'certifications') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['CHUNG CHI']);
+                    if (sectionName === 'awards') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['GIAI THUONG']);
+                    if (sectionName === 'experience') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['KINH NGHIEM']);
+                    if (sectionName === 'projects') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['DU AN']);
+                    if (sectionName === 'activities') return findSectionByHeading('.cvc2-zone', '.cvc2-zone-title', ['HOAT DONG']);
+                    return null;
+                case 'modern':
+                    if (sectionName === 'summary') return [...document.querySelectorAll('.cvm2-block')].find(block => block.querySelector('.cvm2-summary')) || null;
+                    if (sectionName === 'experience') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['KINH NGHIEM']);
+                    if (sectionName === 'projects') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['DU AN']);
+                    if (sectionName === 'education') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['HOC VAN']);
+                    if (sectionName === 'skills') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['KY NANG']);
+                    if (sectionName === 'certifications') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['CHUNG CHI']);
+                    if (sectionName === 'awards') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['GIAI THUONG']);
+                    if (sectionName === 'activities') return findSectionByHeading('.cvm2-block', '.cvm2-block-label', ['HOAT DONG']);
+                    return null;
+                case 'classic':
+                    if (sectionName === 'summary') return document.querySelector('.cvcl2-summary-bar');
+                    if (sectionName === 'experience') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['KINH NGHIEM']);
+                    if (sectionName === 'projects') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['DU AN']);
+                    if (sectionName === 'education') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['HOC VAN']);
+                    if (sectionName === 'skills') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['KY NANG']);
+                    if (sectionName === 'certifications') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['CHUNG CHI']);
+                    if (sectionName === 'awards') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['THANH TICH']);
+                    if (sectionName === 'activities') return findSectionByHeading('.cvcl2-section', '.cvcl2-sec-title, .cvcl2-sec-title-r', ['HOAT DONG']);
+                    return null;
+                case 'harvard':
+                    if (sectionName === 'summary') return findSectionByHeading('.cvh-section', '.cvh-title', ['SUMMARY']);
+                    if (sectionName === 'experience') return findSectionByHeading('.cvh-section', '.cvh-title', ['EXPERIENCE']);
+                    if (sectionName === 'education') return findSectionByHeading('.cvh-section', '.cvh-title', ['EDUCATION']);
+                    if (sectionName === 'projects') return findSectionByHeading('.cvh-section', '.cvh-title', ['PROJECTS']);
+                    if (sectionName === 'skills') return findSectionByHeading('.cvh-section', '.cvh-title', ['SKILLS']);
+                    if (sectionName === 'certifications') return findSectionByHeading('.cvh-section', '.cvh-title', ['CERTIFICATIONS']);
+                    if (sectionName === 'awards') return findSectionByHeading('.cvh-section', '.cvh-title', ['AWARDS']);
+                    if (sectionName === 'activities') return findSectionByHeading('.cvh-section', '.cvh-title', ['ACTIVITIES']);
+                    return null;
+                case 'ats':
+                    if (sectionName === 'summary') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['TOM TAT', 'SUMMARY']);
+                    if (sectionName === 'skills') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['KY NANG']);
+                    if (sectionName === 'education') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['HOC VAN']);
+                    if (sectionName === 'experience') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['KINH NGHIEM']);
+                    if (sectionName === 'projects') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['DU AN']);
+                    if (sectionName === 'certifications') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['CHUNG CHI']);
+                    if (sectionName === 'awards') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['THANH TICH']);
+                    if (sectionName === 'activities') return findSectionByHeading('.cv-topcv-section', '.cv-topcv-title', ['HOAT DONG']);
+                    return null;
+                default:
+                    if (sectionName === 'summary') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['MUC TIEU']);
+                    if (sectionName === 'experience') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['KINH NGHIEM']);
+                    if (sectionName === 'projects') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['DU AN']);
+                    if (sectionName === 'awards') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['GIAI THUONG']);
+                    if (sectionName === 'activities') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['HOAT DONG']);
+                    if (sectionName === 'skills') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['KY NANG']);
+                    if (sectionName === 'education') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['HOC VAN']);
+                    if (sectionName === 'certifications') return findSectionByHeading('.cvm-section', '.cvm-section-title', ['CHUNG CHI']);
+                    return null;
+            }
+        }
+
+        function applySectionOrderToPreview(style = getCurrentPreviewStyle()) {
+            style = normalizeCvStyle(style);
+            const orderedVisibleSections = getOrderedUsedSections().filter(sectionName => sectionName !== 'avatar' && getTaggedPreviewSection(sectionName));
+            if (!orderedVisibleSections.length) return;
+
+            if (style === 'creative' || style === 'impactful') {
+                distributeSectionsAcrossColumns(orderedVisibleSections, [
+                    document.querySelector('.cvc2-left'),
+                    document.querySelector('.cvc2-right')
+                ]);
+                return;
+            }
+
+            if (style === 'classic') {
+                const bodySections = orderedVisibleSections.filter(sectionName => sectionName !== 'summary');
+                distributeSectionsAcrossColumns(bodySections, [
+                    document.querySelector('.cvcl2-left'),
+                    document.querySelector('.cvcl2-right')
+                ]);
+                return;
+            }
+
+            if (style === 'harvard') {
+                reorderSectionsInContainer(orderedVisibleSections, document.querySelector('.cvh-body'));
+                return;
+            }
+
+            if (style === 'ats') {
+                reorderSectionsInContainer(orderedVisibleSections, document.querySelector('.cv-topcv-body'));
+                return;
+            }
+
+            if (style === 'modern') {
+                reorderSectionsInContainer(orderedVisibleSections, document.querySelector('.cvm2-body'));
+                return;
+            }
+
+            distributeSectionsAcrossColumns(orderedVisibleSections, [
+                document.querySelector('.cvm-left'),
+                document.querySelector('.cvm-right')
+            ]);
+        }
+
+        function syncPreviewToCurrentCv() {
+            if (!currentCvJson) return;
+
+            const style = normalizeCvStyle(currentCvJson._styleTag || window.currentTemplate?.styleTag || 'professional');
+            if (style === 'creative' || style === 'impactful') syncCreativePreview();
+            else if (style === 'modern') syncMinimalistPreview();
+            else if (style === 'classic') syncClassicPreview();
+            else if (style === 'harvard') syncHarvardPreview();
+            else if (style === 'ats') syncAtsPreview();
+            else syncProfessionalPreview();
+
+            syncDesignStateToCurrentCv();
+            Object.assign(cvData, currentCvJson);
+        }
+
+        function renderCvPreview(c) {
+            currentCvJson = c;
+            avatarDataUrl = c.avatarUrl || c.avatarDataUrl || avatarDataUrl || null;
+            if (avatarDataUrl) c.avatarUrl = avatarDataUrl;
+            else delete c.avatarUrl;
+            delete c.avatarDataUrl;
+            hydrateDesignState(c._designState || {});
+            const accent = c._accent || c._designState?.color || window.currentTemplate?.previewColor || designState.color || '#1f4b99';
+            designState.color = accent;
+            window.currentTemplate = window.currentTemplate || {};
+            window.currentTemplate.previewColor = accent;
+            c._accent = accent;
+            c._designState = cloneDesignState();
+
+            const style = normalizeCvStyle(window.currentTemplate?.styleTag || c._styleTag || 'professional');
+            c._styleTag = style;
+
+            let html = '';
+            if (style === 'creative') {
+                html = renderCreativeStyle(c, accent).replace('class="cv-full cvc2-root"', 'class="cv-full cvc2-root cv-creative-root"');
+            } else if (style === 'impactful') {
+                html = renderImpactfulStyle(c, accent);
+            } else if (style === 'modern') {
+                html = renderModernStyle(c, accent);
+            } else if (style === 'classic') {
+                html = renderClassicStyle(c, accent).replace('class="cv-full cvcl2-root"', 'class="cv-full cvcl2-root cv-classic-root"');
+            } else if (style === 'harvard') {
+                html = renderHarvardStyle(c, accent).replace('class="cv-full cvh-root"', 'class="cv-full cvh-root cv-harvard-root"');
+            } else if (style === 'ats') {
+                html = renderAtsStyle(c, accent);
+            } else {
+                html = renderProfessionalStyle(c, accent).replace('class="cv-full"', 'class="cv-full cv-professional-root"');
+            }
+
+            document.getElementById('cvPreview').innerHTML = html;
+
+            if (isEditMode) {
+                document.getElementById('cvPreview').classList.add('cv-editable-mode');
+            }
+            applyDesignStateToPreview();
+            tagPreviewSections(style);
+            applySectionVisibilityToPreview();
+            applySectionOrderToPreview(style);
+            normalizePreviewIcons(document.getElementById('cvPreview'));
+            normalizeSectionMetaIcons(document);
+            renderSectionManager();
+            refreshEditModeUI();
+            initSortable();
+            if (window.lucide) lucide.createIcons();
+            setActiveItemShell(null, document.getElementById('cvPreview'));
+            syncEditorHistoryButtons();
+        }
     })();
 </script>
 <style>
@@ -6243,16 +6693,10 @@
 </script>
 <script>
     (function setupFloatingTextToolbar() {
-        const FONT_OPTIONS = [
-            'Be Vietnam Pro',
-            'Inter',
-            'Times New Roman',
-            'Arial',
-            'Georgia'
-        ];
         const SIZE_OPTIONS = ['12px', '13px', '14px', '16px', '18px', '20px'];
         let activeEditable = null;
         let toolbar = null;
+        let savedSelectionRange = null;
 
         function ensureToolbar() {
             if (toolbar) return toolbar;
@@ -6261,10 +6705,6 @@
             toolbar.innerHTML = `
                 <select class="toolbar-select" data-action="fontSize">
                     ${SIZE_OPTIONS.map(size => `<option value="${size}">${size}</option>`).join('')}
-                </select>
-                <div class="toolbar-divider"></div>
-                <select class="toolbar-select" data-action="fontFamily">
-                    ${FONT_OPTIONS.map(font => `<option value="${font}">${font}</option>`).join('')}
                 </select>
                 <div class="toolbar-divider"></div>
                 <input class="toolbar-color" data-action="color" type="color" value="#1A2456" aria-label="Màu chữ">
@@ -6281,9 +6721,17 @@
                 <button type="button" class="toolbar-btn" data-command="justifyRight" title="Căn phải">≢</button>
             `;
             document.body.appendChild(toolbar);
-            toolbar.addEventListener('mousedown', event => event.preventDefault());
+            toolbar.addEventListener('mousedown', event => {
+                const target = event.target;
+                if (target instanceof HTMLInputElement || target instanceof HTMLSelectElement) {
+                    captureSelectionRange();
+                    return;
+                }
+                event.preventDefault();
+            });
             toolbar.addEventListener('click', handleToolbarClick);
             toolbar.addEventListener('change', handleToolbarChange);
+            toolbar.addEventListener('input', handleToolbarChange);
             return toolbar;
         }
 
@@ -6292,9 +6740,29 @@
             activeEditable.focus();
         }
 
+        function captureSelectionRange() {
+            if (!activeEditable) return;
+            const selection = window.getSelection();
+            if (!selection || selection.rangeCount === 0) return;
+            const range = selection.getRangeAt(0);
+            if (!activeEditable.contains(range.commonAncestorContainer)) return;
+            savedSelectionRange = range.cloneRange();
+        }
+
+        function restoreSavedSelectionRange() {
+            if (!activeEditable || !savedSelectionRange) return false;
+            if (!activeEditable.contains(savedSelectionRange.commonAncestorContainer)) return false;
+            const selection = window.getSelection();
+            if (!selection) return false;
+            selection.removeAllRanges();
+            selection.addRange(savedSelectionRange.cloneRange());
+            return true;
+        }
+
         function applyInlineStyle(styleName, value) {
             if (!activeEditable) return;
             restoreFocus();
+            restoreSavedSelectionRange();
             const selection = window.getSelection();
             if (!selection || selection.rangeCount === 0) {
                 activeEditable.style[styleName] = value;
@@ -6329,6 +6797,55 @@
             }
         }
 
+        function applyColorToSelection(value) {
+            if (!activeEditable) return;
+            restoreFocus();
+            restoreSavedSelectionRange();
+
+            const selection = window.getSelection();
+            if (!selection || selection.rangeCount === 0) {
+                activeEditable.style.color = value;
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+            if (!activeEditable.contains(range.commonAncestorContainer)) {
+                activeEditable.style.color = value;
+                return;
+            }
+
+            if (range.collapsed) {
+                activeEditable.style.color = value;
+                return;
+            }
+
+            try {
+                const wrapper = document.createElement('span');
+                wrapper.style.color = value;
+                const fragment = range.extractContents();
+                wrapper.appendChild(fragment);
+                range.insertNode(wrapper);
+
+                const newRange = document.createRange();
+                newRange.selectNodeContents(wrapper);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+                savedSelectionRange = newRange.cloneRange();
+                activeEditable.dispatchEvent(new Event('input', { bubbles: true }));
+                return;
+            } catch (error) {
+                try {
+                    document.execCommand('styleWithCSS', false, true);
+                    document.execCommand('foreColor', false, value);
+                    captureSelectionRange();
+                    activeEditable.dispatchEvent(new Event('input', { bubbles: true }));
+                    return;
+                } catch (fallbackError) {
+                    activeEditable.style.color = value;
+                }
+            }
+        }
+
         function handleToolbarClick(event) {
             const button = event.target.closest('[data-command]');
             if (!button || !activeEditable) return;
@@ -6342,12 +6859,10 @@
             const target = event.target;
             if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement) || !activeEditable) return;
             restoreFocus();
-            if (target.dataset.action === 'fontFamily') {
-                applyInlineStyle('fontFamily', target.value);
-            } else if (target.dataset.action === 'fontSize') {
+            if (target.dataset.action === 'fontSize') {
                 applyInlineStyle('fontSize', target.value);
             } else if (target.dataset.action === 'color') {
-                applyInlineStyle('color', target.value);
+                applyColorToSelection(target.value);
             }
             syncToolbarState();
             positionToolbar();
@@ -6357,20 +6872,32 @@
             return window.getComputedStyle(el);
         }
 
+        function getSelectionStyle() {
+            if (!activeEditable) return getEditableStyle(document.body);
+            const selection = window.getSelection();
+            if (!selection || selection.rangeCount === 0) return getEditableStyle(activeEditable);
+
+            const range = selection.getRangeAt(0);
+            let node = range.startContainer;
+            if (node?.nodeType === Node.TEXT_NODE) {
+                node = node.parentElement;
+            }
+
+            if (!(node instanceof HTMLElement) || !activeEditable.contains(node)) {
+                return getEditableStyle(activeEditable);
+            }
+
+            return window.getComputedStyle(node);
+        }
+
         function syncToolbarState() {
             if (!toolbar || !activeEditable) return;
-            const style = getEditableStyle(activeEditable);
+            const style = getSelectionStyle();
             const fontSizeSelect = toolbar.querySelector('[data-action="fontSize"]');
-            const fontFamilySelect = toolbar.querySelector('[data-action="fontFamily"]');
             const colorInput = toolbar.querySelector('[data-action="color"]');
             if (fontSizeSelect) {
                 const currentSize = `${Math.round(parseFloat(style.fontSize || '13'))}px`;
                 fontSizeSelect.value = SIZE_OPTIONS.includes(currentSize) ? currentSize : '13px';
-            }
-            if (fontFamilySelect) {
-                const currentFamily = (style.fontFamily || '').split(',')[0].replace(/["']/g, '').trim();
-                const matched = FONT_OPTIONS.find(font => font.toLowerCase() === currentFamily.toLowerCase());
-                fontFamilySelect.value = matched || 'Be Vietnam Pro';
             }
             if (colorInput) {
                 colorInput.value = rgbToHex(style.color || 'rgb(26, 36, 86)');
@@ -6411,6 +6938,7 @@
         function openToolbarFor(editable) {
             if (!(editable instanceof HTMLElement)) return;
             activeEditable = editable;
+            savedSelectionRange = null;
             const bar = ensureToolbar();
             bar.classList.add('is-open');
             syncToolbarState();
@@ -6421,6 +6949,7 @@
             if (!toolbar) return;
             toolbar.classList.remove('is-open');
             activeEditable = null;
+            savedSelectionRange = null;
         }
 
         document.addEventListener('focusin', event => {
@@ -6441,12 +6970,768 @@
 
         document.addEventListener('keyup', () => {
             if (!activeEditable || !toolbar?.classList.contains('is-open')) return;
+            captureSelectionRange();
+            syncToolbarState();
+            positionToolbar();
+        });
+
+        document.addEventListener('selectionchange', () => {
+            if (!activeEditable || !toolbar?.classList.contains('is-open')) return;
+            captureSelectionRange();
             syncToolbarState();
             positionToolbar();
         });
 
         window.addEventListener('resize', positionToolbar);
         window.addEventListener('scroll', positionToolbar, true);
+    })();
+</script>
+<script>
+    (function enableEditableSectionTitles() {
+        const originalRenderCvPreview = window.renderCvPreview;
+        const originalSyncPreviewToCurrentCv = window.syncPreviewToCurrentCv;
+
+        if (typeof originalRenderCvPreview !== 'function' || typeof originalSyncPreviewToCurrentCv !== 'function') {
+            return;
+        }
+
+        function getSectionTitleStore(target = window.currentCvJson || window.cvData || window.templateData) {
+            if (!target || typeof target !== 'object') return {};
+            if (!target._sectionTitles || typeof target._sectionTitles !== 'object') {
+                target._sectionTitles = {};
+            }
+            return target._sectionTitles;
+        }
+
+        function getSectionTitleOverride(sectionKey) {
+            const sources = [window.currentCvJson, window.cvData, window.templateData];
+            for (const source of sources) {
+                if (!source || typeof source !== 'object') continue;
+                const value = source._sectionTitles?.[sectionKey];
+                if (typeof value === 'string' && value.trim()) return value.trim();
+            }
+            return '';
+        }
+
+        function setSectionTitleOverride(sectionKey, value) {
+            const nextValue = String(value || '').trim();
+            const targets = [window.currentCvJson, window.cvData, window.templateData].filter(Boolean);
+            targets.forEach(target => {
+                if (!target || typeof target !== 'object') return;
+                const store = getSectionTitleStore(target);
+                if (nextValue) store[sectionKey] = nextValue;
+                else delete store[sectionKey];
+            });
+        }
+
+        function getCurrentSectionTitleDefault(sectionKey, style, sectionEl, titleEl) {
+            const storedDefault = String(titleEl?.dataset?.defaultSectionTitle || '').trim();
+            if (storedDefault) return storedDefault;
+
+            const fallbackMap = {
+                summary: {
+                    professional: 'MỤC TIÊU NGHỀ NGHIỆP',
+                    creative: 'GIỚI THIỆU',
+                    impactful: 'GIỚI THIỆU',
+                    modern: 'GIỚI THIỆU',
+                    classic: 'GIỚI THIỆU',
+                    ats: 'TÓM TẮT CHUYÊN MÔN',
+                    harvard: 'SUMMARY'
+                }
+            };
+
+            const existingText = String(titleEl?.textContent || '').trim();
+            if (existingText) return existingText;
+
+            return fallbackMap[sectionKey]?.[style]
+                || window.sectionMeta?.[sectionKey]?.label
+                || '';
+        }
+
+        function resolveSectionTitleNode(sectionEl, style, sectionKey) {
+            if (!(sectionEl instanceof HTMLElement)) return null;
+
+            let titleEl = null;
+
+            if (style === 'creative' || style === 'impactful') {
+                titleEl = sectionEl.querySelector('.cvc2-zone-title');
+            } else if (style === 'modern') {
+                titleEl = sectionEl.querySelector('.cvm2-block-label');
+            } else if (style === 'classic') {
+                titleEl = sectionEl.querySelector('.cvcl2-sec-title, .cvcl2-sec-title-r');
+                if (!titleEl && sectionKey === 'summary') {
+                    titleEl = sectionEl.querySelector('.cvcl2-summary-title');
+                    if (!titleEl) {
+                        titleEl = document.createElement('div');
+                        titleEl.className = 'cvcl2-summary-title';
+                        const accent = window.getComputedStyle(sectionEl).borderLeftColor || 'var(--cv-accent, #1f2937)';
+                        titleEl.style.cssText = [
+                            'margin-bottom:8px',
+                            'font-size:12px',
+                            'font-weight:700',
+                            'letter-spacing:0.14em',
+                            'text-transform:uppercase',
+                            `color:${accent}`
+                        ].join(';');
+                        sectionEl.insertBefore(titleEl, sectionEl.firstChild);
+                    }
+                }
+            } else if (style === 'harvard') {
+                titleEl = sectionEl.querySelector('.cvh-title');
+            } else if (style === 'ats') {
+                titleEl = sectionEl.querySelector('.cv-topcv-title');
+            } else {
+                titleEl = sectionEl.querySelector('.cvm-section-title');
+            }
+
+            return titleEl instanceof HTMLElement ? titleEl : null;
+        }
+
+        function decorateSectionTitle(sectionKey, sectionEl, style) {
+            const titleEl = resolveSectionTitleNode(sectionEl, style, sectionKey);
+            if (!titleEl) return;
+
+            const defaultTitle = getCurrentSectionTitleDefault(sectionKey, style, sectionEl, titleEl);
+            const customTitle = getSectionTitleOverride(sectionKey);
+
+            titleEl.classList.add('cv-editable', 'cv-section-heading');
+            titleEl.dataset.sectionTitle = sectionKey;
+            titleEl.dataset.placeholder = defaultTitle;
+            titleEl.dataset.defaultSectionTitle = defaultTitle;
+
+            if (customTitle && titleEl.textContent?.trim() !== customTitle) {
+                titleEl.textContent = customTitle;
+            }
+        }
+
+        function applyEditableSectionTitles() {
+            const preview = document.getElementById('cvPreview');
+            if (!preview) return;
+
+            const style = typeof window.getCurrentPreviewStyle === 'function'
+                ? window.getCurrentPreviewStyle()
+                : (window.currentCvJson?._styleTag || window.currentTemplate?.styleTag || 'professional');
+
+            const keys = ['summary', 'experience', 'education', 'skills', 'projects', 'certifications', 'awards', 'activities'];
+            keys.forEach(sectionKey => {
+                const sectionEl = typeof window.getTaggedPreviewSection === 'function'
+                    ? window.getTaggedPreviewSection(sectionKey)
+                    : preview.querySelector(`[data-cv-section="${sectionKey}"]`);
+                if (sectionEl) decorateSectionTitle(sectionKey, sectionEl, style);
+            });
+
+            if (typeof window.applyPreviewEditableState === 'function' && window.isEditMode) {
+                window.applyPreviewEditableState(preview);
+            }
+        }
+
+        function syncSectionTitlesFromPreview() {
+            const preview = document.getElementById('cvPreview');
+            if (!preview) return;
+
+            const style = typeof window.getCurrentPreviewStyle === 'function'
+                ? window.getCurrentPreviewStyle()
+                : (window.currentCvJson?._styleTag || window.currentTemplate?.styleTag || 'professional');
+
+            const keys = ['summary', 'experience', 'education', 'skills', 'projects', 'certifications', 'awards', 'activities'];
+            keys.forEach(sectionKey => {
+                const sectionEl = typeof window.getTaggedPreviewSection === 'function'
+                    ? window.getTaggedPreviewSection(sectionKey)
+                    : preview.querySelector(`[data-cv-section="${sectionKey}"]`);
+                if (!sectionEl) return;
+
+                const titleEl = resolveSectionTitleNode(sectionEl, style, sectionKey);
+                if (!titleEl) return;
+
+                const value = String(titleEl.innerText || '').replace(/\u00A0/g, ' ').replace(/\s+/g, ' ').trim();
+                const defaultTitle = getCurrentSectionTitleDefault(sectionKey, style, sectionEl, titleEl);
+                if (!value || value === defaultTitle) {
+                    setSectionTitleOverride(sectionKey, '');
+                } else {
+                    setSectionTitleOverride(sectionKey, value);
+                }
+            });
+        }
+
+        window.renderCvPreview = function renderCvPreviewWithEditableTitles(c) {
+            originalRenderCvPreview(c);
+            applyEditableSectionTitles();
+        };
+
+        window.syncPreviewToCurrentCv = function syncPreviewToCurrentCvWithEditableTitles() {
+            originalSyncPreviewToCurrentCv();
+            syncSectionTitlesFromPreview();
+            if (window.currentCvJson && window.cvData && window.currentCvJson !== window.cvData) {
+                Object.assign(window.cvData, window.currentCvJson);
+            }
+        };
+
+        document.addEventListener('input', event => {
+            const titleEl = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-section-heading[data-section-title]')
+                : null;
+            if (!titleEl) return;
+
+            const sectionKey = titleEl.dataset.sectionTitle;
+            if (!sectionKey) return;
+
+            const value = String(titleEl.innerText || '').replace(/\u00A0/g, ' ').replace(/\s+/g, ' ').trim();
+            setSectionTitleOverride(sectionKey, value);
+            if (typeof window.markCvDirty === 'function') window.markCvDirty();
+        });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(applyEditableSectionTitles), { once: true });
+        } else {
+            requestAnimationFrame(applyEditableSectionTitles);
+        }
+    })();
+</script>
+<script>
+    (() => {
+        const previousRenderCvPreview = window.renderCvPreview;
+        const previousSyncPreviewToCurrentCv = window.syncPreviewToCurrentCv;
+        const previousRefreshEditModeUI = window.refreshEditModeUI;
+
+        if (typeof previousRenderCvPreview !== 'function' || typeof previousSyncPreviewToCurrentCv !== 'function') {
+            return;
+        }
+
+        const CUSTOM_CONTACT_DEFAULT_ICON = 'badge-alert';
+        const CUSTOM_CONTACT_PLACEHOLDER = 'Liên hệ khác';
+        const BUILTIN_CONTACT_KEYS = ['email', 'phone', 'address', 'linkedin', 'portfolio'];
+        let customContactSeed = 0;
+
+        function getEditModeState() {
+            try {
+                if (typeof isEditMode !== 'undefined') return Boolean(isEditMode);
+            } catch (error) {
+                // Ignore lexical lookup issues and fall back to window state.
+            }
+            return Boolean(window.isEditMode);
+        }
+
+        function getCvTargets() {
+            const targets = [];
+            try {
+                if (typeof currentCvJson !== 'undefined' && currentCvJson && typeof currentCvJson === 'object') {
+                    targets.push(currentCvJson);
+                }
+            } catch (error) {}
+            try {
+                if (typeof cvData !== 'undefined' && cvData && typeof cvData === 'object' && !targets.includes(cvData)) {
+                    targets.push(cvData);
+                }
+            } catch (error) {}
+            try {
+                if (typeof templateData !== 'undefined' && templateData && typeof templateData === 'object' && !targets.includes(templateData)) {
+                    targets.push(templateData);
+                }
+            } catch (error) {}
+            return targets;
+        }
+
+        function createCustomContactId() {
+            customContactSeed += 1;
+            return `custom-contact-${Date.now().toString(36)}-${customContactSeed}`;
+        }
+
+        function normalizeCustomContactList(list) {
+            return (Array.isArray(list) ? list : []).map((item, index) => {
+                const raw = item && typeof item === 'object' ? item : {};
+                return {
+                    id: String(raw.id || `custom-contact-${index + 1}` || createCustomContactId()).trim() || createCustomContactId(),
+                    text: String(raw.text || raw.value || raw.label || '').trim(),
+                    icon: String(raw.icon || '').trim() || CUSTOM_CONTACT_DEFAULT_ICON
+                };
+            });
+        }
+
+        function syncCustomContactsToTargets(list) {
+            const normalized = normalizeCustomContactList(list);
+            getCvTargets().forEach(target => {
+                target.customContacts = normalized.map(contact => ({ ...contact }));
+            });
+            return normalized;
+        }
+
+        function getPrimaryCvTarget() {
+            return getCvTargets()[0] || null;
+        }
+
+        function getContactTokenForKey(contactKey) {
+            const normalized = String(contactKey || '').trim();
+            return normalized ? `builtin:${normalized}` : '';
+        }
+
+        function getContactTokenForCustom(contactId) {
+            const normalized = String(contactId || '').trim();
+            return normalized ? `custom:${normalized}` : '';
+        }
+
+        function resolveAvailableContactTokens() {
+            const target = getPrimaryCvTarget();
+            const customContacts = getCustomContacts();
+            const builtinTokens = BUILTIN_CONTACT_KEYS
+                .filter(key => String(target?.[key] || '').trim())
+                .map(getContactTokenForKey);
+            const customTokens = customContacts
+                .map(contact => getContactTokenForCustom(contact.id))
+                .filter(Boolean);
+            return [...builtinTokens, ...customTokens];
+        }
+
+        function normalizeContactOrder(order) {
+            const availableTokens = resolveAvailableContactTokens();
+            const availableSet = new Set(availableTokens);
+            const nextOrder = [];
+
+            (Array.isArray(order) ? order : []).forEach(token => {
+                const normalized = String(token || '').trim();
+                if (!normalized || !availableSet.has(normalized) || nextOrder.includes(normalized)) return;
+                nextOrder.push(normalized);
+            });
+
+            availableTokens.forEach(token => {
+                if (!nextOrder.includes(token)) nextOrder.push(token);
+            });
+
+            return nextOrder;
+        }
+
+        function syncContactOrderToTargets(order) {
+            const normalized = normalizeContactOrder(order);
+            getCvTargets().forEach(target => {
+                target._contactOrder = normalized.slice();
+            });
+            return normalized;
+        }
+
+        function getContactOrder() {
+            const target = getPrimaryCvTarget();
+            const existing = Array.isArray(target?._contactOrder) ? target._contactOrder : [];
+            return syncContactOrderToTargets(existing);
+        }
+
+        function getCustomContacts() {
+            const targets = getCvTargets();
+            for (const target of targets) {
+                if (Array.isArray(target.customContacts)) {
+                    const normalized = normalizeCustomContactList(target.customContacts);
+                    syncCustomContactsToTargets(normalized);
+                    return normalized;
+                }
+            }
+            return syncCustomContactsToTargets([]);
+        }
+
+        function getCustomContactIconKey(contactId) {
+            return `contact-custom-${contactId}`;
+        }
+
+        function getSupportedCustomContactStyle(style) {
+            const normalizedStyle = String(style || '').trim();
+            if (normalizedStyle === 'creative' || normalizedStyle === 'impactful') return 'creative';
+            if (normalizedStyle === 'modern') return 'modern';
+            if (normalizedStyle === 'ats') return 'ats';
+            if (normalizedStyle === 'professional') return 'professional';
+            return '';
+        }
+
+        function getCustomContactContainer(preview, style) {
+            if (!(preview instanceof HTMLElement)) return null;
+            const supportedStyle = getSupportedCustomContactStyle(style);
+            if (supportedStyle === 'creative') return preview.querySelector('.cvc2-contacts');
+            if (supportedStyle === 'modern') return preview.querySelector('.cvm2-contacts');
+            if (supportedStyle === 'ats') return preview.querySelector('.cv-topcv-contact-row');
+            if (supportedStyle === 'professional') return preview.querySelector('.cvm-contact-row');
+            return null;
+        }
+
+        function renderCustomContactItem(contact, style) {
+            const iconKey = getCustomContactIconKey(contact.id);
+            const iconButton = typeof renderPreviewIconTrigger === 'function'
+                ? renderPreviewIconTrigger(iconKey, contact.icon || CUSTOM_CONTACT_DEFAULT_ICON, 14, 'margin:0;', 'liên hệ này')
+                : libIcon(contact.icon || CUSTOM_CONTACT_DEFAULT_ICON, 14, 'color:currentColor;');
+            return `
+                <div class="cv-custom-contact-item cv-contact-entry cv-custom-contact-item--${style}" data-custom-contact-id="${esc(contact.id)}" data-custom-icon-key="${esc(iconKey)}" data-fallback-icon="${esc(contact.icon || CUSTOM_CONTACT_DEFAULT_ICON)}">
+                    ${renderContactEntryControls('', contact.id)}
+                    <span class="cv-custom-contact-icon">${iconButton}</span>
+                    <span class="cv-custom-contact-text cv-editable" data-placeholder="${CUSTOM_CONTACT_PLACEHOLDER}">${esc(contact.text || '')}</span>
+                </div>
+            `;
+        }
+
+        function renderContactEntryControls(contactKey = '', customContactId = '') {
+            const token = customContactId
+                ? getContactTokenForCustom(customContactId)
+                : getContactTokenForKey(contactKey);
+            const deleteAttrs = customContactId
+                ? `data-custom-contact-id="${esc(customContactId)}"`
+                : (contactKey ? `data-contact-key="${esc(contactKey)}"` : '');
+            return `
+                <div class="cv-contact-controls cv-contact-controls--item" contenteditable="false">
+                    ${deleteAttrs ? `<button class="btn-item-ctrl btn-item-del cv-contact-action" type="button" data-action="delete" ${deleteAttrs} title="Xóa">Xóa</button>` : ''}
+                    <button class="btn-item-ctrl btn-item-add cv-contact-action" type="button" data-action="add" data-after-token="${esc(token)}" title="Thêm">
+                        <i data-lucide="plus"></i> Thêm
+                    </button>
+                </div>
+            `;
+        }
+
+        function inferContactFieldKey(item) {
+            if (!(item instanceof HTMLElement)) return '';
+            if (item.dataset.customContactId) return '';
+
+            const value = cleanPreviewText(item.innerText || '');
+            if (!value) return '';
+            if (/@/.test(value)) return 'email';
+            if (/linkedin/i.test(value)) return 'linkedin';
+            if (/https?:\/\/|www\./i.test(value)) return 'portfolio';
+            if (/[\d+]{6,}/.test(value.replace(/\s/g, ''))) return 'phone';
+            return 'address';
+        }
+
+        function getBuiltinContactEntries(container, style) {
+            if (!(container instanceof HTMLElement)) return [];
+            if (style === 'creative' || style === 'impactful') {
+                return [...container.querySelectorAll(':scope > span')];
+            }
+            if (style === 'modern') {
+                return [...container.querySelectorAll(':scope > span:not(.cvm2-sep)')];
+            }
+            if (style === 'ats') {
+                return [...container.querySelectorAll(':scope > span')];
+            }
+            return [...container.querySelectorAll(':scope > span')];
+        }
+
+        function decorateBuiltinContactEntries(container, style) {
+            const builtinEntries = getBuiltinContactEntries(container, style);
+            builtinEntries.forEach(entry => {
+                if (!(entry instanceof HTMLElement)) return;
+                if (entry.classList.contains('cv-custom-contact-item')) return;
+
+                const contactKey = inferContactFieldKey(entry);
+                entry.classList.add('cv-contact-entry');
+                if (contactKey) entry.dataset.contactKey = contactKey;
+
+                const existingControls = entry.querySelector(':scope > .cv-contact-controls--item');
+                if (existingControls) existingControls.remove();
+
+                if (getEditModeState()) {
+                    entry.insertAdjacentHTML('afterbegin', renderContactEntryControls(contactKey, ''));
+                }
+            });
+        }
+
+        function buildCustomContactNode(contact, style) {
+            const holder = document.createElement('div');
+            holder.innerHTML = renderCustomContactItem(contact, style).trim();
+            return holder.firstElementChild;
+        }
+
+        function appendContactEntry(container, entry, style, isFirst) {
+            if (!(entry instanceof HTMLElement)) return;
+            if (style === 'modern' && !isFirst) {
+                const sep = document.createElement('span');
+                sep.className = 'cvm2-sep';
+                sep.textContent = '•';
+                container.appendChild(sep);
+            }
+            container.appendChild(entry);
+        }
+
+        function rebuildContactEntries(container, style) {
+            if (!(container instanceof HTMLElement)) return;
+
+            const builtinMap = new Map();
+            getBuiltinContactEntries(container, style).forEach(entry => {
+                if (!(entry instanceof HTMLElement)) return;
+                const key = String(entry.dataset.contactKey || inferContactFieldKey(entry) || '').trim();
+                if (key) builtinMap.set(getContactTokenForKey(key), entry);
+            });
+
+            container.querySelectorAll(':scope > .cvm2-sep').forEach(node => node.remove());
+            container.querySelectorAll(':scope > .cv-custom-contact-item').forEach(node => node.remove());
+
+            const customMap = new Map();
+            getCustomContacts().forEach(contact => {
+                customMap.set(getContactTokenForCustom(contact.id), contact);
+            });
+
+            const order = getContactOrder();
+            let renderedCount = 0;
+
+            order.forEach(token => {
+                if (builtinMap.has(token)) {
+                    appendContactEntry(container, builtinMap.get(token), style, renderedCount === 0);
+                    renderedCount += 1;
+                    return;
+                }
+
+                const customContact = customMap.get(token);
+                if (!customContact) return;
+                const node = buildCustomContactNode(customContact, style);
+                if (!(node instanceof HTMLElement)) return;
+                appendContactEntry(container, node, style, renderedCount === 0);
+                renderedCount += 1;
+            });
+        }
+
+        function decorateCustomContacts(preview = document.getElementById('cvPreview')) {
+            if (!(preview instanceof HTMLElement)) return;
+
+            const style = typeof getCurrentPreviewStyle === 'function'
+                ? getCurrentPreviewStyle()
+                : (window.currentCvJson?._styleTag || window.currentTemplate?.styleTag || 'professional');
+
+            const supportedStyle = getSupportedCustomContactStyle(style);
+            const container = getCustomContactContainer(preview, supportedStyle);
+            if (!container) return;
+
+            container.classList.add('cv-contact-shell');
+            container.querySelectorAll('.cv-contact-controls--item').forEach(node => node.remove());
+            container.querySelectorAll('.cv-custom-contact-item').forEach(node => node.remove());
+
+            decorateBuiltinContactEntries(container, supportedStyle);
+            rebuildContactEntries(container, supportedStyle);
+
+            if (typeof window.applyPreviewEditableState === 'function' && getEditModeState()) {
+                window.applyPreviewEditableState(preview);
+            }
+            if (typeof window.lucide?.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+        }
+
+        function syncCustomContactsFromPreview(preview = document.getElementById('cvPreview')) {
+            if (!(preview instanceof HTMLElement)) return;
+
+            const items = [...preview.querySelectorAll('.cv-custom-contact-item[data-custom-contact-id]')].map(item => {
+                const id = String(item.dataset.customContactId || '').trim() || createCustomContactId();
+                const iconKey = item.dataset.customIconKey || getCustomContactIconKey(id);
+                const fallbackIcon = item.dataset.fallbackIcon || CUSTOM_CONTACT_DEFAULT_ICON;
+                const textNode = item.querySelector('.cv-custom-contact-text');
+                return {
+                    id,
+                    text: cleanPreviewText(textNode?.innerText || ''),
+                    icon: typeof getPreviewIconName === 'function'
+                        ? getPreviewIconName(iconKey, fallbackIcon)
+                        : fallbackIcon
+                };
+            });
+
+            syncCustomContactsToTargets(items);
+        }
+
+        function focusCustomContact(contactId) {
+            const target = document.querySelector(`.cv-custom-contact-item[data-custom-contact-id="${contactId}"] .cv-custom-contact-text`);
+            if (!(target instanceof HTMLElement)) return;
+            target.focus();
+            if (typeof placeCaretAtEnd === 'function') placeCaretAtEnd(target);
+        }
+
+        window.addCustomContactItem = function addCustomContactItem(afterToken = '') {
+            const nextContacts = [
+                ...getCustomContacts(),
+                {
+                    id: createCustomContactId(),
+                    text: '',
+                    icon: CUSTOM_CONTACT_DEFAULT_ICON
+                }
+            ];
+
+            const added = nextContacts[nextContacts.length - 1];
+            syncCustomContactsToTargets(nextContacts);
+            const nextToken = getContactTokenForCustom(added.id);
+            const currentOrder = getContactOrder();
+            const insertAfterToken = String(afterToken || '').trim();
+            const insertIndex = insertAfterToken ? currentOrder.indexOf(insertAfterToken) : -1;
+            if (insertIndex >= 0) currentOrder.splice(insertIndex + 1, 0, nextToken);
+            else currentOrder.push(nextToken);
+            syncContactOrderToTargets(currentOrder);
+
+            if (typeof window.markCvDirty === 'function') {
+                window.markCvDirty({ immediate: true });
+            }
+
+            if (typeof rerenderCurrentPreview === 'function') {
+                rerenderCurrentPreview();
+            } else {
+                const activeTarget = getCvTargets()[0];
+                if (activeTarget) previousRenderCvPreview(activeTarget);
+            }
+
+            requestAnimationFrame(() => focusCustomContact(added.id));
+        };
+
+        window.removeCustomContactItem = function removeCustomContactItem(contactId) {
+            const normalizedId = String(contactId || '').trim();
+            if (!normalizedId) return;
+
+            const nextContacts = getCustomContacts().filter(contact => contact.id !== normalizedId);
+            syncCustomContactsToTargets(nextContacts);
+            syncContactOrderToTargets(getContactOrder().filter(token => token !== getContactTokenForCustom(normalizedId)));
+
+            if (typeof window.markCvDirty === 'function') {
+                window.markCvDirty({ immediate: true });
+            }
+
+            if (typeof rerenderCurrentPreview === 'function') {
+                rerenderCurrentPreview();
+            } else {
+                const activeTarget = getCvTargets()[0];
+                if (activeTarget) previousRenderCvPreview(activeTarget);
+            }
+        };
+
+        window.removeContactFieldItem = function removeContactFieldItem(contactKey) {
+            const normalizedKey = String(contactKey || '').trim();
+            if (!normalizedKey) return;
+
+            const targets = getCvTargets();
+            targets.forEach(target => {
+                if (Object.prototype.hasOwnProperty.call(target, normalizedKey)) {
+                    target[normalizedKey] = '';
+                }
+            });
+            syncContactOrderToTargets(getContactOrder().filter(token => token !== getContactTokenForKey(normalizedKey)));
+
+            if (typeof window.markCvDirty === 'function') {
+                window.markCvDirty({ immediate: true });
+            }
+
+            if (typeof rerenderCurrentPreview === 'function') {
+                rerenderCurrentPreview();
+            } else {
+                const activeTarget = targets[0];
+                if (activeTarget) previousRenderCvPreview(activeTarget);
+            }
+        };
+
+        document.addEventListener('click', event => {
+            const actionButton = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-contact-action')
+                : null;
+            if (!actionButton) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const action = actionButton.dataset.action;
+            if (action === 'delete') {
+                const customContactId = actionButton.dataset.customContactId;
+                if (customContactId) {
+                    window.removeCustomContactItem(customContactId);
+                    return;
+                }
+                window.removeContactFieldItem(actionButton.dataset.contactKey);
+                return;
+            }
+            if (action === 'add') {
+                window.addCustomContactItem(actionButton.dataset.afterToken);
+            }
+        }, true);
+
+        document.addEventListener('keydown', event => {
+            const actionButton = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-contact-action')
+                : null;
+            if (!actionButton) return;
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            const action = actionButton.dataset.action;
+            if (action === 'delete') {
+                const customContactId = actionButton.dataset.customContactId;
+                if (customContactId) {
+                    window.removeCustomContactItem(customContactId);
+                    return;
+                }
+                window.removeContactFieldItem(actionButton.dataset.contactKey);
+                return;
+            }
+            if (action === 'add') {
+                window.addCustomContactItem(actionButton.dataset.afterToken);
+            }
+        }, true);
+
+        document.addEventListener('input', event => {
+            const field = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-custom-contact-text')
+                : null;
+            if (!field) return;
+            syncCustomContactsFromPreview();
+            if (typeof window.markCvDirty === 'function') {
+                window.markCvDirty({ history: false });
+            }
+        });
+
+        document.addEventListener('blur', event => {
+            const field = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-custom-contact-text')
+                : null;
+            if (!field) return;
+            syncCustomContactsFromPreview();
+        }, true);
+
+        document.addEventListener('keydown', event => {
+            const field = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-custom-contact-text')
+                : null;
+            if (!field) return;
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            field.blur();
+        });
+
+        document.addEventListener('focusin', event => {
+            const editable = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-contact-entry .cv-editable')
+                : null;
+            if (!editable) return;
+            const entry = editable.closest('.cv-contact-entry');
+            if (entry) entry.classList.add('is-editing');
+        });
+
+        document.addEventListener('focusout', event => {
+            const editable = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-contact-entry .cv-editable')
+                : null;
+            if (!editable) return;
+            const entry = editable.closest('.cv-contact-entry');
+            if (!entry) return;
+            requestAnimationFrame(() => {
+                if (!entry.contains(document.activeElement)) {
+                    entry.classList.remove('is-editing');
+                }
+            });
+        });
+
+        window.renderCvPreview = function renderCvPreviewWithCustomContacts(c) {
+            previousRenderCvPreview(c);
+            decorateCustomContacts();
+        };
+
+        window.syncPreviewToCurrentCv = function syncPreviewToCurrentCvWithCustomContacts() {
+            previousSyncPreviewToCurrentCv();
+            syncCustomContactsFromPreview();
+            if (window.currentCvJson && window.cvData && window.currentCvJson !== window.cvData) {
+                Object.assign(window.cvData, window.currentCvJson);
+            }
+        };
+
+        if (typeof previousRefreshEditModeUI === 'function') {
+            window.refreshEditModeUI = function refreshEditModeUIWithCustomContacts(...args) {
+                const result = previousRefreshEditModeUI.apply(this, args);
+                decorateCustomContacts();
+                return result;
+            };
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(() => decorateCustomContacts()), { once: true });
+        } else {
+            requestAnimationFrame(() => decorateCustomContacts());
+        }
     })();
 </script>
 </body>
