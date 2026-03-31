@@ -417,7 +417,7 @@ public class CvTemplateSeeder implements ApplicationRunner {
         t.setBadgeBgColor("#cffafe");
         t.setBadgeTextColor("#0e7490");
         t.setCategory("Công nghệ & IT");
-        t.setStyleTag("minimalist");
+        t.setStyleTag("modern");
         t.setSortOrder(5);
         t.setActive(true);
         t.setTemplateContent("""
@@ -719,7 +719,7 @@ public class CvTemplateSeeder implements ApplicationRunner {
         t.setBadgeBgColor("#e0f2fe");
         t.setBadgeTextColor("#0369a1");
         t.setCategory("Du lịch & Khách sạn");
-        t.setStyleTag("minimalist");
+        t.setStyleTag("modern");
         t.setSortOrder(11);
         t.setActive(true);
         t.setTemplateContent("""
@@ -762,7 +762,7 @@ public class CvTemplateSeeder implements ApplicationRunner {
         t.setBadgeBgColor("#cffafe");
         t.setBadgeTextColor("#155e75");
         t.setCategory("Công nghệ & IT");
-        t.setStyleTag("minimalist");
+        t.setStyleTag("modern");
         t.setSortOrder(12);
         t.setActive(true);
         t.setTemplateContent("""
@@ -1053,20 +1053,20 @@ public class CvTemplateSeeder implements ApplicationRunner {
     }
 
     // ────────────────────────────────────────────────────────────────
-    //  FEATURED STYLE TEMPLATES - curated into the 5 core style families
+    //  FEATURED STYLE TEMPLATES - curated into the 7 core style families
     // ────────────────────────────────────────────────────────────────
 
     // ── 17. TopCV ATS-Friendly ───────────────────────────────────────────
     private CvTemplate buildTopCVAtsTemplate() {
         CvTemplate t = new CvTemplate();
-        t.setName("Classic ATS Standard");
+        t.setName("ATS Executive Scan");
         t.setDescription("Mẫu CV cổ điển, rõ ràng và tối ưu ATS. Phù hợp cho môi trường tuyển dụng truyền thống, ngân hàng, tư vấn và các vị trí yêu cầu bố cục chuẩn mực.");
         t.setPreviewColor("#2563eb");
-        t.setBadgeLabel("Classic ATS");
+        t.setBadgeLabel("ATS");
         t.setBadgeBgColor("#dbeafe");
         t.setBadgeTextColor("#1d4ed8");
         t.setCategory("Mẫu nổi bật");
-        t.setStyleTag("classic");
+        t.setStyleTag("ats");
         t.setSortOrder(17);
         t.setActive(true);
         t.setTemplateContent("""
@@ -1133,14 +1133,14 @@ public class CvTemplateSeeder implements ApplicationRunner {
     // ── 18. TopCV Gradient Header ─────────────────────────────────────────
     private CvTemplate buildTopCVGradTemplate() {
         CvTemplate t = new CvTemplate();
-        t.setName("Gradient Creative Studio");
+        t.setName("Impact Gradient Portfolio");
         t.setDescription("Mẫu CV sáng tạo với header gradient và nhịp thị giác mạnh. Phù hợp cho Creative, Marketing, Branding và Product Design.");
         t.setPreviewColor("#7c3aed");
-        t.setBadgeLabel("Creative");
+        t.setBadgeLabel("Ấn tượng");
         t.setBadgeBgColor("#ede9fe");
         t.setBadgeTextColor("#6d28d9");
         t.setCategory("Mẫu nổi bật");
-        t.setStyleTag("creative");
+        t.setStyleTag("impactful");
         t.setSortOrder(18);
         t.setActive(true);
         t.setTemplateContent("""
@@ -1215,14 +1215,14 @@ public class CvTemplateSeeder implements ApplicationRunner {
     // ── 19. TopCV Minimalist Clean ────────────────────────────────────────
     private CvTemplate buildTopCVMinimalTemplate() {
         CvTemplate t = new CvTemplate();
-        t.setName("Minimal Clean Balance");
+        t.setName("Modern Clean Balance");
         t.setDescription("Mẫu CV tối giản với nhịp trắng thoáng, typography sạch và dễ đọc. Phù hợp cho ứng viên muốn làm nổi bật nội dung theo cách tinh tế.");
         t.setPreviewColor("#0e7490");
-        t.setBadgeLabel("Minimalist");
+        t.setBadgeLabel("Hiện đại");
         t.setBadgeBgColor("#cffafe");
         t.setBadgeTextColor("#0e7490");
         t.setCategory("Mẫu nổi bật");
-        t.setStyleTag("minimalist");
+        t.setStyleTag("modern");
         t.setSortOrder(19);
         t.setActive(true);
         t.setTemplateContent("""
@@ -1305,7 +1305,7 @@ public class CvTemplateSeeder implements ApplicationRunner {
         t.setName("Executive Sidebar Pro");
         t.setDescription("Mẫu CV chuyên nghiệp với sidebar nhấn màu và hệ phân cấp rõ ràng. Phù hợp cho quản lý, kinh doanh, vận hành và các vai trò lead.");
         t.setPreviewColor("#0891b2");
-        t.setBadgeLabel("Professional");
+        t.setBadgeLabel("Chuyên nghiệp");
         t.setBadgeBgColor("#cffafe");
         t.setBadgeTextColor("#0891b2");
         t.setCategory("Mẫu nổi bật");

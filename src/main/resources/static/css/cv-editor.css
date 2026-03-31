@@ -4539,5 +4539,1329 @@ input:checked + .slider:before {
 .cv-editable-mode .cvm-skill-pill:focus-within {
     background: #ffffff !important;
     border-color: #1A2456 !important;
-    box-shadow: 0 0 0 2px rgba(26, 36, 86, 0.12) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.preview-column .cvm-skill-group:focus-within::after,
+.preview-column .cv-item-shell-active:focus-within::after,
+.cv-editable-mode .cvm-skill-group:focus-within::after,
+.cv-editable-mode .cv-item-shell-active:focus-within::after {
+    content: none !important;
+}
+
+/* Keep skill editing to a single visible border: the pill itself. */
+.preview-column .cvm-skill-pill > .cv-editable,
+.cv-editable-mode .cvm-skill-pill > .cv-editable {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    min-width: 0 !important;
+}
+
+.preview-column .cvm-skill-pill > .cv-editable:focus,
+.preview-column .cvm-skill-pill > .cv-editable[contenteditable]:focus,
+.preview-column .cvm-skill-pill > .cv-editable[contenteditable="true"]:focus,
+.preview-column .cvm-skill-pill > .cv-editable[contenteditable="plaintext-only"]:focus,
+.cv-editable-mode .cvm-skill-pill > .cv-editable:focus,
+.cv-editable-mode .cvm-skill-pill > .cv-editable[contenteditable]:focus,
+.cv-editable-mode .cvm-skill-pill > .cv-editable[contenteditable="true"]:focus,
+.cv-editable-mode .cvm-skill-pill > .cv-editable[contenteditable="plaintext-only"]:focus {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+}
+
+/* Skill group titles should use the group border only, not an extra inner field border. */
+.preview-column .cvm-skill-cat.cv-field-shell:hover,
+.preview-column .cvm-skill-cat.cv-field-shell:focus-within,
+.cv-editable-mode .cvm-skill-cat.cv-field-shell:hover,
+.cv-editable-mode .cvm-skill-cat.cv-field-shell:focus-within {
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+}
+
+.preview-column .cvm-skill-cat > .cv-editable,
+.cv-editable-mode .cvm-skill-cat > .cv-editable,
+.preview-column .cvm-skill-cat > .cv-editable:focus,
+.preview-column .cvm-skill-cat > .cv-editable[contenteditable]:focus,
+.preview-column .cvm-skill-cat > .cv-editable[contenteditable="true"]:focus,
+.preview-column .cvm-skill-cat > .cv-editable[contenteditable="plaintext-only"]:focus,
+.cv-editable-mode .cvm-skill-cat > .cv-editable:focus,
+.cv-editable-mode .cvm-skill-cat > .cv-editable[contenteditable]:focus,
+.cv-editable-mode .cvm-skill-cat > .cv-editable[contenteditable="true"]:focus,
+.cv-editable-mode .cvm-skill-cat > .cv-editable[contenteditable="plaintext-only"]:focus {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+}
+
+/* 7-style CV system polish */
+.cv-professional-root .cvm-header {
+    padding: 44px 48px 40px;
+    gap: 36px;
+    background: linear-gradient(135deg, var(--cv-accent) 0%, color-mix(in srgb, var(--cv-accent) 82%, #0f172a 18%) 100%) !important;
+}
+
+.cv-professional-root .cvm-body {
+    grid-template-columns: 300px 1fr;
+}
+
+.cv-professional-root .cvm-left {
+    background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+    padding: 36px 28px;
+}
+
+.cv-professional-root .cvm-right {
+    padding: 36px 40px 44px;
+    gap: 26px;
+}
+
+.cv-professional-root .cvm-section-title {
+    letter-spacing: 1.9px;
+    font-size: 13px;
+}
+
+.cv-professional-root .cvm-exp-item,
+.cv-professional-root .cvm-edu-item,
+.cv-professional-root .cvm-skill-group {
+    border-radius: 18px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(203, 213, 225, 0.85);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+    padding: 18px 20px;
+}
+
+.cv-professional-root .cvm-exp-item {
+    border-left: 0;
+    padding-left: 20px;
+}
+
+.cv-professional-root .cvm-skill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cv-professional-root .cvm-skill-pill {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--cv-accent) 8%, #ffffff 92%);
+    border-color: color-mix(in srgb, var(--cv-accent) 22%, #cbd5e1 78%);
+    color: #102a43;
+}
+
+.cv-creative-root .cvc2-header {
+    height: 210px;
+    padding: 34px 40px;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--cv-accent) 86%, #111827 14%) 0%, color-mix(in srgb, var(--cv-accent) 60%, #ec4899 40%) 100%) !important;
+}
+
+.cv-creative-root .cvc2-header::before {
+    width: 240px;
+    height: 240px;
+    top: -85px;
+    left: -70px;
+    opacity: 0.45;
+}
+
+.cv-creative-root .cvc2-body {
+    grid-template-columns: 280px 1fr;
+    gap: 26px;
+    padding: 28px 34px 36px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.cv-creative-root .cvc2-zone {
+    padding: 18px 18px 20px;
+    border-radius: 22px;
+    border: 1px solid rgba(226, 232, 240, 0.92);
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);
+}
+
+.cv-creative-root .cvc2-zone-title {
+    font-size: 13px;
+    letter-spacing: 1.7px;
+    text-transform: uppercase;
+}
+
+.cv-creative-root .cvc2-card {
+    border-radius: 18px;
+    border: 1px solid rgba(203, 213, 225, 0.9);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+}
+
+.cv-creative-root .cvc2-tag {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--cv-accent) 10%, #ffffff 90%);
+    border-color: color-mix(in srgb, var(--cv-accent) 18%, #dbeafe 82%);
+}
+
+.cv-impact-root .cvc2-header {
+    height: 224px;
+    padding: 34px 42px;
+    background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 34%),
+        linear-gradient(135deg, #0f172a 0%, color-mix(in srgb, var(--cv-accent) 78%, #111827 22%) 42%, color-mix(in srgb, var(--cv-accent) 46%, #f97316 54%) 100%) !important;
+}
+
+.cv-impact-root .cvc2-body {
+    grid-template-columns: 255px 1fr;
+    gap: 24px;
+    padding: 26px 30px 36px;
+    background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.02) 0%, rgba(255,255,255,1) 28%),
+        #ffffff;
+}
+
+.cv-impact-root .cvc2-left .cvc2-zone,
+.cv-impact-root .cvc2-right .cvc2-zone {
+    padding: 18px 18px 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.09);
+}
+
+.cv-impact-root .cvc2-zone-title {
+    color: #0f172a !important;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 2.1px;
+}
+
+.cv-impact-root .cvc2-zone-title::after {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--cv-accent) 78%, #f97316 22%), rgba(15, 23, 42, 0.08));
+}
+
+.cv-impact-root .cvc2-card {
+    border-radius: 18px;
+    border: 1px solid color-mix(in srgb, var(--cv-accent) 18%, #e2e8f0 82%);
+    box-shadow: 0 20px 38px rgba(15, 23, 42, 0.11);
+}
+
+.cv-impact-root .cvc2-tag {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: transparent;
+}
+
+.cv-modern-root {
+    background:
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.cv-modern-root .cvm2-header {
+    margin-bottom: 34px;
+    padding: 0 0 26px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.cv-modern-root .cvm2-name {
+    font-size: 44px;
+    letter-spacing: -1.8px;
+}
+
+.cv-modern-root .cvm2-subtitle {
+    font-size: 17px;
+    color: #475569;
+}
+
+.cv-modern-root .cvm2-block {
+    grid-template-columns: 150px 1fr;
+    gap: 28px;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.88);
+}
+
+.cv-modern-root .cvm2-block-label {
+    background: transparent;
+    color: var(--cv-accent);
+    border-radius: 0;
+    padding: 0;
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: 2.2px;
+}
+
+.cv-modern-root .cvm2-row {
+    padding: 0 0 18px;
+    border-bottom: 1px dashed rgba(203, 213, 225, 0.8);
+}
+
+.cv-modern-root .cvm2-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.cv-modern-root .cvm2-row-title {
+    font-size: 18px;
+}
+
+.cv-modern-root .cvm2-row-period {
+    color: var(--cv-accent);
+}
+
+.cv-classic-root {
+    background: linear-gradient(180deg, #fffdf8 0%, #fbf7ef 100%);
+}
+
+.cv-classic-root .cvcl2-header {
+    border-bottom-color: rgba(140, 110, 75, 0.25);
+}
+
+.cv-classic-root .cvcl2-summary-bar {
+    background: rgba(255, 252, 244, 0.92);
+    border-bottom-color: rgba(140, 110, 75, 0.18);
+}
+
+.cv-classic-root .cvcl2-body {
+    border-top: 0;
+    grid-template-columns: minmax(0, 1.45fr) 280px;
+}
+
+.cv-classic-root .cvcl2-left {
+    background: rgba(255,255,255,0.55);
+}
+
+.cv-classic-root .cvcl2-right {
+    background: rgba(255,250,242,0.92);
+}
+
+.cv-classic-root .cvcl2-section {
+    padding: 16px 0 0;
+}
+
+.cv-classic-root .cvcl2-pill {
+    border-radius: 999px;
+    padding: 5px 10px;
+}
+
+.cv-ats-root {
+    padding: 34px 40px 40px !important;
+    background: #ffffff;
+    color: #111827;
+    font-family: 'Source Sans 3', 'Be Vietnam Pro', 'Inter', sans-serif !important;
+}
+
+.cv-ats-root .cv-topcv-header {
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #111827;
+}
+
+.cv-ats-root .cv-topcv-name {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    color: #0f172a;
+}
+
+.cv-ats-root .cv-topcv-subtitle {
+    margin-top: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--cv-accent);
+}
+
+.cv-ats-root .cv-topcv-contact-row {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    font-size: 13px;
+    color: #334155;
+}
+
+.cv-ats-root .cv-topcv-contact-item {
+    display: inline-flex;
+    align-items: center;
+}
+
+.cv-ats-root .cv-topcv-body {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.cv-ats-root .cv-topcv-section {
+    margin: 0;
+}
+
+.cv-ats-root .cv-topcv-title {
+    margin: 0 0 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #111827;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #111827;
+}
+
+.cv-ats-root .cv-topcv-summary {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #334155;
+}
+
+.cv-ats-root .cv-topcv-row {
+    margin: 0 0 10px;
+    padding: 0 0 10px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+}
+
+.cv-ats-root .cv-topcv-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.cv-ats-root .cv-topcv-row-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.cv-ats-root .cv-topcv-role,
+.cv-ats-root .cv-topcv-left {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.cv-ats-root .cv-topcv-date {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.cv-ats-root .cv-topcv-meta,
+.cv-ats-root .cv-topcv-right {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.6;
+}
+
+.cv-ats-root .cv-topcv-desc {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.65;
+}
+
+.cv-harvard-root .cvh-header {
+    border-bottom-width: 1px;
+    padding-bottom: 24px;
+    margin-bottom: 22px;
+}
+
+.cv-harvard-root .cvh-name {
+    font-size: 28px;
+    letter-spacing: 1.2px;
+}
+
+.cv-harvard-root .cvh-title {
+    letter-spacing: 1.7px;
+}
+
+.cv-harvard-root .cvh-item {
+    margin-bottom: 18px;
+}
+
+@media (max-width: 900px) {
+    .cv-professional-root .cvm-body,
+    .cv-creative-root .cvc2-body,
+    .cv-impact-root .cvc2-body,
+    .cv-classic-root .cvcl2-body {
+        grid-template-columns: 1fr !important;
+    }
+
+    .cv-classic-root .cvcl2-left,
+    .cv-professional-root .cvm-left,
+    .cv-creative-root .cvc2-left,
+    .cv-impact-root .cvc2-left {
+        border-right: 0 !important;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.92);
+    }
+
+    .cv-modern-root .cvm2-block {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+.cv-custom-contact-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    max-width: 100%;
+}
+
+.cv-custom-contact-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+.cv-custom-contact-icon .preview-icon-trigger {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 999px !important;
+}
+
+.cv-custom-contact-text {
+    min-width: 84px;
+    max-width: 240px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+.cv-custom-contact-text[contenteditable="true"] {
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+.cv-custom-contact-item:focus-within {
+    box-shadow: none;
+}
+
+.cv-contact-shell {
+    position: relative;
+}
+
+.cv-contact-entry {
+    position: relative;
+}
+
+.cv-contact-controls {
+    position: absolute;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    z-index: 12;
+}
+
+.cv-contact-controls .btn-item-ctrl {
+    pointer-events: auto;
+}
+
+.cv-contact-controls--item {
+    top: 0;
+    right: 6px;
+    left: auto;
+    transform: translateY(calc(-100% + 10px));
+}
+
+.preview-column .cv-contact-entry:hover > .cv-contact-controls--item {
+    display: flex;
+}
+
+.preview-column .cv-contact-entry.is-editing > .cv-contact-controls--item {
+    display: none !important;
+}
+
+/* Final fix: make the CV editor sidebar scroll independently */
+.editor-workspace {
+    min-height: 0 !important;
+}
+
+.design-column {
+    min-height: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.design-shell {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: hidden !important;
+    align-items: stretch !important;
+}
+
+.design-nav,
+.design-panels {
+    min-height: 0 !important;
+    max-height: 100% !important;
+}
+
+.design-nav {
+    overflow-y: auto !important;
+}
+
+.design-panels {
+    height: 100% !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+.cvm-contact-row > .cv-contact-entry {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 6px 10px !important;
+    border-radius: 999px !important;
+    background: rgba(255,255,255,0.12) !important;
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    color: rgba(255,255,255,0.96) !important;
+}
+
+.cvm-contact-row > .cv-contact-entry > .cv-custom-contact-icon,
+.cvm-contact-row > .cv-contact-entry > .cv-custom-contact-text {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+.cvm-contact-row > .cv-contact-entry > .cv-custom-contact-text {
+    min-width: 0;
+}
+
+.cv-professional-root .cvm-contact-row .cv-custom-contact-item,
+.cv-professional-root .cvm-contact-row .cv-contact-entry {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.96);
+}
+
+.cv-professional-root .cvm-contact-row .cv-custom-contact-item:focus-within {
+    border-color: rgba(255, 255, 255, 0.34);
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.cv-professional-root .cvm-contact-row .cv-contact-controls--item,
+.cv-professional-root .cvm-contact-row .cv-contact-entry:hover > .cv-contact-controls--item {
+    border-color: rgba(255, 255, 255, 0.34);
+    background: rgba(255, 255, 255, 0.16);
+    padding: 4px 6px;
+    border-radius: 999px;
+}
+
+.cv-creative-root .cvc2-contacts .cv-custom-contact-item,
+.cv-impact-root .cvc2-contacts .cv-custom-contact-item,
+.cv-creative-root .cvc2-contacts .cv-contact-entry,
+.cv-impact-root .cvc2-contacts .cv-contact-entry {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.94);
+}
+
+.cv-modern-root .cvm2-contacts .cv-custom-contact-item,
+.cv-modern-root .cvm2-contacts .cv-contact-entry {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    color: #475569;
+}
+
+.cv-modern-root .cvm2-contacts .cv-custom-contact-item:focus-within,
+.cv-modern-root .cvm2-contacts .cv-contact-controls--item,
+.cv-modern-root .cvm2-contacts .cv-contact-controls--row {
+    border-color: rgba(30, 41, 59, 0.38);
+    background: rgba(15, 23, 42, 0.06);
+    padding: 4px 6px;
+    border-radius: 999px;
+}
+
+.cv-ats-root .cv-topcv-contact-row .cv-custom-contact-item,
+.cv-ats-root .cv-topcv-contact-row .cv-contact-entry {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(248, 250, 252, 0.86);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    color: #334155;
+}
+
+.cv-ats-root .cv-topcv-contact-row .cv-custom-contact-item:focus-within,
+.cv-ats-root .cv-topcv-contact-row .cv-contact-controls--item,
+.cv-ats-root .cv-topcv-contact-row .cv-contact-controls--row {
+    border-color: rgba(30, 41, 59, 0.34);
+    background: #ffffff;
+    padding: 4px 6px;
+    border-radius: 999px;
+}
+
+.cv-professional-root .cvm-contact-row .cv-custom-contact-text,
+.cv-creative-root .cvc2-contacts .cv-custom-contact-text,
+.cv-impact-root .cvc2-contacts .cv-custom-contact-text,
+.cv-modern-root .cvm2-contacts .cv-custom-contact-text,
+.cv-ats-root .cv-topcv-contact-row .cv-custom-contact-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Final override for contact hover controls */
+.preview-column .cv-contact-entry {
+    position: relative !important;
+}
+
+.preview-column .cv-contact-entry > .cv-contact-controls--item {
+    display: none !important;
+    top: 0 !important;
+    right: 6px !important;
+    left: auto !important;
+    transform: translateY(calc(-100% + 10px)) !important;
+}
+
+.preview-column .cv-contact-entry:hover > .cv-contact-controls--item {
+    display: flex !important;
+}
+
+.preview-column .cv-contact-entry.is-editing > .cv-contact-controls--item {
+    display: none !important;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Extracted from cv-editor.html inline <style> blocks
+   ═══════════════════════════════════════════════════ */
+.cv-floating-save-btn {
+        position: fixed;
+        top: 78px;
+        right: 18px;
+        z-index: 1400;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        border: none;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #243b7a 0%, #1a2456 100%);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        box-shadow: 0 18px 34px rgba(26, 36, 86, 0.22);
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .cv-floating-save-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 22px 38px rgba(26, 36, 86, 0.28);
+    }
+
+    .cv-floating-save-btn:active {
+        transform: translateY(0);
+    }
+
+    .cv-floating-save-btn:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.28);
+        outline-offset: 3px;
+    }
+
+    @media (max-width: 768px) {
+        .cv-floating-save-btn {
+            top: 66px;
+            right: 12px;
+            left: auto;
+            border-radius: 12px;
+        }
+    }
+
+.assistant-column,
+    .assistant-column.assistant-redesigned {
+        display: none !important;
+    }
+
+    .design-column {
+        position: relative;
+        z-index: 2;
+        min-width: 320px;
+        max-width: 420px;
+        width: 100%;
+    }
+
+    .preview-column {
+        position: relative !important;
+        inset: auto !important;
+        left: auto !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        z-index: 1;
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .preview-column .cvm-section,
+    .preview-column .cvc2-zone,
+    .preview-column .cvm2-block,
+    .preview-column .cvcl2-section,
+    .preview-column .cv-topcv-section,
+    .preview-column .cvh-section {
+        margin-bottom: 12px !important;
+    }
+
+    .preview-column .cvm-exp-item,
+    .preview-column .cvm-edu-item,
+    .preview-column .cvc2-card,
+    .preview-column .cvm2-row,
+    .preview-column .cvcl2-item,
+    .preview-column .cvcl2-r-item,
+    .preview-column .cv-topcv-row,
+    .preview-column .cvh-item {
+        margin-bottom: 6px !important;
+    }
+
+    .preview-column .cvm-skill-group,
+    .preview-column .cvc2-skill-group,
+    .preview-column .cvcl2-skill,
+    .preview-column .cvh-skill-group {
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-exp-detail,
+    .preview-column .cvm-edu-detail,
+    .preview-column .cvc2-card-bullet,
+    .preview-column .cvm2-bullet,
+    .preview-column .cvcl2-bullet,
+    .preview-column .cvh-bullet,
+    .preview-column .cvh-details {
+        margin-top: 2px !important;
+        margin-bottom: 0 !important;
+        line-height: 1.35 !important;
+    }
+
+    .preview-column .cvm-skill-list,
+    .preview-column .cvc2-tags,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-skill-vals,
+    .preview-column .cvh-skill-items,
+    .preview-column p,
+    .preview-column li {
+        line-height: 1.35 !important;
+    }
+
+    .preview-column .cvm-section-title,
+    .preview-column .cvc2-sec,
+    .preview-column .cvm2-title,
+    .preview-column .cvcl2-sec-title,
+    .preview-column .cvcl2-sec-title-r,
+    .preview-column .cvh-title,
+    .preview-column .cv-topcv-title {
+        margin-bottom: 8px !important;
+        padding-bottom: 6px !important;
+    }
+
+    .preview-column .cvm-exp-role,
+    .preview-column .cvm-edu-degree,
+    .preview-column .cvc2-card-title,
+    .preview-column .cvm2-row-title,
+    .preview-column .cvcl2-role,
+    .preview-column .cvcl2-r-degree,
+    .preview-column .cvh-item-title {
+        margin-bottom: 2px !important;
+        line-height: 1.25 !important;
+    }
+
+    .preview-column .cvm-exp-company,
+    .preview-column .cvm-edu-school,
+    .preview-column .cvm-edu-year,
+    .preview-column .cvc2-card-sub,
+    .preview-column .cvm2-row-period,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-company,
+    .preview-column .cvcl2-date,
+    .preview-column .cvcl2-r-school,
+    .preview-column .cvcl2-r-period,
+    .preview-column .cvh-item-sub,
+    .preview-column .cvh-item-date {
+        margin-bottom: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    .preview-column .cvm-left section,
+    .preview-column .cvm-right section,
+    .preview-column .cvm2-block,
+    .preview-column .cv-topcv-content,
+    .preview-column .cvh-section {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .preview-column .cvm-body,
+    .preview-column .cvc2-body,
+    .preview-column .cvm2-body,
+    .preview-column .cvcl2-body,
+    .preview-column .cvh-root {
+        row-gap: 12px !important;
+    }
+
+    .preview-column .cvm-right {
+        gap: 10px !important;
+    }
+
+    .preview-column .cvm-right .cvm-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvm-right .cvm-section-title {
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-item,
+    .preview-column .cvm-right .cvm-skill-group {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-role,
+    .preview-column .cvm-right .cvm-skill-cat {
+        margin-bottom: 1px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-company,
+    .preview-column .cvm-right .cvm-skill-list {
+        margin-bottom: 1px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-detail-group,
+    .preview-column .cvm-right .cvm-exp-detail {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cvm-left {
+        gap: 10px !important;
+    }
+
+    .preview-column .cvm-left .cvm-section,
+    .preview-column .cvm-left section.cvm-section,
+    .preview-column .cvm-left .cvm-summary-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvm-left .cvm-section-title {
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-left .cvm-summary-text-full {
+        margin-top: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-item,
+    .preview-column .cvm-left .cvm-exp-item {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-degree,
+    .preview-column .cvm-left .cvm-exp-role {
+        margin-bottom: 1px !important;
+        line-height: 1.22 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-school,
+    .preview-column .cvm-left .cvm-edu-year,
+    .preview-column .cvm-left .cvm-exp-company {
+        margin-bottom: 1px !important;
+        line-height: 1.26 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-detail-group,
+    .preview-column .cvm-left .cvm-edu-detail,
+    .preview-column .cvm-left .cvm-exp-detail-group,
+    .preview-column .cvm-left .cvm-exp-detail {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cvc2-header {
+        margin-bottom: 12px !important;
+        padding-bottom: 12px !important;
+    }
+
+    .preview-column .cvc2-zone,
+    .preview-column .cvm2-block,
+    .preview-column .cvcl2-section,
+    .preview-column .cv-topcv-section,
+    .preview-column .cvh-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvc2-card,
+    .preview-column .cvm2-row,
+    .preview-column .cvcl2-item,
+    .preview-column .cvcl2-r-item,
+    .preview-column .cv-topcv-row,
+    .preview-column .cvh-item,
+    .preview-column .cvh-inline-item,
+    .preview-column .cvh-skill-group {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvc2-card-title,
+    .preview-column .cvm2-row-title,
+    .preview-column .cvcl2-role,
+    .preview-column .cvcl2-r-degree,
+    .preview-column .cvh-item-title,
+    .preview-column .cvh-inline-name,
+    .preview-column .cvh-skill-cat {
+        margin-bottom: 1px !important;
+        line-height: 1.22 !important;
+    }
+
+    .preview-column .cvc2-card-sub,
+    .preview-column .cvm2-row-period,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-company,
+    .preview-column .cvcl2-date,
+    .preview-column .cvcl2-r-school,
+    .preview-column .cvcl2-r-period,
+    .preview-column .cvh-item-sub,
+    .preview-column .cvh-item-date,
+    .preview-column .cvh-inline-year,
+    .preview-column .cvh-inline-issuer,
+    .preview-column .cvh-skill-items {
+        margin-bottom: 1px !important;
+        line-height: 1.26 !important;
+    }
+
+    .preview-column .cvc2-card-bullet,
+    .preview-column .cvm2-bullet,
+    .preview-column .cvcl2-bullet,
+    .preview-column .cvh-bullet,
+    .preview-column .cvh-details,
+    .preview-column .cvh-github-bullet {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cv-topcv-content > div,
+    .preview-column .cv-topcv-row > div {
+        margin-top: 2px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .preview-column .cvh-root,
+    .preview-column .cvc2-root,
+    .preview-column .cvm2-root,
+    .preview-column .cvcl2-root,
+    .preview-column .cv-topcv-root {
+        row-gap: 10px !important;
+    }
+
+    .section-meta-icon-trigger {
+        cursor: pointer !important;
+        transition: background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+    }
+
+    .section-meta-icon-trigger:hover {
+        background: rgba(26, 36, 86, 0.08) !important;
+        box-shadow: inset 0 0 0 1px rgba(26, 36, 86, 0.1);
+    }
+
+    .section-meta-icon-trigger:focus-visible {
+        outline: 2px solid rgba(37, 99, 235, 0.28);
+        outline-offset: 2px;
+    }
+
+    .section-icon-modal-content {
+        width: min(420px, calc(100vw - 32px));
+    }
+
+    .section-icon-modal-subtitle {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .section-icon-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .section-icon-option {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        border: 1px solid rgba(148, 163, 184, 0.34);
+        border-radius: 16px;
+        background: #f8fbff;
+        color: #1A2456;
+        cursor: pointer;
+        transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .section-icon-option:hover {
+        transform: translateY(-1px);
+        border-color: rgba(37, 99, 235, 0.38);
+        background: #eef4ff;
+        box-shadow: 0 10px 18px rgba(26, 36, 86, 0.08);
+    }
+
+    .section-icon-option.is-active {
+        border-color: rgba(37, 99, 235, 0.5);
+        background: #e7efff;
+        box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.22);
+    }
+
+
+/* ═══════════════════════════════════════════════════
+   Bullet detail block — single editable area per item
+   ═══════════════════════════════════════════════════ */
+
+.cv-details-block {
+    display: block;
+    white-space: pre-wrap;        /* preserve newlines */
+    line-height: 1.55;
+    margin-top: 4px;
+}
+
+/* Edit mode: highlight on hover/focus */
+#cvPreview.cv-editable-mode .cv-details-block.cv-editable {
+    cursor: text;
+    border-radius: 4px;
+    padding: 4px 6px;
+    margin-left: -6px;
+    transition: background 0.15s ease, outline 0.15s ease;
+}
+
+#cvPreview.cv-editable-mode .cv-details-block.cv-editable:hover {
+    background: rgba(37, 99, 235, 0.05);
+    outline: 1.5px dashed rgba(37, 99, 235, 0.28);
+    outline-offset: 1px;
+}
+
+#cvPreview.cv-editable-mode .cv-details-block.cv-editable:focus {
+    background: rgba(37, 99, 235, 0.08);
+    outline: 1.5px solid rgba(37, 99, 235, 0.45);
+    outline-offset: 1px;
+}
+
+/* Hint text above block when focused */
+#cvPreview.cv-editable-mode .cv-details-block.cv-editable:focus::before {
+    display: none; /* avoid interfering with contenteditable */
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Item Controls — reliable visibility for add/remove/move
+   ═══════════════════════════════════════════════════ */
+
+/* Hidden by default (outside edit mode) */
+.cv-item-controls {
+    display: none;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 100;
+    flex-direction: row;
+    gap: 4px;
+    align-items: center;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid rgba(37,99,235,0.18);
+    border-radius: 8px;
+    padding: 3px 5px;
+    box-shadow: 0 4px 12px rgba(26,36,86,0.12);
+    pointer-events: auto;
+}
+
+/* In edit mode: always visible (low opacity) on shells that need positioning */
+.cv-edit-shell,
+.cvm-exp-item,
+.cvm-edu-item,
+.cvm-skill-group,
+.cvc2-card,
+.cvm2-row,
+.cvcl2-item,
+.cvcl2-r-item,
+.cvh-item,
+.cvh-edit-shell,
+.cvh-skill-group,
+.cv-topcv-row {
+    position: relative;
+}
+
+/* Show controls in edit mode */
+#cvPreview.cv-editable-mode .cv-item-controls {
+    display: flex;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    pointer-events: none;
+}
+
+/* Full visibility on hover — use :has or parent hover */
+#cvPreview.cv-editable-mode .cv-edit-shell:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvm-exp-item:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvm-edu-item:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvm-skill-group:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvc2-card:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvm2-row:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvcl2-item:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvcl2-r-item:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvh-item:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvh-edit-shell:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvh-skill-group:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cv-topcv-row:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cv-item-shell-active .cv-item-controls,
+/* Keep visible when hovering over the controls themselves */
+#cvPreview.cv-editable-mode .cv-item-controls:hover {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Buttons inside controls */
+.btn-item-ctrl {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 3px 7px;
+    border: 1px solid rgba(37,99,235,0.2);
+    border-radius: 5px;
+    background: #f0f5ff;
+    color: #1a2456;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+    pointer-events: auto;
+    user-select: none;
+}
+
+.btn-item-ctrl:hover {
+    background: #dbeafe;
+    border-color: rgba(37,99,235,0.45);
+    box-shadow: 0 2px 6px rgba(37,99,235,0.12);
+}
+
+.btn-item-ctrl:active {
+    background: #bfdbfe;
+    transform: scale(0.97);
+}
+
+.btn-item-ctrl[disabled] {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-item-ctrl i[data-lucide] {
+    width: 12px;
+    height: 12px;
+}
+
+.btn-item-del {
+    color: #dc2626;
+    background: #fff5f5;
+    border-color: rgba(220,38,38,0.2);
+}
+
+.btn-item-del:hover {
+    background: #fee2e2;
+    border-color: rgba(220,38,38,0.45);
+}
+
+.btn-item-add {
+    color: #15803d;
+    background: #f0fdf4;
+    border-color: rgba(21,128,61,0.2);
+}
+
+.btn-item-add:hover {
+    background: #dcfce7;
+    border-color: rgba(21,128,61,0.45);
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Contenteditable Placeholder (ghost text)
+   Hiện khi ô trống, mất khi focus và có nội dung
+   ═══════════════════════════════════════════════════ */
+
+/* Show placeholder when empty */
+#cvPreview .cv-editable[data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: rgba(0, 0, 0, 0.28);
+    font-style: italic;
+    pointer-events: none;
+    display: block;
+}
+
+/* Slightly more visible in edit mode */
+#cvPreview.cv-editable-mode .cv-editable[data-placeholder]:empty::before {
+    color: rgba(37, 99, 235, 0.35);
+    font-style: italic;
+}
+
+/* Details block placeholder */
+#cvPreview .cv-details-block[data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: rgba(0, 0, 0, 0.28);
+    font-style: italic;
+    pointer-events: none;
+    white-space: pre-wrap;
+    display: block;
+}
+
+#cvPreview.cv-editable-mode .cv-details-block[data-placeholder]:empty::before {
+    color: rgba(37, 99, 235, 0.35);
 }

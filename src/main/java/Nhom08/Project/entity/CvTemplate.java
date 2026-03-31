@@ -37,7 +37,7 @@ public class CvTemplate {
     @Column(name = "category", length = 100)
     private String category;
 
-    // Style tag: professional, creative, minimalist, classic, harvard
+    // Style tag: professional, classic, modern, impactful, creative, ats, harvard
     @Column(name = "style_tag", length = 50)
     private String styleTag;
 
