@@ -5097,6 +5097,43 @@ input:checked + .slider:before {
     display: none !important;
 }
 
+/* Final fix: make the CV editor sidebar scroll independently */
+.editor-workspace {
+    min-height: 0 !important;
+}
+
+.design-column {
+    min-height: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.design-shell {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: hidden !important;
+    align-items: stretch !important;
+}
+
+.design-nav,
+.design-panels {
+    min-height: 0 !important;
+    max-height: 100% !important;
+}
+
+.design-nav {
+    overflow-y: auto !important;
+}
+
+.design-panels {
+    height: 100% !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
 .cvm-contact-row > .cv-contact-entry {
     display: flex !important;
     align-items: center !important;
