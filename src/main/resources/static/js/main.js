@@ -231,3 +231,52 @@ document.addEventListener('DOMContentLoaded', function() {
         jobAlertEmail.value = '';
     });
 });
+
+// ===== Inject Contact Widget =====
+(function() {
+    'use strict';
+
+    // Inject CSS
+    const injectCSS = function() {
+        const links = [
+            '/contact-widget/contact-widget.css',
+            '/contact-widget/chatbot-modal.css'
+        ];
+
+        links.forEach(href => {
+            // Check if already injected
+            if (document.querySelector(`link[href="${href}"]`)) return;
+
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = href;
+            document.head.appendChild(link);
+        });
+    };
+
+    // Inject JavaScript
+    const injectJS = function() {
+        const src = '/contact-widget/contact-widget.js';
+
+        // Check if already injected
+        if (document.querySelector(`script[src="${src}"]`)) return;
+
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        document.body.appendChild(script);
+    };
+
+    // Initialize widget when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            injectCSS();
+            injectJS();
+        });
+    } else {
+        injectCSS();
+        injectJS();
+    }
+
+    console.log('Contact Widget injected successfully');
+})();
