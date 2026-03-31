@@ -60,7 +60,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/user/**").permitAll()
                 .requestMatchers("/api/chatbot/**").permitAll() // Chatbot API
-                
+                .requestMatchers("/api/contact-chat/**").permitAll() // Contact Widget Chatbot API
+
                 // Admin pages and API - require ADMIN role
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
