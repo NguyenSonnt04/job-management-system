@@ -4539,5 +4539,73 @@ input:checked + .slider:before {
 .cv-editable-mode .cvm-skill-pill:focus-within {
     background: #ffffff !important;
     border-color: #1A2456 !important;
-    box-shadow: 0 0 0 2px rgba(26, 36, 86, 0.12) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.preview-column .cvm-skill-group:focus-within::after,
+.preview-column .cv-item-shell-active:focus-within::after,
+.cv-editable-mode .cvm-skill-group:focus-within::after,
+.cv-editable-mode .cv-item-shell-active:focus-within::after {
+    content: none !important;
+}
+
+/* Keep skill editing to a single visible border: the pill itself. */
+.preview-column .cvm-skill-pill > .cv-editable,
+.cv-editable-mode .cvm-skill-pill > .cv-editable {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    min-width: 0 !important;
+}
+
+.preview-column .cvm-skill-pill > .cv-editable:focus,
+.preview-column .cvm-skill-pill > .cv-editable[contenteditable]:focus,
+.preview-column .cvm-skill-pill > .cv-editable[contenteditable="true"]:focus,
+.preview-column .cvm-skill-pill > .cv-editable[contenteditable="plaintext-only"]:focus,
+.cv-editable-mode .cvm-skill-pill > .cv-editable:focus,
+.cv-editable-mode .cvm-skill-pill > .cv-editable[contenteditable]:focus,
+.cv-editable-mode .cvm-skill-pill > .cv-editable[contenteditable="true"]:focus,
+.cv-editable-mode .cvm-skill-pill > .cv-editable[contenteditable="plaintext-only"]:focus {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+}
+
+/* Skill group titles should use the group border only, not an extra inner field border. */
+.preview-column .cvm-skill-cat.cv-field-shell:hover,
+.preview-column .cvm-skill-cat.cv-field-shell:focus-within,
+.cv-editable-mode .cvm-skill-cat.cv-field-shell:hover,
+.cv-editable-mode .cvm-skill-cat.cv-field-shell:focus-within {
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+}
+
+.preview-column .cvm-skill-cat > .cv-editable,
+.cv-editable-mode .cvm-skill-cat > .cv-editable,
+.preview-column .cvm-skill-cat > .cv-editable:focus,
+.preview-column .cvm-skill-cat > .cv-editable[contenteditable]:focus,
+.preview-column .cvm-skill-cat > .cv-editable[contenteditable="true"]:focus,
+.preview-column .cvm-skill-cat > .cv-editable[contenteditable="plaintext-only"]:focus,
+.cv-editable-mode .cvm-skill-cat > .cv-editable:focus,
+.cv-editable-mode .cvm-skill-cat > .cv-editable[contenteditable]:focus,
+.cv-editable-mode .cvm-skill-cat > .cv-editable[contenteditable="true"]:focus,
+.cv-editable-mode .cvm-skill-cat > .cv-editable[contenteditable="plaintext-only"]:focus {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
 }

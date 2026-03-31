@@ -5335,7 +5335,6 @@
     function handlePreviewShellFocus(event) {
         const preview = document.getElementById('cvPreview');
         if (!isEditMode || !isHarvardPreview(preview)) return;
-
         const target = event.target instanceof Element ? event.target : event.target?.parentElement;
         if (!target) return;
         if (target.closest('.cv-item-controls, button, a')) return;
