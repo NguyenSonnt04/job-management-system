@@ -1,412 +1,703 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý CV | CareerViet - TopCV Style</title>
-    <meta name="description" content="Quản lý và tối ưu CV của bạn với công nghệ AI">
+    <title>Quản lý CV | CareerViet Studio</title>
+    <meta name="description" content="Quản lý, cập nhật và xuất CV PDF nhanh chóng với giao diện chuyên nghiệp hơn.">
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #00b14f;
-            --primary-hover: #009a44;
-            --primary-light: #e6f7ef;
-            --bg-body: #f4f4f4;
-            --text-main: #212f3f;
-            --text-muted: #7f878f;
-            --white: #ffffff;
-            --border: #e9eaeb;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            --radius-main: 8px;
-            --radius-card: 12px;
+            --bg: #f3f7f2;
+            --surface: rgba(255, 255, 255, 0.94);
+            --surface-strong: #ffffff;
+            --surface-soft: #f5faf7;
+            --ink: #183126;
+            --muted: #607267;
+            --accent: #0f9f5f;
+            --accent-strong: #0c7d4a;
+            --accent-soft: #e3f6ed;
+            --accent-deep: #103624;
+            --line: #d9e4dc;
+            --danger: #c2413b;
+            --shadow-soft: 0 20px 48px rgba(13, 41, 28, 0.08);
+            --shadow-card: 0 16px 30px rgba(12, 35, 24, 0.1);
+            --radius-xl: 28px;
+            --radius-lg: 22px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
         }
 
         * { box-sizing: border-box; }
-        html, body { min-height: 100%; font-family: 'Inter', sans-serif; color: var(--text-main); background-color: var(--bg-body); margin: 0; }
 
-        .dashboard-wrapper {
-            max-width: 1240px;
-            margin: 20px auto 60px;
-            padding: 0 16px;
-            display: grid;
-            grid-template-columns: auto 340px;
-            gap: 28px;
+        html, body {
+            min-height: 100%;
+            margin: 0;
+            color: var(--ink);
+            font-family: "Be Vietnam Pro", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(15, 159, 95, 0.14), transparent 32%),
+                radial-gradient(circle at top right, rgba(16, 54, 36, 0.08), transparent 26%),
+                linear-gradient(180deg, #fbfcfa 0%, var(--bg) 100%);
         }
 
-        /* --- Main Content --- */
-        .main-column { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.14;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-        /* Job Search Banner */
-        .job-search-banner {
-            background: var(--white);
-            border-radius: var(--radius-card);
-            padding: 24px 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        body::before { top: -180px; left: -120px; background: #7fd5a5; }
+        body::after { right: -150px; bottom: -170px; background: #bed7c7; }
+
+        a { color: inherit; text-decoration: none; }
+        button, input { font: inherit; }
+        button { border: none; background: none; cursor: pointer; }
+
+        #header-placeholder,
+        #footer-placeholder { position: relative; z-index: 2; }
+
+        .page-shell {
             position: relative;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-        .banner-content { position: relative; z-index: 2; max-width: 60%; }
-        .banner-content h3 { margin: 0 0 12px; font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: -0.02em; }
-        .banner-content p { margin: 0; font-size: 15px; color: var(--text-main); line-height: 1.6; }
-        .banner-actions { display: flex; align-items: center; gap: 24px; position: relative; z-index: 2; }
-        
-        /* Large Banner Toggle */
-        .toggle-switch.large { width: 72px; height: 38px; }
-        .toggle-switch.large .slider { border-radius: 40px; background-color: #d1d5db; }
-        .toggle-switch.large .slider:before { height: 30px; width: 30px; left: 4px; bottom: 4px; }
-        .toggle-switch.large input:checked + .slider { background-color: var(--primary); }
-        .toggle-switch.large input:checked + .slider:before { transform: translateX(34px); box-shadow: -2px 0 8px rgba(0,0,0,0.1); }
-
-        .btn-banner-action {
-            background: var(--primary);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 14px;
-            text-decoration: none;
-            transition: all 0.2s;
-            display: inline-flex;
-            margin-top: 16px;
-        }
-        .btn-banner-action:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,177,79,0.3); }
-
-        /* CV Grid Header */
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 2px;
-            background: transparent;
-        }
-        .section-header h2 { margin: 0; font-size: 20px; font-weight: 800; color: #111827; }
-        .btn-create-cv {
-            background: var(--primary);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 15px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .btn-create-cv:hover { background: var(--primary-hover); box-shadow: 0 4px 12px rgba(0,177,79,0.3); }
-
-        /* CV Grid & Cards */
-        .cv-grid {
+            z-index: 1;
+            max-width: 1360px;
+            margin: 32px auto 72px;
+            padding: 0 22px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            grid-template-columns: minmax(0, 1fr) 330px;
             gap: 24px;
         }
-        .cv-card {
-            background: var(--white);
-            border-radius: var(--radius-card);
-            overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-            border: 1px solid var(--border);
-            transition: all 0.25s;
+
+        .main-column,
+        .sidebar-column {
             display: flex;
             flex-direction: column;
+            gap: 22px;
+            min-width: 0;
         }
-        .cv-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); border-color: #d1d5db; }
-        
-        /* A4 Aspect Ratio Thumbnail */
-        .cv-thumb-container {
-            position: relative;
-            background: #f8f9fa;
-            aspect-ratio: 1 / 1.15;
-            overflow: hidden;
-            padding: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid #f1f5f9;
-        }
-        .cv-thumb-paper {
-            width: 100%;
-            height: 100%;
-            background: white;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-            border-radius: 4px;
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
-            position: relative;
-        }
-        .cv-thumb-preview {
-            transform: scale(0.35);
-            transform-origin: top left;
-            width: 285%;
-            pointer-events: none;
-        }
-        
-        .cv-card-info { padding: 16px; flex-grow: 1; }
-        .cv-name { margin: 0 0 4px; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cv-updated { font-size: 12px; color: var(--text-muted); }
 
-        .cv-card-footer {
-            padding: 12px 16px;
-            border-top: 1px solid var(--border);
+        .surface-card {
+            border: 1px solid rgba(217, 228, 220, 0.9);
+            border-radius: var(--radius-xl);
+            background: var(--surface);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(14px);
+        }
+
+        .hero-card {
+            overflow: hidden;
+            padding: 28px;
+            color: #f2fbf6;
+            background:
+                radial-gradient(circle at top right, rgba(155, 255, 195, 0.22), transparent 32%),
+                linear-gradient(135deg, #123727 0%, #115a38 55%, #0e7a48 100%);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 24px 56px rgba(17, 69, 45, 0.24);
+        }
+
+        .hero-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            grid-template-columns: minmax(0, 1.18fr) minmax(280px, 0.82fr);
+            gap: 20px;
         }
-        .btn-cv-action {
-            height: 36px;
-            border-radius: 4px;
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            color: rgba(242, 251, 246, 0.92);
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #9dffbf;
+            box-shadow: 0 0 0 6px rgba(157, 255, 191, 0.14);
+        }
+
+        .eyebrow-soft {
+            background: var(--accent-soft);
+            color: var(--accent-deep);
+        }
+
+        .hero-title {
+            margin: 18px 0 12px;
+            max-width: 12ch;
+            font-size: clamp(2rem, 3.7vw, 3.2rem);
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            font-weight: 800;
+        }
+
+        .hero-copy p,
+        .section-subtitle,
+        .sidebar-copy,
+        .status-copy,
+        .empty-state p {
+            margin: 0;
+            color: rgba(242, 251, 246, 0.82);
+            font-size: 14px;
+            line-height: 1.72;
+        }
+
+        .hero-actions,
+        .hero-highlights {
             display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .hero-actions { margin-top: 22px; }
+        .hero-highlights { margin-top: 20px; }
+
+        .btn {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            background: #f8f9fa;
-            color: var(--text-main);
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-cv-action:hover { background: #eef1f4; }
-        .btn-cv-primary { background: var(--primary-light); color: var(--primary); border-color: var(--primary-light); }
-        .btn-cv-primary:hover { background: #d7f0e4; }
-
-        /* --- Sidebar --- */
-        .sidebar-column { display: flex; flex-direction: column; gap: 20px; }
-
-        .sidebar-card {
-            background: var(--white);
-            border-radius: var(--radius-card);
-            padding: 20px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
+            gap: 10px;
+            min-height: 48px;
+            padding: 0 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 700;
+            transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
         }
 
-        /* Profile Widget */
-        .profile-widget { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .user-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); padding: 2px; }
-        .user-info h4 { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
-        .account-badge { background: #f1f5f9; color: var(--text-muted); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
-        .expiry-date { display: block; margin-top: 8px; font-size: 11px; color: var(--text-muted); }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { color: #103021; background: #f5fff7; box-shadow: 0 16px 30px rgba(3, 22, 13, 0.16); }
+        .btn-secondary { color: #f2fbf6; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); }
 
-        /* Sidebar Toggle Item */
-        .sidebar-toggle-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
-        .toggle-label { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
-        .toggle-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 15px; }
-
-        .btn-change-cv {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            text-align: center;
-            background: #f8f9fa;
-            border: 1px solid var(--border);
-            border-radius: 6px;
+        .hero-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(242, 251, 246, 0.84);
             font-size: 13px;
             font-weight: 600;
-            color: var(--text-main);
+        }
+
+        .hero-aside { display: flex; flex-direction: column; gap: 14px; }
+
+        .status-panel,
+        .hero-metrics {
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .status-title { font-size: 15px; font-weight: 700; }
+        .status-subtitle,
+        .status-panel p { color: rgba(242, 251, 246, 0.78); font-size: 13px; line-height: 1.6; }
+        .status-panel p { margin: 14px 0 0; }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 14px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(149, 255, 187, 0.12);
+            color: #dcffe8;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-pill.is-off { background: rgba(255, 245, 216, 0.12); color: #fff0c1; }
+
+        .hero-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .metric-card {
+            padding: 14px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .metric-card span { display: block; margin-bottom: 8px; color: rgba(242, 251, 246, 0.72); font-size: 12px; font-weight: 600; }
+        .metric-card strong { display: block; font-size: clamp(1.05rem, 2vw, 1.7rem); font-weight: 800; line-height: 1.2; }
+
+        .collection-card { padding: 24px; }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .section-title {
+            margin: 10px 0 8px;
+            font-size: clamp(1.5rem, 2vw, 2rem);
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            font-weight: 800;
+        }
+
+        .section-subtitle { color: var(--muted); max-width: 58ch; }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 15px 18px;
+            margin-bottom: 20px;
+            border-radius: 20px;
+            background: var(--surface-soft);
+            border: 1px solid var(--line);
+        }
+
+        .toolbar-group { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 9px 14px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent-deep);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .pill.muted { background: #edf2ee; color: var(--muted); }
+
+        #cvGrid,
+        .loading-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 18px;
+        }
+        .cv-card {
+            --card-accent: #0f9f5f;
+            --card-soft: #edf8f1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 24px;
+            border: 1px solid rgba(217, 228, 220, 0.95);
+            background: var(--surface-strong);
+            box-shadow: var(--shadow-card);
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+
+        .cv-card:hover { transform: translateY(-5px); box-shadow: 0 22px 40px rgba(11, 37, 24, 0.14); border-color: rgba(15, 159, 95, 0.24); }
+        .cv-card.is-featured { border-color: rgba(15, 159, 95, 0.32); }
+
+        .cv-thumb-container {
+            position: relative;
+            aspect-ratio: 1 / 1.08;
+            padding: 18px;
             cursor: pointer;
-            margin-top: 10px;
+            background: linear-gradient(160deg, var(--card-soft), #ffffff 70%);
+            border-bottom: 1px solid rgba(217, 228, 220, 0.8);
         }
 
-        .benefit-list { margin-top: 20px; padding: 0; list-style: none; }
-        .benefit-item { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; color: var(--text-main); margin-bottom: 12px; }
-        .benefit-item svg { width: 16px; height: 16px; color: var(--primary); flex-shrink: 0; margin-top: 2px; }
-
-        .qr-card { text-align: center; background: linear-gradient(135deg, #00b14f 0%, #009a44 100%); color: white; }
-        .qr-card img { width: 120px; height: 120px; border-radius: 8px; background: white; padding: 5px; margin-bottom: 15px; }
-        .qr-card h5 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
-        .qr-card p { margin: 0; font-size: 12px; opacity: 0.9; }
-
-        /* --- Modals & Toasts (Inherited from prev but styled better) --- */
-        .modal-backdrop {
-            display: none; position: fixed; inset: 0; z-index: 9000;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-            align-items: center; justify-content: center; padding: 20px;
+        .card-badge {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            z-index: 2;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--accent-deep);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 10px 18px rgba(18, 36, 24, 0.12);
         }
+
+        .cv-thumb-paper {
+            position: relative;
+            height: 100%;
+            padding: 18px 16px;
+            overflow: hidden;
+            border-radius: 18px;
+            background: #ffffff;
+            border: 1px solid rgba(217, 228, 220, 0.95);
+            box-shadow: 0 16px 28px rgba(12, 35, 24, 0.11);
+        }
+
+        .cv-thumb-paper::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto auto 0;
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(90deg, var(--card-accent), rgba(255, 255, 255, 0));
+        }
+
+        .thumb-top { display: flex; gap: 12px; margin-bottom: 16px; }
+        .thumb-avatar {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--card-accent), #1fc97b);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .thumb-name { margin: 3px 0 6px; font-size: 13px; font-weight: 800; line-height: 1.3; }
+        .thumb-template {
+            display: inline-flex;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: var(--card-soft);
+            color: var(--card-accent);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .thumb-layout { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 12px; height: calc(100% - 58px); }
+        .thumb-col { display: flex; flex-direction: column; gap: 9px; }
+        .thumb-panel { padding: 10px; border-radius: 12px; background: #f9fbfa; border: 1px solid #edf3ef; }
+        .thumb-line { display: block; height: 6px; margin-top: 7px; border-radius: 999px; background: #e1ece4; }
+        .thumb-line:first-child { margin-top: 0; }
+        .thumb-line.dark { background: #224334; }
+        .thumb-line.accent { background: var(--card-accent); }
+
+        .cv-card-body { display: flex; flex: 1; flex-direction: column; gap: 14px; padding: 18px 18px 16px; }
+        .cv-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        .template-badge { display: inline-flex; padding: 7px 11px; border-radius: 999px; background: var(--card-soft); color: var(--card-accent); font-size: 12px; font-weight: 700; }
+        .cv-name { margin: 10px 0 0; font-size: 20px; line-height: 1.3; font-weight: 800; letter-spacing: -0.02em; }
+        .cv-id { padding: 10px 12px; border-radius: 14px; background: #f2f6f3; color: var(--muted); font-size: 12px; font-weight: 700; }
+        .cv-meta { display: flex; flex-wrap: wrap; gap: 10px; }
+        .meta-pill { display: inline-flex; align-items: center; padding: 9px 12px; border-radius: 999px; background: #f5f8f6; color: var(--muted); font-size: 12px; font-weight: 600; }
+        .cv-description { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+
+        .cv-card-footer {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            padding: 0 18px 18px;
+        }
+
+        .btn-cv-action {
+            min-height: 44px;
+            padding: 0 14px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: #f9fbfa;
+            color: var(--ink);
+            font-size: 13px;
+            font-weight: 700;
+            transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+        }
+
+        .btn-cv-action:hover { transform: translateY(-2px); box-shadow: 0 10px 18px rgba(12, 35, 24, 0.08); }
+        .btn-cv-primary { color: #ffffff; background: linear-gradient(135deg, var(--card-accent), #1bb672); border-color: transparent; }
+        .btn-cv-danger { color: var(--danger); }
+        .btn-cv-loading { pointer-events: none; opacity: 0.78; }
+
+        .loading-card,
+        .empty-state {
+            border-radius: 24px;
+            border: 1px solid var(--line);
+            background: #ffffff;
+            box-shadow: var(--shadow-card);
+        }
+
+        .loading-card { min-height: 400px; overflow: hidden; }
+        .loading-thumb,
+        .loading-line,
+        .loading-action {
+            position: relative;
+            overflow: hidden;
+            background: #edf2ee;
+        }
+
+        .loading-thumb::after,
+        .loading-line::after,
+        .loading-action::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 1.4s infinite;
+        }
+
+        .loading-thumb { aspect-ratio: 1 / 1.08; }
+        .loading-body { padding: 18px; }
+        .loading-line { height: 14px; margin-bottom: 12px; border-radius: 999px; }
+        .loading-line.wide { width: 82%; }
+        .loading-line.med { width: 54%; }
+        .loading-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 18px 18px; }
+        .loading-action { height: 42px; border-radius: 14px; }
+
+        .empty-state { display: none; padding: 52px 28px; text-align: center; background: linear-gradient(180deg, #ffffff, #f6faf7); }
+        .empty-icon {
+            width: 92px;
+            height: 92px;
+            margin: 0 auto 20px;
+            display: grid;
+            place-items: center;
+            border-radius: 28px;
+            background: linear-gradient(135deg, var(--accent-soft), #f7fff9);
+            color: var(--accent);
+            font-size: 36px;
+            box-shadow: 0 18px 30px rgba(15, 159, 95, 0.14);
+        }
+
+        .empty-state h3 { margin: 0 0 10px; font-size: 26px; font-weight: 800; letter-spacing: -0.03em; }
+        .empty-state p { max-width: 54ch; margin: 0 auto 22px; color: var(--muted); }
+
+        .sidebar-card { padding: 22px; }
+        .profile-card { background: radial-gradient(circle at top right, rgba(15, 159, 95, 0.14), transparent 35%), linear-gradient(180deg, rgba(255,255,255,.98), rgba(246,250,247,.98)); }
+        .profile-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .user-avatar { width: 76px; height: 76px; border-radius: 22px; object-fit: cover; border: 4px solid rgba(255,255,255,.88); box-shadow: 0 16px 28px rgba(12,35,24,.12); }
+        .user-badge { display: inline-flex; padding: 7px 12px; margin-bottom: 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-deep); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        .profile-head h4, .sidebar-title { margin: 0; font-size: 21px; line-height: 1.2; font-weight: 800; letter-spacing: -0.03em; }
+        .profile-head p, .selected-cv-meta, .settings-copy, .sidebar-list li { color: var(--muted); font-size: 13px; line-height: 1.65; }
+        .profile-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+        .profile-stat, .selected-cv { padding: 14px; border-radius: 18px; background: #ffffff; border: 1px solid rgba(217,228,220,.9); }
+        .profile-stat span { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; font-weight: 600; }
+        .profile-stat strong { display: block; font-size: 24px; font-weight: 800; line-height: 1.1; }
+        .selected-cv-name { margin: 0 0 6px; font-size: 16px; line-height: 1.4; font-weight: 800; }
+        .settings-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+        .settings-row strong { display: block; font-size: 15px; font-weight: 700; }
+        .settings-copy, .status-copy { color: var(--muted); font-size: 13px; line-height: 1.65; }
+        .sidebar-list { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+        .mobile-card { color: #f2fbf6; background: radial-gradient(circle at top right, rgba(157,255,191,.24), transparent 36%), linear-gradient(160deg, #103926 0%, #0d5f3a 60%, #0d7a49 100%); border-color: rgba(255,255,255,.08); }
+        .mobile-card p { color: rgba(242, 251, 246, 0.84); line-height: 1.68; }
+        .qr-box { display: inline-flex; width: 126px; height: 126px; margin: 18px 0 14px; padding: 10px; border-radius: 22px; background: rgba(255,255,255,.96); box-shadow: 0 18px 36px rgba(4,19,11,.18); }
+        .qr-box img { width: 100%; height: 100%; object-fit: contain; }
+
+        .toggle-switch { position: relative; display: inline-flex; width: 58px; height: 32px; flex-shrink: 0; }
+        .toggle-switch.large { width: 68px; height: 38px; }
+        .toggle-switch input { width: 0; height: 0; opacity: 0; }
+        .slider { position: absolute; inset: 0; border-radius: 999px; background: #d9e4dc; transition: background 180ms ease; }
+        .hero-card .slider { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.12); }
+        .slider::before { content: ""; position: absolute; left: 4px; top: 4px; width: 24px; height: 24px; border-radius: 50%; background: #ffffff; box-shadow: 0 6px 16px rgba(7,21,13,.18); transition: transform 180ms ease; }
+        .toggle-switch.large .slider::before { width: 30px; height: 30px; }
+        .toggle-switch input:checked + .slider { background: linear-gradient(135deg, var(--accent), #1bc176); }
+        .toggle-switch input:checked + .slider::before { transform: translateX(26px); }
+        .toggle-switch.large input:checked + .slider::before { transform: translateX(30px); }
+
+        .modal-backdrop { display: none; position: fixed; inset: 0; z-index: 9000; padding: 20px; align-items: center; justify-content: center; background: rgba(7,17,11,.48); backdrop-filter: blur(8px); }
         .modal-backdrop.show { display: flex; }
-        .modal-content {
-            background: white; border-radius: 16px; width: min(480px, 100%);
-            padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-        }
-        .modal-content h4 { margin: 0 0 10px; font-size: 20px; font-weight: 800; }
-        .modal-content p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
-        .modal-input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 8px; margin-bottom: 24px; outline: none; }
-        .modal-input:focus { border-color: var(--primary); }
-        .modal-btns { display: flex; gap: 12px; justify-content: flex-end; }
-        .btn-modal { padding: 10px 24px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; }
-        .btn-cancel { background: #f1f5f9; color: #475569; border: none; }
-        .btn-confirm { background: var(--primary); color: white; border: none; }
-        .btn-danger { background: #fee2e2; color: #dc2626; border: none; }
+        .modal-content { width: min(500px, 100%); padding: 28px; border-radius: 28px; border: 1px solid rgba(217,228,220,.9); background: rgba(255,255,255,.98); box-shadow: 0 28px 60px rgba(11,29,18,.22); }
+        .modal-content h4 { margin: 0 0 10px; font-size: 24px; line-height: 1.2; font-weight: 800; letter-spacing: -0.03em; }
+        .modal-content p { margin: 0 0 18px; color: var(--muted); line-height: 1.65; }
+        .modal-input { width: 100%; height: 52px; padding: 0 16px; border-radius: 16px; border: 1px solid var(--line); background: #f8fbf9; outline: none; }
+        .modal-input:focus { border-color: rgba(15,159,95,.42); box-shadow: 0 0 0 5px rgba(15,159,95,.12); }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+        .btn-modal { min-height: 46px; padding: 0 18px; border-radius: 14px; font-size: 14px; font-weight: 700; }
+        .btn-modal.secondary { color: var(--muted); background: #eef3ef; }
+        .btn-modal.primary { color: #ffffff; background: linear-gradient(135deg, var(--accent), #18bc72); }
+        .btn-modal.danger { color: #ffffff; background: linear-gradient(135deg, #df4f4a, #b7302b); }
 
-        .toast-wrap { position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-        .toast { padding: 16px 24px; border-radius: 12px; background: #333; color: white; font-size: 14px; font-weight: 600; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .toast.success { background: var(--primary); }
-        .toast.error { background: #dc2626; }
+        .toast-wrap { position: fixed; right: 24px; bottom: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: min(360px, calc(100vw - 32px)); }
+        .toast { padding: 14px 16px; border-radius: 18px; color: #ffffff; background: rgba(19,34,25,.96); box-shadow: 0 18px 38px rgba(14,30,20,.22); }
+        .toast.success { background: linear-gradient(135deg, var(--accent), #17b56f); }
+        .toast.error { background: linear-gradient(135deg, #df4f4a, #b7302b); }
 
-        /* Loader */
-        .loader { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes shimmer { to { transform: translateX(100%); } }
 
-        @media (max-width: 1024px) {
-            .dashboard-wrapper { grid-template-columns: 1fr; }
-            .sidebar-column { order: -1; }
-        }
+        @media (max-width: 1180px) { .page-shell { grid-template-columns: 1fr; } .sidebar-column { order: -1; } }
+        @media (max-width: 860px) { .hero-grid, .hero-metrics { grid-template-columns: 1fr; } .section-header, .toolbar { flex-direction: column; align-items: stretch; } .hero-actions .btn, .section-header .btn { width: 100%; } }
+        @media (max-width: 640px) { .page-shell { padding: 0 16px; } .hero-card, .collection-card, .sidebar-card { padding: 20px; border-radius: 24px; } #cvGrid, .loading-grid, .cv-card-footer, .loading-actions, .profile-stats { grid-template-columns: 1fr; } .toast-wrap { left: 16px; right: 16px; bottom: 16px; max-width: none; } }
     </style>
 </head>
 <body>
     <div id="header-placeholder"></div>
 
-    <main class="dashboard-wrapper">
+    <main class="page-shell">
         <div class="main-column">
-            <!-- Top Banner -->
-            <section class="job-search-banner" style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 80%);">
-                <div class="banner-content">
-                    <h3>Bật tìm việc cho CV</h3>
-                    <p>Chào mừng bạn trở lại! CV của bạn vừa được cập nhật. Hãy <strong style="color:var(--primary)">Bật tìm việc</strong> để CV nổi bật hơn trong Danh sách tìm kiếm của NTD.</p>
-                    <a href="#" class="btn-banner-action">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                        Bật tìm việc ngay
-                    </a>
-                </div>
-                <div class="banner-actions">
-                    <label class="toggle-switch large">
-                        <input type="checkbox" id="jobSearchToggleMain" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <!-- Decorative Graphic -->
-                <div style="position:absolute; right:-40px; bottom:-40px; transform:rotate(-15deg); opacity:0.04; pointer-events:none;">
-                    <svg width="240" height="240" viewBox="0 0 24 24" fill="var(--primary)"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+            <section class="surface-card hero-card">
+                <div class="hero-grid">
+                    <div class="hero-copy">
+                        <span class="eyebrow">CV Workspace</span>
+                        <h1 class="hero-title">Quản lý hồ sơ chuyên nghiệp, sẵn sàng ứng tuyển mọi lúc.</h1>
+                        <p>Theo dõi các phiên bản CV, cập nhật nhanh từng hồ sơ và xuất PDF chỉ với một lần nhấn. Giao diện mới ưu tiên sự rõ ràng, nhịp thị giác tốt và thao tác ngắn hơn khi bạn cần nộp CV ngay.</p>
+                        <div class="hero-actions">
+                            <a href="/cv-editor.html" class="btn btn-primary">Tạo CV mới</a>
+                            <a href="/tao-cv-ai.html" class="btn btn-secondary">Tạo với AI</a>
+                        </div>
+                        <div class="hero-highlights">
+                            <span class="hero-chip">Xuất PDF không cần rời trang</span>
+                            <span class="hero-chip">Theo dõi phiên bản mới nhất</span>
+                            <span class="hero-chip">Chuyển nhanh sang trình chỉnh sửa</span>
+                        </div>
+                    </div>
+
+                    <div class="hero-aside">
+                        <div class="status-panel">
+                            <div class="status-row">
+                                <div>
+                                    <div class="status-title" id="jobSearchTitle">Đang bật tìm việc</div>
+                                    <div class="status-subtitle">CV xuất hiện tốt hơn trong tìm kiếm của nhà tuyển dụng.</div>
+                                </div>
+                                <label class="toggle-switch large" aria-label="Bật tìm việc">
+                                    <input type="checkbox" id="jobSearchToggleMain" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <p id="jobSearchMessage">Khi trạng thái này đang bật, hồ sơ của bạn được ưu tiên hiển thị trong 14 ngày tới và sẵn sàng nhận lời mời phỏng vấn nhanh hơn.</p>
+                            <div class="status-pill" id="jobSearchPill">Sẵn sàng nhận cơ hội mới</div>
+                        </div>
+
+                        <div class="hero-metrics">
+                            <div class="metric-card"><span>Tổng CV đã lưu</span><strong id="totalCvMetric">--</strong></div>
+                            <div class="metric-card"><span>Cập nhật 7 ngày</span><strong id="recentCvMetric">--</strong></div>
+                            <div class="metric-card"><span>CV đang chọn</span><strong id="selectedMetric">--</strong></div>
+                        </div>
+                    </div>
                 </div>
             </section>
-
-            <!-- CV List Section -->
-            <section class="cv-section">
+            <section class="surface-card collection-card">
                 <div class="section-header">
-                    <h2>CV đã tạo trên CareerViet</h2>
-                    <a href="/cv-editor.html" class="btn-create-cv">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        Tạo CV
-                    </a>
+                    <div>
+                        <span class="eyebrow eyebrow-soft">Thư viện CV</span>
+                        <h2 class="section-title">CV đã lưu trên CareerViet</h2>
+                        <p class="section-subtitle">Mỗi thẻ CV được trình bày rõ hơn để bạn xem nhanh mẫu, lần cập nhật gần nhất và thực hiện các thao tác quan trọng ngay tại chỗ.</p>
+                    </div>
+                    <a href="/cv-editor.html" class="btn btn-primary">Tạo CV</a>
+                </div>
+
+                <div class="toolbar">
+                    <div class="toolbar-group">
+                        <span class="pill" id="collectionStatus">Đang tải danh sách CV</span>
+                        <span class="pill muted" id="cvSelectionStatus">Chưa chọn CV nổi bật</span>
+                    </div>
+                    <div class="toolbar-group">
+                        <span style="font-size:13px; color: var(--muted);" id="lastUpdateSummary">Lần cập nhật gần nhất sẽ hiển thị tại đây.</span>
+                    </div>
                 </div>
 
                 <div id="cvListContainer">
-                    <div id="loadingState" style="padding: 100px 0; text-align: center;">
-                        <div class="loader"></div>
-                        <p style="margin-top: 15px; color: var(--text-muted);">Đang tải danh sách CV...</p>
+                    <div id="loadingState" class="loading-grid">
+                        <div class="loading-card"><div class="loading-thumb"></div><div class="loading-body"><div class="loading-line wide"></div><div class="loading-line med"></div><div class="loading-line"></div></div><div class="loading-actions"><span class="loading-action"></span><span class="loading-action"></span><span class="loading-action"></span><span class="loading-action"></span></div></div>
+                        <div class="loading-card"><div class="loading-thumb"></div><div class="loading-body"><div class="loading-line wide"></div><div class="loading-line med"></div><div class="loading-line"></div></div><div class="loading-actions"><span class="loading-action"></span><span class="loading-action"></span><span class="loading-action"></span><span class="loading-action"></span></div></div>
                     </div>
 
-                    <div id="emptyState" style="display:none; text-align: center; padding: 60px 40px; background: white; border-radius: 12px;">
-                        <img src="https://cdntopcv.6868.com/static/v2/images/cv-empty.png" alt="Empty" style="width: 160px; margin-bottom: 20px; opacity: 0.5;">
+                    <div id="emptyState" class="empty-state">
+                        <div class="empty-icon">CV</div>
                         <h3>Bạn chưa có CV nào</h3>
-                        <p style="color: var(--text-muted); margin-bottom: 24px;">Hãy tạo CV ngay để ứng tuyển vào hàng ngàn công việc mơ ước.</p>
-                        <a href="/cv-editor.html" class="btn-create-cv" style="width: fit-content; margin: 0 auto;">Tạo CV đầu tiên</a>
+                        <p>Hãy tạo CV đầu tiên để bắt đầu lưu phiên bản, theo dõi cập nhật và tải PDF ngay khi cần nộp hồ sơ.</p>
+                        <a href="/cv-editor.html" class="btn btn-primary">Tạo CV đầu tiên</a>
                     </div>
 
-                    <div class="cv-grid" id="cvGrid"></div>
+                    <div id="cvGrid"></div>
                 </div>
             </section>
         </div>
 
         <aside class="sidebar-column">
-            <!-- Profile Card -->
-            <div class="sidebar-card">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                    <div style="position:relative;">
-                        <img src="https://i.pravatar.cc/150?u=user" alt="Avatar" class="user-avatar" id="sidebarAvatar" style="width: 72px; height: 72px; border-width: 3px;">
-                        <span style="position:absolute; bottom:2px; right:2px; width:16px; height:16px; background:#00b14f; border:2px solid white; border-radius:50%; display:inline-block;"></span>
+            <section class="surface-card sidebar-card profile-card">
+                <div class="profile-head">
+                    <img src="https://i.pravatar.cc/160?u=user" alt="Ảnh đại diện" class="user-avatar" id="sidebarAvatar">
+                    <div>
+                        <span class="user-badge">CareerViet Profile</span>
+                        <h4 id="sidebarUserName">Người dùng</h4>
+                        <p>Không gian CV của bạn đã sẵn sàng để cập nhật và ứng tuyển nhanh hơn.</p>
                     </div>
-                    <span class="account-badge" style="background: var(--primary); color: white; border-radius:12px; font-size:10px; padding:4px 10px; font-weight:800; text-transform:uppercase;">PRO</span>
-                </div>
-                <div class="user-info" style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border);">
-                    <p style="margin:0 0 6px; font-size:14px; color:var(--text-muted); font-weight:500;">Chào bạn trở lại,</p>
-                    <h4 id="sidebarUserName" style="font-size: 20px; font-weight: 800; color:#111827; margin: 0 0 8px;">Người dùng</h4>
-                    <span class="account-badge" style="display:inline-block; margin-bottom:8px; background:#e6f7ef; color:#00b14f;">Tài khoản Standard</span>
-                    <span class="expiry-date" style="margin:0; font-size: 13px;">Ngày hết hạn: 12/04/2026</span>
                 </div>
 
-                <div class="sidebar-toggle-item">
-                    <span class="toggle-label">Trạng thái tìm việc</span>
-                    <label class="toggle-switch">
+                <div class="profile-stats">
+                    <div class="profile-stat"><span>Tổng hồ sơ</span><strong id="sidebarTotalCv">0</strong></div>
+                    <div class="profile-stat"><span>PDF sẵn sàng</span><strong id="sidebarReadyMetric">0</strong></div>
+                </div>
+
+                <div class="selected-cv">
+                    <div class="pill muted" style="margin-bottom: 10px;">CV nổi bật</div>
+                    <h5 class="selected-cv-name" id="selectedCvName">Đang tải dữ liệu...</h5>
+                    <div class="selected-cv-meta" id="selectedCvMeta">CV được cập nhật gần nhất sẽ xuất hiện ở đây.</div>
+                </div>
+            </section>
+
+            <section class="surface-card sidebar-card">
+                <h3 class="sidebar-title" style="margin-bottom: 16px;">Trạng thái hiển thị hồ sơ</h3>
+                <div class="settings-row">
+                    <div>
+                        <strong>Bật tìm việc</strong>
+                        <div class="settings-copy">Đồng bộ cùng trạng thái ở khu vực tổng quan bên trái.</div>
+                    </div>
+                    <label class="toggle-switch" aria-label="Bật tìm việc trong sidebar">
                         <input type="checkbox" id="jobSearchToggleSidebar" checked>
                         <span class="slider"></span>
                     </label>
                 </div>
-                <p class="toggle-desc">Trạng thái <strong>Đang bật</strong> sẽ tự động tắt sau <strong>14 ngày</strong>.</p>
-                
-                <div style="background: #f8f9fa; border: 1px solid var(--border); padding: 12px; border-radius: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                        <span style="font-size: 13px; font-weight: 600;">CV đang được chọn</span>
-                        <a href="#" style="font-size: 12px; color: var(--primary); font-weight: 700;">Thay đổi</a>
-                    </div>
-                    <div style="font-size: 13px; color: var(--text-muted);" id="selectedCvName">Dự án LMS - Backend Developer</div>
-                </div>
-            </div>
+                <p class="status-copy" id="sidebarStatusCopy">Trạng thái đang bật giúp CV của bạn sẵn sàng tiếp cận các nhà tuyển dụng uy tín trong vòng 14 ngày tới.</p>
 
-            <!-- Privacy Card -->
-            <div class="sidebar-card">
-                <div class="sidebar-toggle-item">
-                    <span class="toggle-label">Cho phép NTD tìm hồ sơ</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <p class="toggle-desc">Cho phép các nhà tuyển dụng uy tín tiếp cận thông tin kinh nghiệm, kỹ năng để mời phỏng vấn.</p>
-
-                <ul class="benefit-list">
-                    <li class="benefit-item">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span>Nhận được lời mời kết nối trực tiếp từ NTD.</span>
-                    </li>
-                    <li class="benefit-item">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span>Thông tin cá nhân (email, sđt) chỉ được chia sẻ khi bạn đồng ý.</span>
-                    </li>
-                    <li class="benefit-item">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span>Cơ hội việc làm phù hợp nhất với năng lực.</span>
-                    </li>
+                <ul class="sidebar-list">
+                    <li>Giữ một CV nổi bật để truy cập nhanh khi cần gửi hồ sơ ngay.</li>
+                    <li>Tải PDF trực tiếp từ danh sách CV mà không phải thao tác lại trong trình chỉnh sửa.</li>
+                    <li>Đổi tên từng bản CV để quản lý theo vị trí ứng tuyển hoặc theo phiên bản.</li>
                 </ul>
-            </div>
+            </section>
 
-            <!-- App QR Card -->
-            <div class="sidebar-card qr-card">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CareerVietApp" alt="QR">
-                <h5>Quét mã để tải App</h5>
-                <p>Tìm việc nhanh hơn, phản hồi NTD ngay lập tức trên điện thoại.</p>
-            </div>
+            <section class="surface-card sidebar-card mobile-card">
+                <span class="eyebrow">Mobile Ready</span>
+                <h3 class="sidebar-title" style="margin: 16px 0 12px; color: #fff;">Quét mã để tiếp tục trên điện thoại</h3>
+                <p>Kiểm tra CV, phản hồi lời mời từ nhà tuyển dụng và theo dõi cơ hội mới mọi lúc trên thiết bị di động.</p>
+                <div class="qr-box"><img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=CareerVietApp" alt="QR tải ứng dụng CareerViet"></div>
+                <p style="font-size:12px; opacity:.86;">Tải app để quản lý CV và phản hồi cơ hội việc làm nhanh hơn.</p>
+            </section>
         </aside>
     </main>
 
-    <!-- Modals -->
     <div class="modal-backdrop" id="renameModal">
         <div class="modal-content">
             <h4>Đổi tên CV</h4>
-            <p>Nhập tên mới gợi nhớ cho bản CV của bạn.</p>
-            <input type="text" id="renameInput" class="modal-input" placeholder="Ví dụ: Backend Developer - TopCV" maxlength="100">
-            <div class="modal-btns">
-                <button class="btn-modal btn-cancel" onclick="closeRename()">Hủy</button>
-                <button class="btn-modal btn-confirm" onclick="confirmRename()">Lưu thay đổi</button>
+            <p>Đặt tên dễ nhớ hơn để phân biệt các bản CV theo vị trí ứng tuyển hoặc phiên bản nội dung.</p>
+            <input type="text" id="renameInput" class="modal-input" placeholder="Ví dụ: Backend Developer - Bản ứng tuyển 2026" maxlength="100">
+            <div class="modal-actions">
+                <button class="btn-modal secondary" onclick="closeRename()">Hủy</button>
+                <button class="btn-modal primary" onclick="confirmRename()">Lưu thay đổi</button>
             </div>
         </div>
     </div>
 
     <div class="modal-backdrop" id="deleteModal">
         <div class="modal-content">
-            <h4 style="color: #dc2626;">Xóa CV</h4>
+            <h4 style="color: var(--danger);">Xóa CV</h4>
             <p id="deleteMsg">Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa bản CV này?</p>
-            <div class="modal-btns">
-                <button class="btn-modal btn-cancel" onclick="closeDelete()">Hủy</button>
-                <button class="btn-modal btn-danger" onclick="confirmDelete()">Xóa vĩnh viễn</button>
+            <div class="modal-actions">
+                <button class="btn-modal secondary" onclick="closeDelete()">Hủy</button>
+                <button class="btn-modal danger" onclick="confirmDelete()">Xóa vĩnh viễn</button>
             </div>
         </div>
     </div>
@@ -416,208 +707,273 @@
 
     <script src="js/main.js"></script>
     <script>
-        let cvList = [], activePreviewId = null, renameTargetId = null, deleteTargetId = null;
+        let cvList = [];
+        let renameTargetId = null;
+        let deleteTargetId = null;
+
+        const previewTones = [
+            { accent: '#0f9f5f', soft: '#edf8f1' },
+            { accent: '#1456c4', soft: '#eef4ff' },
+            { accent: '#0f766e', soft: '#ecfeff' },
+            { accent: '#b7791f', soft: '#fff7e6' }
+        ];
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadCvList();
             setupToggles();
+            setupModalBehaviors();
+            bindRenameShortcut();
+            syncJobSearchUi(true);
+            loadCvList();
             getUserInfo();
         });
 
         async function getUserInfo() {
             try {
                 const res = await fetch('/api/user/me', { credentials: 'include' });
-                if (res.ok) {
-                    const data = await res.json();
-                    const name = data.fullName || data.username || 'Người dùng';
-                    document.getElementById('sidebarUserName').textContent = name;
-                    if (data.avatarUrl || data.avatar) {
-                        document.getElementById('sidebarAvatar').src = data.avatarUrl || data.avatar;
-                    }
+                if (!res.ok) return;
+                const data = await res.json();
+                document.getElementById('sidebarUserName').textContent = data.fullName || data.username || 'Người dùng';
+                if (data.avatarUrl || data.avatar) {
+                    document.getElementById('sidebarAvatar').src = data.avatarUrl || data.avatar;
                 }
-            } catch(e) {
-                console.error("Error fetching user info:", e);
+            } catch (error) {
+                console.error('Error fetching user info:', error);
             }
         }
 
         function setupToggles() {
-            const t1 = document.getElementById('jobSearchToggleMain');
-            const t2 = document.getElementById('jobSearchToggleSidebar');
-            if (t1 && t2) {
-                t1.addEventListener('change', (e) => t2.checked = e.target.checked);
-                t2.addEventListener('change', (e) => t1.checked = e.target.checked);
-            }
+            const heroToggle = document.getElementById('jobSearchToggleMain');
+            const sidebarToggle = document.getElementById('jobSearchToggleSidebar');
+            if (!heroToggle || !sidebarToggle) return;
+            const syncToggle = (checked) => {
+                heroToggle.checked = checked;
+                sidebarToggle.checked = checked;
+                syncJobSearchUi(checked);
+            };
+            heroToggle.addEventListener('change', (event) => syncToggle(event.target.checked));
+            sidebarToggle.addEventListener('change', (event) => syncToggle(event.target.checked));
+        }
+
+        function syncJobSearchUi(enabled) {
+            document.getElementById('jobSearchTitle').textContent = enabled ? 'Đang bật tìm việc' : 'Tạm ẩn khỏi tìm kiếm';
+            document.getElementById('jobSearchMessage').textContent = enabled
+                ? 'Khi trạng thái này đang bật, hồ sơ của bạn được ưu tiên hiển thị trong 14 ngày tới và sẵn sàng nhận lời mời phỏng vấn nhanh hơn.'
+                : 'CV vẫn được lưu đầy đủ, nhưng sẽ không được ưu tiên hiển thị cho nhà tuyển dụng cho đến khi bạn bật lại trạng thái tìm việc.';
+            const pill = document.getElementById('jobSearchPill');
+            pill.textContent = enabled ? 'Sẵn sàng nhận cơ hội mới' : 'Có thể bật lại bất cứ lúc nào';
+            pill.classList.toggle('is-off', !enabled);
+            document.getElementById('sidebarStatusCopy').textContent = enabled
+                ? 'Trạng thái đang bật giúp CV của bạn sẵn sàng tiếp cận các nhà tuyển dụng uy tín trong vòng 14 ngày tới.'
+                : 'Trạng thái đang tắt. Hãy bật lại khi bạn muốn hồ sơ quay trở lại tìm kiếm của nhà tuyển dụng.';
+        }
+        function setupModalBehaviors() {
+            ['renameModal', 'deleteModal'].forEach((id) => {
+                const modal = document.getElementById(id);
+                if (!modal) return;
+                modal.addEventListener('click', (event) => {
+                    if (event.target === modal) modal.classList.remove('show');
+                });
+            });
+        }
+
+        function bindRenameShortcut() {
+            const input = document.getElementById('renameInput');
+            if (!input) return;
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    confirmRename();
+                }
+            });
         }
 
         async function loadCvList() {
-            show('loadingState');
+            show('loadingState', 'grid');
             hide('emptyState');
             clear('cvGrid');
+            updateSummary('Đang tải danh sách CV', 'Danh sách CV đang được đồng bộ...', 'Chưa chọn CV nổi bật');
+
             try {
-                const res = await fetch('/api/user-cv');
+                const res = await fetch('/api/user-cv', { credentials: 'include' });
                 if (res.status === 401) {
                     window.location.href = '/login.html?redirect=/my-cvs.html';
                     return;
                 }
                 const data = await res.json();
                 cvList = Array.isArray(data) ? data.slice() : [];
-                cvList.sort((a,b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-            } catch (e) {
-                toast('Lỗi tải CV: ' + e.message, 'error');
+                cvList.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+            } catch (error) {
                 cvList = [];
+                toast('Lỗi tải danh sách CV: ' + error.message, 'error');
             }
-            
+
             hide('loadingState');
-            if (cvList.length === 0) {
-                show('emptyState');
+            if (!cvList.length) {
+                resetDashboard();
+                show('emptyState', 'block');
                 return;
             }
 
-            if (cvList[0]) document.getElementById('selectedCvName').textContent = cvList[0].cvName;
-
-            const grid = document.getElementById('cvGrid');
-            cvList.forEach(cv => grid.appendChild(buildCard(cv)));
+            updateDashboard();
+            renderCvGrid();
         }
 
-        function buildCard(cv) {
-            const card = document.createElement('div');
-            card.className = 'cv-card';
-            card.id = `card-${cv.id}`;
-            const dateStr = cv.updatedAt ? fmtDate(cv.updatedAt) : '---';
-            const safeName = JSON.stringify(cv.cvName || '');
-            const template = cv.templateName || 'Tiêu chuẩn';
+        function renderCvGrid() {
+            const grid = document.getElementById('cvGrid');
+            grid.innerHTML = '';
+            cvList.forEach((cv, index) => grid.appendChild(buildCard(cv, index)));
+        }
 
+        function buildCard(cv, index) {
+            const card = document.createElement('article');
+            const tone = previewTones[index % previewTones.length];
+            const safeName = JSON.stringify(cv.cvName || '');
+            const templateName = cv.templateName || 'CV tiêu chuẩn';
+            card.className = 'cv-card' + (index === 0 ? ' is-featured' : '');
+            card.style.setProperty('--card-accent', tone.accent);
+            card.style.setProperty('--card-soft', tone.soft);
             card.innerHTML = `
-                <div class="cv-thumb-container" onclick="window.location.href='/cv-editor.html?cvId=${cv.id}'">
+                <div class="cv-thumb-container" onclick="openCvEditor(${cv.id})" role="button" tabindex="0">
+                    <span class="card-badge">${index === 0 ? 'Mới nhất' : 'Đã lưu'}</span>
                     <div class="cv-thumb-paper">
-                        <div class="cv-thumb-preview" id="preview-${cv.id}">
-                            <div style="padding:40px; text-align:center; color:#ccc;">CV Preview</div>
+                        <div class="thumb-top">
+                            <div class="thumb-avatar">${esc(getInitials(cv.cvName))}</div>
+                            <div>
+                                <div class="thumb-name">${esc(limitText(cv.cvName || 'CV của bạn', 32))}</div>
+                                <span class="thumb-template">${esc(limitText(templateName, 18))}</span>
+                            </div>
+                        </div>
+                        <div class="thumb-layout">
+                            <div class="thumb-col">
+                                <div class="thumb-panel"><span class="thumb-line dark" style="width:72%"></span><span class="thumb-line accent" style="width:48%"></span><span class="thumb-line" style="width:82%"></span><span class="thumb-line" style="width:66%"></span></div>
+                                <div class="thumb-panel"><span class="thumb-line accent" style="width:52%"></span><span class="thumb-line" style="width:92%"></span><span class="thumb-line" style="width:74%"></span></div>
+                            </div>
+                            <div class="thumb-col">
+                                <div class="thumb-panel"><span class="thumb-line dark" style="width:44%"></span><span class="thumb-line" style="width:100%"></span><span class="thumb-line" style="width:92%"></span><span class="thumb-line" style="width:78%"></span></div>
+                                <div class="thumb-panel"><span class="thumb-line dark" style="width:54%"></span><span class="thumb-line" style="width:96%"></span><span class="thumb-line" style="width:82%"></span></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="cv-card-info">
-                    <h3 class="cv-name" title="${esc(cv.cvName)}">${esc(cv.cvName)}</h3>
-                    <div class="cv-updated">Cập nhật: ${dateStr}</div>
+                <div class="cv-card-body">
+                    <div class="cv-card-head">
+                        <div>
+                            <span class="template-badge">${esc(templateName)}</span>
+                            <h3 class="cv-name" title="${esc(cv.cvName || 'CV của bạn')}">${esc(cv.cvName || 'CV của bạn')}</h3>
+                        </div>
+                        <div class="cv-id">#${String(cv.id).padStart(3, '0')}</div>
+                    </div>
+                    <div class="cv-meta">
+                        <span class="meta-pill">Cập nhật ${fmtDate(cv.updatedAt)}</span>
+                        <span class="meta-pill">${fmtRelativeDate(cv.updatedAt)}</span>
+                    </div>
+                    <p class="cv-description">Hồ sơ này đã sẵn sàng để chỉnh sửa hoặc xuất PDF ngay. Hãy dùng tên CV rõ ràng để quản lý theo từng vị trí ứng tuyển.</p>
                 </div>
                 <div class="cv-card-footer">
-                    <button class="btn-cv-action btn-cv-primary" onclick="window.location.href='/cv-editor.html?cvId=${cv.id}'">Sửa CV</button>
+                    <button class="btn-cv-action btn-cv-primary" onclick="openCvEditor(${cv.id})">Chỉnh sửa</button>
                     <button class="btn-cv-action" onclick='renameCV(${cv.id}, ${safeName})'>Đổi tên</button>
-                    <button class="btn-cv-action" onclick="downloadCV(${cv.id})">Tải PDF</button>
-                    <button class="btn-cv-action" style="color:#dc2626" onclick='deleteCV(${cv.id}, ${safeName})'>Xóa</button>
+                    <button class="btn-cv-action" onclick="downloadCV(${cv.id}, this)">Xuất PDF</button>
+                    <button class="btn-cv-action btn-cv-danger" onclick='deleteCV(${cv.id}, ${safeName})'>Xóa</button>
                 </div>
             `;
-            
-            // Generate a mini preview if content exists
-            if (cv.cvContent) {
-                setTimeout(() => renderMiniPreview(cv), 10);
-            }
-
+            card.querySelector('.cv-thumb-container').addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openCvEditor(cv.id);
+                }
+            });
             return card;
         }
 
-        function renderMiniPreview(cv) {
-            const container = document.getElementById(`preview-${cv.id}`);
-            if (!container) return;
-            try {
-                // A very simple dynamic mockup that looks "real"
-                container.innerHTML = `
-                    <div style="padding:22px; font-family:Inter, sans-serif;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
-                            <div style="width:100%;">
-                                <div style="height:14px; width:70%; background:#212f3f; margin-bottom:6px; border-radius:2px;"></div>
-                                <div style="height:8px; width:40%; background:var(--primary); margin-bottom:12px; border-radius:1px;"></div>
-                                <div style="display:flex; gap:8px; margin-bottom:4px;">
-                                    <div style="height:4px; width:20px; background:#ddd; border-radius:1px;"></div>
-                                    <div style="height:4px; width:20px; background:#ddd; border-radius:1px;"></div>
-                                    <div style="height:4px; width:20px; background:#ddd; border-radius:1px;"></div>
-                                </div>
-                            </div>
-                            <div style="width:36px; height:36px; background:#f1f5f9; border-radius:4px; flex-shrink:0;"></div>
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 2fr; gap:12px;">
-                            <div style="border-right:1px solid #eee; padding-right:8px;">
-                                <div style="height:6px; width:100%; background:#f1f5f9; margin-bottom:6px; border-radius:1px;"></div>
-                                <div style="height:6px; width:80%; background:#f1f5f9; margin-bottom:12px; border-radius:1px;"></div>
-                                <div style="height:6px; width:100%; background:#f1f5f9; margin-bottom:6px; border-radius:1px;"></div>
-                                <div style="height:6px; width:60%; background:#f1f5f9; margin-bottom:12px; border-radius:1px;"></div>
-                                <div style="height:20px; width:100%; background:var(--primary-light); opacity:0.3; border-radius:2px;"></div>
-                            </div>
-                            <div>
-                                <div style="height:8px; width:40%; background:#212f3f; margin-bottom:8px; border-radius:1px;"></div>
-                                <div style="height:5px; width:100%; background:#eee; margin-bottom:4px; border-radius:1px;"></div>
-                                <div style="height:5px; width:95%; background:#eee; margin-bottom:4px; border-radius:1px;"></div>
-                                <div style="height:5px; width:80%; background:#eee; margin-bottom:14px; border-radius:1px;"></div>
-                                
-                                <div style="height:8px; width:50%; background:#212f3f; margin-bottom:8px; border-radius:1px;"></div>
-                                <div style="height:5px; width:100%; background:#eee; margin-bottom:4px; border-radius:1px;"></div>
-                                <div style="height:5px; width:85%; background:#eee; border-radius:1px;"></div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } catch(e) {}
+        function updateDashboard() {
+            const total = cvList.length;
+            const recent = cvList.filter((cv) => isWithinDays(cv.updatedAt, 7)).length;
+            const featured = cvList[0];
+            document.getElementById('totalCvMetric').textContent = String(total).padStart(2, '0');
+            document.getElementById('recentCvMetric').textContent = String(recent).padStart(2, '0');
+            document.getElementById('selectedMetric').textContent = featured ? limitText(featured.cvName || 'CV của bạn', 16) : '--';
+            document.getElementById('sidebarTotalCv').textContent = String(total);
+            document.getElementById('sidebarReadyMetric').textContent = String(total);
+            document.getElementById('selectedCvName').textContent = featured.cvName || 'CV của bạn';
+            document.getElementById('selectedCvMeta').textContent = `Cập nhật ${fmtDate(featured.updatedAt)} · ${fmtRelativeDate(featured.updatedAt)} · ${featured.templateName || 'CV tiêu chuẩn'}`;
+            updateSummary(`${total} CV đang lưu`, `Lần cập nhật gần nhất: ${fmtDate(featured.updatedAt)} (${fmtRelativeDate(featured.updatedAt)})`, `CV nổi bật: ${limitText(featured.cvName || 'CV của bạn', 26)}`);
         }
 
-        function renameCV(id, name) {
-            renameTargetId = id;
-            document.getElementById('renameInput').value = name;
-            document.getElementById('renameModal').classList.add('show');
-            setTimeout(() => document.getElementById('renameInput').focus(), 100);
+        function resetDashboard() {
+            document.getElementById('totalCvMetric').textContent = '00';
+            document.getElementById('recentCvMetric').textContent = '00';
+            document.getElementById('selectedMetric').textContent = '--';
+            document.getElementById('sidebarTotalCv').textContent = '0';
+            document.getElementById('sidebarReadyMetric').textContent = '0';
+            document.getElementById('selectedCvName').textContent = 'Chưa có CV nổi bật';
+            document.getElementById('selectedCvMeta').textContent = 'Tạo một CV để hiển thị thông tin tóm tắt tại đây.';
+            updateSummary('Chưa có CV nào', 'Tạo CV đầu tiên để bắt đầu quản lý hồ sơ.', 'Chưa chọn CV nổi bật');
         }
+
+        function updateSummary(collectionText, updateText, selectionText) {
+            document.getElementById('collectionStatus').textContent = collectionText;
+            document.getElementById('lastUpdateSummary').textContent = updateText;
+            document.getElementById('cvSelectionStatus').textContent = selectionText;
+        }
+
+        function openCvEditor(id) { window.location.href = `/cv-editor.html?cvId=${id}`; }
+        function renameCV(id, name) { renameTargetId = id; document.getElementById('renameInput').value = name; document.getElementById('renameModal').classList.add('show'); setTimeout(() => document.getElementById('renameInput').focus(), 80); }
         function closeRename() { document.getElementById('renameModal').classList.remove('show'); }
+        function deleteCV(id, name) { deleteTargetId = id; document.getElementById('deleteMsg').innerHTML = `Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa bản CV <strong>"${esc(name)}"</strong>?`; document.getElementById('deleteModal').classList.add('show'); }
+        function closeDelete() { document.getElementById('deleteModal').classList.remove('show'); }
+
         async function confirmRename() {
             const newName = document.getElementById('renameInput').value.trim();
-            if(!newName) return;
+            if (!newName) return toast('Tên CV không được để trống.', 'error');
             try {
-                const res = await fetch(`/api/user-cv/${renameTargetId}`, {
-                    method: 'PUT',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({cvName: newName})
-                });
-                if (res.ok) {
-                    toast('Đã đổi tên CV thành công', 'success');
-                    loadCvList();
-                    closeRename();
-                }
-            } catch(e) { toast('Lỗi: ' + e.message, 'error'); }
+                const res = await fetch(`/api/user-cv/${renameTargetId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ cvName: newName }) });
+                const data = await parseJsonSafe(res);
+                if (!res.ok) throw new Error(data.message || 'Không thể đổi tên CV.');
+                toast('Đã đổi tên CV thành công.', 'success');
+                closeRename();
+                await loadCvList();
+            } catch (error) { toast(error.message || 'Không thể đổi tên CV.', 'error'); }
         }
 
-        function deleteCV(id, name) {
-            deleteTargetId = id;
-            document.getElementById('deleteMsg').innerHTML = `Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa bản CV <strong>"${esc(name)}"</strong>?`;
-            document.getElementById('deleteModal').classList.add('show');
-        }
-        function closeDelete() { document.getElementById('deleteModal').classList.remove('show'); }
         async function confirmDelete() {
             try {
-                const res = await fetch(`/api/user-cv/${deleteTargetId}`, { method: 'DELETE' });
-                if (res.ok) {
-                    toast('Đã xóa CV thành công', 'success');
-                    loadCvList();
-                    closeDelete();
-                }
-            } catch(e) { toast('Lỗi: ' + e.message, 'error'); }
+                const res = await fetch(`/api/user-cv/${deleteTargetId}`, { method: 'DELETE', credentials: 'include' });
+                const data = await parseJsonSafe(res);
+                if (!res.ok) throw new Error(data.message || 'Không thể xóa CV.');
+                toast('Đã xóa CV thành công.', 'success');
+                closeDelete();
+                await loadCvList();
+            } catch (error) { toast(error.message || 'Không thể xóa CV.', 'error'); }
         }
 
-        async function downloadCV(id) {
-            toast('Đang chuẩn bị bản IN...', 'success');
-            window.location.href = `/cv-editor.html?cvId=${id}&print=true`;
+        function downloadCV(id, button) {
+            const exportUrl = `/cv-editor.html?cvId=${id}&download=pdf&source=my-cvs`;
+            setButtonLoading(button, true);
+            toast('Đang mở CV để xuất PDF...', 'success');
+            const popup = window.open(exportUrl, '_blank', 'noopener');
+            setTimeout(() => setButtonLoading(button, false), 2200);
+            if (!popup) window.location.href = exportUrl;
         }
 
-        /* Utils */
-        function esc(t){ if(!t)return ''; return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-        function fmtDate(iso){ try{ return new Date(iso).toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit', year:'numeric'}); }catch{return iso;} }
-        function show(id){ const el=document.getElementById(id); if(el) el.style.display=''; }
-        function hide(id){ const el=document.getElementById(id); if(el) el.style.display='none'; }
-        function clear(id){ const el=document.getElementById(id); if(el) el.innerHTML=''; }
-        function toast(msg, type=''){
-            const wrap = document.getElementById('toastWrap');
-            const t = document.createElement('div');
-            t.className = `toast ${type}`;
-            t.textContent = msg;
-            wrap.appendChild(t);
-            setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(), 400); }, 3000);
+        function setButtonLoading(button, loading) {
+            if (!button) return;
+            if (!button.dataset.originalLabel) button.dataset.originalLabel = button.textContent;
+            button.textContent = loading ? 'Đang xuất' : button.dataset.originalLabel;
+            button.classList.toggle('btn-cv-loading', loading);
+            button.disabled = loading;
         }
+
+        async function parseJsonSafe(res) { try { return await res.json(); } catch { return {}; } }
+        function getInitials(text) { if (!text) return 'CV'; return String(text).trim().split(/\s+/).slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join('') || 'CV'; }
+        function limitText(text, max) { const value = String(text || ''); return value.length > max ? `${value.slice(0, max - 1)}…` : value; }
+        function isWithinDays(iso, days) { if (!iso) return false; const time = new Date(iso).getTime(); if (Number.isNaN(time)) return false; return Date.now() - time <= days * 86400000; }
+        function fmtDate(iso) { try { return new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch { return iso || '--'; } }
+        function fmtRelativeDate(iso) { if (!iso) return 'Mới cập nhật'; const time = new Date(iso).getTime(); if (Number.isNaN(time)) return 'Mới cập nhật'; const diff = time - Date.now(); const abs = Math.abs(diff); const rtf = new Intl.RelativeTimeFormat('vi', { numeric: 'auto' }); if (abs < 3600000) return rtf.format(Math.round(diff / 60000), 'minute'); if (abs < 86400000) return rtf.format(Math.round(diff / 3600000), 'hour'); return rtf.format(Math.round(diff / 86400000), 'day'); }
+        function show(id, display = '') { const el = document.getElementById(id); if (el) el.style.display = display || ''; }
+        function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+        function clear(id) { const el = document.getElementById(id); if (el) el.innerHTML = ''; }
+        function esc(text) { return String(text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+        function toast(message, type = '') { const wrap = document.getElementById('toastWrap'); const node = document.createElement('div'); node.className = `toast ${type}`.trim(); node.textContent = message; wrap.appendChild(node); setTimeout(() => node.remove(), 2600); }
     </script>
 </body>
 </html>

@@ -5258,3 +5258,610 @@ input:checked + .slider:before {
 .preview-column .cv-contact-entry.is-editing > .cv-contact-controls--item {
     display: none !important;
 }
+
+
+/* ═══════════════════════════════════════════════════
+   Extracted from cv-editor.html inline <style> blocks
+   ═══════════════════════════════════════════════════ */
+.cv-floating-save-btn {
+        position: fixed;
+        top: 78px;
+        right: 18px;
+        z-index: 1400;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        border: none;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #243b7a 0%, #1a2456 100%);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        box-shadow: 0 18px 34px rgba(26, 36, 86, 0.22);
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .cv-floating-save-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 22px 38px rgba(26, 36, 86, 0.28);
+    }
+
+    .cv-floating-save-btn:active {
+        transform: translateY(0);
+    }
+
+    .cv-floating-save-btn:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.28);
+        outline-offset: 3px;
+    }
+
+    @media (max-width: 768px) {
+        .cv-floating-save-btn {
+            top: 66px;
+            right: 12px;
+            left: auto;
+            border-radius: 12px;
+        }
+    }
+
+.assistant-column,
+    .assistant-column.assistant-redesigned {
+        display: none !important;
+    }
+
+    .design-column {
+        position: relative;
+        z-index: 2;
+        min-width: 320px;
+        max-width: 420px;
+        width: 100%;
+    }
+
+    .preview-column {
+        position: relative !important;
+        inset: auto !important;
+        left: auto !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        z-index: 1;
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .preview-column .cvm-section,
+    .preview-column .cvc2-zone,
+    .preview-column .cvm2-block,
+    .preview-column .cvcl2-section,
+    .preview-column .cv-topcv-section,
+    .preview-column .cvh-section {
+        margin-bottom: 12px !important;
+    }
+
+    .preview-column .cvm-exp-item,
+    .preview-column .cvm-edu-item,
+    .preview-column .cvc2-card,
+    .preview-column .cvm2-row,
+    .preview-column .cvcl2-item,
+    .preview-column .cvcl2-r-item,
+    .preview-column .cv-topcv-row,
+    .preview-column .cvh-item {
+        margin-bottom: 6px !important;
+    }
+
+    .preview-column .cvm-skill-group,
+    .preview-column .cvc2-skill-group,
+    .preview-column .cvcl2-skill,
+    .preview-column .cvh-skill-group {
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-exp-detail,
+    .preview-column .cvm-edu-detail,
+    .preview-column .cvc2-card-bullet,
+    .preview-column .cvm2-bullet,
+    .preview-column .cvcl2-bullet,
+    .preview-column .cvh-bullet,
+    .preview-column .cvh-details {
+        margin-top: 2px !important;
+        margin-bottom: 0 !important;
+        line-height: 1.35 !important;
+    }
+
+    .preview-column .cvm-skill-list,
+    .preview-column .cvc2-tags,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-skill-vals,
+    .preview-column .cvh-skill-items,
+    .preview-column p,
+    .preview-column li {
+        line-height: 1.35 !important;
+    }
+
+    .preview-column .cvm-section-title,
+    .preview-column .cvc2-sec,
+    .preview-column .cvm2-title,
+    .preview-column .cvcl2-sec-title,
+    .preview-column .cvcl2-sec-title-r,
+    .preview-column .cvh-title,
+    .preview-column .cv-topcv-title {
+        margin-bottom: 8px !important;
+        padding-bottom: 6px !important;
+    }
+
+    .preview-column .cvm-exp-role,
+    .preview-column .cvm-edu-degree,
+    .preview-column .cvc2-card-title,
+    .preview-column .cvm2-row-title,
+    .preview-column .cvcl2-role,
+    .preview-column .cvcl2-r-degree,
+    .preview-column .cvh-item-title {
+        margin-bottom: 2px !important;
+        line-height: 1.25 !important;
+    }
+
+    .preview-column .cvm-exp-company,
+    .preview-column .cvm-edu-school,
+    .preview-column .cvm-edu-year,
+    .preview-column .cvc2-card-sub,
+    .preview-column .cvm2-row-period,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-company,
+    .preview-column .cvcl2-date,
+    .preview-column .cvcl2-r-school,
+    .preview-column .cvcl2-r-period,
+    .preview-column .cvh-item-sub,
+    .preview-column .cvh-item-date {
+        margin-bottom: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    .preview-column .cvm-left section,
+    .preview-column .cvm-right section,
+    .preview-column .cvm2-block,
+    .preview-column .cv-topcv-content,
+    .preview-column .cvh-section {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .preview-column .cvm-body,
+    .preview-column .cvc2-body,
+    .preview-column .cvm2-body,
+    .preview-column .cvcl2-body,
+    .preview-column .cvh-root {
+        row-gap: 12px !important;
+    }
+
+    .preview-column .cvm-right {
+        gap: 10px !important;
+    }
+
+    .preview-column .cvm-right .cvm-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvm-right .cvm-section-title {
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-item,
+    .preview-column .cvm-right .cvm-skill-group {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-role,
+    .preview-column .cvm-right .cvm-skill-cat {
+        margin-bottom: 1px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-company,
+    .preview-column .cvm-right .cvm-skill-list {
+        margin-bottom: 1px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-detail-group,
+    .preview-column .cvm-right .cvm-exp-detail {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cvm-left {
+        gap: 10px !important;
+    }
+
+    .preview-column .cvm-left .cvm-section,
+    .preview-column .cvm-left section.cvm-section,
+    .preview-column .cvm-left .cvm-summary-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvm-left .cvm-section-title {
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-left .cvm-summary-text-full {
+        margin-top: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-item,
+    .preview-column .cvm-left .cvm-exp-item {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-degree,
+    .preview-column .cvm-left .cvm-exp-role {
+        margin-bottom: 1px !important;
+        line-height: 1.22 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-school,
+    .preview-column .cvm-left .cvm-edu-year,
+    .preview-column .cvm-left .cvm-exp-company {
+        margin-bottom: 1px !important;
+        line-height: 1.26 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-detail-group,
+    .preview-column .cvm-left .cvm-edu-detail,
+    .preview-column .cvm-left .cvm-exp-detail-group,
+    .preview-column .cvm-left .cvm-exp-detail {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cvc2-header {
+        margin-bottom: 12px !important;
+        padding-bottom: 12px !important;
+    }
+
+    .preview-column .cvc2-zone,
+    .preview-column .cvm2-block,
+    .preview-column .cvcl2-section,
+    .preview-column .cv-topcv-section,
+    .preview-column .cvh-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvc2-card,
+    .preview-column .cvm2-row,
+    .preview-column .cvcl2-item,
+    .preview-column .cvcl2-r-item,
+    .preview-column .cv-topcv-row,
+    .preview-column .cvh-item,
+    .preview-column .cvh-inline-item,
+    .preview-column .cvh-skill-group {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvc2-card-title,
+    .preview-column .cvm2-row-title,
+    .preview-column .cvcl2-role,
+    .preview-column .cvcl2-r-degree,
+    .preview-column .cvh-item-title,
+    .preview-column .cvh-inline-name,
+    .preview-column .cvh-skill-cat {
+        margin-bottom: 1px !important;
+        line-height: 1.22 !important;
+    }
+
+    .preview-column .cvc2-card-sub,
+    .preview-column .cvm2-row-period,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-company,
+    .preview-column .cvcl2-date,
+    .preview-column .cvcl2-r-school,
+    .preview-column .cvcl2-r-period,
+    .preview-column .cvh-item-sub,
+    .preview-column .cvh-item-date,
+    .preview-column .cvh-inline-year,
+    .preview-column .cvh-inline-issuer,
+    .preview-column .cvh-skill-items {
+        margin-bottom: 1px !important;
+        line-height: 1.26 !important;
+    }
+
+    .preview-column .cvc2-card-bullet,
+    .preview-column .cvm2-bullet,
+    .preview-column .cvcl2-bullet,
+    .preview-column .cvh-bullet,
+    .preview-column .cvh-details,
+    .preview-column .cvh-github-bullet {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cv-topcv-content > div,
+    .preview-column .cv-topcv-row > div {
+        margin-top: 2px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .preview-column .cvh-root,
+    .preview-column .cvc2-root,
+    .preview-column .cvm2-root,
+    .preview-column .cvcl2-root,
+    .preview-column .cv-topcv-root {
+        row-gap: 10px !important;
+    }
+
+    .section-meta-icon-trigger {
+        cursor: pointer !important;
+        transition: background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+    }
+
+    .section-meta-icon-trigger:hover {
+        background: rgba(26, 36, 86, 0.08) !important;
+        box-shadow: inset 0 0 0 1px rgba(26, 36, 86, 0.1);
+    }
+
+    .section-meta-icon-trigger:focus-visible {
+        outline: 2px solid rgba(37, 99, 235, 0.28);
+        outline-offset: 2px;
+    }
+
+    .section-icon-modal-content {
+        width: min(420px, calc(100vw - 32px));
+    }
+
+    .section-icon-modal-subtitle {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .section-icon-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .section-icon-option {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        border: 1px solid rgba(148, 163, 184, 0.34);
+        border-radius: 16px;
+        background: #f8fbff;
+        color: #1A2456;
+        cursor: pointer;
+        transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .section-icon-option:hover {
+        transform: translateY(-1px);
+        border-color: rgba(37, 99, 235, 0.38);
+        background: #eef4ff;
+        box-shadow: 0 10px 18px rgba(26, 36, 86, 0.08);
+    }
+
+    .section-icon-option.is-active {
+        border-color: rgba(37, 99, 235, 0.5);
+        background: #e7efff;
+        box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.22);
+    }
+
+
+/* ═══════════════════════════════════════════════════
+   Bullet detail block — single editable area per item
+   ═══════════════════════════════════════════════════ */
+
+.cv-details-block {
+    display: block;
+    white-space: pre-wrap;        /* preserve newlines */
+    line-height: 1.55;
+    margin-top: 4px;
+}
+
+/* Edit mode: highlight on hover/focus */
+#cvPreview.cv-editable-mode .cv-details-block.cv-editable {
+    cursor: text;
+    border-radius: 4px;
+    padding: 4px 6px;
+    margin-left: -6px;
+    transition: background 0.15s ease, outline 0.15s ease;
+}
+
+#cvPreview.cv-editable-mode .cv-details-block.cv-editable:hover {
+    background: rgba(37, 99, 235, 0.05);
+    outline: 1.5px dashed rgba(37, 99, 235, 0.28);
+    outline-offset: 1px;
+}
+
+#cvPreview.cv-editable-mode .cv-details-block.cv-editable:focus {
+    background: rgba(37, 99, 235, 0.08);
+    outline: 1.5px solid rgba(37, 99, 235, 0.45);
+    outline-offset: 1px;
+}
+
+/* Hint text above block when focused */
+#cvPreview.cv-editable-mode .cv-details-block.cv-editable:focus::before {
+    display: none; /* avoid interfering with contenteditable */
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Item Controls — reliable visibility for add/remove/move
+   ═══════════════════════════════════════════════════ */
+
+/* Hidden by default (outside edit mode) */
+.cv-item-controls {
+    display: none;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 100;
+    flex-direction: row;
+    gap: 4px;
+    align-items: center;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid rgba(37,99,235,0.18);
+    border-radius: 8px;
+    padding: 3px 5px;
+    box-shadow: 0 4px 12px rgba(26,36,86,0.12);
+    pointer-events: auto;
+}
+
+/* In edit mode: always visible (low opacity) on shells that need positioning */
+.cv-edit-shell,
+.cvm-exp-item,
+.cvm-edu-item,
+.cvm-skill-group,
+.cvc2-card,
+.cvm2-row,
+.cvcl2-item,
+.cvcl2-r-item,
+.cvh-item,
+.cvh-edit-shell,
+.cvh-skill-group,
+.cv-topcv-row {
+    position: relative;
+}
+
+/* Show controls in edit mode */
+#cvPreview.cv-editable-mode .cv-item-controls {
+    display: flex;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    pointer-events: none;
+}
+
+/* Full visibility on hover — use :has or parent hover */
+#cvPreview.cv-editable-mode .cv-edit-shell:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvm-exp-item:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvm-edu-item:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvm-skill-group:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvc2-card:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvm2-row:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvcl2-item:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvcl2-r-item:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvh-item:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvh-edit-shell:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cvh-skill-group:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cv-topcv-row:hover .cv-item-controls,
+#cvPreview.cv-editable-mode .cv-item-shell-active .cv-item-controls,
+/* Keep visible when hovering over the controls themselves */
+#cvPreview.cv-editable-mode .cv-item-controls:hover {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Buttons inside controls */
+.btn-item-ctrl {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 3px 7px;
+    border: 1px solid rgba(37,99,235,0.2);
+    border-radius: 5px;
+    background: #f0f5ff;
+    color: #1a2456;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+    pointer-events: auto;
+    user-select: none;
+}
+
+.btn-item-ctrl:hover {
+    background: #dbeafe;
+    border-color: rgba(37,99,235,0.45);
+    box-shadow: 0 2px 6px rgba(37,99,235,0.12);
+}
+
+.btn-item-ctrl:active {
+    background: #bfdbfe;
+    transform: scale(0.97);
+}
+
+.btn-item-ctrl[disabled] {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-item-ctrl i[data-lucide] {
+    width: 12px;
+    height: 12px;
+}
+
+.btn-item-del {
+    color: #dc2626;
+    background: #fff5f5;
+    border-color: rgba(220,38,38,0.2);
+}
+
+.btn-item-del:hover {
+    background: #fee2e2;
+    border-color: rgba(220,38,38,0.45);
+}
+
+.btn-item-add {
+    color: #15803d;
+    background: #f0fdf4;
+    border-color: rgba(21,128,61,0.2);
+}
+
+.btn-item-add:hover {
+    background: #dcfce7;
+    border-color: rgba(21,128,61,0.45);
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Contenteditable Placeholder (ghost text)
+   Hiện khi ô trống, mất khi focus và có nội dung
+   ═══════════════════════════════════════════════════ */
+
+/* Show placeholder when empty */
+#cvPreview .cv-editable[data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: rgba(0, 0, 0, 0.28);
+    font-style: italic;
+    pointer-events: none;
+    display: block;
+}
+
+/* Slightly more visible in edit mode */
+#cvPreview.cv-editable-mode .cv-editable[data-placeholder]:empty::before {
+    color: rgba(37, 99, 235, 0.35);
+    font-style: italic;
+}
+
+/* Details block placeholder */
+#cvPreview .cv-details-block[data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: rgba(0, 0, 0, 0.28);
+    font-style: italic;
+    pointer-events: none;
+    white-space: pre-wrap;
+    display: block;
+}
+
+#cvPreview.cv-editable-mode .cv-details-block[data-placeholder]:empty::before {
+    color: rgba(37, 99, 235, 0.35);
+}
