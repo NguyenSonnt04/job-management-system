@@ -5066,6 +5066,10 @@ input:checked + .slider:before {
     position: relative;
 }
 
+.cv-contact-entry {
+    position: relative;
+}
+
 .cv-contact-controls {
     position: absolute;
     display: none;
@@ -5081,17 +5085,42 @@ input:checked + .slider:before {
 .cv-contact-controls--item {
     top: 0;
     right: 6px;
+    left: auto;
     transform: translateY(calc(-100% + 10px));
 }
 
-.preview-column .cv-contact-entry:hover > .cv-contact-controls--item,
-.preview-column .cv-contact-entry > .cv-contact-controls--item:hover,
-.preview-column .cv-contact-entry > .cv-contact-controls--item:focus-within {
+.preview-column .cv-contact-entry:hover > .cv-contact-controls--item {
     display: flex;
 }
 
 .preview-column .cv-contact-entry.is-editing > .cv-contact-controls--item {
     display: none !important;
+}
+
+.cvm-contact-row > .cv-contact-entry {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 6px 10px !important;
+    border-radius: 999px !important;
+    background: rgba(255,255,255,0.12) !important;
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    color: rgba(255,255,255,0.96) !important;
+}
+
+.cvm-contact-row > .cv-contact-entry > .cv-custom-contact-icon,
+.cvm-contact-row > .cv-contact-entry > .cv-custom-contact-text {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+.cvm-contact-row > .cv-contact-entry > .cv-custom-contact-text {
+    min-width: 0;
 }
 
 .cv-professional-root .cvm-contact-row .cv-custom-contact-item,
@@ -5170,4 +5199,25 @@ input:checked + .slider:before {
 .cv-ats-root .cv-topcv-contact-row .cv-custom-contact-text {
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Final override for contact hover controls */
+.preview-column .cv-contact-entry {
+    position: relative !important;
+}
+
+.preview-column .cv-contact-entry > .cv-contact-controls--item {
+    display: none !important;
+    top: 0 !important;
+    right: 6px !important;
+    left: auto !important;
+    transform: translateY(calc(-100% + 10px)) !important;
+}
+
+.preview-column .cv-contact-entry:hover > .cv-contact-controls--item {
+    display: flex !important;
+}
+
+.preview-column .cv-contact-entry.is-editing > .cv-contact-controls--item {
+    display: none !important;
 }

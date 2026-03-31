@@ -7354,11 +7354,11 @@
                 ? renderPreviewIconTrigger(iconKey, contact.icon || CUSTOM_CONTACT_DEFAULT_ICON, 14, 'margin:0;', 'liên hệ này')
                 : libIcon(contact.icon || CUSTOM_CONTACT_DEFAULT_ICON, 14, 'color:currentColor;');
             return `
-                <div class="cv-custom-contact-item cv-contact-entry cv-custom-contact-item--${style}" data-custom-contact-id="${esc(contact.id)}" data-custom-icon-key="${esc(iconKey)}" data-fallback-icon="${esc(contact.icon || CUSTOM_CONTACT_DEFAULT_ICON)}">
+                <span class="cv-custom-contact-item cv-contact-entry cv-custom-contact-item--${style}" data-custom-contact-id="${esc(contact.id)}" data-custom-icon-key="${esc(iconKey)}" data-fallback-icon="${esc(contact.icon || CUSTOM_CONTACT_DEFAULT_ICON)}">
                     ${renderContactEntryControls('', contact.id)}
                     <span class="cv-custom-contact-icon">${iconButton}</span>
                     <span class="cv-custom-contact-text cv-editable" data-placeholder="${CUSTOM_CONTACT_PLACEHOLDER}">${esc(contact.text || '')}</span>
-                </div>
+                </span>
             `;
         }
 
@@ -7366,16 +7366,26 @@
             const token = customContactId
                 ? getContactTokenForCustom(customContactId)
                 : getContactTokenForKey(contactKey);
+            const order = getContactOrder();
+            const currentIndex = order.indexOf(token);
+            const isFirst = currentIndex <= 0;
+            const isLast = currentIndex < 0 || currentIndex === order.length - 1;
             const deleteAttrs = customContactId
                 ? `data-custom-contact-id="${esc(customContactId)}"`
                 : (contactKey ? `data-contact-key="${esc(contactKey)}"` : '');
             return `
-                <div class="cv-contact-controls cv-contact-controls--item" contenteditable="false">
+                <span class="cv-contact-controls cv-contact-controls--item" contenteditable="false">
+                    <button class="btn-item-ctrl btn-item-up cv-contact-action" type="button" data-action="move-up" data-token="${esc(token)}" ${isFirst ? 'disabled' : ''} title="Lên">
+                        <i data-lucide="arrow-up"></i>
+                    </button>
+                    <button class="btn-item-ctrl btn-item-down cv-contact-action" type="button" data-action="move-down" data-token="${esc(token)}" ${isLast ? 'disabled' : ''} title="Xuống">
+                        <i data-lucide="arrow-down"></i>
+                    </button>
                     ${deleteAttrs ? `<button class="btn-item-ctrl btn-item-del cv-contact-action" type="button" data-action="delete" ${deleteAttrs} title="Xóa">Xóa</button>` : ''}
                     <button class="btn-item-ctrl btn-item-add cv-contact-action" type="button" data-action="add" data-after-token="${esc(token)}" title="Thêm">
                         <i data-lucide="plus"></i> Thêm
                     </button>
-                </div>
+                </span>
             `;
         }
 
@@ -7532,6 +7542,25 @@
             if (typeof placeCaretAtEnd === 'function') placeCaretAtEnd(target);
         }
 
+        function refreshContactPreview(options = {}) {
+            const preview = document.getElementById('cvPreview');
+            if (preview instanceof HTMLElement) {
+                decorateCustomContacts(preview);
+                const focusContactId = String(options.focusContactId || '').trim();
+                if (focusContactId) {
+                    requestAnimationFrame(() => focusCustomContact(focusContactId));
+                }
+                return;
+            }
+
+            if (typeof rerenderCurrentPreview === 'function') {
+                rerenderCurrentPreview();
+            } else {
+                const activeTarget = getCvTargets()[0];
+                if (activeTarget) previousRenderCvPreview(activeTarget);
+            }
+        }
+
         window.addCustomContactItem = function addCustomContactItem(afterToken = '') {
             const nextContacts = [
                 ...getCustomContacts(),
@@ -7556,14 +7585,7 @@
                 window.markCvDirty({ immediate: true });
             }
 
-            if (typeof rerenderCurrentPreview === 'function') {
-                rerenderCurrentPreview();
-            } else {
-                const activeTarget = getCvTargets()[0];
-                if (activeTarget) previousRenderCvPreview(activeTarget);
-            }
-
-            requestAnimationFrame(() => focusCustomContact(added.id));
+            refreshContactPreview({ focusContactId: added.id });
         };
 
         window.removeCustomContactItem = function removeCustomContactItem(contactId) {
@@ -7578,12 +7600,7 @@
                 window.markCvDirty({ immediate: true });
             }
 
-            if (typeof rerenderCurrentPreview === 'function') {
-                rerenderCurrentPreview();
-            } else {
-                const activeTarget = getCvTargets()[0];
-                if (activeTarget) previousRenderCvPreview(activeTarget);
-            }
+            refreshContactPreview();
         };
 
         window.removeContactFieldItem = function removeContactFieldItem(contactKey) {
@@ -7610,6 +7627,26 @@
             }
         };
 
+        window.moveContactItem = function moveContactItem(token, direction) {
+            const normalizedToken = String(token || '').trim();
+            const step = Number(direction || 0);
+            if (!normalizedToken || !step) return;
+
+            const order = getContactOrder();
+            const index = order.indexOf(normalizedToken);
+            const nextIndex = index + step;
+            if (index < 0 || nextIndex < 0 || nextIndex >= order.length) return;
+
+            [order[index], order[nextIndex]] = [order[nextIndex], order[index]];
+            syncContactOrderToTargets(order);
+
+            if (typeof window.markCvDirty === 'function') {
+                window.markCvDirty({ immediate: true });
+            }
+
+            refreshContactPreview();
+        };
+
         document.addEventListener('click', event => {
             const actionButton = event.target instanceof HTMLElement
                 ? event.target.closest('.cv-contact-action')
@@ -7618,6 +7655,14 @@
             event.preventDefault();
             event.stopPropagation();
             const action = actionButton.dataset.action;
+            if (action === 'move-up') {
+                window.moveContactItem(actionButton.dataset.token, -1);
+                return;
+            }
+            if (action === 'move-down') {
+                window.moveContactItem(actionButton.dataset.token, 1);
+                return;
+            }
             if (action === 'delete') {
                 const customContactId = actionButton.dataset.customContactId;
                 if (customContactId) {
@@ -7640,6 +7685,14 @@
             if (event.key !== 'Enter' && event.key !== ' ') return;
             event.preventDefault();
             const action = actionButton.dataset.action;
+            if (action === 'move-up') {
+                window.moveContactItem(actionButton.dataset.token, -1);
+                return;
+            }
+            if (action === 'move-down') {
+                window.moveContactItem(actionButton.dataset.token, 1);
+                return;
+            }
             if (action === 'delete') {
                 const customContactId = actionButton.dataset.customContactId;
                 if (customContactId) {
