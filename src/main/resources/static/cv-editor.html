@@ -12,1075 +12,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <style>
-        /* ── Progress steps ── */
-        .cv-progress {
-            display: flex; align-items: center; gap: 6px;
-            padding: 10px 16px; background: #f8fafc;
-            border-bottom: 1px solid #e8ecef; overflow-x: auto;
-        }
-        .cv-step {
-            display: flex; align-items: center; gap: 4px;
-            font-size: 11px; font-weight: 600; color: #94a3b8;
-            white-space: nowrap;
-        }
-        .cv-step.done  { color: #10b981; }
-        .cv-step.active { color: #2e3b8e; }
-        .cv-step-dot {
-            width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e2e8f0;
-            display: flex; align-items: center; justify-content: center; font-size: 9px;
-        }
-        .cv-step.done  .cv-step-dot { background: #10b981; border-color: #10b981; color: white; }
-        .cv-step.active .cv-step-dot { background: #2e3b8e; border-color: #2e3b8e; color: white; }
-        .cv-step-line { flex: 1; height: 2px; background: #e2e8f0; min-width: 12px; }
-        .cv-step-line.done { background: #10b981; }
-
-        /* ── Quick-reply chips ── */
-        .quick-replies {
-            display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 0;
-        }
-        .quick-reply {
-            padding: 5px 12px; background: #eff6ff; color: #2e3b8e;
-            border: 1px solid #bfdbfe; border-radius: 20px;
-            font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
-        }
-        .quick-reply:hover { background: #2e3b8e; color: white; }
-
-        /* ── Generating overlay ── */
-        .generating-overlay {
-            display: none; position: absolute; inset: 0;
-            background: rgba(255,255,255,0.9); z-index: 50;
-            align-items: center; justify-content: center; flex-direction: column;
-            gap: 16px; font-size: 15px; font-weight: 600; color: #2e3b8e;
-        }
-        .generating-overlay.show { display: flex; }
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid #e2e8f0;
-            border-top-color: #2e3b8e; border-radius: 50%; animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ── CV Action Toolbar ── */
-        .cv-action-toolbar {
-            display: none; align-items: center; justify-content: center; gap: 10px;
-            padding: 12px 20px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px);
-            border: 1px solid #e8ecef; flex-wrap: wrap;
-            position: fixed; bottom: 24px; left: calc(50vw - 215px);
-            transform: translateX(-50%); z-index: 100;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-        }
-        .cv-action-toolbar.show { display: flex; }
-        .btn-cv-action {
-            display: flex; align-items: center; gap: 6px;
-            padding: 9px 18px; border-radius: 8px; border: none;
-            font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-        }
-        .btn-save-cv  { background: #2e3b8e; color: white; }
-        .btn-save-cv:hover { background: #1e2a6e; }
-        .btn-pdf { background: #dc2626; color: white; }
-        .btn-pdf:hover { background: #b91c1c; }
-        .btn-save-cv.saved { background: #10b981; }
-        .btn-upload-avatar { background: #0f766e; color: white; }
-        .btn-upload-avatar:hover { background: #0d6361; }
-        .btn-edit-toggle { background: white; color: #2e3b8e; border: 2px solid #2e3b8e; }
-        .btn-edit-toggle.active { background: #2e3b8e; color: white; }
-        .btn-my-cvs { background: #7c3aed; color: white; }
-        .btn-my-cvs:hover { background: #6d28d9; }
-
-        /* ── Save Name Modal ── */
-        .cv-modal-backdrop {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.45); z-index: 9000;
-            align-items: center; justify-content: center;
-        }
-        .cv-modal-backdrop.show { display: flex; }
-        .cv-modal {
-            background: white; border-radius: 16px;
-            padding: 32px; width: 420px; max-width: 90vw;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-            animation: modalIn 0.22s ease;
-        }
-        @keyframes modalIn { from { opacity:0; transform:scale(0.94) translateY(-12px); } to { opacity:1; transform:none; } }
-        .cv-modal h3 { font-size: 18px; font-weight: 800; color: #1e293b; margin: 0 0 6px; }
-        .cv-modal p { font-size: 13px; color: #64748b; margin: 0 0 20px; }
-        .cv-modal input {
-            width: 100%; padding: 11px 14px; border-radius: 8px;
-            border: 2px solid #e2e8f0; font-size: 14px;
-            box-sizing: border-box; outline: none; transition: border 0.15s;
-        }
-        .cv-modal input:focus { border-color: #2e3b8e; }
-        .cv-modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
-        .cv-modal-actions button { padding: 10px 20px; border-radius: 8px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
-        .btn-modal-cancel { background: #f1f5f9; color: #475569; }
-        .btn-modal-cancel:hover { background: #e2e8f0; }
-        .btn-modal-confirm { background: #2e3b8e; color: white; }
-        .btn-modal-confirm:hover { background: #1e2a6e; }
-
-        /* ── Inline editing ── */
-        /* Hover hint: none */
-        .cv-editable-mode .cv-editable {
-            position: relative;
-            cursor: text;
-            border: 1.5px solid transparent;
-            border-radius: 2px;
-            transition: border-color 0.15s ease, border-style 0.15s ease, box-shadow 0.15s ease;
-        }
-        /* Highlight border on hover to signify it's editable */
-        .cv-editable-mode .cv-editable:hover {
-            border-color: rgba(26, 36, 86, 0.58);
-            border-style: dashed;
-            background: transparent;
-        }
-        .cv-editable-mode [contenteditable] {
-            border: 1.5px solid transparent;
-            cursor: text;
-            transition: border-color 0.15s ease, border-style 0.15s ease, box-shadow 0.15s ease;
-            border-radius: 2px;
-            box-shadow: none;
-        }
-        .cv-editable-mode [contenteditable]:empty {
-            display: inline-block;
-            min-width: 20px;
-        }
-        .cv-editable-mode [contenteditable]:hover {
-            border-color: rgba(26, 36, 86, 0.58);
-            border-style: dashed;
-            background: transparent;
-        }
-        .cv-editable-mode [contenteditable]:focus {
-            border-color: #1A2456 !important;
-            border-style: solid !important;
-            box-shadow: inset 0 0 0 1.5px #1A2456, 0 0 0 1px rgba(26, 36, 86, 0.22) !important;
-            background: transparent !important;
-            position: relative;
-            z-index: 3;
-        }
-        .cv-editable-mode .cvh-root .cv-editable.cvh-editable-active,
-        .cv-editable-mode .cvh-root .cv-editable[contenteditable="true"] {
-            border-color: #1A2456 !important;
-            border-style: solid !important;
-            box-shadow: inset 0 0 0 1.5px #1A2456, 0 0 0 1px rgba(26, 36, 86, 0.22) !important;
-            background: transparent !important;
-            position: relative;
-            z-index: 2;
-            border-radius: 4px;
-        }
-        .cv-editable-mode .cv-editable[data-placeholder].cv-editable-empty::before {
-            content: attr(data-placeholder);
-            color: rgba(100, 116, 139, 0.82);
-            font-style: italic;
-            font-weight: 400;
-            letter-spacing: normal;
-            pointer-events: none;
-        }
-        /* Edit mode badge */
-        .edit-mode-badge {
-            position: fixed; bottom: 80px; right: 20px;
-            background: linear-gradient(135deg, #2e3b8e, #1a2456); color: white;
-            border-radius: 10px;
-            padding: 8px 16px; font-size: 12px; font-weight: 700;
-            z-index: 200; box-shadow: 0 4px 16px rgba(46,59,142,0.4);
-            animation: fadeIn 0.3s;
-            display: none; align-items: center; gap: 6px;
-        }
-        .edit-mode-badge.show { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* ── Item Controls (Hover) ── */
-        .cv-editable { position: relative; }
-        .cv-edit-shell { position: relative; }
-        .cv-item-controls {
-            position: absolute; right: 0; bottom: -28px;
-            display: none; align-items: center; gap: 4px;
-            background: white; padding: 4px 6px; border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;
-            border: 1px solid #e2e8f0;
-        }
-        .cv-editable-mode .cv-editable:hover > .cv-item-controls,
-        .cv-editable-mode .cv-edit-shell:hover > .cv-item-controls,
-        .cv-editable-mode .cv-edit-shell:focus-within > .cv-item-controls { display: flex; }
-        .btn-item-ctrl {
-            display: flex; align-items: center; justify-content: center; gap: 4px;
-            padding: 4px 8px; border-radius: 6px; border: none;
-            font-size: 11px; font-weight: 700; cursor: pointer; color: white;
-            transition: transform 0.1s;
-        }
-        .btn-item-ctrl:hover { transform: scale(1.05); }
-        .btn-item-ctrl:active { transform: scale(0.95); }
-        .btn-item-up   { background: #94a3b8; }
-        .btn-item-del  { background: #ef4444; }
-        .btn-item-add  { background: #10b981; }
-        .btn-item-ctrl i { width: 12px; height: 12px; }
-
-        .cv-editable-mode .cvh-root {
-            position: relative;
-            border-radius: 12px;
-            box-shadow:
-                0 0 0 1px rgba(203, 213, 225, 0.92),
-                0 0 0 6px rgba(241, 245, 249, 0.95);
-            background: #ffffff;
-        }
-
-        .cv-editable-mode .cv-full:not(.cvh-root) {
-            position: relative;
-            border-radius: 12px;
-            box-shadow:
-                0 0 0 1px rgba(203, 213, 225, 0.88),
-                0 0 0 6px rgba(241, 245, 249, 0.9);
-            background: #ffffff;
-        }
-
-        .cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell) {
-            position: relative;
-            border-radius: 12px;
-            box-shadow: inset 0 0 0 1px transparent;
-            transition: box-shadow 0.16s ease, background 0.16s ease;
-        }
-
-        .cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell):hover {
-            box-shadow:
-                inset 0 0 0 1px rgba(203, 213, 225, 0.98),
-                0 0 0 4px rgba(248, 250, 252, 0.92);
-        }
-
-        .cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell):focus-within {
-            box-shadow:
-                inset 0 0 0 1px rgba(148, 163, 184, 0.42),
-                0 0 0 2px rgba(226, 232, 240, 0.9);
-        }
-
-        .cv-editable-mode .cv-field-shell {
-            position: relative;
-            border-radius: 8px;
-            transition: outline-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-            z-index: 1;
-        }
-
-        .cv-editable-mode .cv-field-shell:hover {
-            outline: 1.5px dashed rgba(26, 36, 86, 0.58);
-            outline-offset: 1px;
-            background: transparent;
-        }
-
-        .cv-editable-mode .cv-field-shell:focus-within {
-            outline: 2px solid #1A2456;
-            outline-offset: 1px;
-            box-shadow: 0 0 0 2px rgba(26, 36, 86, 0.08);
-            background: rgba(255, 255, 255, 0.96);
-            z-index: 2;
-        }
-
-        .cv-editable-mode .cvm-exp-role.cv-field-shell,
-        .cv-editable-mode .cvm-exp-company.cv-field-shell,
-        .cv-editable-mode .cvm-exp-detail.cv-field-shell,
-        .cv-editable-mode .cvm-edu-degree.cv-field-shell,
-        .cv-editable-mode .cvm-edu-school.cv-field-shell,
-        .cv-editable-mode .cvm-edu-year.cv-field-shell,
-        .cv-editable-mode .cvm-edu-detail.cv-field-shell,
-        .cv-editable-mode .cvc2-card-title.cv-field-shell,
-        .cv-editable-mode .cvc2-card-sub.cv-field-shell,
-        .cv-editable-mode .cvc2-card-bullet.cv-field-shell,
-        .cv-editable-mode .cvm2-row-period.cv-field-shell,
-        .cv-editable-mode .cvm2-row-title.cv-field-shell,
-        .cv-editable-mode .cvm2-row-org.cv-field-shell,
-        .cv-editable-mode .cvm2-bullet.cv-field-shell,
-        .cv-editable-mode .cvcl2-role.cv-field-shell,
-        .cv-editable-mode .cvcl2-date.cv-field-shell,
-        .cv-editable-mode .cvcl2-company.cv-field-shell,
-        .cv-editable-mode .cvcl2-bullet.cv-field-shell,
-        .cv-editable-mode .cvcl2-r-degree.cv-field-shell,
-        .cv-editable-mode .cvcl2-r-school.cv-field-shell,
-        .cv-editable-mode .cvcl2-r-period.cv-field-shell {
-            padding: 3px 6px;
-            margin: 2px -6px;
-        }
-
-        .cv-editable-mode .cv-field-shell:focus-within > .cv-editable[contenteditable],
-        .cv-editable-mode .cv-field-shell:hover > .cv-editable[contenteditable] {
-            border-color: transparent !important;
-            border-style: solid !important;
-            box-shadow: none !important;
-            background: transparent !important;
-        }
-
-        .cv-editable-mode .cvh-edit-shell {
-            position: relative;
-            margin: 10px 0 14px;
-            padding: 12px 14px 12px;
-            border: 1px solid transparent;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.01);
-            transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
-        }
-
-        .cv-editable-mode .cvh-edit-shell::after {
-            content: '';
-            position: absolute;
-            inset: 7px;
-            border: 1px solid transparent;
-            border-radius: 8px;
-            pointer-events: none;
-            transition: border-color 0.16s ease, box-shadow 0.16s ease;
-        }
-
-        .cv-editable-mode .cvh-edit-shell:hover {
-            border-color: #dbe4ee;
-            background: rgba(248, 250, 252, 0.92);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
-        }
-
-        .cv-editable-mode .cvh-edit-shell:hover::after {
-            border-color: rgba(226, 232, 240, 0.96);
-        }
-
-        .cv-editable-mode .cvh-edit-shell:focus-within {
-            border-color: rgba(26, 36, 86, 0.26);
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(26, 36, 86, 0.08);
-        }
-
-        .cv-editable-mode .cvh-edit-shell:focus-within::after {
-            border-color: rgba(26, 36, 86, 0.26);
-            box-shadow: 0 0 0 1px rgba(26, 36, 86, 0.08);
-        }
-
-        .cv-editable-mode .cvh-edit-shell > .cv-item-controls {
-            top: 12px;
-            right: 12px;
-            bottom: auto;
-        }
-
-        .cv-editable-mode .cvh-edit-shell .cvh-item-head {
-            padding-right: 186px;
-            gap: 16px;
-        }
-
-        .cv-editable-mode .cvh-edit-shell.cvh-skill-group,
-        .cv-editable-mode .cvh-edit-shell.cvh-inline-item {
-            display: block !important;
-            width: 100%;
-            padding-right: 186px;
-        }
-
-        .cv-editable-mode .cvh-edit-shell .cvh-item-sub,
-        .cv-editable-mode .cvh-edit-shell .cvh-details,
-        .cv-editable-mode .cvh-edit-shell .cvh-bullet,
-        .cv-editable-mode .cvh-edit-shell .cvh-github-bullet,
-        .cv-editable-mode .cvh-edit-shell .cvh-skill-items {
-            display: block;
-            margin-top: 6px;
-        }
-
-        .cv-editable-mode .cvh-root .cvh-item-title,
-        .cv-editable-mode .cvh-root .cvh-item-date,
-        .cv-editable-mode .cvh-root .cvh-inline-name,
-        .cv-editable-mode .cvh-root .cvh-inline-year,
-        .cv-editable-mode .cvh-root .cvh-inline-issuer,
-        .cv-editable-mode .cvh-root .cvh-skill-cat {
-            display: inline-block;
-            padding: 2px 6px;
-            min-height: 1.35em;
-        }
-
-        .cv-editable-mode .cvh-root .cvh-item-sub,
-        .cv-editable-mode .cvh-root .cvh-details,
-        .cv-editable-mode .cvh-root .cvh-bullet,
-        .cv-editable-mode .cvh-root .cvh-github-bullet,
-        .cv-editable-mode .cvh-root .cvh-skill-items {
-            display: block;
-            padding: 4px 6px;
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .cv-editable-mode .cvh-edit-shell .cvh-inline-meta {
-            display: inline-block;
-            margin-left: 4px;
-        }
-
-        .cv-editable-mode .cvh-edit-shell .cvh-details {
-            line-height: 1.65;
-            white-space: pre-wrap;
-        }
-
-        .cv-editable-mode .cvh-edit-shell .cvh-bullet {
-            padding-left: 2px;
-        }
-
-        .cvh-details,
-        .cvh-github-bullet {
-            margin-top: 6px;
-        }
-
-        .cvh-item-title,
-        .cvh-inline-name,
-        .cvh-skill-cat {
-            font-weight: 700;
-        }
-
-        .cvh-inline-issuer {
-            font-style: italic;
-        }
-
-        /* ── Avatar upload overlay ── */
-        .cvm-avatar-wrapper {
-            position: relative;
-            width: 120px; height: 120px;
-            flex-shrink: 0;
-        }
-        .cvm-avatar-wrapper .cvm-avatar {
-            width: 100%; height: 100%;
-            object-fit: cover;
-        }
-        .avatar-upload-overlay {
-            display: none;
-            position: absolute; inset: 0;
-            background: rgba(0,0,0,0.45);
-            border-radius: 50%;
-            align-items: center; justify-content: center;
-            cursor: pointer;
-            font-size: 22px;
-            transition: opacity 0.2s;
-        }
-        .cv-editable-mode .cvm-avatar-wrapper:hover .avatar-upload-overlay {
-            display: flex;
-        }
-        #avatarFileInput { display: none; }
-
-        /* ── Print (PDF export) ── */
-        @page {
-            size: A4;
-            margin: 0;
-        }
-        @media print {
-            #header-placeholder, #footer-placeholder,
-            .assistant-column, .cv-progress, .generating-overlay,
-            #templateBanner, .cv-action-toolbar, .edit-mode-badge { display: none !important; }
-            body { background: white !important; overflow: visible !important; }
-            .editor-workspace { display: block !important; overflow: visible !important; height: auto !important; }
-            .preview-column {
-                margin: 0 !important; padding: 0 !important;
-                box-shadow: none !important; border: none !important;
-                height: auto !important; overflow: visible !important;
-                background: white !important;
-            }
-            .cv-document {
-                box-shadow: none !important; transform: none !important;
-                border-radius: 0 !important; padding: 0 !important;
-                max-width: none !important; min-height: unset !important;
-                width: 210mm !important;
-            }
-            .cvm-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .cvm-left { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .cvm-bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .cvm-exp-item { page-break-inside: avoid; }
-            .cvm-section { page-break-inside: avoid; }
-        }
-
-        /* ── Sidebar redesign ── */
-        .editor-workspace {
-            background:
-                radial-gradient(circle at top left, rgba(255,255,255,0.95) 0, rgba(255,255,255,0) 28%),
-                linear-gradient(180deg, #f5f4ef 0%, #edf1f4 100%);
-        }
-
-        .design-column {
-            width: 520px;
-            min-width: 520px;
-            padding: 14px 10px 14px 12px;
-            box-sizing: border-box;
-            background: transparent;
-            border-right: 1px solid rgba(210, 216, 224, 0.9);
-            overflow: hidden;
-        }
-
-        .design-column-header {
-            padding: 10px 12px 14px;
-            margin-bottom: 8px;
-            border: none;
-            background: transparent;
-            color: #334155;
-            font-size: 0.94rem;
-        }
-
-        .design-shell {
-            display: grid;
-            grid-template-columns: 130px minmax(0, 1fr);
-            gap: 12px;
-            min-height: 0;
-            height: calc(100% - 56px);
-        }
-
-        .design-nav {
-            padding: 0;
-            gap: 8px;
-            background: transparent;
-            border: none;
-        }
-
-        .design-nav-item {
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 12px;
-            padding: 14px 14px;
-            min-height: 52px;
-            border-radius: 16px;
-            border: 1px solid rgba(226, 232, 240, 0.92);
-            background: rgba(255, 255, 255, 0.92);
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
-            font-size: 12.5px;
-            line-height: 1.35;
-            text-align: left;
-        }
-
-        .design-nav-item span {
-            text-align: left;
-        }
-
-        .design-nav-item i {
-            width: 18px;
-            height: 18px;
-            color: #334155;
-            flex-shrink: 0;
-        }
-
-        .design-nav-item:hover {
-            background: #ffffff;
-            border-color: #d8dee6;
-            transform: translateX(2px);
-        }
-
-        .design-nav-item.active {
-            background: linear-gradient(90deg, #dcfce7 0%, #ecfdf5 100%);
-            border-color: #bbf7d0;
-            color: #166534;
-            box-shadow:
-                inset 3px 0 0 #16a34a,
-                0 14px 26px rgba(15, 23, 42, 0.06);
-        }
-
-        .design-nav-item.active i {
-            color: #15803d;
-        }
-
-        .design-panels {
-            padding: 0;
-            background: transparent;
-            overflow: hidden auto;
-        }
-
-        .design-panel {
-            padding-right: 2px;
-        }
-
-        .design-panel-heading {
-            margin-bottom: 12px;
-        }
-
-        .design-panel-heading h3 {
-            font-size: 1.35rem;
-            letter-spacing: -0.03em;
-        }
-
-        .design-panel-heading p {
-            font-size: 0.84rem;
-        }
-
-        .design-group {
-            border-radius: 18px;
-            border: 1px solid rgba(226, 232, 240, 0.96);
-            background: rgba(255, 255, 255, 0.94);
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05);
-        }
-
-        .layout-studio {
-            background: rgba(255, 255, 255, 0.96);
-            border: 1px solid rgba(226, 232, 240, 0.96);
-            border-radius: 20px;
-            box-shadow: 0 20px 46px rgba(15, 23, 42, 0.07);
-            overflow: hidden;
-        }
-
-        .layout-studio-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 18px 18px 14px;
-            border-bottom: 1px solid #eef2f6;
-        }
-
-        .layout-studio-header h3 {
-            margin: 0 0 4px;
-            font-size: 1.28rem;
-            font-weight: 800;
-            color: #1f2937;
-            letter-spacing: -0.03em;
-        }
-
-        .layout-studio-header p {
-            margin: 0;
-            color: #64748b;
-            font-size: 0.82rem;
-            line-height: 1.55;
-        }
-
-        .layout-studio-close {
-            width: 38px;
-            height: 38px;
-            border: none;
-            border-radius: 999px;
-            background: #f1f5f9;
-            color: #64748b;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-        }
-
-        .layout-studio-close:hover {
-            background: #e2e8f0;
-            color: #0f172a;
-        }
-
-        .layout-studio-close i {
-            width: 18px;
-            height: 18px;
-        }
-
-        .layout-guide-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin: 14px 18px 0;
-            padding: 0;
-            border: none;
-            background: transparent;
-            color: #16a34a;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .layout-guide-link:hover {
-            color: #15803d;
-        }
-
-        .layout-board {
-            margin: 16px;
-            padding: 10px;
-            border-radius: 18px;
-            background: linear-gradient(180deg, #f7f6f2 0%, #f7f7f5 100%);
-            border: 1px solid #eeece7;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9);
-        }
-
-        .layout-fixed-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px 18px;
-            padding: 6px 6px 12px;
-        }
-
-        .layout-fixed-grid.layout-grid-single {
-            grid-template-columns: 1fr;
-        }
-
-        .layout-board-scroll {
-            position: relative;
-            max-height: 360px;
-            overflow-y: auto;
-            padding: 6px;
-        }
-
-        .layout-board-scroll::before {
-            content: "";
-            position: absolute;
-            top: 6px;
-            bottom: 6px;
-            left: 50%;
-            width: 5px;
-            border-radius: 999px;
-            transform: translateX(-50%);
-            background: linear-gradient(180deg, #d8dde4 0%, #cfd5dd 100%);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
-            pointer-events: none;
-        }
-
-        .layout-board-scroll.layout-board-scroll-single::before {
-            display: none;
-        }
-
-        .layout-grid {
-            position: relative;
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px 18px;
-        }
-
-        .layout-grid.layout-grid-single {
-            grid-template-columns: 1fr;
-        }
-
-        .layout-grid-unused {
-            grid-template-columns: 1fr;
-        }
-
-        .layout-section-card {
-            position: relative;
-            min-height: 64px;
-            border: 1px solid #eceff3;
-            border-radius: 10px;
-            background: #ffffff;
-            color: #1e3a66;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 14px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
-            will-change: transform, box-shadow;
-            user-select: none;
-        }
-
-        .layout-section-card[data-layout-section] {
-            cursor: move;
-        }
-
-        .layout-section-card:hover {
-            transform: translateY(-1px);
-            border-color: #cbd5e1;
-            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
-        }
-
-        .layout-section-card.selected {
-            background: linear-gradient(135deg, #16a34a 0%, #0f8f43 100%);
-            border-color: #0f8f43;
-            color: #ffffff;
-            box-shadow: 0 14px 28px rgba(22, 163, 74, 0.2);
-        }
-
-        .layout-section-card-fixed {
-            cursor: default;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-        }
-
-        .layout-section-card-fixed:hover {
-            transform: none;
-            border-color: #dbe4ef;
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
-        }
-
-        .layout-section-card-unused {
-            background: #ffffff;
-            color: #334155;
-        }
-
-        .layout-section-grip {
-            display: none;
-        }
-
-        .layout-section-grip i {
-            width: 14px;
-            height: 14px;
-        }
-
-        .layout-section-card:active .layout-section-grip {
-            cursor: grabbing;
-        }
-
-        .layout-section-card.selected .layout-section-grip {
-            color: rgba(255, 255, 255, 0.72);
-        }
-
-        .layout-section-title {
-            display: block;
-            overflow: visible;
-            white-space: normal;
-            word-break: break-word;
-            text-wrap: balance;
-            line-height: 1.35;
-            font-size: 0.98rem;
-            font-weight: 500;
-            padding: 0 6px;
-            max-width: 100%;
-        }
-
-        .layout-section-action {
-            position: absolute;
-            right: 8px;
-            top: 8px;
-            transform: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 999px;
-            background: #f1f5f9;
-            color: #64748b;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.96);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.18s ease, background 0.18s ease, color 0.18s ease;
-        }
-
-        .layout-section-card:hover .layout-section-action,
-        .layout-section-card:focus-visible .layout-section-action,
-        .layout-section-card-unused:hover .layout-section-action {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .layout-section-card.selected .layout-section-action {
-            background: rgba(255, 255, 255, 0.18);
-            color: #ffffff;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
-        }
-
-        .layout-section-card-ghost {
-            opacity: 0.42;
-            border-color: #86efac;
-            background: #ecfdf5;
-        }
-
-        .layout-section-card-chosen {
-            box-shadow: 0 18px 30px rgba(15, 23, 42, 0.12);
-        }
-
-        .layout-section-card-drag {
-            cursor: grabbing;
-        }
-
-        .layout-section-card-drag-source {
-            display: none !important;
-        }
-
-        .layout-section-card-dragging {
-            opacity: 0.94;
-            transform: scale(1.02);
-            border-color: #86efac;
-            box-shadow: 0 20px 34px rgba(15, 23, 42, 0.18);
-            cursor: grabbing;
-            transition: none;
-            z-index: 6;
-        }
-
-        .layout-grid.layout-grid-dragging [data-layout-section] {
-            transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease, opacity 0.14s ease, background 0.14s ease;
-        }
-
-        .layout-section-card-drag-preview {
-            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.18);
-            transform: scale(1.02);
-            border-color: #bbf7d0;
-        }
-
-        .layout-section-card-swap-target {
-            border-color: #22c55e;
-            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.14), 0 12px 24px rgba(15, 23, 42, 0.08);
-            background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
-        }
-
-        .layout-section-card-placeholder {
-            min-height: 64px;
-            border: 1.5px dashed #22c55e;
-            border-radius: 10px;
-            background:
-                linear-gradient(180deg, rgba(220, 252, 231, 0.82) 0%, rgba(240, 253, 244, 0.92) 100%);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
-            pointer-events: none;
-        }
-
-        .layout-section-action i {
-            width: 12px;
-            height: 12px;
-        }
-
-        .layout-unused-box {
-            margin: 0 16px 16px;
-            padding: 14px;
-            border-radius: 18px;
-            border: 1px dashed #cbd5e1;
-            background: rgba(248, 250, 252, 0.76);
-        }
-
-        .layout-unused-title {
-            margin-bottom: 12px;
-            text-align: center;
-            color: #94a3b8;
-            font-size: 0.78rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        .layout-empty-state {
-            grid-column: 1 / -1;
-            padding: 14px 12px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px dashed #d5dce5;
-            color: #94a3b8;
-            font-size: 0.82rem;
-            text-align: center;
-        }
-
-        .cv-layout-columns {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 18px;
-            align-items: start;
-        }
-
-        .cv-layout-column {
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .cv-layout-column > * + * {
-            margin-top: 18px !important;
-        }
-
-        .tool-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .tool-card {
-            padding: 18px;
-            border-radius: 20px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%);
-            border: 1px solid rgba(226, 232, 240, 0.96);
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
-        }
-
-        .tool-card.soft {
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-        }
-
-        .tool-card-kicker {
-            margin-bottom: 8px;
-            color: #0f766e;
-            font-size: 0.74rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .tool-card h4 {
-            margin: 0 0 8px;
-            font-size: 1.05rem;
-            color: #0f172a;
-        }
-
-        .tool-card p {
-            margin: 0 0 16px;
-            color: #64748b;
-            line-height: 1.6;
-            font-size: 0.87rem;
-        }
-
-        .tool-action {
-            min-height: 46px;
-            padding: 0 16px;
-            border: none;
-            border-radius: 14px;
-            font-size: 0.92rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-        }
-
-        .tool-action:hover {
-            transform: translateY(-1px);
-        }
-
-        .tool-action.primary {
-            background: linear-gradient(135deg, #233a8b 0%, #2e3b8e 100%);
-            color: #ffffff;
-            box-shadow: 0 12px 24px rgba(46, 59, 142, 0.2);
-        }
-
-        .tool-action.secondary {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            color: #1d4ed8;
-            border: 1px solid #bfdbfe;
-        }
-
-        .tool-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .tool-suggestion {
-            padding: 16px 15px;
-            border-radius: 18px;
-            border: 1px solid rgba(226, 232, 240, 0.96);
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.04);
-            text-align: left;
-            cursor: pointer;
-            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-        }
-
-        .tool-suggestion:hover {
-            transform: translateY(-2px);
-            border-color: #bfdbfe;
-            box-shadow: 0 18px 30px rgba(59, 130, 246, 0.08);
-        }
-
-        .tool-suggestion strong {
-            display: block;
-            margin-bottom: 6px;
-            color: #0f172a;
-            font-size: 0.92rem;
-        }
-
-        .tool-suggestion span {
-            display: block;
-            color: #64748b;
-            font-size: 0.8rem;
-            line-height: 1.55;
-        }
-
-        @media (max-width: 1500px) {
-            .design-column {
-                width: 470px;
-                min-width: 470px;
-            }
-
-            .design-shell {
-                grid-template-columns: 126px minmax(0, 1fr);
-            }
-        }
-
-        @media (max-width: 1320px) {
-            .design-column {
-                width: 440px;
-                min-width: 440px;
-            }
-
-            .design-shell {
-                grid-template-columns: 120px minmax(0, 1fr);
-            }
-
-            .tool-grid,
-            .layout-grid-unused {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/cv-editor.css">
 </head>
 <body>
 
@@ -1248,7 +180,7 @@
                             <div class="tool-card">
                                 <div class="tool-card-kicker">Template</div>
                                 <h4>Chuyển sang một phong cách CV khác</h4>
-                                <p>Bạn có thể đổi sang mẫu tối giản, sáng tạo hoặc ATS-friendly rồi tiếp tục tinh chỉnh.</p>
+                                <p>Bạn có thể đổi sang mẫu chuyên nghiệp, sáng tạo, tối giản, cổ điển hoặc Harvard rồi tiếp tục tinh chỉnh.</p>
                                 <button class="tool-action primary" type="button" onclick="branchChangeTemplate()">
                                     Mở thư viện mẫu
                                 </button>
@@ -1329,6 +261,14 @@
 
             <!-- CV Action Toolbar: shown after CV is generated -->
             <div class="cv-action-toolbar" id="cvToolbar">
+                <button class="btn-cv-action btn-history" id="btnUndoCv" type="button" onclick="undoCvChange()" title="Undo">
+                    <i data-lucide="undo-2"></i>
+                    Undo
+                </button>
+                <button class="btn-cv-action btn-history" id="btnRedoCv" type="button" onclick="redoCvChange()" title="Redo">
+                    <i data-lucide="redo-2"></i>
+                    Redo
+                </button>
                 <button class="btn-cv-action btn-upload-avatar" onclick="triggerAvatarUpload()" title="Tải ảnh đại diện">
                     🖼️ Ảnh
                 </button>
@@ -1498,17 +438,510 @@
     ];
 
     const sectionMeta = {
-        profileCard: { glyph: '🎴', label: 'Danh thiếp', layoutLabel: 'Danh thiếp', desc: 'Khối họ tên, chức danh và liên hệ ở phần đầu CV.' },
-        avatar: { glyph: '🖼️', label: 'Ảnh đại diện', layoutLabel: 'Ảnh đại diện', desc: 'Ảnh hồ sơ ở phần đầu CV.' },
-        summary: { glyph: '📝', label: 'Mục tiêu nghề nghiệp', layoutLabel: 'Mục tiêu nghề nghiệp', desc: 'Phần giới thiệu ngắn về định hướng.' },
-        experience: { glyph: '💼', label: 'Kinh nghiệm làm việc', layoutLabel: 'Kinh nghiệm làm việc', desc: 'Các vị trí và thành tựu nổi bật.' },
-        education: { glyph: '🎓', label: 'Học vấn', layoutLabel: 'Học vấn', desc: 'Trường học, bằng cấp và thời gian.' },
-        skills: { glyph: '⭐', label: 'Kỹ năng', layoutLabel: 'Kỹ năng', desc: 'Các nhóm kỹ năng chuyên môn.' },
-        projects: { glyph: '🚀', label: 'Dự án', layoutLabel: 'Dự án', desc: 'Dự án cá nhân hoặc công việc nổi bật.' },
-        certifications: { glyph: '📜', label: 'Chứng chỉ', layoutLabel: 'Chứng chỉ', desc: 'Chứng chỉ nghề nghiệp liên quan.' },
-        awards: { glyph: '🏆', label: 'Giải thưởng', layoutLabel: 'Giải thưởng', desc: 'Thành tích, giải thưởng và ghi nhận.' },
-        activities: { glyph: '🎯', label: 'Hoạt động', layoutLabel: 'Hoạt động', desc: 'CLB, tình nguyện hoặc ngoại khóa.' }
+        profileCard: { icon: 'id-card', glyph: '', label: 'Danh thiếp', layoutLabel: 'Danh thiếp', desc: 'Khối họ tên, chức danh và liên hệ ở phần đầu CV.' },
+        avatar: { icon: 'image', glyph: '', label: 'Ảnh đại diện', layoutLabel: 'Ảnh đại diện', desc: 'Ảnh hồ sơ ở phần đầu CV.' },
+        summary: { icon: 'file-pen-line', glyph: '', label: 'Mục tiêu nghề nghiệp', layoutLabel: 'Mục tiêu nghề nghiệp', desc: 'Phần giới thiệu ngắn về định hướng.' },
+        experience: { icon: 'briefcase-business', glyph: '', label: 'Kinh nghiệm làm việc', layoutLabel: 'Kinh nghiệm làm việc', desc: 'Các vị trí và thành tựu nổi bật.' },
+        education: { icon: 'graduation-cap', glyph: '', label: 'Học vấn', layoutLabel: 'Học vấn', desc: 'Trường học, bằng cấp và thời gian.' },
+        skills: { icon: 'sparkles', glyph: '', label: 'Kỹ năng', layoutLabel: 'Kỹ năng', desc: 'Các nhóm kỹ năng chuyên môn.' },
+        projects: { icon: 'rocket', glyph: '', label: 'Dự án', layoutLabel: 'Dự án', desc: 'Dự án cá nhân hoặc công việc nổi bật.' },
+        certifications: { icon: 'scroll-text', glyph: '', label: 'Chứng chỉ', layoutLabel: 'Chứng chỉ', desc: 'Chứng chỉ nghề nghiệp liên quan.' },
+        awards: { icon: 'trophy', glyph: '', label: 'Giải thưởng', layoutLabel: 'Giải thưởng', desc: 'Thành tích, giải thưởng và ghi nhận.' },
+        activities: { icon: 'target', glyph: '', label: 'Hoạt động', layoutLabel: 'Hoạt động', desc: 'CLB, tình nguyện hoặc ngoại khóa.' }
     };
+
+    const SECTION_ICON_CHOICES = [
+        'id-card',
+        'image',
+        'file-pen-line',
+        'briefcase-business',
+        'graduation-cap',
+        'sparkles',
+        'rocket',
+        'scroll-text',
+        'trophy',
+        'target',
+        'folder-kanban',
+        'badge-check',
+        'star',
+        'layers-3',
+        'pen-tool'
+    ];
+
+    function inferPreviewIconKeyFromNode(node, fallbackIcon) {
+        const element = node instanceof HTMLElement ? node : node?.parentElement;
+        if (!element) return `preview-${fallbackIcon || 'icon'}-0`;
+        const section = element.closest('[data-cv-section]')?.getAttribute('data-cv-section') || '';
+        if (fallbackIcon === 'mail') return 'contact-email';
+        if (fallbackIcon === 'phone') return 'contact-phone';
+        if (fallbackIcon === 'map-pin') return 'contact-address';
+        if (fallbackIcon === 'briefcase-business') return 'contact-role';
+        if (fallbackIcon === 'camera') return 'avatar-camera';
+        const item = element.closest('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item');
+        const siblings = item?.parentElement
+            ? Array.from(item.parentElement.children).filter(child => child.matches?.('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item'))
+            : [];
+        const index = item ? Math.max(0, siblings.indexOf(item)) : 0;
+        return `${section || 'preview'}-${fallbackIcon || 'icon'}-${index}`;
+    }
+
+    const PREVIEW_ICON_CHOICES = [
+        'mail',
+        'phone',
+        'map-pin',
+        'briefcase-business',
+        'badge-check',
+        'sparkles',
+        'star',
+        'circle-dot',
+        'shield-check',
+        'trophy',
+        'rocket',
+        'globe',
+        'link',
+        'folder-kanban',
+        'target'
+    ];
+
+    let sectionIconPickerState = { sectionKey: null, selectedIcon: null };
+    let previewIconPickerState = { iconKey: null, selectedIcon: null, label: '' };
+
+    function inferSectionKeyFromText(text = '') {
+        const normalized = String(text || '').toLowerCase();
+        return Object.entries(sectionMeta).find(([, meta]) =>
+            normalized.includes((meta.label || '').toLowerCase()) ||
+            normalized.includes((meta.layoutLabel || '').toLowerCase())
+        )?.[0] || null;
+    }
+
+    function getSectionIconName(sectionKey) {
+        if (!sectionKey || !sectionMeta[sectionKey]) return '';
+        if (typeof designState === 'object' && designState?.sectionIcons?.[sectionKey]) return designState.sectionIcons[sectionKey];
+        return sectionMeta[sectionKey].icon || '';
+    }
+
+    function getPreviewIconName(iconKey, fallbackIcon) {
+        if (!iconKey) return fallbackIcon;
+        if (typeof designState === 'object' && designState?.previewIcons?.[iconKey]) return designState.previewIcons[iconKey];
+        return fallbackIcon;
+    }
+
+    function inferPreviewIconKeyFromNode(node, fallbackIcon) {
+        if (!(node instanceof Element)) return `${fallbackIcon || 'icon'}-0`;
+
+        const section = node.closest('[data-cv-section]')?.getAttribute('data-cv-section') || '';
+        if (fallbackIcon === 'mail') return 'contact-email';
+        if (fallbackIcon === 'phone') return 'contact-phone';
+        if (fallbackIcon === 'map-pin') return 'contact-address';
+        if (fallbackIcon === 'briefcase-business') return 'contact-role';
+        if (fallbackIcon === 'camera') return 'avatar-camera';
+
+        const item = node.closest('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item');
+        const siblings = item?.parentElement
+            ? [...item.parentElement.children].filter(child => child.matches?.('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item'))
+            : [];
+        const index = item ? Math.max(0, siblings.indexOf(item)) : 0;
+        return `${section || 'preview'}-${fallbackIcon}-${index}`;
+    }
+
+    function renderPreviewIconTrigger(iconKey, fallbackIcon, size = 14, style = '', label = 'icon') {
+        const iconName = getPreviewIconName(iconKey, fallbackIcon);
+        const safeLabel = String(label || 'icon').replace(/"/g, '&quot;');
+        return `<button type="button" class="preview-icon-trigger" data-preview-icon-key="${iconKey}" data-fallback-icon="${fallbackIcon}" data-label="${safeLabel}" title="Đổi icon ${safeLabel}" aria-label="Đổi icon ${safeLabel}" style="display:inline-flex;align-items:center;justify-content:center;width:${Math.max(size + 10, 24)}px;height:${Math.max(size + 10, 24)}px;padding:0;border:none;background:transparent;color:inherit;cursor:pointer;border-radius:8px;vertical-align:middle;${style}">${libIcon(iconName, size, 'color:currentColor;')}</button>`;
+    }
+
+    function renderSectionIconTrigger(sectionKey, size = 16, style = '') {
+        const meta = sectionMeta[sectionKey];
+        const iconName = getSectionIconName(sectionKey);
+        const label = meta?.label || 'mục';
+        return `<button type="button" class="section-meta-icon-trigger" data-section-key="${sectionKey}" title="Đổi icon cho ${label}" aria-label="Đổi icon cho ${label}" style="display:inline-flex;align-items:center;justify-content:center;width:${Math.max(size + 12, 28)}px;height:${Math.max(size + 12, 28)}px;padding:0;border:none;background:transparent;color:inherit;cursor:pointer;border-radius:10px;vertical-align:middle;${style}">${libIcon(iconName, size, 'color:currentColor;')}</button>`;
+    }
+
+    function renderSectionMetaIcon(sectionKey, size = 16, style = '') {
+        const meta = sectionMeta[sectionKey];
+        if (!meta?.icon) return meta?.glyph || '';
+        return renderSectionIconTrigger(sectionKey, size, style);
+    }
+
+    function ensureSectionIconPickerModal() {
+        if (document.getElementById('sectionIconPickerModal')) return;
+
+        const modal = document.createElement('div');
+        modal.id = 'sectionIconPickerModal';
+        modal.className = 'cv-modal';
+        modal.style.display = 'none';
+        modal.innerHTML = `
+            <div class="cv-modal-content section-icon-modal-content">
+                <div class="cv-modal-title">Đổi icon mục</div>
+                <div class="section-icon-modal-subtitle">Chọn icon hiển thị cho mục này trong giao diện bố cục.</div>
+                <div class="section-icon-grid" id="sectionIconGrid"></div>
+                <div class="cv-modal-actions">
+                    <button type="button" class="btn-modal-cancel" id="sectionIconCancelBtn">Hủy</button>
+                    <button type="button" class="btn-modal-confirm" id="sectionIconSaveBtn">Lưu</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const grid = modal.querySelector('#sectionIconGrid');
+        if (grid) {
+            grid.innerHTML = SECTION_ICON_CHOICES.map(iconName => `
+                <button type="button" class="section-icon-option" data-icon-name="${iconName}" aria-label="${iconName}">
+                    ${libIcon(iconName, 18, 'color:currentColor;')}
+                </button>
+            `).join('');
+
+            grid.querySelectorAll('.section-icon-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    sectionIconPickerState.selectedIcon = option.dataset.iconName || '';
+                    syncSectionIconOptionState();
+                });
+            });
+        }
+
+        modal.querySelector('#sectionIconCancelBtn')?.addEventListener('click', closeSectionIconPickerModal);
+        modal.querySelector('#sectionIconSaveBtn')?.addEventListener('click', saveSectionIconSelection);
+        modal.addEventListener('click', event => {
+            if (event.target === modal) closeSectionIconPickerModal();
+        });
+    }
+
+    function syncSectionIconOptionState() {
+        const modal = document.getElementById('sectionIconPickerModal');
+        if (!modal) return;
+        modal.querySelectorAll('.section-icon-option').forEach(option => {
+            option.classList.toggle('is-active', option.dataset.iconName === sectionIconPickerState.selectedIcon);
+        });
+    }
+
+    function openSectionIconPickerModal(sectionKey) {
+        if (!sectionMeta[sectionKey]) return;
+        ensureSectionIconPickerModal();
+
+        const modal = document.getElementById('sectionIconPickerModal');
+        if (!modal) return;
+
+        sectionIconPickerState.sectionKey = sectionKey;
+        sectionIconPickerState.selectedIcon = getSectionIconName(sectionKey);
+        syncSectionIconOptionState();
+        modal.style.display = 'flex';
+    }
+
+    function closeSectionIconPickerModal() {
+        const modal = document.getElementById('sectionIconPickerModal');
+        if (modal) modal.style.display = 'none';
+        sectionIconPickerState = { sectionKey: null, selectedIcon: null };
+    }
+
+    function refreshSectionIconUI() {
+        if (typeof renderSectionManager === 'function') renderSectionManager();
+        if (typeof renderLayoutStudio === 'function') renderLayoutStudio();
+        normalizeSectionMetaIcons(document);
+        enhanceSectionIconTriggers(document);
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function saveSectionIconSelection() {
+        const { sectionKey, selectedIcon } = sectionIconPickerState;
+        if (!sectionKey || !selectedIcon) {
+            closeSectionIconPickerModal();
+            return;
+        }
+
+        if (typeof designState === 'object') {
+            designState.sectionIcons = designState.sectionIcons || {};
+            designState.sectionIcons[sectionKey] = selectedIcon;
+        }
+
+        closeSectionIconPickerModal();
+        refreshSectionIconUI();
+    }
+
+    function enhancePreviewIconTriggers(preview = document.getElementById('cvPreview')) {
+        if (!preview) return;
+        const supportedIcons = new Set([
+            'mail',
+            'phone',
+            'map-pin',
+            'briefcase-business',
+            'trophy',
+            'camera',
+            'link',
+            'rocket',
+            'target',
+            'star',
+            'sparkles',
+            'badge-check',
+            'globe',
+            'folder-kanban',
+            'circle-dot',
+            'shield-check'
+        ]);
+        preview.querySelectorAll('[data-lucide], svg.lucide').forEach(iconNode => {
+            const iconElement = iconNode instanceof SVGElement || iconNode instanceof HTMLElement ? iconNode : null;
+            if (!iconElement) return;
+            if (iconElement.closest('.preview-icon-trigger')) return;
+            if (iconElement.closest('.cv-item-controls')) return;
+            const iconName = iconElement.getAttribute('data-lucide')
+                || Array.from(iconElement.classList || []).find(cls => cls.startsWith('lucide-'))?.replace('lucide-', '')
+                || '';
+            if (!supportedIcons.has(iconName)) return;
+            const owner = iconElement.parentElement;
+            if (!(owner instanceof HTMLElement)) return;
+            const label = owner.textContent?.trim() || 'icon';
+            const iconKey = inferPreviewIconKeyFromNode(owner, iconName);
+            const trigger = document.createElement('button');
+            trigger.type = 'button';
+            trigger.className = 'preview-icon-trigger';
+            trigger.dataset.previewIconKey = iconKey;
+            trigger.dataset.fallbackIcon = iconName;
+            trigger.dataset.label = label;
+            trigger.title = `Đổi icon ${label}`;
+            trigger.setAttribute('aria-label', `Đổi icon ${label}`);
+            trigger.style.display = 'inline-flex';
+            trigger.style.alignItems = 'center';
+            trigger.style.justifyContent = 'center';
+            trigger.style.width = '24px';
+            trigger.style.height = '24px';
+            trigger.style.padding = '0';
+            trigger.style.margin = '0';
+            trigger.style.border = 'none';
+            trigger.style.background = 'transparent';
+            trigger.style.borderRadius = '8px';
+            trigger.style.color = 'inherit';
+            trigger.style.cursor = 'pointer';
+            owner.insertBefore(trigger, iconElement);
+            trigger.appendChild(iconElement);
+        });
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    }
+
+    function ensurePreviewIconPickerModal() {
+        if (document.getElementById('previewIconPickerModal')) return;
+
+        const modal = document.createElement('div');
+        modal.id = 'previewIconPickerModal';
+        modal.className = 'cv-modal';
+        modal.style.display = 'none';
+        modal.innerHTML = `
+            <div class="cv-modal-content section-icon-modal-content">
+                <div class="cv-modal-title">Đổi icon trong CV</div>
+                <div class="section-icon-modal-subtitle" id="previewIconModalSubtitle">Chọn icon mới cho mục này trong bản xem trước CV.</div>
+                <div class="section-icon-grid" id="previewIconGrid"></div>
+                <div class="cv-modal-actions">
+                    <button type="button" class="btn-modal-cancel" id="previewIconCancelBtn">Hủy</button>
+                    <button type="button" class="btn-modal-confirm" id="previewIconSaveBtn">Lưu</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const grid = modal.querySelector('#previewIconGrid');
+        if (grid) {
+            grid.innerHTML = PREVIEW_ICON_CHOICES.map(iconName => `
+                <button type="button" class="section-icon-option preview-icon-option" data-icon-name="${iconName}" aria-label="${iconName}">
+                    ${libIcon(iconName, 18, 'color:currentColor;')}
+                </button>
+            `).join('');
+
+            grid.querySelectorAll('.preview-icon-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    previewIconPickerState.selectedIcon = option.dataset.iconName || '';
+                    syncPreviewIconOptionState();
+                });
+            });
+        }
+
+        modal.querySelector('#previewIconCancelBtn')?.addEventListener('click', closePreviewIconPickerModal);
+        modal.querySelector('#previewIconSaveBtn')?.addEventListener('click', savePreviewIconSelection);
+        modal.addEventListener('click', event => {
+            if (event.target === modal) closePreviewIconPickerModal();
+        });
+    }
+
+    function syncPreviewIconOptionState() {
+        const modal = document.getElementById('previewIconPickerModal');
+        if (!modal) return;
+        modal.querySelectorAll('.preview-icon-option').forEach(option => {
+            option.classList.toggle('is-active', option.dataset.iconName === previewIconPickerState.selectedIcon);
+        });
+    }
+
+    function openPreviewIconPickerModal(iconKey, fallbackIcon, label = 'này') {
+        ensurePreviewIconPickerModal();
+        enhancePreviewIconTriggers(document.getElementById('cvPreview'));
+    enhancePreviewIconTriggers(document.getElementById('cvPreview'));
+        const modal = document.getElementById('previewIconPickerModal');
+        if (!modal) return;
+
+        previewIconPickerState.iconKey = iconKey;
+        previewIconPickerState.selectedIcon = getPreviewIconName(iconKey, fallbackIcon);
+        previewIconPickerState.label = label;
+
+        const subtitle = modal.querySelector('#previewIconModalSubtitle');
+        if (subtitle) subtitle.textContent = `Chọn icon mới cho ${label} trong bản xem trước CV.`;
+
+        syncPreviewIconOptionState();
+        modal.style.display = 'flex';
+    }
+
+    function closePreviewIconPickerModal() {
+        const modal = document.getElementById('previewIconPickerModal');
+        if (modal) modal.style.display = 'none';
+        previewIconPickerState = { iconKey: null, selectedIcon: null, label: '' };
+    }
+
+    function rerenderCurrentPreview() {
+        if (currentCvJson) {
+            renderCvPreview(currentCvJson);
+            return;
+        }
+        if (typeof templateData === 'object' && templateData) {
+            renderCvPreview(templateData);
+            return;
+        }
+        if (typeof cvData === 'object' && cvData) {
+            renderCvPreview(cvData);
+        }
+    }
+
+    function savePreviewIconSelection() {
+        const { iconKey, selectedIcon } = previewIconPickerState;
+        if (!iconKey || !selectedIcon) {
+            closePreviewIconPickerModal();
+            return;
+        }
+
+        if (typeof designState === 'object') {
+            designState.previewIcons = designState.previewIcons || {};
+            designState.previewIcons[iconKey] = selectedIcon;
+        }
+
+        closePreviewIconPickerModal();
+        rerenderCurrentPreview();
+    }
+
+    function enhanceSectionIconTriggers(root = document) {
+        root.querySelectorAll('.section-meta-icon-trigger, [data-section-meta-icon="true"]').forEach(node => {
+            if (!(node instanceof HTMLElement)) return;
+            const sectionKey = node.dataset.sectionKey || inferSectionKeyFromText(node.closest('.layout-section-card, .section-manager-item, .layout-used-card, .layout-unused-card, .sidebar-item, .layout-card, li, button, div')?.textContent || node.parentElement?.textContent || '');
+            if (!sectionKey || !sectionMeta[sectionKey]) return;
+
+            node.dataset.sectionKey = sectionKey;
+            node.classList.add('section-meta-icon-trigger');
+            node.setAttribute('title', `Đổi icon cho ${sectionMeta[sectionKey].label}`);
+            node.setAttribute('aria-label', `Đổi icon cho ${sectionMeta[sectionKey].label}`);
+            if (!node.hasAttribute('tabindex')) node.setAttribute('tabindex', '0');
+        });
+    }
+
+    function resolveSectionIconTrigger(target) {
+        if (!(target instanceof Element)) return null;
+
+        const directTrigger = target.closest('.section-meta-icon-trigger, [data-section-meta-icon="true"]');
+        if (directTrigger instanceof HTMLElement) return directTrigger;
+
+        const iconNode = target.closest('[data-lucide]');
+        if (!(iconNode instanceof HTMLElement)) return null;
+        if (iconNode.closest('#cvPreview')) return null;
+
+        const host = iconNode.closest('.layout-section-card, .section-manager-item, .layout-used-card, .layout-unused-card, .sidebar-item, .layout-card, li, button, div');
+        if (!(host instanceof HTMLElement)) return null;
+
+        const sectionKey = host.dataset.sectionKey || inferSectionKeyFromText(host.textContent || '');
+        if (!sectionKey || !sectionMeta[sectionKey]) return null;
+
+        host.dataset.sectionKey = sectionKey;
+        host.classList.add('section-meta-icon-trigger');
+        host.setAttribute('title', `Đổi icon cho ${sectionMeta[sectionKey].label}`);
+        host.setAttribute('aria-label', `Đổi icon cho ${sectionMeta[sectionKey].label}`);
+        host.style.cursor = 'pointer';
+        return host;
+    }
+
+    document.addEventListener('click', event => {
+        const trigger = resolveSectionIconTrigger(event.target);
+        if (!trigger) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const sectionKey = trigger.getAttribute('data-section-key');
+        if (sectionKey) openSectionIconPickerModal(sectionKey);
+    }, true);
+
+    document.addEventListener('pointerdown', event => {
+        const trigger = event.target instanceof Element ? event.target.closest('.preview-icon-trigger') : null;
+        if (!trigger) return;
+        event.preventDefault();
+        event.stopPropagation();
+    }, true);
+
+    document.addEventListener('click', event => {
+        const trigger = event.target instanceof Element ? event.target.closest('.preview-icon-trigger') : null;
+        if (!trigger) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const iconKey = trigger.getAttribute('data-preview-icon-key');
+        const fallbackIcon = trigger.getAttribute('data-fallback-icon') || 'star';
+        const label = trigger.getAttribute('data-label') || 'mục này';
+        if (iconKey) openPreviewIconPickerModal(iconKey, fallbackIcon, label);
+    }, true);
+
+    document.addEventListener('keydown', event => {
+        const trigger = resolveSectionIconTrigger(event.target);
+        if (!trigger) return;
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        const sectionKey = trigger.getAttribute('data-section-key');
+        if (sectionKey) openSectionIconPickerModal(sectionKey);
+    }, true);
+
+    document.addEventListener('keydown', event => {
+        const trigger = event.target instanceof Element ? event.target.closest('.preview-icon-trigger') : null;
+        if (!trigger) return;
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        const iconKey = trigger.getAttribute('data-preview-icon-key');
+        const fallbackIcon = trigger.getAttribute('data-fallback-icon') || 'star';
+        const label = trigger.getAttribute('data-label') || 'mục này';
+        if (iconKey) openPreviewIconPickerModal(iconKey, fallbackIcon, label);
+    }, true);
+
+    function normalizeSectionMetaIcons(root = document) {
+        const iconMap = {
+            '🎴': 'id-card',
+            '🖼️': 'image',
+            '📝': 'file-pen-line',
+            '💼': 'briefcase-business',
+            '🎓': 'graduation-cap',
+            '⭐': 'sparkles',
+            '🚀': 'rocket',
+            '📜': 'scroll-text',
+            '🏆': 'trophy',
+            '🎯': 'target'
+        };
+
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+        textNodes.forEach(textNode => {
+            const parent = textNode.parentElement;
+            if (!parent || parent.closest('#cvPreview')) return;
+            if (parent.querySelector(':scope > [data-section-meta-icon="true"]')) return;
+
+            const raw = textNode.textContent || '';
+            const trimmed = raw.trimStart();
+            const matchedEntry = Object.entries(iconMap).find(([emoji]) => trimmed.startsWith(emoji));
+            if (!matchedEntry) return;
+
+            const [emoji, iconName] = matchedEntry;
+            textNode.textContent = raw.replace(emoji, '').trimStart();
+            const sectionKey = inferSectionKeyFromText(parent.closest('.layout-section-card, .section-manager-item, .layout-used-card, .layout-unused-card, .sidebar-item, .layout-card, li, button, div')?.textContent || parent.textContent || '');
+            parent.insertAdjacentHTML('afterbegin', `<span data-section-meta-icon="true" data-section-key="${sectionKey || ''}" class="section-meta-icon-trigger" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;margin-right:8px;vertical-align:middle;border-radius:10px;">${libIcon(iconName, 16, 'color:currentColor;')}</span>`);
+        });
+    }
     const defaultSectionOrder = [...sectionCatalog];
 
     const designState = {
@@ -1649,6 +1082,113 @@
         btnSave.textContent = '💾 Lưu CV';
         btnSave.classList.remove('saved');
         btnSave.disabled = false;
+    }
+
+    let editorHistory = [];
+    let editorHistoryIndex = -1;
+    let editorHistorySeeded = false;
+    let editorHistoryTimer = null;
+    let isRestoringEditorHistory = false;
+
+    function syncEditorHistoryButtons() {
+        const undoBtn = document.getElementById('btnUndoCv');
+        const redoBtn = document.getElementById('btnRedoCv');
+        const canUndo = editorHistoryIndex > 0;
+        const canRedo = editorHistoryIndex >= 0 && editorHistoryIndex < editorHistory.length - 1;
+        if (undoBtn) undoBtn.disabled = !canUndo;
+        if (redoBtn) redoBtn.disabled = !canRedo;
+    }
+
+    function snapshotEditorState() {
+        if (!currentCvJson) return '';
+        return JSON.stringify({
+            cvJson: currentCvJson,
+            designState: cloneDesignState()
+        });
+    }
+
+    function resetEditorHistory() {
+        editorHistory = [];
+        editorHistoryIndex = -1;
+        editorHistorySeeded = false;
+        clearTimeout(editorHistoryTimer);
+        syncEditorHistoryButtons();
+    }
+
+    function captureEditorHistorySnapshot(force = false) {
+        if (!currentCvJson || isRestoringEditorHistory) return;
+        const snapshot = snapshotEditorState();
+        if (!snapshot) return;
+
+        if (!force && editorHistoryIndex >= 0 && editorHistory[editorHistoryIndex] === snapshot) {
+            syncEditorHistoryButtons();
+            return;
+        }
+
+        if (editorHistoryIndex < editorHistory.length - 1) {
+            editorHistory = editorHistory.slice(0, editorHistoryIndex + 1);
+        }
+
+        editorHistory.push(snapshot);
+        if (editorHistory.length > 60) {
+            editorHistory.shift();
+        }
+        editorHistoryIndex = editorHistory.length - 1;
+        editorHistorySeeded = true;
+        syncEditorHistoryButtons();
+    }
+
+    function queueEditorHistorySnapshot() {
+        clearTimeout(editorHistoryTimer);
+        editorHistoryTimer = setTimeout(() => captureEditorHistorySnapshot(false), 240);
+    }
+
+    function restoreEditorHistorySnapshot(snapshot) {
+        if (!snapshot) return;
+        try {
+            const parsed = JSON.parse(snapshot);
+            isRestoringEditorHistory = true;
+            currentCvJson = parsed.cvJson || currentCvJson;
+            if (currentCvJson) {
+                Object.assign(cvData, parsed.cvJson || {});
+            }
+            hydrateDesignState(parsed.designState || {});
+            renderCvPreview(currentCvJson);
+            syncDesignControls();
+            markCvDirty({ history: false });
+        } finally {
+            isRestoringEditorHistory = false;
+            syncEditorHistoryButtons();
+        }
+    }
+
+    function undoCvChange() {
+        if (editorHistoryIndex <= 0) return;
+        editorHistoryIndex -= 1;
+        restoreEditorHistorySnapshot(editorHistory[editorHistoryIndex]);
+    }
+
+    function redoCvChange() {
+        if (editorHistoryIndex < 0 || editorHistoryIndex >= editorHistory.length - 1) return;
+        editorHistoryIndex += 1;
+        restoreEditorHistorySnapshot(editorHistory[editorHistoryIndex]);
+    }
+
+    function markCvDirty(options = {}) {
+        const btnSave = document.getElementById('btnSaveCv');
+        if (btnSave) {
+            btnSave.textContent = 'Luu CV';
+            btnSave.classList.remove('saved');
+            btnSave.disabled = false;
+        }
+
+        if (options.history === false || !currentCvJson) {
+            syncEditorHistoryButtons();
+            return;
+        }
+
+        if (options.immediate) captureEditorHistorySnapshot(false);
+        else queueEditorHistorySnapshot();
     }
 
     function syncDesignStateToCurrentCv() {
@@ -1934,6 +1474,13 @@
             </button>`;
     }
 
+    function normalizeCvStyle(style) {
+        const normalized = String(style || '').trim().toLowerCase();
+        if (normalized === 'ats' || normalized === 'topcv') return 'classic';
+        if (['professional', 'creative', 'minimalist', 'classic', 'harvard'].includes(normalized)) return normalized;
+        return 'professional';
+    }
+
     function getDirectTaggedSections(container) {
         if (!container) return [];
         return [...container.children]
@@ -1942,8 +1489,9 @@
     }
 
     function getLayoutStudioFixedCards(style = getCurrentPreviewStyle()) {
+        style = normalizeCvStyle(style);
         const fixedCards = [];
-        const hasProfileCard = ['professional', 'creative', 'minimalist', 'classic', 'harvard', 'topcv'].includes(style);
+        const hasProfileCard = ['professional', 'creative', 'minimalist', 'classic', 'harvard'].includes(style);
 
         if (hasProfileCard) fixedCards.push('profileCard');
         if (sectionEnabled('avatar') && document.querySelector('.cvm-avatar-wrapper')) {
@@ -1954,6 +1502,7 @@
     }
 
     function getLayoutStudioColumns(style = getCurrentPreviewStyle()) {
+        style = normalizeCvStyle(style);
         let columns = [];
 
         if (style === 'creative') {
@@ -1970,8 +1519,6 @@
             columns = [leftColumn, rightColumn];
         } else if (style === 'harvard') {
             columns = [getDirectTaggedSections(document.querySelector('.cvh-body'))];
-        } else if (style === 'topcv') {
-            columns = [getDirectTaggedSections(document.querySelector('.cv-topcv-body'))];
         } else if (style === 'minimalist') {
             columns = [getDirectTaggedSections(document.querySelector('.cvm2-body'))];
         } else {
@@ -1982,7 +1529,7 @@
         }
 
         if (!columns.some(column => column.length)) {
-            const fallback = style === 'harvard' || style === 'topcv' || style === 'minimalist'
+            const fallback = style === 'harvard' || style === 'minimalist'
                 ? [getOrderedUsedSections()]
                 : [getOrderedUsedSections(), []];
             return fallback;
@@ -2419,11 +1966,14 @@
                             hydrateDesignState(parsedCv._designState || { color: parsedCv._accent });
                             window.currentTemplate = {
                                 previewColor: parsedCv._accent || data.templateName || '#2E3B8E',
-                                styleTag:     parsedCv._styleTag || 'professional',
+                                styleTag:     normalizeCvStyle(parsedCv._styleTag || 'professional'),
                                 name:         data.templateName || ''
                             };
+                            parsedCv._styleTag = normalizeCvStyle(parsedCv._styleTag || 'professional');
                             templateName = data.templateName || '';
+                            resetEditorHistory();
                             renderCvPreview(parsedCv);
+                            captureEditorHistorySnapshot(true);
                             enablePostGenActions();
                             addAiMsg(`👋 Chào mừng bạn trở lại! Tôi đã tải xong bản CV <strong>"${esc(data.cvName)}"</strong>. Bạn muốn chỉnh sửa thêm phần nào không?`);
                             document.getElementById('btnSend').addEventListener('click', handleSend);
@@ -2446,7 +1996,7 @@
                     templateName = tpl.name || 'CV Mẫu';
                     window.currentTemplate = {
                         previewColor: tpl.previewColor || '#2E3B8E',
-                        styleTag:     tpl.styleTag     || 'professional',
+                        styleTag:     normalizeCvStyle(tpl.styleTag || 'professional'),
                         name:         tpl.name         || ''
                     };
                     if (tpl.templateContent) {
@@ -2638,9 +2188,14 @@
         tagPreviewSections('professional');
         applySectionVisibilityToPreview();
         applySectionOrderToPreview('professional');
+        normalizePreviewIcons(document.getElementById('cvPreview'));
+        enhancePreviewIconTriggers(document.getElementById('cvPreview'));
+        enhancePreviewIconTriggers(document.getElementById('cvPreview'));
+        normalizeSectionMetaIcons(document);
         renderSectionManager();
         refreshEditModeUI();
         initSortable();
+        if (window.lucide) lucide.createIcons();
         const hint = document.createElement('div');
         hint.className = 'live-preview-hint';
         hint.style.margin = '8px 8px 0';
@@ -2737,6 +2292,7 @@
             }
 
             renderCvPreview(data.cvJson);
+            captureEditorHistorySnapshot(true);
 
             // Remove the "this is a template" banner — CV is now personalized
             const banner = document.getElementById('templateBanner');
@@ -2775,6 +2331,7 @@
             const banner = document.getElementById('templateBanner');
             if (banner) banner.remove();
             renderCvPreview(data.cvJson);
+            captureEditorHistorySnapshot(true);
 
             addAiMsg(`✅ <strong>CV nháp đã sẵn sàng!</strong> Đây là bản CV được tạo từ thông tin của bạn. Hãy chọn một hướng tiếp theo để hoàn thiện hơn nhé!`);
             enablePostGenActions();
@@ -2953,21 +2510,47 @@
         if (!isEditMode) return;
         
         const controls = document.querySelectorAll('.cv-item-controls');
-        const parents = new Set();
-        controls.forEach(c => parents.add(c.parentElement.parentElement));
+        const sortableConfigs = [];
+
+        controls.forEach(control => {
+            const item = control.parentElement;
+            const parent = item?.parentElement;
+            if (!item || !parent) return;
+
+            const itemClass = [...item.classList].find(cls => ![
+                'cv-edit-shell',
+                'cvh-edit-shell',
+                'cv-field-shell',
+                'cv-editable',
+                'cv-item-shell-active'
+            ].includes(cls));
+
+            const type = control.dataset.type;
+            if (!itemClass || !type) return;
+
+            const exists = sortableConfigs.some(cfg => cfg.parent === parent && cfg.type === type && cfg.itemClass === itemClass);
+            if (!exists) {
+                sortableConfigs.push({ parent, type, itemClass });
+            }
+        });
         
-        parents.forEach(parent => {
-            if (!parent) return;
+        sortableConfigs.forEach(({ parent, type, itemClass }) => {
             const instance = Sortable.create(parent, {
                 animation: 150,
-                handle: '.drag-handle, .cv-item-controls',
+                draggable: `.${itemClass}`,
+                handle: '.drag-handle',
                 filter: 'h1, h2, h3, .cvm-section-title',
+                onMove: function (evt) {
+                    const related = evt.related;
+                    if (!related) return true;
+                    if (related.matches('h1, h2, h3, .cvm-section-title')) return false;
+                    return related.classList?.contains(itemClass);
+                },
                 onEnd: function (evt) {
                     const sortableChild = evt.item;
                     const control = sortableChild.querySelector('.cv-item-controls');
                     if (!control) return;
                     
-                    const type = control.dataset.type;
                     const oldIndex = parseInt(control.dataset.index);
                     
                     const newOrderControls = parent.querySelectorAll('.cv-item-controls[data-type="' + type + '"]');
@@ -2982,12 +2565,99 @@
                         arr.splice(newIndex, 0, movedItem);
                         
                         renderCvPreview(currentCvJson);
-                        markCvDirty();
+                        markCvDirty({ immediate: true });
                     }
                 }
             });
             sortableInstances.push(instance);
         });
+    }
+
+    const ITEM_SHELL_SELECTOR = [
+        '.cvm-exp-item',
+        '.cvm-edu-item',
+        '.cvm-skill-group',
+        '.cvc2-card',
+        '.cvm2-row',
+        '.cvcl2-item',
+        '.cvcl2-r-item',
+        '.cv-topcv-row',
+        '.cvh-item',
+        '.cvh-inline-item',
+        '.cvh-skill-group'
+    ].join(', ');
+
+    function resolvePreviewItemShell(target) {
+        if (!(target instanceof Element)) return null;
+        return target.closest(ITEM_SHELL_SELECTOR);
+    }
+
+    function setActiveItemShell(nextShell, preview = document.getElementById('cvPreview')) {
+        if (!preview) return;
+        preview.querySelectorAll('.cv-item-shell-active').forEach(shell => {
+            if (shell !== nextShell) shell.classList.remove('cv-item-shell-active');
+        });
+        if (nextShell) nextShell.classList.add('cv-item-shell-active');
+    }
+
+    function bindPreviewShellStateEvents(preview = document.getElementById('cvPreview')) {
+        if (!preview || preview.dataset.itemShellBound === 'true') return;
+
+        preview.addEventListener('pointerover', event => {
+            if (!isEditMode) return;
+            const target = event.target instanceof HTMLElement ? event.target : null;
+            if (!target || target.closest('.cv-item-controls')) return;
+            const shell = resolvePreviewItemShell(target);
+            if (shell) setActiveItemShell(shell, preview);
+        });
+
+        preview.addEventListener('focusin', event => {
+            if (!isEditMode) return;
+            const target = event.target instanceof HTMLElement ? event.target : null;
+            const shell = target ? resolvePreviewItemShell(target) : null;
+            if (shell) setActiveItemShell(shell, preview);
+        });
+
+        preview.addEventListener('pointerleave', () => {
+            if (!preview.contains(document.activeElement)) {
+                setActiveItemShell(null, preview);
+            }
+        });
+
+        preview.dataset.itemShellBound = 'true';
+    }
+
+    function handleEditorShortcuts(event) {
+        if (!(event.ctrlKey || event.metaKey)) return;
+
+        const target = event.target instanceof HTMLElement ? event.target : null;
+        const isPreviewEditable = !!target?.closest('#cvPreview .cv-editable');
+        const isFormField = !!target?.closest('input, textarea, select');
+        if (isFormField && !isPreviewEditable) return;
+
+        const key = (event.key || '').toLowerCase();
+        if (key === 's' && currentCvJson) {
+            event.preventDefault();
+            openSaveModal();
+            return;
+        }
+
+        if (key === 'z') {
+            event.preventDefault();
+            if (event.shiftKey) redoCvChange();
+            else undoCvChange();
+            return;
+        }
+
+        if (key === 'y') {
+            event.preventDefault();
+            redoCvChange();
+        }
+    }
+
+    if (!document.body.dataset.cvEditorShortcutsBound) {
+        document.addEventListener('keydown', handleEditorShortcuts);
+        document.body.dataset.cvEditorShortcutsBound = 'true';
     }
 
     function refreshEditModeUI() {
@@ -3008,6 +2678,10 @@
             preview.addEventListener('input', handleHarvardEditableInput);
             preview.dataset.shellInputBound = 'true';
         }
+        if (!preview.dataset.previewLinkGuardBound) {
+            preview.addEventListener('click', preventPreviewLinkNavigation, true);
+            preview.dataset.previewLinkGuardBound = 'true';
+        }
 
         if (isEditMode) {
             preview.classList.add('cv-editable-mode');
@@ -3021,6 +2695,7 @@
             preview.classList.remove('cv-editable-mode');
             preview.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
             preview.querySelectorAll('.cvh-editable-active').forEach(el => el.classList.remove('cvh-editable-active'));
+            setActiveItemShell(null, preview);
             if (btn) {
                 btn.classList.remove('active');
                 btn.innerHTML = '✏️ Chỉnh sửa';
@@ -3160,6 +2835,7 @@
             // Update the live CV
             currentCvJson = data.cvJson;
             renderCvPreview(data.cvJson);
+            markCvDirty({ immediate: true });
 
             addAiMsg((data.message || 'CV đã được cập nhật! ✨') + ' Bạn có muốn thay đổi gì thêm không?');
 
@@ -3333,7 +3009,7 @@
         c._designState = cloneDesignState();
 
         // Route to style-specific renderer based on template styleTag
-        const style = window.currentTemplate?.styleTag || c._styleTag || 'professional';
+        const style = normalizeCvStyle(window.currentTemplate?.styleTag || c._styleTag || 'professional');
         c._styleTag = style;
 
         let html = '';
@@ -3341,7 +3017,6 @@
         else if (style === 'minimalist') html = renderMinimalistStyle(c, accent);
         else if (style === 'classic')    html = renderClassicStyle(c, accent);
         else if (style === 'harvard')    html = renderHarvardStyle(c, accent);
-        else if (style === 'topcv')      html = renderTopcvStyle(c, accent);
         else                             html = renderProfessionalStyle(c, accent);
 
         document.getElementById('cvPreview').innerHTML = html;
@@ -3353,10 +3028,14 @@
         tagPreviewSections(style);
         applySectionVisibilityToPreview();
         applySectionOrderToPreview(style);
+        normalizePreviewIcons(document.getElementById('cvPreview'));
+        normalizeSectionMetaIcons(document);
         renderSectionManager();
         refreshEditModeUI();
         initSortable();
         if (window.lucide) lucide.createIcons();
+        setActiveItemShell(null, document.getElementById('cvPreview'));
+        syncEditorHistoryButtons();
     }
 
     // ── Common helpers ──────────────────────────────────────────
@@ -3373,6 +3052,80 @@
         return editableField('span', text, path);
     }
 
+    function libIcon(name, size = 14, style = '') {
+        const mergedStyle = [`width:${size}px`, `height:${size}px`, 'stroke-width:2', style].filter(Boolean).join(';');
+        return `<i data-lucide="${name}" aria-hidden="true" style="${mergedStyle}"></i>`;
+    }
+
+    function normalizePreviewIcons(preview = document.getElementById('cvPreview')) {
+        if (!preview) return;
+
+        const iconDefs = [
+            { chars: ['📧', '✉', '✉️'], icon: 'mail' },
+            { chars: ['📱', '☎', '☏', '✆', '📞'], icon: 'phone' },
+            { chars: ['📍', '📌'], icon: 'map-pin' },
+            { chars: ['💼'], icon: 'briefcase' },
+            { chars: ['🏆'], icon: 'trophy' },
+            { chars: ['📷'], icon: 'camera' }
+        ];
+
+        const escapedCharGroups = iconDefs.map(({ chars }) => chars.map(char => char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'));
+        const anyLeadingIconRegex = new RegExp(`^(?:${escapedCharGroups.join('|')})\\s*`, 'u');
+
+        const walker = document.createTreeWalker(preview, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+        function inferPreviewIconKey(node, fallbackIcon) {
+            const section = node.closest('[data-cv-section]')?.getAttribute('data-cv-section') || '';
+            if (fallbackIcon === 'mail') return 'contact-email';
+            if (fallbackIcon === 'phone') return 'contact-phone';
+            if (fallbackIcon === 'map-pin') return 'contact-address';
+            if (fallbackIcon === 'briefcase-business') return 'contact-role';
+            if (fallbackIcon === 'camera') return 'avatar-camera';
+
+            const item = node.closest('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item');
+            const siblings = item?.parentElement ? [...item.parentElement.children].filter(child => child.matches?.('.cvm-exp-item, .cvm-edu-item, .cvc2-card, .cvm2-row, .cvcl2-item, .cvcl2-r-item, .cv-topcv-row, .cvh-item, .cvh-inline-item')) : [];
+            const index = item ? Math.max(0, siblings.indexOf(item)) : 0;
+            return `${section || 'preview'}-${fallbackIcon}-${index}`;
+        }
+
+        textNodes.forEach(textNode => {
+            const parent = textNode.parentElement;
+            if (!parent || parent.closest('.cv-item-controls')) return;
+            const raw = textNode.textContent || '';
+            if (!raw.trim()) return;
+            const trimmed = raw.trimStart();
+            const matchedDef = iconDefs.find(({ chars }) => chars.some(char => trimmed.startsWith(char)));
+            if (matchedDef && !parent.querySelector(':scope > [data-lucide]')) {
+                const iconKey = inferPreviewIconKey(parent, matchedDef.icon);
+                parent.insertAdjacentHTML('afterbegin', renderPreviewIconTrigger(iconKey, matchedDef.icon, 14, 'margin-right:6px;', parent.textContent || 'mục này'));
+            }
+            textNode.textContent = raw.replace(anyLeadingIconRegex, '');
+        });
+
+        const iconTargets = [
+            { selector: '.cvm-contact-item, .cvm2-contacts span, .cvcl2-contact span, .cv-topcv-root header span, .cvc2-meta span', matcher: value => /@/.test(value), icon: 'mail' },
+            { selector: '.cvm-contact-item, .cvm2-contacts span, .cvcl2-contact span, .cv-topcv-root header span, .cvc2-meta span', matcher: value => /[\d+]{6,}/.test(value.replace(/\s/g, '')), icon: 'phone' },
+            { selector: '.cvm-contact-item, .cvm2-contacts span, .cvcl2-contact span, .cv-topcv-root header span, .cvc2-meta span', matcher: value => /(quận|tp\.|thành phố|district|street|road|ward|phường|hồ chí minh|hanoi|đà nẵng)/i.test(value), icon: 'map-pin' },
+            { selector: '.cvm-edu-degree, .cvc2-card-title, .cvm2-row-title, .cvcl2-r-item, .cvh-inline-name', matcher: value => /(giải thưởng|award|winner|top|champion)/i.test(value), icon: 'trophy' }
+        ];
+
+        iconTargets.forEach(({ selector, matcher, icon }) => {
+            preview.querySelectorAll(selector).forEach(node => {
+                if (!(node instanceof HTMLElement)) return;
+                if (node.closest('.cv-item-controls')) return;
+                if (node.querySelector(':scope > [data-lucide]')) return;
+
+                const value = (node.textContent || '').trim();
+                if (!value || !matcher(value)) return;
+
+                const iconKey = inferPreviewIconKey(node, icon);
+                node.insertAdjacentHTML('afterbegin', renderPreviewIconTrigger(iconKey, icon, 14, 'margin-right:6px;', value));
+            });
+        });
+    }
+
     function getAvatarHtml(borderColor = 'rgba(255,255,255,0.6)', size = 120, shape = 'circle') {
         if (!designState.sections.avatar) return '';
         const existing = avatarDataUrl;
@@ -3381,7 +3134,7 @@
             <div class="cvm-avatar" id="cvAvatarPlaceholder" style="border-radius:${radius};${existing ? 'display:none;' : ''}"></div>
             <img id="cvAvatarImg" src="${existing || ''}" alt="Avatar"
                 style="width:${size}px;height:${size}px;border-radius:${radius};object-fit:cover;border:4px solid ${borderColor};${existing ? '' : 'display:none;'}">
-            <div class="avatar-upload-overlay" onclick="triggerAvatarUpload()" title="Thay đổi ảnh" style="border-radius:${radius};">📷</div>
+            <div class="avatar-upload-overlay" onclick="triggerAvatarUpload()" title="Thay đổi ảnh" style="border-radius:${radius};">${libIcon('camera', 18, 'color:#fff;')}</div>
         </div>`;
     }
 
@@ -3465,16 +3218,107 @@
     }
 
     // ── STYLE 1: Professional (2-column with color header) ──────
-    function renderProfessionalStyle(c, accent) {
-        // Pre-defined widths create a natural, varied look across all skill groups
-        const SKILL_WIDTHS = [92, 78, 85, 65, 88, 72, 80, 68, 76, 70, 83, 60, 90, 75, 64];
-        let skillWidthIdx = 0;
+    function getItemControls(type, index) {
+        if (!isEditMode) return '';
+        const items = Array.isArray(currentCvJson?.[type]) ? currentCvJson[type] : [];
+        const isFirst = index === 0;
+        const isLast = index === items.length - 1;
 
+        return `
+            <div class="cv-item-controls" data-type="${type}" data-index="${index}" contenteditable="false">
+                <button class="btn-item-ctrl drag-handle" type="button" title="Keo tha">
+                    <i data-lucide="move"></i>
+                </button>
+                <button class="btn-item-ctrl btn-item-up" type="button" onclick="moveItem('${type}', ${index}, -1)" ${isFirst ? 'disabled' : ''} title="Len">
+                    <i data-lucide="arrow-up"></i>
+                </button>
+                <button class="btn-item-ctrl btn-item-down" type="button" onclick="moveItem('${type}', ${index}, 1)" ${isLast ? 'disabled' : ''} title="Xuong">
+                    <i data-lucide="arrow-down"></i>
+                </button>
+                <button class="btn-item-ctrl btn-item-dup" type="button" onclick="duplicateItem('${type}', ${index})" title="Nhan doi">
+                    <i data-lucide="copy"></i>
+                </button>
+                <button class="btn-item-ctrl btn-item-del" type="button" onclick="removeItem('${type}', ${index})" title="Xoa">
+                    Xoa
+                </button>
+                <button class="btn-item-ctrl btn-item-add" type="button" onclick="addItem('${type}', ${index + 1})" title="Them">
+                    <i data-lucide="plus"></i> Them
+                </button>
+            </div>`;
+    }
+
+    function moveItem(type, index, direction) {
+        if (!currentCvJson || !Array.isArray(currentCvJson[type])) return;
+        const arr = currentCvJson[type];
+        const newIndex = index + direction;
+        if (index < 0 || index >= arr.length || newIndex < 0 || newIndex >= arr.length) return;
+
+        const [movedItem] = arr.splice(index, 1);
+        arr.splice(newIndex, 0, movedItem);
+        renderCvPreview(currentCvJson);
+        markCvDirty({ immediate: true });
+    }
+
+    function removeItem(type, index) {
+        if (!currentCvJson || !Array.isArray(currentCvJson[type])) return;
+        if (index < 0 || index >= currentCvJson[type].length) return;
+
+        if (confirm('Ban co chac chan muon xoa muc nay?')) {
+            currentCvJson[type].splice(index, 1);
+            renderCvPreview(currentCvJson);
+            markCvDirty({ immediate: true });
+        }
+    }
+
+    function duplicateItem(type, index) {
+        if (!currentCvJson || !Array.isArray(currentCvJson[type])) return;
+        if (index < 0 || index >= currentCvJson[type].length) return;
+
+        const clonedItem = JSON.parse(JSON.stringify(currentCvJson[type][index]));
+        currentCvJson[type].splice(index + 1, 0, clonedItem);
+        renderCvPreview(currentCvJson);
+        markCvDirty({ immediate: true });
+    }
+
+    function addItem(type, insertIndex = null) {
+        if (!currentCvJson) return;
+        if (!currentCvJson[type]) currentCvJson[type] = [];
+
+        let newItem = {};
+        if (type === 'skills') {
+            newItem = { category: '', items: [''] };
+        } else if (type === 'experience') {
+            newItem = { role: '', company: '', period: '', details: [''] };
+        } else if (type === 'education') {
+            newItem = { degree: '', school: '', period: '', details: [''] };
+        } else if (type === 'projects') {
+            newItem = { name: '', period: '', tech: '', github: '', details: [''] };
+        } else if (type === 'certifications') {
+            newItem = { name: '', issuer: '', year: '' };
+        } else if (type === 'awards') {
+            newItem = { name: '', year: '' };
+        } else if (type === 'activities') {
+            newItem = { name: '', role: '', period: '', details: [''] };
+        }
+
+        if (Number.isInteger(insertIndex) && insertIndex >= 0 && insertIndex <= currentCvJson[type].length) {
+            currentCvJson[type].splice(insertIndex, 0, newItem);
+        } else {
+            currentCvJson[type].push(newItem);
+        }
+
+        renderCvPreview(currentCvJson);
+        markCvDirty({ immediate: true });
+    }
+
+    function renderProfessionalStyle(c, accent) {
         const skillsHtml = (c.skills || []).map((sg, idx) => `
             <div class="cvm-skill-group cv-edit-shell">
-                <div class="cvm-skill-cat"><strong>${esc(sg.category)}</strong></div>
-                <div class="cvm-skill-list">${esc((sg.items || []).join(', '))}</div>
                 ${getItemControls('skills', idx)}
+                <div class="cvm-skill-cat"><strong>${ed(sg.category || '')}</strong></div>
+                <div class="cvm-skill-list">
+                    ${(sg.items || []).map(item => `<span class="cvm-skill-pill">${ed(item)}</span>`).join('')}
+                </div>
             </div>`).join('');
 
         const eduHtml = (c.education || []).map(e => `
@@ -3496,7 +3340,7 @@
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvm-edu-item cv-edit-shell">
                 ${getItemControls('awards', idx)}
-                <div class="cvm-edu-degree">🏆 ${ed(aw.name||aw.raw||'')}</div>
+                <div class="cvm-edu-degree">${libIcon('trophy', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${ed(aw.name||aw.raw||'')}</div>
                 ${aw.year?`<div class="cvm-edu-year">${ed(aw.year)}</div>`:''}
             </div>`).join('');
 
@@ -3504,7 +3348,8 @@
             <div class="cvm-exp-item cv-edit-shell">
                 ${getItemControls('experience', idx)}
                 <div class="cvm-exp-role">${ed(e.role||'')}</div>
-                <div class="cvm-exp-company">${ed(e.company||'')} &nbsp;|&nbsp; ${ed(e.period||'')}</div>
+                <div class="cvm-exp-company">${ed(e.company||'')}</div>
+                <div class="cvm-exp-company">${ed(e.period||'')}</div>
                 ${(e.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
             </div>`).join('');
 
@@ -3512,7 +3357,9 @@
             <div class="cvm-exp-item cv-edit-shell">
                 ${getItemControls('projects', idx)}
                 <div class="cvm-exp-role">${ed(p.name||'')}</div>
-                <div class="cvm-exp-company">${p.period?`${ed(p.period)} <br>`:''} ${p.tech?`<strong>Tech:</strong> ${ed(p.tech)} <br>`:''} ${p.github?`<a href="${esc(p.github)}" target="_blank" style="color:${accent}">${ed(p.github)}</a>`:''}</div>
+                <div class="cvm-exp-company">${ed(p.period||'')}</div>
+                <div class="cvm-exp-company">${p.tech ? `<strong>Tech:</strong> ` : ''}${ed(p.tech||'')}</div>
+                <div class="cvm-exp-company">${ed(p.github||'')}</div>
                 ${(p.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
             </div>`).join('');
 
@@ -3520,8 +3367,8 @@
             <div class="cvm-exp-item cv-edit-shell">
                 ${getItemControls('activities', idx)}
                 <div class="cvm-exp-role">${ed(a.name||a.raw||'')}</div>
-                ${a.role?`<div class="cvm-exp-company">${ed(a.role)}</div>`:''}
-                ${a.period?`<div class="cvm-exp-company">${ed(a.period)}</div>`:''}
+                <div class="cvm-exp-company">${ed(a.role||'')}</div>
+                <div class="cvm-exp-company">${ed(a.period||'')}</div>
                 ${(a.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
             </div>`).join('');
 
@@ -3600,7 +3447,7 @@
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvc2-card cv-edit-shell">
                 ${getItemControls('awards', idx)}
-                <div class="cvc2-card-title">🏆 ${ed(aw.name||aw.raw||'')}</div>
+                <div class="cvc2-card-title">${libIcon('trophy', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${ed(aw.name||aw.raw||'')}</div>
                 <div class="cvc2-card-sub">${ed(aw.year||'')}</div>
             </div>`).join('');
 
@@ -3662,10 +3509,12 @@
         const expHtml = (c.experience||[]).map((e, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('experience', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
+                    <div class="cvm2-row-org">${esc(e.company||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(e.role||'')}</div>
-                    <div class="cvm2-row-org">${esc(e.company||'')}</div>
                     ${(e.details||[]).map(d=>`<div class="cvm2-bullet">${ed(d)}</div>`).join('')}
                 </div>
             </div>`).join('');
@@ -3673,20 +3522,25 @@
         const eduHtml = (c.education||[]).map((e, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('education', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(e.period||'')}</div>
+                    <div class="cvm2-row-org">${esc(e.school||e.location||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(e.degree||'')}</div>
-                    <div class="cvm2-row-org">${esc(e.school||e.location||'')}</div>
+                    ${(e.details||[]).map(d=>`<div class="cvm2-bullet">${ed(d)}</div>`).join('')}
                 </div>
             </div>`).join('');
 
         const projHtml = (c.projects||[]).map((p, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('projects', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(p.period||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(p.period||'')}</div>
+                    <div class="cvm2-row-org">${esc(p.tech||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(p.name||'')}</div>
-                    <div class="cvm2-row-org">${esc(p.tech||'')}</div>
                     ${(p.details||[]).map(d=>`<div class="cvm2-bullet">${ed(d)}</div>`).join('')}
                 </div>
             </div>`).join('');
@@ -3694,29 +3548,35 @@
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('certifications', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(cert.year||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(cert.year||'')}</div>
+                    <div class="cvm2-row-org">${esc(cert.issuer||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(cert.name||cert.raw||'')}</div>
-                    <div class="cvm2-row-org">${esc(cert.issuer||'')}</div>
                 </div>
             </div>`).join('');
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('awards', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(aw.year||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(aw.year||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
-                    <div class="cvm2-row-title">🏆 ${esc(aw.name||aw.raw||'')}</div>
+                    <div class="cvm2-row-title">${libIcon('trophy', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(aw.name||aw.raw||'')}</div>
                 </div>
             </div>`).join('');
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
             <div class="cvm2-row cv-edit-shell">
                 ${getItemControls('activities', idx)}
-                <div class="cvm2-row-period" style="color:${accent}">${esc(a.period||'')}</div>
+                <div class="cvm2-row-meta">
+                    <div class="cvm2-row-period" style="color:${accent}">${esc(a.period||'')}</div>
+                    <div class="cvm2-row-org">${esc(a.role||'')}</div>
+                </div>
                 <div class="cvm2-row-content">
                     <div class="cvm2-row-title">${esc(a.name||a.raw||'')}</div>
-                    <div class="cvm2-row-org">${esc(a.role||'')}</div>
                     ${(a.details||[]).map(d=>`<div class="cvm2-bullet">${ed(d)}</div>`).join('')}
                 </div>
             </div>`).join('');
@@ -3730,14 +3590,18 @@
                 ${getItemControls('skills', idx)}
             </div>`).join('');
 
-        return `<div class="cv-full cvm2-root">
+        return `<div class="cv-full cvm2-root" style="--cv-accent:${accent};">
             <header class="cvm2-header">
+                <div class="cvm2-header-bar" style="background:${accent};"></div>
+                <div class="cvm2-header-content">
                 <h1 class="cvm2-name cv-editable">${esc(c.name||'HỌ TÊN')}</h1>
                 <div class="cvm2-subtitle cv-editable">${esc(c.subtitle||'')}</div>
                 <div class="cvm2-contacts">
-                    ${c.email?`<span>✉ ${esc(c.email)}</span>`:''}
-                    ${c.phone?`<span>✆ ${esc(c.phone)}</span>`:''}
-                    ${c.address?`<span>📍 ${esc(c.address)}</span>`:''}
+                    ${c.email?`<span>${libIcon('mail', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.email)}</span>`:''}
+                    ${c.phone?`<span class="cvm2-sep">•</span><span>${libIcon('phone', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.phone)}</span>`:''}
+                    ${c.address?`<span class="cvm2-sep">•</span><span>${libIcon('map-pin', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.address)}</span>`:''}
+                    ${c.linkedin?`<span class="cvm2-sep">•</span><span>${libIcon('linkedin', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} ${esc(c.linkedin)}</span>`:''}
+                </div>
                 </div>
             </header>
             <div class="cvm2-body">
@@ -3810,9 +3674,11 @@
 
         const skillHtml = (c.skills||[]).map((sg, idx)=>`
             <div class="cvcl2-skill cv-edit-shell">
-                <div class="cvcl2-skill-cat"><strong>${esc(sg.category)}</strong></div>
-                <div class="cvcl2-skill-vals">${esc((sg.items||[]).join(', '))}</div>
                 ${getItemControls('skills', idx)}
+                <div class="cvcl2-skill-cat"><strong>${ed(sg.category || '')}</strong></div>
+                <div class="cvcl2-skill-vals">
+                    ${(sg.items || []).map(item => `<span class="cvcl2-pill" style="border-color:${hrColor}22;background:${hrColor}0d;color:${hrColor};">${ed(item)}</span>`).join('')}
+                </div>
             </div>`).join('');
 
         const certHtml = (c.certifications||[]).map((cert, idx)=>`
@@ -3821,7 +3687,7 @@
 
         const awardsHtml = (c.awards||[]).map((aw, idx)=>`
             <div class="cvcl2-r-item cv-edit-shell" style="position:relative;">
-                ${getItemControls('awards', idx)}🏆 <span class="cv-editable">${esc(aw.name||aw.raw||'')}</span>${aw.year?` <span style="color:${hrColor};font-size:11px">(${esc(aw.year)})</span>`:''}</div>`).join('');
+                ${getItemControls('awards', idx)}${libIcon('trophy', 14, 'vertical-align:-2px;margin-right:6px;color:currentColor;')} <span class="cv-editable">${esc(aw.name||aw.raw||'')}</span>${aw.year?` <span style="color:${hrColor};font-size:11px">(${esc(aw.year)})</span>`:''}</div>`).join('');
 
         const actHtml = (c.activities||[]).map((a, idx)=>`
             <div class="cvcl2-r-item cv-edit-shell" style="position:relative;">
@@ -4711,7 +4577,7 @@
     }
 
     function getCurrentPreviewStyle() {
-        return currentCvJson?._styleTag || window.currentTemplate?.styleTag || 'professional';
+        return normalizeCvStyle(currentCvJson?._styleTag || window.currentTemplate?.styleTag || 'professional');
     }
 
     function getPreviewSectionCandidate(sectionName, style = getCurrentPreviewStyle()) {
@@ -4885,7 +4751,7 @@
     function syncPreviewToCurrentCv() {
         if (!currentCvJson) return;
 
-        const style = currentCvJson._styleTag || window.currentTemplate?.styleTag || 'professional';
+        const style = normalizeCvStyle(currentCvJson._styleTag || window.currentTemplate?.styleTag || 'professional');
         if (style === 'creative') syncCreativePreview();
         else if (style === 'minimalist') syncMinimalistPreview();
         else if (style === 'classic') syncClassicPreview();
@@ -4960,7 +4826,7 @@
             currentCvJson.projects = [...projSection.querySelectorAll('.cvm-exp-item')].map(item => {
                 const metaLines = cleanPreviewText(item.querySelector('.cvm-exp-company')?.innerText).split('\n').map(line => line.trim()).filter(Boolean);
                 const techLine = metaLines.find(line => normalizeHeading(line).startsWith('TECH'));
-                const githubText = cleanPreviewText(item.querySelector('.cvm-exp-company a')?.innerText);
+                const githubText = metaLines.find(line => /github|https?:\/\/|www\./i.test(line)) || '';
                 return {
                     name: cleanPreviewText(item.querySelector('.cvm-exp-role')?.innerText),
                     period: metaLines[0] || '',
@@ -5528,6 +5394,20 @@
         activateHarvardEditable(field, preview);
     }
 
+    function preventPreviewLinkNavigation(event) {
+        const preview = document.getElementById('cvPreview');
+        if (!isEditMode || !preview) return;
+
+        const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+        if (!target) return;
+
+        const anchor = target.closest('a');
+        if (!anchor || !preview.contains(anchor)) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
     function handleHarvardEditableInput(event) {
         const preview = document.getElementById('cvPreview');
         if (!isEditMode || !preview) return;
@@ -5613,6 +5493,59 @@
         refreshEditModeUI();
     }
 
+    function refreshEditModeUI() {
+        const preview = document.getElementById('cvPreview');
+        const badge = document.getElementById('editModeBadge');
+        const btn = document.getElementById('btnEditToggle');
+        if (!preview) return;
+
+        bindPreviewShellStateEvents(preview);
+
+        if (!preview.dataset.shellFocusBound) {
+            preview.addEventListener('click', handlePreviewShellFocus);
+            preview.dataset.shellFocusBound = 'true';
+        }
+        if (!preview.dataset.shellPointerBound) {
+            preview.addEventListener('pointerdown', handlePreviewShellPointerDown, true);
+            preview.dataset.shellPointerBound = 'true';
+        }
+        if (!preview.dataset.shellInputBound) {
+            preview.addEventListener('input', handleHarvardEditableInput);
+            preview.dataset.shellInputBound = 'true';
+        }
+
+        if (isEditMode) {
+            preview.classList.add('cv-editable-mode');
+            applyPreviewEditableState(preview);
+            if (btn) {
+                btn.classList.add('active');
+                btn.innerHTML = 'Editing';
+            }
+            if (badge) badge.style.display = 'flex';
+        } else {
+            preview.classList.remove('cv-editable-mode');
+            preview.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+            preview.querySelectorAll('.cvh-editable-active').forEach(el => el.classList.remove('cvh-editable-active'));
+            setActiveItemShell(null, preview);
+            if (btn) {
+                btn.classList.remove('active');
+                btn.innerHTML = 'Chinh sua';
+            }
+            if (badge) badge.style.display = 'none';
+        }
+
+        syncEditorHistoryButtons();
+    }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        if (!isEditMode) {
+            syncPreviewToCurrentCv();
+            addAiMsg('Thay doi truc tiep da duoc ap dung. Nhan Luu CV de luu lai.');
+        }
+        refreshEditModeUI();
+    }
+
     function addAiMsg(html) {
         const el = document.createElement('div');
         el.className = 'msg msg-ai';
@@ -5686,5 +5619,836 @@
     // ═══════════════════════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', init);
     </script>
+<style>
+    .cv-floating-save-btn {
+        position: fixed;
+        top: 78px;
+        right: 18px;
+        z-index: 1400;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        border: none;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #243b7a 0%, #1a2456 100%);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        box-shadow: 0 18px 34px rgba(26, 36, 86, 0.22);
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .cv-floating-save-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 22px 38px rgba(26, 36, 86, 0.28);
+    }
+
+    .cv-floating-save-btn:active {
+        transform: translateY(0);
+    }
+
+    .cv-floating-save-btn:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.28);
+        outline-offset: 3px;
+    }
+
+    @media (max-width: 768px) {
+        .cv-floating-save-btn {
+            top: 66px;
+            right: 12px;
+            left: auto;
+            border-radius: 12px;
+        }
+    }
+</style>
+<script>
+    (function () {
+        return;
+        const FLOATING_SAVE_ID = 'cvFloatingSaveButton';
+
+        function removeActionToolbar() {
+            document.querySelectorAll('.cv-action-toolbar').forEach(toolbar => toolbar.remove());
+        }
+
+        function removeEditModeBadge() {
+            document.querySelectorAll('#editModeBadge, .edit-mode-badge').forEach(badge => badge.remove());
+        }
+
+        function findToolbarSaveTrigger() {
+            const toolbar = document.querySelector('.cv-action-toolbar');
+            if (!toolbar) return null;
+
+            return [...toolbar.querySelectorAll('button, a')]
+                .find(el => /lưu cv/i.test((el.textContent || '').trim()));
+        }
+
+        function clickSaveTrigger() {
+            const toolbarTrigger = findToolbarSaveTrigger();
+            if (toolbarTrigger) {
+                toolbarTrigger.click();
+                return;
+            }
+
+            if (typeof openSaveCvModal === 'function') {
+                openSaveCvModal();
+                return;
+            }
+
+            if (typeof saveCv === 'function') {
+                saveCv();
+                return;
+            }
+
+            if (typeof saveCurrentCv === 'function') {
+                saveCurrentCv();
+            }
+        }
+
+        function ensureFloatingSaveButton() {
+            removeActionToolbar();
+            removeEditModeBadge();
+
+            let button = document.getElementById(FLOATING_SAVE_ID);
+            if (!button) {
+                button = document.createElement('button');
+                button.type = 'button';
+                button.id = FLOATING_SAVE_ID;
+                button.className = 'cv-floating-save-btn';
+                button.innerHTML = '<span>💾</span><span>Lưu CV</span>';
+                button.addEventListener('click', clickSaveTrigger);
+                document.body.appendChild(button);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', ensureFloatingSaveButton);
+        } else {
+            ensureFloatingSaveButton();
+        }
+
+        new MutationObserver(ensureFloatingSaveButton).observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+    })();
+</script>
+<style>
+    .assistant-column,
+    .assistant-column.assistant-redesigned {
+        display: none !important;
+    }
+
+    .design-column {
+        position: relative;
+        z-index: 2;
+        min-width: 320px;
+        max-width: 420px;
+        width: 100%;
+    }
+
+    .preview-column {
+        position: relative !important;
+        inset: auto !important;
+        left: auto !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        z-index: 1;
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .preview-column .cvm-section,
+    .preview-column .cvc2-zone,
+    .preview-column .cvm2-block,
+    .preview-column .cvcl2-section,
+    .preview-column .cv-topcv-section,
+    .preview-column .cvh-section {
+        margin-bottom: 12px !important;
+    }
+
+    .preview-column .cvm-exp-item,
+    .preview-column .cvm-edu-item,
+    .preview-column .cvc2-card,
+    .preview-column .cvm2-row,
+    .preview-column .cvcl2-item,
+    .preview-column .cvcl2-r-item,
+    .preview-column .cv-topcv-row,
+    .preview-column .cvh-item {
+        margin-bottom: 6px !important;
+    }
+
+    .preview-column .cvm-skill-group,
+    .preview-column .cvc2-skill-group,
+    .preview-column .cvcl2-skill,
+    .preview-column .cvh-skill-group {
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-exp-detail,
+    .preview-column .cvm-edu-detail,
+    .preview-column .cvc2-card-bullet,
+    .preview-column .cvm2-bullet,
+    .preview-column .cvcl2-bullet,
+    .preview-column .cvh-bullet,
+    .preview-column .cvh-details {
+        margin-top: 2px !important;
+        margin-bottom: 0 !important;
+        line-height: 1.35 !important;
+    }
+
+    .preview-column .cvm-skill-list,
+    .preview-column .cvc2-tags,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-skill-vals,
+    .preview-column .cvh-skill-items,
+    .preview-column p,
+    .preview-column li {
+        line-height: 1.35 !important;
+    }
+
+    .preview-column .cvm-section-title,
+    .preview-column .cvc2-sec,
+    .preview-column .cvm2-title,
+    .preview-column .cvcl2-sec-title,
+    .preview-column .cvcl2-sec-title-r,
+    .preview-column .cvh-title,
+    .preview-column .cv-topcv-title {
+        margin-bottom: 8px !important;
+        padding-bottom: 6px !important;
+    }
+
+    .preview-column .cvm-exp-role,
+    .preview-column .cvm-edu-degree,
+    .preview-column .cvc2-card-title,
+    .preview-column .cvm2-row-title,
+    .preview-column .cvcl2-role,
+    .preview-column .cvcl2-r-degree,
+    .preview-column .cvh-item-title {
+        margin-bottom: 2px !important;
+        line-height: 1.25 !important;
+    }
+
+    .preview-column .cvm-exp-company,
+    .preview-column .cvm-edu-school,
+    .preview-column .cvm-edu-year,
+    .preview-column .cvc2-card-sub,
+    .preview-column .cvm2-row-period,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-company,
+    .preview-column .cvcl2-date,
+    .preview-column .cvcl2-r-school,
+    .preview-column .cvcl2-r-period,
+    .preview-column .cvh-item-sub,
+    .preview-column .cvh-item-date {
+        margin-bottom: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    .preview-column .cvm-left section,
+    .preview-column .cvm-right section,
+    .preview-column .cvm2-block,
+    .preview-column .cv-topcv-content,
+    .preview-column .cvh-section {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    .preview-column .cvm-body,
+    .preview-column .cvc2-body,
+    .preview-column .cvm2-body,
+    .preview-column .cvcl2-body,
+    .preview-column .cvh-root {
+        row-gap: 12px !important;
+    }
+
+    .preview-column .cvm-right {
+        gap: 10px !important;
+    }
+
+    .preview-column .cvm-right .cvm-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvm-right .cvm-section-title {
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-item,
+    .preview-column .cvm-right .cvm-skill-group {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-role,
+    .preview-column .cvm-right .cvm-skill-cat {
+        margin-bottom: 1px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-company,
+    .preview-column .cvm-right .cvm-skill-list {
+        margin-bottom: 1px !important;
+    }
+
+    .preview-column .cvm-right .cvm-exp-detail-group,
+    .preview-column .cvm-right .cvm-exp-detail {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cvm-left {
+        gap: 10px !important;
+    }
+
+    .preview-column .cvm-left .cvm-section,
+    .preview-column .cvm-left section.cvm-section,
+    .preview-column .cvm-left .cvm-summary-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvm-left .cvm-section-title {
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-left .cvm-summary-text-full {
+        margin-top: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-item,
+    .preview-column .cvm-left .cvm-exp-item {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-degree,
+    .preview-column .cvm-left .cvm-exp-role {
+        margin-bottom: 1px !important;
+        line-height: 1.22 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-school,
+    .preview-column .cvm-left .cvm-edu-year,
+    .preview-column .cvm-left .cvm-exp-company {
+        margin-bottom: 1px !important;
+        line-height: 1.26 !important;
+    }
+
+    .preview-column .cvm-left .cvm-edu-detail-group,
+    .preview-column .cvm-left .cvm-edu-detail,
+    .preview-column .cvm-left .cvm-exp-detail-group,
+    .preview-column .cvm-left .cvm-exp-detail {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cvc2-header {
+        margin-bottom: 12px !important;
+        padding-bottom: 12px !important;
+    }
+
+    .preview-column .cvc2-zone,
+    .preview-column .cvm2-block,
+    .preview-column .cvcl2-section,
+    .preview-column .cv-topcv-section,
+    .preview-column .cvh-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .preview-column .cvc2-card,
+    .preview-column .cvm2-row,
+    .preview-column .cvcl2-item,
+    .preview-column .cvcl2-r-item,
+    .preview-column .cv-topcv-row,
+    .preview-column .cvh-item,
+    .preview-column .cvh-inline-item,
+    .preview-column .cvh-skill-group {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .preview-column .cvc2-card-title,
+    .preview-column .cvm2-row-title,
+    .preview-column .cvcl2-role,
+    .preview-column .cvcl2-r-degree,
+    .preview-column .cvh-item-title,
+    .preview-column .cvh-inline-name,
+    .preview-column .cvh-skill-cat {
+        margin-bottom: 1px !important;
+        line-height: 1.22 !important;
+    }
+
+    .preview-column .cvc2-card-sub,
+    .preview-column .cvm2-row-period,
+    .preview-column .cvm2-row-org,
+    .preview-column .cvcl2-company,
+    .preview-column .cvcl2-date,
+    .preview-column .cvcl2-r-school,
+    .preview-column .cvcl2-r-period,
+    .preview-column .cvh-item-sub,
+    .preview-column .cvh-item-date,
+    .preview-column .cvh-inline-year,
+    .preview-column .cvh-inline-issuer,
+    .preview-column .cvh-skill-items {
+        margin-bottom: 1px !important;
+        line-height: 1.26 !important;
+    }
+
+    .preview-column .cvc2-card-bullet,
+    .preview-column .cvm2-bullet,
+    .preview-column .cvcl2-bullet,
+    .preview-column .cvh-bullet,
+    .preview-column .cvh-details,
+    .preview-column .cvh-github-bullet {
+        margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    .preview-column .cv-topcv-content > div,
+    .preview-column .cv-topcv-row > div {
+        margin-top: 2px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .preview-column .cvh-root,
+    .preview-column .cvc2-root,
+    .preview-column .cvm2-root,
+    .preview-column .cvcl2-root,
+    .preview-column .cv-topcv-root {
+        row-gap: 10px !important;
+    }
+
+    .section-meta-icon-trigger {
+        cursor: pointer !important;
+        transition: background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+    }
+
+    .section-meta-icon-trigger:hover {
+        background: rgba(26, 36, 86, 0.08) !important;
+        box-shadow: inset 0 0 0 1px rgba(26, 36, 86, 0.1);
+    }
+
+    .section-meta-icon-trigger:focus-visible {
+        outline: 2px solid rgba(37, 99, 235, 0.28);
+        outline-offset: 2px;
+    }
+
+    .section-icon-modal-content {
+        width: min(420px, calc(100vw - 32px));
+    }
+
+    .section-icon-modal-subtitle {
+        margin-top: 6px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .section-icon-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .section-icon-option {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        border: 1px solid rgba(148, 163, 184, 0.34);
+        border-radius: 16px;
+        background: #f8fbff;
+        color: #1A2456;
+        cursor: pointer;
+        transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .section-icon-option:hover {
+        transform: translateY(-1px);
+        border-color: rgba(37, 99, 235, 0.38);
+        background: #eef4ff;
+        box-shadow: 0 10px 18px rgba(26, 36, 86, 0.08);
+    }
+
+    .section-icon-option.is-active {
+        border-color: rgba(37, 99, 235, 0.5);
+        background: #e7efff;
+        box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.22);
+    }
+</style>
+<script>
+    (function () {
+        function removeAssistantCloseButtons(root = document) {
+            root.querySelectorAll('button, [role="button"], a').forEach(node => {
+                if (!(node instanceof HTMLElement)) return;
+                const signature = `${node.textContent || ''} ${node.title || ''} ${node.getAttribute('aria-label') || ''}`.toLowerCase();
+                if (/đóng ai|close ai|hide ai|thu gọn ai/.test(signature)) {
+                    node.remove();
+                }
+            });
+        }
+
+        function normalizeEditorColumns() {
+            const designColumn = document.querySelector('.design-column');
+            const previewColumn = document.querySelector('.preview-column');
+            if (!designColumn || !previewColumn) return;
+
+            const parent = designColumn.parentElement;
+            if (!(parent instanceof HTMLElement) || parent !== previewColumn.parentElement) return;
+
+            parent.style.display = 'grid';
+            parent.style.gridTemplateColumns = 'minmax(340px, 420px) minmax(0, 1fr)';
+            parent.style.alignItems = 'start';
+            parent.style.columnGap = '24px';
+            parent.style.rowGap = '0';
+
+            designColumn.style.gridColumn = '1';
+            designColumn.style.alignSelf = 'start';
+            designColumn.style.position = 'relative';
+
+            previewColumn.style.gridColumn = '2';
+            previewColumn.style.alignSelf = 'start';
+            previewColumn.style.position = 'relative';
+        }
+
+        function removeAssistantColumn() {
+            const panel = document.querySelector('.assistant-column');
+            document.querySelectorAll('#assistantChevronHandle, .assistant-chevron-handle').forEach(node => node.remove());
+            removeAssistantCloseButtons();
+
+            if (panel) {
+                panel.remove();
+            }
+
+            normalizeEditorColumns();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                removeAssistantColumn();
+                ensureSectionIconPickerModal();
+                ensurePreviewIconPickerModal();
+                enhanceSectionIconTriggers(document);
+            });
+        } else {
+            removeAssistantColumn();
+            ensureSectionIconPickerModal();
+            ensurePreviewIconPickerModal();
+            enhanceSectionIconTriggers(document);
+        }
+
+        new MutationObserver(() => {
+            removeAssistantCloseButtons();
+            normalizeEditorColumns();
+            ensureSectionIconPickerModal();
+            ensurePreviewIconPickerModal();
+            enhanceSectionIconTriggers(document);
+        }).observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+    })();
+</script>
+<script>
+    (function removeInlineCodexEditorStyles() {
+        const markers = [
+            '.cv-floating-save-btn',
+            '.preview-icon-trigger',
+            '.section-meta-icon-trigger',
+            '.section-icon-option',
+            '.cv-field-shell',
+            '.cv-edit-shell'
+        ];
+        document.querySelectorAll('style').forEach(styleEl => {
+            const text = styleEl.textContent || '';
+            const matched = markers.filter(marker => text.includes(marker));
+            if (matched.length >= 2 || text.includes('.cv-floating-save-btn')) {
+                styleEl.remove();
+            }
+        });
+    })();
+</script>
+<script>
+    (function setupEditablePlaceholders() {
+        function isEditableEmpty(el) {
+            if (!(el instanceof HTMLElement)) return false;
+            const text = (el.textContent || '').replace(/\u200B/g, '').replace(/\s+/g, ' ').trim();
+            const html = (el.innerHTML || '')
+                .replace(/<br\s*\/?>/gi, '')
+                .replace(/&nbsp;/gi, '')
+                .trim();
+            return !text && !html;
+        }
+
+        function normalizeEditableField(el) {
+            if (!(el instanceof HTMLElement)) return;
+            if (!el.hasAttribute('data-placeholder')) return;
+            const empty = isEditableEmpty(el);
+            if (empty) {
+                el.innerHTML = '';
+            }
+            el.classList.toggle('cv-placeholder-empty', empty);
+        }
+
+        function syncEditablePlaceholders(scope = document) {
+            scope.querySelectorAll('.cv-editable[data-placeholder], [contenteditable="true"][data-placeholder]').forEach(normalizeEditableField);
+        }
+
+        document.addEventListener('focusin', event => {
+            const target = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-editable[data-placeholder], [contenteditable="true"][data-placeholder]')
+                : null;
+            if (!target) return;
+            normalizeEditableField(target);
+        });
+
+        document.addEventListener('input', event => {
+            const target = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-editable[data-placeholder], [contenteditable="true"][data-placeholder]')
+                : null;
+            if (!target) return;
+            normalizeEditableField(target);
+        });
+
+        document.addEventListener('blur', event => {
+            const target = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-editable[data-placeholder], [contenteditable="true"][data-placeholder]')
+                : null;
+            if (!target) return;
+            requestAnimationFrame(() => normalizeEditableField(target));
+        }, true);
+
+        syncEditablePlaceholders(document);
+
+        const placeholderObserver = new MutationObserver(() => syncEditablePlaceholders(document.getElementById('cvPreview') || document));
+        const previewRoot = document.getElementById('cvPreview') || document.body;
+        if (previewRoot) {
+            placeholderObserver.observe(previewRoot, { childList: true, subtree: true });
+        }
+    })();
+</script>
+<script>
+    (function setupFloatingTextToolbar() {
+        const FONT_OPTIONS = [
+            'Be Vietnam Pro',
+            'Inter',
+            'Times New Roman',
+            'Arial',
+            'Georgia'
+        ];
+        const SIZE_OPTIONS = ['12px', '13px', '14px', '16px', '18px', '20px'];
+        let activeEditable = null;
+        let toolbar = null;
+
+        function ensureToolbar() {
+            if (toolbar) return toolbar;
+            toolbar = document.createElement('div');
+            toolbar.id = 'floatingTextToolbar';
+            toolbar.innerHTML = `
+                <select class="toolbar-select" data-action="fontSize">
+                    ${SIZE_OPTIONS.map(size => `<option value="${size}">${size}</option>`).join('')}
+                </select>
+                <div class="toolbar-divider"></div>
+                <select class="toolbar-select" data-action="fontFamily">
+                    ${FONT_OPTIONS.map(font => `<option value="${font}">${font}</option>`).join('')}
+                </select>
+                <div class="toolbar-divider"></div>
+                <input class="toolbar-color" data-action="color" type="color" value="#1A2456" aria-label="Màu chữ">
+                <div class="toolbar-divider"></div>
+                <button type="button" class="toolbar-btn" data-command="bold" title="Đậm"><strong>B</strong></button>
+                <button type="button" class="toolbar-btn" data-command="italic" title="Nghiêng"><em>I</em></button>
+                <button type="button" class="toolbar-btn" data-command="underline" title="Gạch chân"><u>U</u></button>
+                <div class="toolbar-divider"></div>
+                <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Danh sách chấm">•</button>
+                <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="Danh sách số">1.</button>
+                <div class="toolbar-divider"></div>
+                <button type="button" class="toolbar-btn" data-command="justifyLeft" title="Căn trái">≡</button>
+                <button type="button" class="toolbar-btn" data-command="justifyCenter" title="Căn giữa">≣</button>
+                <button type="button" class="toolbar-btn" data-command="justifyRight" title="Căn phải">≢</button>
+            `;
+            document.body.appendChild(toolbar);
+            toolbar.addEventListener('mousedown', event => event.preventDefault());
+            toolbar.addEventListener('click', handleToolbarClick);
+            toolbar.addEventListener('change', handleToolbarChange);
+            return toolbar;
+        }
+
+        function restoreFocus() {
+            if (!activeEditable) return;
+            activeEditable.focus();
+        }
+
+        function applyInlineStyle(styleName, value) {
+            if (!activeEditable) return;
+            restoreFocus();
+            const selection = window.getSelection();
+            if (!selection || selection.rangeCount === 0) {
+                activeEditable.style[styleName] = value;
+                return;
+            }
+            const range = selection.getRangeAt(0);
+            if (!activeEditable.contains(range.commonAncestorContainer)) {
+                activeEditable.style[styleName] = value;
+                return;
+            }
+            if (range.collapsed) {
+                activeEditable.style[styleName] = value;
+                return;
+            }
+            const span = document.createElement('span');
+            span.style[styleName] = value;
+            try {
+                range.surroundContents(span);
+                selection.removeAllRanges();
+                const newRange = document.createRange();
+                newRange.selectNodeContents(span);
+                selection.addRange(newRange);
+            } catch (error) {
+                document.execCommand('styleWithCSS', false, true);
+                if (styleName === 'color') {
+                    document.execCommand('foreColor', false, value);
+                } else if (styleName === 'fontFamily') {
+                    document.execCommand('fontName', false, value);
+                } else {
+                    activeEditable.style[styleName] = value;
+                }
+            }
+        }
+
+        function handleToolbarClick(event) {
+            const button = event.target.closest('[data-command]');
+            if (!button || !activeEditable) return;
+            restoreFocus();
+            document.execCommand(button.dataset.command, false);
+            syncToolbarState();
+            positionToolbar();
+        }
+
+        function handleToolbarChange(event) {
+            const target = event.target;
+            if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement) || !activeEditable) return;
+            restoreFocus();
+            if (target.dataset.action === 'fontFamily') {
+                applyInlineStyle('fontFamily', target.value);
+            } else if (target.dataset.action === 'fontSize') {
+                applyInlineStyle('fontSize', target.value);
+            } else if (target.dataset.action === 'color') {
+                applyInlineStyle('color', target.value);
+            }
+            syncToolbarState();
+            positionToolbar();
+        }
+
+        function getEditableStyle(el) {
+            return window.getComputedStyle(el);
+        }
+
+        function syncToolbarState() {
+            if (!toolbar || !activeEditable) return;
+            const style = getEditableStyle(activeEditable);
+            const fontSizeSelect = toolbar.querySelector('[data-action="fontSize"]');
+            const fontFamilySelect = toolbar.querySelector('[data-action="fontFamily"]');
+            const colorInput = toolbar.querySelector('[data-action="color"]');
+            if (fontSizeSelect) {
+                const currentSize = `${Math.round(parseFloat(style.fontSize || '13'))}px`;
+                fontSizeSelect.value = SIZE_OPTIONS.includes(currentSize) ? currentSize : '13px';
+            }
+            if (fontFamilySelect) {
+                const currentFamily = (style.fontFamily || '').split(',')[0].replace(/["']/g, '').trim();
+                const matched = FONT_OPTIONS.find(font => font.toLowerCase() === currentFamily.toLowerCase());
+                fontFamilySelect.value = matched || 'Be Vietnam Pro';
+            }
+            if (colorInput) {
+                colorInput.value = rgbToHex(style.color || 'rgb(26, 36, 86)');
+            }
+            toolbar.querySelectorAll('[data-command]').forEach(btn => {
+                const command = btn.getAttribute('data-command');
+                let active = false;
+                try {
+                    active = document.queryCommandState(command);
+                } catch (error) {
+                    active = false;
+                }
+                btn.classList.toggle('is-active', !!active);
+            });
+        }
+
+        function rgbToHex(color) {
+            if (!color) return '#1a2456';
+            if (color.startsWith('#')) return color;
+            const match = color.match(/\d+/g);
+            if (!match || match.length < 3) return '#1a2456';
+            return `#${match.slice(0, 3).map(value => Number(value).toString(16).padStart(2, '0')).join('')}`;
+        }
+
+        function positionToolbar() {
+            if (!toolbar || !activeEditable) return;
+            const rect = activeEditable.getBoundingClientRect();
+            const toolbarRect = toolbar.getBoundingClientRect();
+            const top = Math.max(12, rect.top - toolbarRect.height - 10);
+            const left = Math.min(
+                window.innerWidth - toolbarRect.width - 12,
+                Math.max(12, rect.left + (rect.width / 2) - (toolbarRect.width / 2))
+            );
+            toolbar.style.top = `${top}px`;
+            toolbar.style.left = `${left}px`;
+        }
+
+        function openToolbarFor(editable) {
+            if (!(editable instanceof HTMLElement)) return;
+            activeEditable = editable;
+            const bar = ensureToolbar();
+            bar.classList.add('is-open');
+            syncToolbarState();
+            requestAnimationFrame(positionToolbar);
+        }
+
+        function closeToolbar() {
+            if (!toolbar) return;
+            toolbar.classList.remove('is-open');
+            activeEditable = null;
+        }
+
+        document.addEventListener('focusin', event => {
+            const editable = event.target instanceof HTMLElement
+                ? event.target.closest('.cv-editable[contenteditable="true"], [contenteditable="true"].cv-editable, .cv-editable[contenteditable="plaintext-only"]')
+                : null;
+            if (!editable) return;
+            openToolbarFor(editable);
+        });
+
+        document.addEventListener('mousedown', event => {
+            const target = event.target;
+            if (!(target instanceof HTMLElement)) return;
+            if (target.closest('#floatingTextToolbar')) return;
+            if (target.closest('.cv-editable[contenteditable="true"], [contenteditable="true"].cv-editable, .cv-editable[contenteditable="plaintext-only"]')) return;
+            closeToolbar();
+        });
+
+        document.addEventListener('keyup', () => {
+            if (!activeEditable || !toolbar?.classList.contains('is-open')) return;
+            syncToolbarState();
+            positionToolbar();
+        });
+
+        window.addEventListener('resize', positionToolbar);
+        window.addEventListener('scroll', positionToolbar, true);
+    })();
+</script>
 </body>
 </html>

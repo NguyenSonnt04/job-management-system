@@ -225,7 +225,56 @@ body {
 
 .quick-filters {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.625rem;
+}
+
+.filter-select-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1 1 240px;
+    max-width: 280px;
+    min-width: 240px;
+    padding-left: 2.5rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 0.625rem;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+}
+
+.filter-select-wrap:hover,
+.filter-select-wrap:focus-within {
+    border-color: var(--color-primary);
+    background: #f8fafc;
+}
+
+.filter-select-wrap > svg {
+    position: absolute;
+    left: 0.9rem;
+    width: 16px;
+    height: 16px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 0.7rem 2.5rem 0.7rem 0;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-text);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.filter-select:focus {
+    outline: none;
 }
 
 .filter-btn {
