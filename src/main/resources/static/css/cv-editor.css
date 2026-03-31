@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
     --editor-bg: #F5F7FA;
@@ -642,7 +642,7 @@ input:checked + .slider:before {
 }
 
 /* Modern CV Template Styles */
-/* ── Professional Style (Style 1) ── */
+/* â”€â”€ Professional Style (Style 1) â”€â”€ */
 
 .cv-full {
     width: 210mm;
@@ -671,7 +671,7 @@ input:checked + .slider:before {
     box-shadow: 0 0 0 2px rgba(46, 59, 142, 0.1);
 }
 
-/* ── Professional Style (Style 1) ── */
+/* â”€â”€ Professional Style (Style 1) â”€â”€ */
 .cvm-header {
     display: flex;
     align-items: center;
@@ -776,9 +776,9 @@ input:checked + .slider:before {
     }
 }
 
-/* ══════════════════════════════════════════════════════════════
-   STYLE 2: CREATIVE — Banner header + left sidebar + timeline
-   ══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 2: CREATIVE â€” Banner header + left sidebar + timeline
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvc-root { font-family: 'Inter', sans-serif; }
 
 .cvc-banner {
@@ -911,9 +911,9 @@ input:checked + .slider:before {
 .cvc-exp-meta   { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
 .cvc-detail     { font-size: 13px; color: #475569; line-height: 1.6; }
 
-/* ══════════════════════════════════════════════════════════════
-   STYLE 3: MINIMALIST — Clean single-column, accent header
-   ══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 3: MINIMALIST â€” Clean single-column, accent header
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvm1-root { font-family: 'Inter', sans-serif; background: white; }
 
 .cvm1-header {
@@ -985,9 +985,9 @@ input:checked + .slider:before {
 .cvm1-cert-issuer { color: #64748b; }
 .cvm1-cert-year { font-weight: 600; }
 
-/* ══════════════════════════════════════════════════════════════
-   STYLE 4: CLASSIC — Harvard-inspired typography, black & white
-   ══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 4: CLASSIC â€” Harvard-inspired typography, black & white
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvcl-root {
     font-family: 'Georgia', 'Times New Roman', serif;
     background: white; color: #111;
@@ -1045,9 +1045,9 @@ input:checked + .slider:before {
 .cvcl-skill-label { min-width: 120px; flex-shrink: 0; color: #111; }
 .cvcl-skill-vals  { color: #333; }
 
-/* ══════════════════════════════════════════════════════════════
-   STYLE 5: HARVARD — Authentic Harvard resume format
-   ══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 5: HARVARD â€” Authentic Harvard resume format
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvh-root {
     font-family: 'Times New Roman', 'Georgia', serif;
     background: white;
@@ -1184,7 +1184,7 @@ input:checked + .slider:before {
 .cvm-exp-company { font-size: 14px; font-weight: 600; color: var(--cv-accent); margin-bottom: 8px; }
 .cvm-exp-detail { font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 4px; }
 
-/* ── Creative Style (Style 2) ── */
+/* â”€â”€ Creative Style (Style 2) â”€â”€ */
 .cvc2-root { background: #fdfdfd; }
 .cvc2-header {
     height: 180px; padding: 30px 40px; display: flex; align-items: center; gap: 30px;
@@ -1220,7 +1220,7 @@ input:checked + .slider:before {
     font-size: 12px; font-weight: 600; color: #475569; border: 1px solid #e2e8f0; margin: 2px;
 }
 
-/* ── Minimalist Style (Style 3) ── */
+/* â”€â”€ Minimalist Style (Style 3) â”€â”€ */
 .cvm2-root { padding: 60px 40px; background: white; }
 .cvm2-header { margin-bottom: 50px; border-bottom: 1px solid #f1f5f9; padding-bottom: 30px; text-align: left; }
 .cvm2-name { font-size: 42px; font-weight: 800; color: #0f172a; margin-bottom: 4px; letter-spacing: -1.5px; }
@@ -1238,16 +1238,16 @@ input:checked + .slider:before {
 .cvm2-row-org { font-size: 14.5px; color: #64748b; font-weight: 600; margin-bottom: 8px; }
 .cvm2-row-period { font-size: 13px; font-weight: 700; color: #94a3b8; margin-bottom: 10px; }
 .cvm2-bullet { font-size: 14.5px; color: #475569; line-height: 1.7; margin-bottom: 6px; position: relative; padding-left: 18px; }
-.cvm2-bullet::before { content: '•'; position: absolute; left: 0; color: #cbd5e1; }
+.cvm2-bullet::before { content: 'â€¢'; position: absolute; left: 0; color: #cbd5e1; }
 
-/* ── Classic Styles ── */
+/* â”€â”€ Classic Styles â”€â”€ */
 .cvcl2-root { padding: 40px; font-family: 'Georgia', serif; }
 .cvcl2-header { text-align: center; border-bottom: 2px solid #ccc; padding-bottom: 20px; margin-bottom: 30px; }
 .cvcl2-name { font-size: 32px; font-weight: bold; }
 .cvcl2-subtitle { font-size: 18px; color: #555; }
 .cvcl2-section-title { font-size: 18px; font-weight: bold; border-bottom: 1px solid #aaa; margin-top: 25px; margin-bottom: 15px; }
 
-/* ── Harvard Styles ── */
+/* â”€â”€ Harvard Styles â”€â”€ */
 .cvh-root { padding: 50px; font-family: 'Times New Roman', serif; }
 .cvh-header { text-align: center; margin-bottom: 30px; }
 .cvh-name { font-size: 28px; font-weight: bold; border-bottom: 1px solid #000; display: inline-block; padding: 0 40px; }
@@ -1271,9 +1271,9 @@ input:checked + .slider:before {
     }
 }
 
-/* ══════════════════════════════════════════════════════════════
-   STYLE 2 (NEW): CREATIVE — Diagonal header + bento left/right
-   ══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 2 (NEW): CREATIVE â€” Diagonal header + bento left/right
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvc2-root { font-family: 'Inter', sans-serif; background: white; }
 
 .cvc2-header {
@@ -1317,7 +1317,7 @@ input:checked + .slider:before {
 .cvm2-row-org { font-size: 14px; color: #64748b; font-weight: 600; margin-bottom: 8px; }
 .cvm2-row-period { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
 .cvm2-bullet { font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 4px; position: relative; padding-left: 15px; }
-.cvm2-bullet::before { content: '•'; position: absolute; left: 0; color: #94a3b8; }
+.cvm2-bullet::before { content: 'â€¢'; position: absolute; left: 0; color: #94a3b8; }
 
 .cvc2-summary { font-size: 13px; color: #475569; line-height: 1.7; }
 .cvc2-skill-group { margin-bottom: 10px; }
@@ -1344,9 +1344,9 @@ input:checked + .slider:before {
 .cvc2-proj-item { display: flex; gap: 12px; margin-bottom: 14px; }
 .cvc2-proj-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
 
-/* ══════════════════════════════════════════════════════════════
-   STYLE 3 (NEW): MINIMALIST — Left colored bar + meta/content rows
-   ══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 3 (NEW): MINIMALIST â€” Left colored bar + meta/content rows
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvm2-root { font-family: 'Inter', sans-serif; background: white; }
 
 .cvm2-header { display: flex; align-items: stretch; border-bottom: 1px solid #e8ecef; }
@@ -1380,9 +1380,9 @@ input:checked + .slider:before {
 .cvm2-skill-label { font-weight: 700; color: #1e293b; min-width: 100px; flex-shrink: 0; }
 .cvm2-skill-vals { color: #475569; }
 
-/* ══════════════════════════════════════════════════════════════
-   STYLE 4 (NEW): CLASSIC — Center header + true L/R 2-col body
-   ══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 4 (NEW): CLASSIC â€” Center header + true L/R 2-col body
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvcl2-root { font-family: 'Georgia', serif; background: white; }
 .cvcl2-header { display: flex; align-items: center; gap: 24px; padding: 32px 40px 24px; border-bottom: 1px solid #e8ecef; }
 .cvcl2-header-left { flex-shrink: 0; }
@@ -1412,7 +1412,7 @@ input:checked + .slider:before {
 .cvcl2-skill-vals { display: flex; flex-wrap: wrap; gap: 4px; }
 .cvcl2-pill { padding: 2px 8px; border-radius: 3px; font-size: 11px; border: 1px solid; font-family: 'Inter', sans-serif; }
 
-/* ── STYLE: TopCV Standard (Modern Sidebar Layout) ── */
+/* â”€â”€ STYLE: TopCV Standard (Modern Sidebar Layout) â”€â”€ */
 .cv-full.topcv-standard {
     display: grid;
     grid-template-columns: 280px 1fr;
@@ -1573,9 +1573,9 @@ input:checked + .slider:before {
     margin-bottom: 4px;
 }
 
-/* ══════════════════════════════════════════════════════════════
-   STYLE 6: ATS-FRIENDLY — Clean layout optimized for ATS systems
-   ══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 6: ATS-FRIENDLY â€” Clean layout optimized for ATS systems
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvats-root {
     font-family: 'Inter', Arial, sans-serif;
     background: #ffffff;
@@ -1696,9 +1696,9 @@ input:checked + .slider:before {
     margin-right: 4px;
 }
 
-/* ══════════════════════════════════════════════════════════════
-   STYLE 7: GRADIENT HEADER — Vibrant gradient header with modern layout
-   ══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 7: GRADIENT HEADER â€” Vibrant gradient header with modern layout
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvgrad-root {
     font-family: 'Inter', sans-serif;
     background: #ffffff;
@@ -1834,9 +1834,9 @@ input:checked + .slider:before {
     margin-right: 4px;
 }
 
-/* ══════════════════════════════════════════════════════════════
-   STYLE 8: MINIMALIST CLEAN — Ultra-clean layout with accent color
-   ══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 8: MINIMALIST CLEAN â€” Ultra-clean layout with accent color
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvmin-root {
     font-family: 'Inter', sans-serif;
     background: #ffffff;
@@ -1953,9 +1953,9 @@ input:checked + .slider:before {
     color: #555;
 }
 
-/* ══════════════════════════════════════════════════════════════
-   STYLE 9: MODERN SIDEBAR — Left sidebar with color accent
-   ══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 9: MODERN SIDEBAR â€” Left sidebar with color accent
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvms-root {
     font-family: 'Inter', sans-serif;
     background: #ffffff;
@@ -2085,7 +2085,7 @@ input:checked + .slider:before {
     margin-bottom: 4px;
 }
 
-/* ── Design Toggle Items ── */
+/* â”€â”€ Design Toggle Items â”€â”€ */
 .design-toggle-item {
     display: flex;
     align-items: center;
@@ -2161,10 +2161,10 @@ input:checked + .slider:before {
 }
 
 
-/* ═══════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-   POST-GENERATION BRANCH CARDS (G1–G4)
-   ═══════════════════════════════════════════════════════════ */
+   POST-GENERATION BRANCH CARDS (G1â€“G4)
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .postgen-branches {
     display: none;
     padding: 10px 0 6px;
@@ -2443,7 +2443,7 @@ input:checked + .slider:before {
     }
 }
 
-/* ── Optimize-by-JD panel ── */
+/* â”€â”€ Optimize-by-JD panel â”€â”€ */
 .jd-panel {
     display: none;
     flex-direction: column;
@@ -2490,7 +2490,7 @@ input:checked + .slider:before {
 }
 .btn-jd-optimize:hover { background: #0d6361; }
 
-/* ── Live preview skeleton loaders  ── */
+/* â”€â”€ Live preview skeleton loaders  â”€â”€ */
 .cv-skeleton-block {
     background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
     background-size: 200% 100%;
@@ -2503,7 +2503,7 @@ input:checked + .slider:before {
     100% { background-position: -200% 0; }
 }
 
-/* ── Live partial CV hint banner ── */
+/* â”€â”€ Live partial CV hint banner â”€â”€ */
 .live-preview-hint {
     background: linear-gradient(135deg, #eff6ff, #dbeafe);
     border: 1px dashed #93c5fd;
@@ -2802,9 +2802,11 @@ input:checked + .slider:before {
 
 .preview-column .cv-item-controls {
     position: absolute;
-    top: 6px;
-    right: 8px;
-    transform: translateY(-100%);
+    top: 2px;
+    right: 0;
+    bottom: auto;
+    left: auto;
+    transform: translateY(calc(-100% + 14px));
     z-index: 12;
     display: inline-flex;
     flex-direction: row;
@@ -2835,7 +2837,7 @@ input:checked + .slider:before {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateY(-100%);
+    transform: translateY(calc(-100% + 14px));
 }
 
 .preview-column .cv-edit-shell:focus-within > .cv-item-controls,
@@ -3020,7 +3022,7 @@ input:checked + .slider:before {
         .cv-step-line { flex: 1; height: 2px; background: #e2e8f0; min-width: 12px; }
         .cv-step-line.done { background: #10b981; }
 
-        /* ── Quick-reply chips ── */
+        /* â”€â”€ Quick-reply chips â”€â”€ */
         .quick-replies {
             display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 0;
         }
@@ -3031,7 +3033,7 @@ input:checked + .slider:before {
         }
         .quick-reply:hover { background: #2e3b8e; color: white; }
 
-        /* ── Generating overlay ── */
+        /* â”€â”€ Generating overlay â”€â”€ */
         .generating-overlay {
             display: none; position: absolute; inset: 0;
             background: rgba(255,255,255,0.9); z-index: 50;
@@ -3045,7 +3047,7 @@ input:checked + .slider:before {
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── CV Action Toolbar ── */
+        /* â”€â”€ CV Action Toolbar â”€â”€ */
         .cv-action-toolbar {
             display: none; align-items: center; justify-content: center; gap: 10px;
             padding: 12px 20px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px);
@@ -3073,7 +3075,7 @@ input:checked + .slider:before {
         .btn-my-cvs { background: #7c3aed; color: white; }
         .btn-my-cvs:hover { background: #6d28d9; }
 
-        /* ── Save Name Modal ── */
+        /* â”€â”€ Save Name Modal â”€â”€ */
         .cv-modal-backdrop {
             display: none; position: fixed; inset: 0;
             background: rgba(0,0,0,0.45); z-index: 9000;
@@ -3102,7 +3104,7 @@ input:checked + .slider:before {
         .btn-modal-confirm { background: #2e3b8e; color: white; }
         .btn-modal-confirm:hover { background: #1e2a6e; }
 
-        /* ── Inline editing ── */
+        /* â”€â”€ Inline editing â”€â”€ */
         /* Hover hint: none */
         .cv-editable-mode .cv-editable {
             position: relative;
@@ -3172,7 +3174,7 @@ input:checked + .slider:before {
         .edit-mode-badge.show { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ── Item Controls (Hover) ── */
+        /* â”€â”€ Item Controls (Hover) â”€â”€ */
         .cv-editable { position: relative; }
         .cv-edit-shell { position: relative; }
         .cv-item-controls {
@@ -3427,7 +3429,7 @@ input:checked + .slider:before {
             font-style: italic;
         }
 
-        /* ── Avatar upload overlay ── */
+        /* â”€â”€ Avatar upload overlay â”€â”€ */
         .cvm-avatar-wrapper {
             position: relative;
             width: 120px; height: 120px;
@@ -3452,7 +3454,7 @@ input:checked + .slider:before {
         }
         #avatarFileInput { display: none; }
 
-        /* ── Print (PDF export) ── */
+        /* â”€â”€ Print (PDF export) â”€â”€ */
         @page {
             size: A4;
             margin: 0;
@@ -3482,7 +3484,7 @@ input:checked + .slider:before {
             .cvm-section { page-break-inside: avoid; }
         }
 
-        /* ── Sidebar redesign ── */
+        /* â”€â”€ Sidebar redesign â”€â”€ */
         .editor-workspace {
             background:
                 radial-gradient(circle at top left, rgba(255,255,255,0.95) 0, rgba(255,255,255,0) 28%),
@@ -4327,3 +4329,27 @@ input:checked + .slider:before {
             font-size: 12px;
             letter-spacing: 1.6px;
         }
+
+/* Toolbar cleanup override */
+.preview-column .cv-item-controls,
+.cv-editable-mode .cv-item-controls {
+    top: 2px !important;
+    right: 0 !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: translateY(calc(-100% + 14px)) !important;
+    background: transparent !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.cv-editable-mode .cv-edit-shell:hover,
+.cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell):focus-within,
+.cv-editable-mode .cv-field-shell:hover,
+.cv-editable-mode .cv-field-shell:focus-within {
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
