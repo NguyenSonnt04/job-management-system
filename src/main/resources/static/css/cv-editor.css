@@ -4353,3 +4353,191 @@ input:checked + .slider:before {
     box-shadow: none !important;
     outline: none !important;
 }
+
+/* Final TopCV-like editor polish */
+.cv-action-toolbar {
+    left: 50% !important;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 32px);
+    gap: 8px;
+}
+
+.cv-action-toolbar .btn-cv-action {
+    min-height: 42px;
+}
+
+.cv-action-toolbar .btn-history {
+    background: #ffffff;
+    color: #1a2456;
+    border: 1px solid #d6ddeb;
+}
+
+.cv-action-toolbar .btn-history:hover:not(:disabled) {
+    background: #eef2ff;
+}
+
+.cv-action-toolbar .btn-cv-action:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.preview-column .cv-edit-shell,
+.preview-column .cvh-edit-shell,
+.preview-column .cvm-exp-item,
+.preview-column .cvm-edu-item,
+.preview-column .cvm-skill-group,
+.preview-column .cvc2-card,
+.preview-column .cvm2-row,
+.preview-column .cvcl2-item,
+.preview-column .cvcl2-r-item,
+.preview-column .cv-topcv-row,
+.preview-column .cvh-item,
+.preview-column .cvh-inline-item,
+.preview-column .cvh-skill-group {
+    position: relative;
+    overflow: visible;
+}
+
+.preview-column .cv-item-shell-active {
+    z-index: 14;
+}
+
+.preview-column .cv-item-shell-active::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 1px solid rgba(46, 59, 142, 0.18);
+    border-radius: 16px;
+    pointer-events: none;
+}
+
+.preview-column .cv-item-controls,
+.cv-editable-mode .cv-item-controls {
+    top: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: translateY(calc(-100% + 6px)) !important;
+    gap: 8px !important;
+    z-index: 20 !important;
+}
+
+.preview-column .cv-item-shell-active > .cv-item-controls,
+.preview-column .cv-edit-shell:hover > .cv-item-controls,
+.preview-column .cvh-edit-shell:hover > .cv-item-controls,
+.preview-column .cvm-exp-item:hover > .cv-item-controls,
+.preview-column .cvm-edu-item:hover > .cv-item-controls,
+.preview-column .cvm-skill-group:hover > .cv-item-controls,
+.preview-column .cvh-item:hover > .cv-item-controls,
+.preview-column .cvh-inline-item:hover > .cv-item-controls,
+.preview-column .cvc2-card:hover > .cv-item-controls,
+.preview-column .cvm2-row:hover > .cv-item-controls,
+.preview-column .cvcl2-item:hover > .cv-item-controls,
+.preview-column .cvcl2-r-item:hover > .cv-item-controls,
+.preview-column .cv-topcv-row:hover > .cv-item-controls {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateY(calc(-100% + 6px)) !important;
+}
+
+.preview-column .btn-item-ctrl {
+    min-width: 38px;
+    height: 38px;
+    border-radius: 11px;
+}
+
+.preview-column .btn-item-ctrl:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.preview-column .drag-handle,
+.preview-column .btn-item-up,
+.preview-column .btn-item-down {
+    padding: 0 !important;
+    background: #8b95a7 !important;
+}
+
+.preview-column .btn-item-dup {
+    padding: 0 !important;
+    background: #64748b !important;
+}
+
+.preview-column .btn-item-del,
+.preview-column .btn-item-add {
+    padding: 0 14px;
+}
+
+.preview-column .cv-field-shell,
+.cv-editable-mode .cv-field-shell {
+    border-radius: 8px;
+}
+
+.preview-column .cv-field-shell:hover,
+.cv-editable-mode .cv-field-shell:hover {
+    background: rgba(255, 255, 255, 0.78) !important;
+    box-shadow: inset 0 0 0 1px rgba(26, 36, 86, 0.22) !important;
+    outline: none !important;
+}
+
+.preview-column .cv-field-shell:focus-within,
+.cv-editable-mode .cv-field-shell:focus-within {
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: inset 0 0 0 1px #1A2456 !important;
+    outline: none !important;
+}
+
+.preview-column .cv-field-shell:hover > .cv-editable[contenteditable],
+.preview-column .cv-field-shell:focus-within > .cv-editable[contenteditable],
+.cv-editable-mode .cv-field-shell:hover > .cv-editable[contenteditable],
+.cv-editable-mode .cv-field-shell:focus-within > .cv-editable[contenteditable] {
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.preview-column .cv-item-shell-active:focus-within > .cv-item-controls,
+.preview-column .cv-edit-shell:focus-within > .cv-item-controls,
+.preview-column .cvh-edit-shell:focus-within > .cv-item-controls,
+.preview-column .cvm-exp-item:focus-within > .cv-item-controls,
+.preview-column .cvm-edu-item:focus-within > .cv-item-controls,
+.preview-column .cvm-skill-group:focus-within > .cv-item-controls,
+.preview-column .cvh-item:focus-within > .cv-item-controls,
+.preview-column .cvh-inline-item:focus-within > .cv-item-controls,
+.preview-column .cvc2-card:focus-within > .cv-item-controls,
+.preview-column .cvm2-row:focus-within > .cv-item-controls,
+.preview-column .cvcl2-item:focus-within > .cv-item-controls,
+.preview-column .cvcl2-r-item:focus-within > .cv-item-controls,
+.preview-column .cv-topcv-row:focus-within > .cv-item-controls {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.preview-column .cvm-skill-pill {
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.preview-column .cvm-skill-pill > .cv-editable,
+.cv-editable-mode .cvm-skill-pill > .cv-editable {
+    display: inline-block;
+    min-width: 1ch;
+}
+
+.preview-column .cvm-skill-pill > .cv-editable[contenteditable="true"]:focus,
+.cv-editable-mode .cvm-skill-pill > .cv-editable[contenteditable="true"]:focus {
+    box-shadow: none !important;
+    outline: none !important;
+    background: transparent !important;
+    border-radius: inherit !important;
+}
+
+.preview-column .cvm-skill-pill:focus-within,
+.cv-editable-mode .cvm-skill-pill:focus-within {
+    background: #ffffff !important;
+    border-color: #1A2456 !important;
+    box-shadow: 0 0 0 2px rgba(26, 36, 86, 0.12) !important;
+}

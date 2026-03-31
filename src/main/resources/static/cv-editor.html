@@ -261,6 +261,14 @@
 
             <!-- CV Action Toolbar: shown after CV is generated -->
             <div class="cv-action-toolbar" id="cvToolbar">
+                <button class="btn-cv-action btn-history" id="btnUndoCv" type="button" onclick="undoCvChange()" title="Undo">
+                    <i data-lucide="undo-2"></i>
+                    Undo
+                </button>
+                <button class="btn-cv-action btn-history" id="btnRedoCv" type="button" onclick="redoCvChange()" title="Redo">
+                    <i data-lucide="redo-2"></i>
+                    Redo
+                </button>
                 <button class="btn-cv-action btn-upload-avatar" onclick="triggerAvatarUpload()" title="Tải ảnh đại diện">
                     🖼️ Ảnh
                 </button>
@@ -1076,6 +1084,113 @@
         btnSave.disabled = false;
     }
 
+    let editorHistory = [];
+    let editorHistoryIndex = -1;
+    let editorHistorySeeded = false;
+    let editorHistoryTimer = null;
+    let isRestoringEditorHistory = false;
+
+    function syncEditorHistoryButtons() {
+        const undoBtn = document.getElementById('btnUndoCv');
+        const redoBtn = document.getElementById('btnRedoCv');
+        const canUndo = editorHistoryIndex > 0;
+        const canRedo = editorHistoryIndex >= 0 && editorHistoryIndex < editorHistory.length - 1;
+        if (undoBtn) undoBtn.disabled = !canUndo;
+        if (redoBtn) redoBtn.disabled = !canRedo;
+    }
+
+    function snapshotEditorState() {
+        if (!currentCvJson) return '';
+        return JSON.stringify({
+            cvJson: currentCvJson,
+            designState: cloneDesignState()
+        });
+    }
+
+    function resetEditorHistory() {
+        editorHistory = [];
+        editorHistoryIndex = -1;
+        editorHistorySeeded = false;
+        clearTimeout(editorHistoryTimer);
+        syncEditorHistoryButtons();
+    }
+
+    function captureEditorHistorySnapshot(force = false) {
+        if (!currentCvJson || isRestoringEditorHistory) return;
+        const snapshot = snapshotEditorState();
+        if (!snapshot) return;
+
+        if (!force && editorHistoryIndex >= 0 && editorHistory[editorHistoryIndex] === snapshot) {
+            syncEditorHistoryButtons();
+            return;
+        }
+
+        if (editorHistoryIndex < editorHistory.length - 1) {
+            editorHistory = editorHistory.slice(0, editorHistoryIndex + 1);
+        }
+
+        editorHistory.push(snapshot);
+        if (editorHistory.length > 60) {
+            editorHistory.shift();
+        }
+        editorHistoryIndex = editorHistory.length - 1;
+        editorHistorySeeded = true;
+        syncEditorHistoryButtons();
+    }
+
+    function queueEditorHistorySnapshot() {
+        clearTimeout(editorHistoryTimer);
+        editorHistoryTimer = setTimeout(() => captureEditorHistorySnapshot(false), 240);
+    }
+
+    function restoreEditorHistorySnapshot(snapshot) {
+        if (!snapshot) return;
+        try {
+            const parsed = JSON.parse(snapshot);
+            isRestoringEditorHistory = true;
+            currentCvJson = parsed.cvJson || currentCvJson;
+            if (currentCvJson) {
+                Object.assign(cvData, parsed.cvJson || {});
+            }
+            hydrateDesignState(parsed.designState || {});
+            renderCvPreview(currentCvJson);
+            syncDesignControls();
+            markCvDirty({ history: false });
+        } finally {
+            isRestoringEditorHistory = false;
+            syncEditorHistoryButtons();
+        }
+    }
+
+    function undoCvChange() {
+        if (editorHistoryIndex <= 0) return;
+        editorHistoryIndex -= 1;
+        restoreEditorHistorySnapshot(editorHistory[editorHistoryIndex]);
+    }
+
+    function redoCvChange() {
+        if (editorHistoryIndex < 0 || editorHistoryIndex >= editorHistory.length - 1) return;
+        editorHistoryIndex += 1;
+        restoreEditorHistorySnapshot(editorHistory[editorHistoryIndex]);
+    }
+
+    function markCvDirty(options = {}) {
+        const btnSave = document.getElementById('btnSaveCv');
+        if (btnSave) {
+            btnSave.textContent = 'Luu CV';
+            btnSave.classList.remove('saved');
+            btnSave.disabled = false;
+        }
+
+        if (options.history === false || !currentCvJson) {
+            syncEditorHistoryButtons();
+            return;
+        }
+
+        if (options.immediate) captureEditorHistorySnapshot(false);
+        else queueEditorHistorySnapshot();
+    }
+
     function syncDesignStateToCurrentCv() {
         const nextState = cloneDesignState();
         const syncedTargets = new Set();
@@ -1856,7 +1971,9 @@
                             };
                             parsedCv._styleTag = normalizeCvStyle(parsedCv._styleTag || 'professional');
                             templateName = data.templateName || '';
+                            resetEditorHistory();
                             renderCvPreview(parsedCv);
+                            captureEditorHistorySnapshot(true);
                             enablePostGenActions();
                             addAiMsg(`👋 Chào mừng bạn trở lại! Tôi đã tải xong bản CV <strong>"${esc(data.cvName)}"</strong>. Bạn muốn chỉnh sửa thêm phần nào không?`);
                             document.getElementById('btnSend').addEventListener('click', handleSend);
@@ -2175,6 +2292,7 @@
             }
 
             renderCvPreview(data.cvJson);
+            captureEditorHistorySnapshot(true);
 
             // Remove the "this is a template" banner — CV is now personalized
             const banner = document.getElementById('templateBanner');
@@ -2213,6 +2331,7 @@
             const banner = document.getElementById('templateBanner');
             if (banner) banner.remove();
             renderCvPreview(data.cvJson);
+            captureEditorHistorySnapshot(true);
 
             addAiMsg(`✅ <strong>CV nháp đã sẵn sàng!</strong> Đây là bản CV được tạo từ thông tin của bạn. Hãy chọn một hướng tiếp theo để hoàn thiện hơn nhé!`);
             enablePostGenActions();
@@ -2391,21 +2510,47 @@
         if (!isEditMode) return;
         
         const controls = document.querySelectorAll('.cv-item-controls');
-        const parents = new Set();
-        controls.forEach(c => parents.add(c.parentElement.parentElement));
+        const sortableConfigs = [];
+
+        controls.forEach(control => {
+            const item = control.parentElement;
+            const parent = item?.parentElement;
+            if (!item || !parent) return;
+
+            const itemClass = [...item.classList].find(cls => ![
+                'cv-edit-shell',
+                'cvh-edit-shell',
+                'cv-field-shell',
+                'cv-editable',
+                'cv-item-shell-active'
+            ].includes(cls));
+
+            const type = control.dataset.type;
+            if (!itemClass || !type) return;
+
+            const exists = sortableConfigs.some(cfg => cfg.parent === parent && cfg.type === type && cfg.itemClass === itemClass);
+            if (!exists) {
+                sortableConfigs.push({ parent, type, itemClass });
+            }
+        });
         
-        parents.forEach(parent => {
-            if (!parent) return;
+        sortableConfigs.forEach(({ parent, type, itemClass }) => {
             const instance = Sortable.create(parent, {
                 animation: 150,
-                handle: '.drag-handle, .cv-item-controls',
+                draggable: `.${itemClass}`,
+                handle: '.drag-handle',
                 filter: 'h1, h2, h3, .cvm-section-title',
+                onMove: function (evt) {
+                    const related = evt.related;
+                    if (!related) return true;
+                    if (related.matches('h1, h2, h3, .cvm-section-title')) return false;
+                    return related.classList?.contains(itemClass);
+                },
                 onEnd: function (evt) {
                     const sortableChild = evt.item;
                     const control = sortableChild.querySelector('.cv-item-controls');
                     if (!control) return;
                     
-                    const type = control.dataset.type;
                     const oldIndex = parseInt(control.dataset.index);
                     
                     const newOrderControls = parent.querySelectorAll('.cv-item-controls[data-type="' + type + '"]');
@@ -2420,12 +2565,99 @@
                         arr.splice(newIndex, 0, movedItem);
                         
                         renderCvPreview(currentCvJson);
-                        markCvDirty();
+                        markCvDirty({ immediate: true });
                     }
                 }
             });
             sortableInstances.push(instance);
         });
+    }
+
+    const ITEM_SHELL_SELECTOR = [
+        '.cvm-exp-item',
+        '.cvm-edu-item',
+        '.cvm-skill-group',
+        '.cvc2-card',
+        '.cvm2-row',
+        '.cvcl2-item',
+        '.cvcl2-r-item',
+        '.cv-topcv-row',
+        '.cvh-item',
+        '.cvh-inline-item',
+        '.cvh-skill-group'
+    ].join(', ');
+
+    function resolvePreviewItemShell(target) {
+        if (!(target instanceof Element)) return null;
+        return target.closest(ITEM_SHELL_SELECTOR);
+    }
+
+    function setActiveItemShell(nextShell, preview = document.getElementById('cvPreview')) {
+        if (!preview) return;
+        preview.querySelectorAll('.cv-item-shell-active').forEach(shell => {
+            if (shell !== nextShell) shell.classList.remove('cv-item-shell-active');
+        });
+        if (nextShell) nextShell.classList.add('cv-item-shell-active');
+    }
+
+    function bindPreviewShellStateEvents(preview = document.getElementById('cvPreview')) {
+        if (!preview || preview.dataset.itemShellBound === 'true') return;
+
+        preview.addEventListener('pointerover', event => {
+            if (!isEditMode) return;
+            const target = event.target instanceof HTMLElement ? event.target : null;
+            if (!target || target.closest('.cv-item-controls')) return;
+            const shell = resolvePreviewItemShell(target);
+            if (shell) setActiveItemShell(shell, preview);
+        });
+
+        preview.addEventListener('focusin', event => {
+            if (!isEditMode) return;
+            const target = event.target instanceof HTMLElement ? event.target : null;
+            const shell = target ? resolvePreviewItemShell(target) : null;
+            if (shell) setActiveItemShell(shell, preview);
+        });
+
+        preview.addEventListener('pointerleave', () => {
+            if (!preview.contains(document.activeElement)) {
+                setActiveItemShell(null, preview);
+            }
+        });
+
+        preview.dataset.itemShellBound = 'true';
+    }
+
+    function handleEditorShortcuts(event) {
+        if (!(event.ctrlKey || event.metaKey)) return;
+
+        const target = event.target instanceof HTMLElement ? event.target : null;
+        const isPreviewEditable = !!target?.closest('#cvPreview .cv-editable');
+        const isFormField = !!target?.closest('input, textarea, select');
+        if (isFormField && !isPreviewEditable) return;
+
+        const key = (event.key || '').toLowerCase();
+        if (key === 's' && currentCvJson) {
+            event.preventDefault();
+            openSaveModal();
+            return;
+        }
+
+        if (key === 'z') {
+            event.preventDefault();
+            if (event.shiftKey) redoCvChange();
+            else undoCvChange();
+            return;
+        }
+
+        if (key === 'y') {
+            event.preventDefault();
+            redoCvChange();
+        }
+    }
+
+    if (!document.body.dataset.cvEditorShortcutsBound) {
+        document.addEventListener('keydown', handleEditorShortcuts);
+        document.body.dataset.cvEditorShortcutsBound = 'true';
     }
 
     function refreshEditModeUI() {
@@ -2463,6 +2695,7 @@
             preview.classList.remove('cv-editable-mode');
             preview.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
             preview.querySelectorAll('.cvh-editable-active').forEach(el => el.classList.remove('cvh-editable-active'));
+            setActiveItemShell(null, preview);
             if (btn) {
                 btn.classList.remove('active');
                 btn.innerHTML = '✏️ Chỉnh sửa';
@@ -2602,6 +2835,7 @@
             // Update the live CV
             currentCvJson = data.cvJson;
             renderCvPreview(data.cvJson);
+            markCvDirty({ immediate: true });
 
             addAiMsg((data.message || 'CV đã được cập nhật! ✨') + ' Bạn có muốn thay đổi gì thêm không?');
 
@@ -2800,6 +3034,8 @@
         refreshEditModeUI();
         initSortable();
         if (window.lucide) lucide.createIcons();
+        setActiveItemShell(null, document.getElementById('cvPreview'));
+        syncEditorHistoryButtons();
     }
 
     // ── Common helpers ──────────────────────────────────────────
@@ -2982,6 +3218,99 @@
     }
 
     // ── STYLE 1: Professional (2-column with color header) ──────
+    function getItemControls(type, index) {
+        if (!isEditMode) return '';
+        const items = Array.isArray(currentCvJson?.[type]) ? currentCvJson[type] : [];
+        const isFirst = index === 0;
+        const isLast = index === items.length - 1;
+
+        return `
+            <div class="cv-item-controls" data-type="${type}" data-index="${index}" contenteditable="false">
+                <button class="btn-item-ctrl drag-handle" type="button" title="Keo tha">
+                    <i data-lucide="move"></i>
+                </button>
+                <button class="btn-item-ctrl btn-item-up" type="button" onclick="moveItem('${type}', ${index}, -1)" ${isFirst ? 'disabled' : ''} title="Len">
+                    <i data-lucide="arrow-up"></i>
+                </button>
+                <button class="btn-item-ctrl btn-item-down" type="button" onclick="moveItem('${type}', ${index}, 1)" ${isLast ? 'disabled' : ''} title="Xuong">
+                    <i data-lucide="arrow-down"></i>
+                </button>
+                <button class="btn-item-ctrl btn-item-dup" type="button" onclick="duplicateItem('${type}', ${index})" title="Nhan doi">
+                    <i data-lucide="copy"></i>
+                </button>
+                <button class="btn-item-ctrl btn-item-del" type="button" onclick="removeItem('${type}', ${index})" title="Xoa">
+                    Xoa
+                </button>
+                <button class="btn-item-ctrl btn-item-add" type="button" onclick="addItem('${type}', ${index + 1})" title="Them">
+                    <i data-lucide="plus"></i> Them
+                </button>
+            </div>`;
+    }
+
+    function moveItem(type, index, direction) {
+        if (!currentCvJson || !Array.isArray(currentCvJson[type])) return;
+        const arr = currentCvJson[type];
+        const newIndex = index + direction;
+        if (index < 0 || index >= arr.length || newIndex < 0 || newIndex >= arr.length) return;
+
+        const [movedItem] = arr.splice(index, 1);
+        arr.splice(newIndex, 0, movedItem);
+        renderCvPreview(currentCvJson);
+        markCvDirty({ immediate: true });
+    }
+
+    function removeItem(type, index) {
+        if (!currentCvJson || !Array.isArray(currentCvJson[type])) return;
+        if (index < 0 || index >= currentCvJson[type].length) return;
+
+        if (confirm('Ban co chac chan muon xoa muc nay?')) {
+            currentCvJson[type].splice(index, 1);
+            renderCvPreview(currentCvJson);
+            markCvDirty({ immediate: true });
+        }
+    }
+
+    function duplicateItem(type, index) {
+        if (!currentCvJson || !Array.isArray(currentCvJson[type])) return;
+        if (index < 0 || index >= currentCvJson[type].length) return;
+
+        const clonedItem = JSON.parse(JSON.stringify(currentCvJson[type][index]));
+        currentCvJson[type].splice(index + 1, 0, clonedItem);
+        renderCvPreview(currentCvJson);
+        markCvDirty({ immediate: true });
+    }
+
+    function addItem(type, insertIndex = null) {
+        if (!currentCvJson) return;
+        if (!currentCvJson[type]) currentCvJson[type] = [];
+
+        let newItem = {};
+        if (type === 'skills') {
+            newItem = { category: '', items: [''] };
+        } else if (type === 'experience') {
+            newItem = { role: '', company: '', period: '', details: [''] };
+        } else if (type === 'education') {
+            newItem = { degree: '', school: '', period: '', details: [''] };
+        } else if (type === 'projects') {
+            newItem = { name: '', period: '', tech: '', github: '', details: [''] };
+        } else if (type === 'certifications') {
+            newItem = { name: '', issuer: '', year: '' };
+        } else if (type === 'awards') {
+            newItem = { name: '', year: '' };
+        } else if (type === 'activities') {
+            newItem = { name: '', role: '', period: '', details: [''] };
+        }
+
+        if (Number.isInteger(insertIndex) && insertIndex >= 0 && insertIndex <= currentCvJson[type].length) {
+            currentCvJson[type].splice(insertIndex, 0, newItem);
+        } else {
+            currentCvJson[type].push(newItem);
+        }
+
+        renderCvPreview(currentCvJson);
+        markCvDirty({ immediate: true });
+    }
+
     function renderProfessionalStyle(c, accent) {
         const skillsHtml = (c.skills || []).map((sg, idx) => `
             <div class="cvm-skill-group cv-edit-shell">
@@ -3019,7 +3348,8 @@
             <div class="cvm-exp-item cv-edit-shell">
                 ${getItemControls('experience', idx)}
                 <div class="cvm-exp-role">${ed(e.role||'')}</div>
-                <div class="cvm-exp-company">${ed(e.company||'')} &nbsp;|&nbsp; ${ed(e.period||'')}</div>
+                <div class="cvm-exp-company">${ed(e.company||'')}</div>
+                <div class="cvm-exp-company">${ed(e.period||'')}</div>
                 ${(e.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
             </div>`).join('');
 
@@ -3027,7 +3357,9 @@
             <div class="cvm-exp-item cv-edit-shell">
                 ${getItemControls('projects', idx)}
                 <div class="cvm-exp-role">${ed(p.name||'')}</div>
-                <div class="cvm-exp-company">${p.period?`${ed(p.period)} <br>`:''} ${p.tech?`<strong>Tech:</strong> ${ed(p.tech)} <br>`:''} ${p.github?`${ed(p.github)}`:''}</div>
+                <div class="cvm-exp-company">${ed(p.period||'')}</div>
+                <div class="cvm-exp-company">${p.tech ? `<strong>Tech:</strong> ` : ''}${ed(p.tech||'')}</div>
+                <div class="cvm-exp-company">${ed(p.github||'')}</div>
                 ${(p.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
             </div>`).join('');
 
@@ -3035,8 +3367,8 @@
             <div class="cvm-exp-item cv-edit-shell">
                 ${getItemControls('activities', idx)}
                 <div class="cvm-exp-role">${ed(a.name||a.raw||'')}</div>
-                ${a.role?`<div class="cvm-exp-company">${ed(a.role)}</div>`:''}
-                ${a.period?`<div class="cvm-exp-company">${ed(a.period)}</div>`:''}
+                <div class="cvm-exp-company">${ed(a.role||'')}</div>
+                <div class="cvm-exp-company">${ed(a.period||'')}</div>
                 ${(a.details||[]).map(d=>`<div class="cvm-exp-detail">• ${ed(d)}</div>`).join('')}
             </div>`).join('');
 
@@ -5161,6 +5493,59 @@
         refreshEditModeUI();
     }
 
+    function refreshEditModeUI() {
+        const preview = document.getElementById('cvPreview');
+        const badge = document.getElementById('editModeBadge');
+        const btn = document.getElementById('btnEditToggle');
+        if (!preview) return;
+
+        bindPreviewShellStateEvents(preview);
+
+        if (!preview.dataset.shellFocusBound) {
+            preview.addEventListener('click', handlePreviewShellFocus);
+            preview.dataset.shellFocusBound = 'true';
+        }
+        if (!preview.dataset.shellPointerBound) {
+            preview.addEventListener('pointerdown', handlePreviewShellPointerDown, true);
+            preview.dataset.shellPointerBound = 'true';
+        }
+        if (!preview.dataset.shellInputBound) {
+            preview.addEventListener('input', handleHarvardEditableInput);
+            preview.dataset.shellInputBound = 'true';
+        }
+
+        if (isEditMode) {
+            preview.classList.add('cv-editable-mode');
+            applyPreviewEditableState(preview);
+            if (btn) {
+                btn.classList.add('active');
+                btn.innerHTML = 'Editing';
+            }
+            if (badge) badge.style.display = 'flex';
+        } else {
+            preview.classList.remove('cv-editable-mode');
+            preview.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+            preview.querySelectorAll('.cvh-editable-active').forEach(el => el.classList.remove('cvh-editable-active'));
+            setActiveItemShell(null, preview);
+            if (btn) {
+                btn.classList.remove('active');
+                btn.innerHTML = 'Chinh sua';
+            }
+            if (badge) badge.style.display = 'none';
+        }
+
+        syncEditorHistoryButtons();
+    }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        if (!isEditMode) {
+            syncPreviewToCurrentCv();
+            addAiMsg('Thay doi truc tiep da duoc ap dung. Nhan Luu CV de luu lai.');
+        }
+        refreshEditModeUI();
+    }
+
     function addAiMsg(html) {
         const el = document.createElement('div');
         el.className = 'msg msg-ai';
@@ -5281,6 +5666,7 @@
 </style>
 <script>
     (function () {
+        return;
         const FLOATING_SAVE_ID = 'cvFloatingSaveButton';
 
         function removeActionToolbar() {
