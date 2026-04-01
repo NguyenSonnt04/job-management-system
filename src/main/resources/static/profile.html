@@ -9,447 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background:
-                radial-gradient(circle at top right, rgba(255, 107, 0, 0.12), transparent 24%),
-                linear-gradient(180deg, #fff8f3 0%, #f5f7fa 38%, #eef6ff 100%);
-        }
-
-        .profile-shell {
-            padding: 32px 0 72px;
-        }
-
-        .profile-hero {
-            position: relative;
-            overflow: hidden;
-            border-radius: 28px;
-            padding: 36px;
-            background: linear-gradient(135deg, #1a2456 0%, #2e3b8e 52%, #00bfa5 100%);
-            box-shadow: 0 24px 60px rgba(26, 36, 86, 0.18);
-            color: #fff;
-            margin-bottom: 28px;
-        }
-
-        .profile-hero::after {
-            content: "";
-            position: absolute;
-            width: 240px;
-            height: 240px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            top: -80px;
-            right: -40px;
-        }
-
-        .profile-hero-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            justify-content: space-between;
-            gap: 24px;
-            align-items: flex-end;
-            flex-wrap: wrap;
-        }
-
-        .profile-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 14px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.14);
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-        }
-
-        .profile-title {
-            font-size: clamp(28px, 4vw, 40px);
-            line-height: 1.15;
-            margin-bottom: 10px;
-        }
-
-        .profile-subtitle {
-            max-width: 720px;
-            color: rgba(255, 255, 255, 0.88);
-            font-size: 15px;
-        }
-
-        .hero-badge-list {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .hero-badge {
-            min-width: 120px;
-            padding: 14px 16px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-        }
-
-        .hero-badge-label {
-            display: block;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.74);
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .hero-badge strong {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .profile-grid {
-            display: grid;
-            grid-template-columns: 320px minmax(0, 1fr);
-            gap: 24px;
-        }
-
-        .panel {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.55);
-            border-radius: 24px;
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-            backdrop-filter: blur(14px);
-        }
-
-        .sidebar-panel {
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .avatar-block {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 14px;
-            padding: 12px 0 8px;
-        }
-
-        .avatar-circle {
-            width: 92px;
-            height: 92px;
-            border-radius: 28px;
-            display: grid;
-            place-items: center;
-            font-size: 34px;
-            font-weight: 800;
-            color: #fff;
-            background: linear-gradient(135deg, #ff6b00 0%, #ff9b54 100%);
-            box-shadow: 0 16px 28px rgba(255, 107, 0, 0.25);
-        }
-
-        .avatar-name {
-            font-size: 22px;
-            font-weight: 800;
-            color: #1a2456;
-        }
-
-        .avatar-email {
-            color: #6c757d;
-            font-size: 14px;
-            word-break: break-word;
-        }
-
-        .mini-card {
-            padding: 16px 18px;
-            border-radius: 18px;
-            background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
-            border: 1px solid #e7edf5;
-        }
-
-        .mini-card-label {
-            display: block;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #7b8794;
-            margin-bottom: 6px;
-        }
-
-        .mini-card-value {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1f2937;
-        }
-
-        .helper-list {
-            display: grid;
-            gap: 12px;
-        }
-
-        .helper-item {
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-            padding: 14px 16px;
-            border-radius: 18px;
-            background: #fff7ef;
-            color: #6a3f15;
-        }
-
-        .helper-item svg {
-            flex-shrink: 0;
-            margin-top: 2px;
-            color: #ff6b00;
-        }
-
-        .content-panel {
-            padding: 28px;
-        }
-
-        .section-heading {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .section-heading h2 {
-            font-size: 26px;
-            color: #1a2456;
-            margin-bottom: 8px;
-        }
-
-        .section-heading p {
-            color: #6c757d;
-            font-size: 14px;
-            max-width: 560px;
-        }
-
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border-radius: 999px;
-            padding: 10px 14px;
-            background: #e8fbf7;
-            color: #0d8b77;
-            font-size: 13px;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        .message-box {
-            display: none;
-            margin-bottom: 18px;
-            padding: 14px 16px;
-            border-radius: 16px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .message-box.error {
-            display: block;
-            background: #fff0f0;
-            color: #c62828;
-            border: 1px solid #ffd9d9;
-        }
-
-        .message-box.success {
-            display: block;
-            background: #ebfff8;
-            color: #147d64;
-            border: 1px solid #c7f3e5;
-        }
-
-        .message-box.info {
-            display: block;
-            background: #edf5ff;
-            color: #2459a6;
-            border: 1px solid #d7e5ff;
-        }
-
-        .profile-form {
-            display: grid;
-            gap: 18px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 18px;
-        }
-
-        .form-group {
-            display: grid;
-            gap: 8px;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .form-label {
-            font-size: 13px;
-            font-weight: 700;
-            color: #1f2937;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .form-input {
-            width: 100%;
-            border: 1px solid #d9e2ec;
-            border-radius: 16px;
-            background: #fbfdff;
-            padding: 15px 16px;
-            font-size: 15px;
-            font-family: inherit;
-            color: #1f2937;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #00bfa5;
-            box-shadow: 0 0 0 4px rgba(0, 191, 165, 0.12);
-            transform: translateY(-1px);
-        }
-
-        .form-input[readonly] {
-            background: #f3f6fa;
-            color: #617081;
-            cursor: not-allowed;
-        }
-
-        .input-note {
-            font-size: 12px;
-            color: #7b8794;
-        }
-
-        .profile-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            flex-wrap: wrap;
-            padding-top: 6px;
-        }
-
-        .btn-secondary,
-        .btn-primary {
-            padding: 14px 22px;
-            border-radius: 16px;
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .btn-secondary {
-            background: #fff;
-            color: #1a2456;
-            border: 1px solid #d9e2ec;
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #ff6b00 0%, #ff8f32 100%);
-            color: #fff;
-            box-shadow: 0 16px 24px rgba(255, 107, 0, 0.22);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 18px 26px rgba(255, 107, 0, 0.28);
-        }
-
-        .btn-primary:disabled,
-        .btn-secondary:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .skeleton {
-            position: relative;
-            overflow: hidden;
-            background: #eef3f8;
-            color: transparent;
-        }
-
-        .skeleton::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            transform: translateX(-100%);
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
-            animation: shimmer 1.4s infinite;
-        }
-
-        @keyframes shimmer {
-            100% {
-                transform: translateX(100%);
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .profile-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 18px;
-            }
-
-            .profile-shell {
-                padding: 20px 0 52px;
-            }
-
-            .profile-hero,
-            .content-panel,
-            .sidebar-panel {
-                border-radius: 22px;
-            }
-
-            .profile-hero,
-            .content-panel,
-            .sidebar-panel {
-                padding: 22px;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .section-heading {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .profile-actions {
-                justify-content: stretch;
-            }
-
-            .profile-actions button {
-                width: 100%;
-            }
-        }
-    </style>
+    <!-- PDF.js for CV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="css/profile.css">
 </head>
 <body>
     <div id="header-placeholder"></div>
@@ -535,39 +97,94 @@
                 <div class="panel content-panel">
                     <div class="section-heading">
                         <div>
-                            <h2>Thông tin tài khoản</h2>
-                            <p>Chỉnh sửa các trường cơ bản được hệ thống hỗ trợ cho hồ sơ người dùng hiện tại.</p>
+                            <h2>Thông tin hồ sơ cá nhân</h2>
+                            <p>Thông tin này sẽ được dùng trong CV, ứng tuyển việc làm và kết nối với nhà tuyển dụng.</p>
                         </div>
-                        <div class="status-pill">
-                            <span class="status-dot"></span>
-                            <span id="accountState">Sẵn sàng đồng bộ</span>
+                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <button type="button" class="btn-upload-cv" id="btnUploadCv" onclick="document.getElementById('cvFileInput').click()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                Upload CV
+                            </button>
+                            <div class="status-pill">
+                                <span class="status-dot"></span>
+                                <span id="accountState">Sẵn sàng đồng bộ</span>
+                            </div>
                         </div>
                     </div>
+                    <input type="file" id="cvFileInput" accept=".pdf,.doc,.docx" style="display:none" onchange="handleCvUpload(event)">
 
                     <div id="messageBox" class="message-box"></div>
 
                     <form id="profileForm" class="profile-form">
+                        <!-- Row 1: Name + Phone -->
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label" for="fullName">Họ và tên</label>
                                 <input class="form-input" id="fullName" name="fullName" type="text" maxlength="100" placeholder="Nhập họ tên của bạn">
                             </div>
-
                             <div class="form-group">
                                 <label class="form-label" for="phone">Số điện thoại</label>
                                 <input class="form-input" id="phone" name="phone" type="tel" maxlength="20" placeholder="Ví dụ: 0901 234 567">
                             </div>
+                        </div>
 
-                            <div class="form-group full-width">
-                                <label class="form-label" for="email">Email đăng nhập</label>
-                                <input class="form-input" id="email" name="email" type="email" readonly>
-                                <div class="input-note">Email hiện được lấy từ tài khoản đăng nhập và chưa hỗ trợ chỉnh sửa tại đây.</div>
+                        <!-- Row 2: Contact email + DOB -->
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="contactEmail">Email liên hệ</label>
+                                <input class="form-input" id="contactEmail" name="contactEmail" type="email" maxlength="100" placeholder="Email để nhà tuyển dụng liên hệ">
+                                <div class="input-note">Email này hiển thị trong hồ sơ ứng tuyển, có thể khác email đăng nhập.</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="dob">Ngày sinh</label>
+                                <input class="form-input" id="dob" name="dob" type="text" maxlength="20" placeholder="VD: 01/01/2000">
                             </div>
                         </div>
 
+                        <!-- Occupation -->
+                        <div class="form-group">
+                            <label class="form-label" for="occupation">Nghề nghiệp / Vị trí hiện tại</label>
+                            <input class="form-input" id="occupation" name="occupation" type="text" maxlength="120" placeholder="VD: Backend Developer, Kế toán viên...">
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="form-group">
+                            <label class="form-label">Kỹ năng</label>
+                            <div class="skills-editor" id="skillsEditor"></div>
+                            <div class="skills-add-category-row">
+                                <input class="skills-add-category-input" id="newCategoryInput" placeholder="Tên nhóm kỹ năng mới (VD: BACKEND, FRONTEND...)">
+                                <button type="button" class="skills-add-category-btn" onclick="addSkillCategory()">+ Thêm nhóm</button>
+                            </div>
+                            <input type="hidden" id="skills" name="skills" value="{}">
+                        </div>
+
+                        <!-- Education -->
+                        <div class="form-group">
+                            <label class="form-label" for="education">Học vấn</label>
+                            <textarea class="form-input" id="education" name="education" rows="5" placeholder="Trường, bằng cấp, năm tốt nghiệp..." style="resize:vertical; min-height: 100px;"></textarea>
+                        </div>
+
+                        <!-- Login email (readonly) -->
+                        <div class="form-group">
+                            <label class="form-label" for="email">Email đăng nhập</label>
+                            <input class="form-input" id="email" name="email" type="email" readonly>
+                            <div class="input-note">Email đăng nhập không thể thay đổi.</div>
+                        </div>
+
                         <div class="profile-actions">
-                            <button type="button" class="btn-secondary" id="resetBtn">Khôi phục</button>
-                            <button type="submit" class="btn-primary" id="saveBtn">Lưu thông tin</button>
+                            <button type="button" class="btn-primary" id="editBtn" style="flex: 1;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Cập nhật hồ sơ
+                            </button>
+                            <button type="button" class="btn-secondary" id="resetBtn" style="display: none;">Khôi phục</button>
+                            <button type="submit" class="btn-primary" id="saveBtn" style="display: none;">Lưu thông tin</button>
                         </div>
                     </form>
                 </div>
@@ -577,10 +194,31 @@
 
     <div id="footer-placeholder"></div>
 
+    <!-- CV Review Modal -->
+    <div class="cv-review-backdrop" id="cvReviewBackdrop">
+        <div class="cv-review-modal" role="dialog" aria-modal="true" aria-labelledby="cvReviewTitle">
+            <div class="cv-review-header">
+                <h3 id="cvReviewTitle">📄 Thông tin trích xuất từ CV</h3>
+                <p>Kiểm tra và chỉnh sửa lại trước khi áp dụng vào hồ sơ của bạn</p>
+            </div>
+            <div class="cv-review-body" id="cvReviewBody">
+                <div class="cv-parse-loading">
+                    <div class="spinner-lg"></div>
+                    <div>Đang phân tích CV...</div>
+                </div>
+            </div>
+            <div class="cv-review-footer">
+                <button type="button" class="btn-secondary" onclick="closeCvReview()">Hủy</button>
+                <button type="button" class="btn-primary" id="btnApplyCv" onclick="applyCvToProfile()">✅ Áp dụng vào hồ sơ</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/main.js"></script>
     <script>
         const profileState = {
-            data: null
+            data: null,
+            isEditMode: false
         };
 
         const elements = {
@@ -588,8 +226,14 @@
             fullName: document.getElementById('fullName'),
             phone: document.getElementById('phone'),
             email: document.getElementById('email'),
+            contactEmail: document.getElementById('contactEmail'),
+            dob: document.getElementById('dob'),
+            occupation: document.getElementById('occupation'),
+            skills: document.getElementById('skills'),
+            education: document.getElementById('education'),
             saveBtn: document.getElementById('saveBtn'),
             resetBtn: document.getElementById('resetBtn'),
+            editBtn: document.getElementById('editBtn'),
             messageBox: document.getElementById('messageBox'),
             avatarInitial: document.getElementById('avatarInitial'),
             sidebarName: document.getElementById('sidebarName'),
@@ -600,6 +244,29 @@
             heroRole: document.getElementById('heroRole'),
             accountState: document.getElementById('accountState')
         };
+
+        function toggleEditMode(isEditing) {
+            profileState.isEditMode = isEditing;
+            
+            // Toggle inputs
+            const fields = ['fullName', 'phone', 'contactEmail', 'dob', 'occupation', 'education'];
+            fields.forEach(f => {
+                if (elements[f]) elements[f].disabled = !isEditing;
+            });
+            
+            // Toggle buttons
+            elements.editBtn.style.display = isEditing ? 'none' : 'flex';
+            elements.saveBtn.style.display = isEditing ? 'block' : 'none';
+            elements.resetBtn.style.display = isEditing ? 'block' : 'none';
+            
+            // Toggle skills controls
+            const addCatRow = document.querySelector('.skills-add-category-row');
+            if (addCatRow) addCatRow.style.display = isEditing ? 'flex' : 'none';
+            
+            renderSkillsEditor();
+        }
+
+        elements.editBtn.onclick = () => toggleEditMode(true);
 
         function setMessage(type, text) {
             elements.messageBox.className = 'message-box ' + type;
@@ -629,39 +296,212 @@
             return source.charAt(0).toUpperCase();
         }
 
+        // ── Skills Editor ─────────────────────────────────
+        let skillsData = {};
+
+        function parseSkillsData(raw) {
+            if (!raw) return {};
+            try {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+            } catch(e) {}
+            // Fallback: old comma-separated string
+            if (typeof raw === 'string' && raw.trim()) {
+                const arr = raw.split(',').map(s => s.trim()).filter(Boolean);
+                return arr.length ? { 'K\u1ef9 n\u0103ng': arr } : {};
+            }
+            return {};
+        }
+
+        function serializeSkills() {
+            const hidden = document.getElementById('skills');
+            if (hidden) hidden.value = JSON.stringify(skillsData);
+        }
+
+        function getCategoryIcon(cat) {
+            const c = cat.toUpperCase();
+            if (c.includes('BACKEND')) return '💻';
+            if (c.includes('FRONTEND')) return '🎨';
+            if (c.includes('DATABASE')) return '🗄️';
+            if (c.includes('DEVOPS') || c.includes('TOOL')) return '🛠️';
+            if (c.includes('LANGUAGE') || c.includes('NGÔN NGỮ')) return '🌍';
+            return '';
+        }
+
+        function renderSkillsEditor() {
+            const editor = document.getElementById('skillsEditor');
+            if (!editor) return;
+            editor.innerHTML = '';
+            const keys = Object.keys(skillsData);
+            if (keys.length === 0) {
+                editor.innerHTML = '<div class="skills-empty-hint">Chưa có kỹ năng nào. Hãy upload CV hoặc thêm thủ công.</div>';
+                return;
+            }
+            keys.forEach(category => {
+                const skills = skillsData[category] || [];
+                const card = document.createElement('div');
+                card.className = 'skill-category-card';
+
+                // Header
+                const header = document.createElement('div');
+                header.className = 'skill-category-header';
+                
+                const nameWrapper = document.createElement('div');
+                nameWrapper.style.display = 'flex';
+                nameWrapper.style.alignItems = 'center';
+                nameWrapper.style.gap = '8px';
+                
+                const iconEl = document.createElement('span');
+                iconEl.style.fontSize = '16px';
+                iconEl.textContent = getCategoryIcon(category);
+
+                const nameEl = document.createElement('span');
+                nameEl.className = 'skill-category-name';
+                nameEl.textContent = category;
+                
+                nameWrapper.appendChild(iconEl);
+                nameWrapper.appendChild(nameEl);
+
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'skill-category-del';
+                delBtn.textContent = '× Xóa nhóm';
+                delBtn.style.display = profileState.isEditMode ? 'block' : 'none';
+                delBtn.onclick = () => { delete skillsData[category]; renderSkillsEditor(); serializeSkills(); };
+                
+                header.appendChild(nameWrapper);
+                header.appendChild(delBtn);
+                card.appendChild(header);
+
+                // Tags
+                const tagsRow = document.createElement('div');
+                tagsRow.className = 'skill-tags';
+                skills.forEach((skill, idx) => {
+                    const tag = document.createElement('span');
+                    tag.className = 'skill-tag';
+                    const label = document.createTextNode(skill);
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'skill-tag-remove';
+                    removeBtn.title = 'Xóa';
+                    removeBtn.textContent = '×';
+                    removeBtn.style.display = profileState.isEditMode ? 'inline-block' : 'none';
+                    removeBtn.onclick = () => {
+                        skillsData[category].splice(idx, 1);
+                        renderSkillsEditor();
+                        serializeSkills();
+                    };
+                    tag.appendChild(label);
+                    tag.appendChild(removeBtn);
+                    tagsRow.appendChild(tag);
+                });
+                card.appendChild(tagsRow);
+
+                // Add skill input
+                if (profileState.isEditMode) {
+                    const addRow = document.createElement('div');
+                    addRow.className = 'skill-add-row';
+                    const addInput = document.createElement('input');
+                    addInput.className = 'skill-add-input';
+                    addInput.placeholder = 'Nhập kỹ năng...';
+                    addInput.dataset.cat = category;
+                    addInput.addEventListener('keydown', e => {
+                        if (e.key === 'Enter') { e.preventDefault(); doAddSkill(category, addInput); }
+                    });
+                    const addBtn = document.createElement('button');
+                    addBtn.type = 'button';
+                    addBtn.className = 'skill-add-btn';
+                    addBtn.textContent = '+ Thêm';
+                    addBtn.onclick = () => doAddSkill(category, addInput);
+                    addRow.appendChild(addInput);
+                    addRow.appendChild(addBtn);
+                    card.appendChild(addRow);
+                }
+                
+                editor.appendChild(card);
+            });
+        }
+
+        function doAddSkill(category, inputEl) {
+            const val = inputEl.value.trim();
+            if (!val) return;
+            if (!skillsData[category]) skillsData[category] = [];
+            if (!skillsData[category].includes(val)) {
+                skillsData[category].push(val);
+                renderSkillsEditor();
+                serializeSkills();
+                // Re-focus the input for this category
+                setTimeout(() => {
+                    document.querySelector(`.skill-add-input[data-cat="${category}"]`)?.focus();
+                }, 30);
+            } else {
+                inputEl.value = '';
+            }
+        }
+
+        function addSkillCategory() {
+            const input = document.getElementById('newCategoryInput');
+            const name = input.value.trim().toUpperCase();
+            if (!name || skillsData[name] !== undefined) { input.value = ''; return; }
+            skillsData[name] = [];
+            renderSkillsEditor();
+            serializeSkills();
+            input.value = '';
+        }
+
         function fillForm(data) {
             profileState.data = {
-                fullName: data.fullName || '',
-                phone: data.phone || '',
-                email: data.email || '',
-                role: data.role || '',
-                displayName: data.displayName || data.fullName || data.email || 'Người dùng'
+                fullName:     data.fullName     || '',
+                phone:        data.phone        || '',
+                email:        data.email        || '',
+                contactEmail: data.contactEmail || '',
+                dob:          data.dob          || '',
+                occupation:   data.occupation   || '',
+                skills:       data.skills       || '{}',
+                education:    data.education    || '',
+                role:         data.role         || '',
+                displayName:  data.displayName  || data.fullName || data.email || 'Ng\u01b0\u1eddi d\u00f9ng'
             };
 
-            elements.fullName.value = profileState.data.fullName;
-            elements.phone.value = profileState.data.phone;
-            elements.email.value = profileState.data.email;
+            elements.fullName.value     = profileState.data.fullName;
+            elements.phone.value        = profileState.data.phone;
+            elements.email.value        = profileState.data.email;
+            elements.contactEmail.value = profileState.data.contactEmail;
+            elements.dob.value          = profileState.data.dob;
+            elements.occupation.value   = profileState.data.occupation;
+            elements.education.value    = profileState.data.education;
+
+            // Load skills into visual editor
+            skillsData = parseSkillsData(profileState.data.skills);
+            renderSkillsEditor();
+            serializeSkills();
 
             elements.avatarInitial.textContent = getInitial(profileState.data.fullName, profileState.data.email);
-            elements.sidebarName.textContent = profileState.data.displayName;
-            elements.sidebarEmail.textContent = profileState.data.email || 'Chưa có email';
-            elements.sidebarPhone.textContent = profileState.data.phone || 'Chưa cập nhật';
-            elements.sidebarRole.textContent = toDisplayRole(profileState.data.role);
-            elements.heroRole.textContent = toDisplayRole(profileState.data.role);
-            elements.heroStatus.textContent = 'Đã đăng nhập';
-            elements.accountState.textContent = 'Thông tin đã sẵn sàng';
+            elements.sidebarName.textContent   = profileState.data.displayName;
+            elements.sidebarEmail.textContent  = profileState.data.email    || 'Ch\u01b0a c\u00f3 email';
+            elements.sidebarPhone.textContent  = profileState.data.phone    || 'Ch\u01b0a c\u1eadp nh\u1eadt';
+            elements.sidebarRole.textContent   = toDisplayRole(profileState.data.role);
+            elements.heroRole.textContent      = toDisplayRole(profileState.data.role);
+            elements.heroStatus.textContent    = '\u0110\u00e3 \u0111\u0103ng nh\u1eadp';
+            elements.accountState.textContent  = 'Th\u00f4ng tin \u0111\u00e3 s\u1eb5n s\u00e0ng';
 
             elements.sidebarName.classList.remove('skeleton');
             elements.sidebarEmail.classList.remove('skeleton');
+
+            toggleEditMode(false);
         }
 
         function resetForm() {
-            if (!profileState.data) {
-                return;
-            }
-
-            elements.fullName.value = profileState.data.fullName;
-            elements.phone.value = profileState.data.phone;
+            if (!profileState.data) return;
+            elements.fullName.value     = profileState.data.fullName;
+            elements.phone.value        = profileState.data.phone;
+            elements.contactEmail.value = profileState.data.contactEmail;
+            elements.dob.value          = profileState.data.dob;
+            elements.occupation.value   = profileState.data.occupation;
+            elements.education.value    = profileState.data.education;
+            skillsData = parseSkillsData(profileState.data.skills);
+            
+            toggleEditMode(false);
             clearMessage();
         }
 
@@ -701,8 +541,13 @@
             clearMessage();
 
             const payload = {
-                fullName: elements.fullName.value.trim(),
-                phone: elements.phone.value.trim()
+                fullName:     elements.fullName.value.trim(),
+                phone:        elements.phone.value.trim(),
+                contactEmail: elements.contactEmail.value.trim(),
+                dob:          elements.dob.value.trim(),
+                occupation:   elements.occupation.value.trim(),
+                skills:       (() => { serializeSkills(); return elements.skills.value; })(),
+                education:    elements.education.value.trim()
             };
 
             setLoading(true);
@@ -731,6 +576,7 @@
                     displayName: data.fullName || data.email
                 });
                 setMessage('success', data.message || 'Đã cập nhật hồ sơ thành công.');
+                toggleEditMode(false);
             } catch (error) {
                 setMessage('error', error.message || 'Có lỗi xảy ra khi lưu thông tin.');
             } finally {
@@ -739,8 +585,364 @@
         });
 
         elements.resetBtn.addEventListener('click', resetForm);
-
         document.addEventListener('DOMContentLoaded', loadProfile);
+
+        // ── CV Upload & Parsing ───────────────────────────────────
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let parsedCvData = {};
+
+        async function handleCvUpload(event) {
+            const file = event.target.files[0];
+            event.target.value = '';
+            if (!file) return;
+
+            openCvReview();
+            // AI loading indicator
+            document.getElementById('cvReviewBody').innerHTML = `
+                <div class="cv-parse-loading">
+                    <div class="spinner-lg"></div>
+                    <div style="font-weight:700;margin-bottom:6px;"> Đang phân tích CV...</div>
+                    <div style="font-size:12px;color:#94a3b8;">Có thể mất 5–15 giây</div>
+                </div>`;
+
+            try {
+                // Try Gemini AI backend first
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const resp = await fetch('/api/cv/parse-profile', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const json = await resp.json();
+
+                if (json.success && json.data) {
+                    parsedCvData = json.data;
+                    renderCvReviewForm(parsedCvData);
+                } else {
+                    throw new Error(json.error || 'AI không trả về dữ liệu.');
+                }
+
+            } catch (aiErr) {
+                // Fallback: client-side parsing for PDF
+                console.warn('Gemini API failed, falling back to client-side parse:', aiErr.message);
+                try {
+                    if (file.type === 'application/pdf') {
+                        const text = await extractTextFromPdf(file);
+                        parsedCvData = parseCvText(text);
+                        renderCvReviewForm(parsedCvData);
+                        // Notify user it's a fallback
+                        const body = document.getElementById('cvReviewBody');
+                        if (body) {
+                            const note = document.createElement('div');
+                            note.style.cssText = 'margin-bottom:12px;padding:10px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;font-size:12px;color:#9a3412;';
+                            note.textContent = '⚠️ Gemini AI không khả dụng — đang dùng phân tích cơ bản. Kết quả có thể kém chính xác hơn.';
+                            body.prepend(note);
+                        }
+                    } else {
+                        throw new Error('Gemini AI không khả dụng. Vui lòng thử lại hoặc dùng file PDF.');
+                    }
+                } catch (fallbackErr) {
+                    document.getElementById('cvReviewBody').innerHTML =
+                        `<div style="text-align:center;padding:40px;color:#c62828;">
+                            <div style="font-size:36px;margin-bottom:12px;">⚠️</div>
+                            <div style="font-weight:700;margin-bottom:8px;">Không thể phân tích CV</div>
+                            <div style="font-size:13px;color:#6c757d;">${fallbackErr.message}</div>
+                        </div>`;
+                }
+            }
+        }
+
+        async function extractTextFromPdf(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+
+                // Group text items by Y-position so rows become real lines
+                const rows = {};
+                for (const item of content.items) {
+                    const y = Math.round(item.transform[5]);
+                    if (!rows[y]) rows[y] = [];
+                    rows[y].push(item.str);
+                }
+                // Sort rows top-to-bottom (higher Y = upper in PDF coords)
+                const sortedYs = Object.keys(rows).map(Number).sort((a, b) => b - a);
+                for (const y of sortedYs) {
+                    const line = rows[y].join(' ').trim();
+                    if (line) fullText += line + '\n';
+                }
+                fullText += '\n'; // page separator
+            }
+            return fullText;
+        }
+
+        async function extractTextFromDoc(file) {
+            // Basic text extraction for .doc/.docx via FileReader
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    // For docx we try to read raw text (limited support without mammoth.js)
+                    const raw = e.target.result || '';
+                    // Extract visible ASCII text from binary
+                    const text = raw.replace(/[^\x20-\x7E\n\r\t\u00C0-\u024F\u1E00-\u1EFF]/g, ' ')
+                                    .replace(/\s{3,}/g, '\n');
+                    if (text.length < 50) {
+                        reject(new Error('File Word không thể đọc được bằng cách này. Vui lòng chuyển sang PDF.'));
+                    } else {
+                        resolve(text);
+                    }
+                };
+                reader.onerror = () => reject(new Error('Không đọc được file.'));
+                reader.readAsText(file, 'utf-8');
+            });
+        }
+
+        function parseCvText(text) {
+            const result = {};
+            const lines = text.split(/[\n\r]+/).map(l => l.trim()).filter(Boolean);
+
+            // ── Blacklist: section headers, not a name ──
+            const NOT_NAME = /^(?:skills?|education|experience|project|certif|award|summary|objective|contact|languages?|backend|frontend|database|devops|tools?|references?|activities?|volunteer|interests?|publications?)/i;
+
+            // ── Name: supports ALL CAPS (TRAN A QUYEN) and Title Case ──
+            for (const line of lines.slice(0, 12)) {
+                const words = line.split(/\s+/);
+                if (
+                    words.length >= 2 && words.length <= 5 &&
+                    line.length <= 60 &&
+                    !/@|https?:\/\/|github|linkedin|\d{3}/.test(line) &&
+                    !NOT_NAME.test(line) &&
+                    (
+                        // ALL CAPS: TRAN A QUYEN
+                        /^[A-Z\u00C0-\u1EF9\s]+$/.test(line) ||
+                        // Title Case: Nguyen Van A
+                        /^[A-Z\u00C0-\u1EF9][a-z\u00C0-\u1EF9]+(?:\s+[A-Z\u00C0-\u1EF9][a-z\u00C0-\u1EF9]*){1,4}$/.test(line)
+                    )
+                ) {
+                    result.name = line
+                        // Convert ALL CAPS to Title Case for display
+                        .split(' ')
+                        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+                        .join(' ');
+                    break;
+                }
+            }
+
+            // ── Occupation: line immediately after name (often job title) ──
+            if (result.name) {
+                // Find the original ALL CAPS version in lines
+                const nameIdx = lines.findIndex(l =>
+                    l.toUpperCase().replace(/\s+/g,' ') === result.name.toUpperCase().replace(/\s+/g,' ')
+                );
+                if (nameIdx >= 0 && lines[nameIdx + 1]) {
+                    const next = lines[nameIdx + 1];
+                    if (next.length < 80 && !/@|https?:\/\/|\d{6}/.test(next) && !NOT_NAME.test(next)) {
+                        result.occupation = next
+                            .split(' ')
+                            .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+                            .join(' ');
+                    }
+                }
+            }
+            // Fallback: keyword search
+            if (!result.occupation) {
+                const jobKw = /(?:developer|engineer|designer|manager|analyst|tester|intern|fullstack|frontend|backend|devops|consultant|specialist|kỹ sư|lập trình)/i;
+                for (const line of lines.slice(0, 20)) {
+                    if (jobKw.test(line) && line.length < 80 && !/@/.test(line) && line !== result.name) {
+                        result.occupation = line; break;
+                    }
+                }
+            }
+
+            // ── Email ──
+            const emailMatch = text.match(/[\w.+-]+@[\w-]+\.[\w.]+/);
+            if (emailMatch) result.email = emailMatch[0];
+
+            // ── Phone (Vietnamese: 0xxx or +84xxx) ──
+            const phoneMatch = text.match(/(?:\+84|0)(?:[\s.\-]?\d){8,11}/);
+            if (phoneMatch) result.phone = phoneMatch[0].replace(/[\s.\-]/g, '');
+
+            // ── Date of Birth ──
+            const dobPats = [
+                /(?:sinh|ng[àa]y sinh|birthday|dob|date of birth)[:\s]+([\d]{1,2}[\/-][\d]{1,2}[\/-][\d]{2,4})/i,
+                /\b(\d{1,2}[\/-]\d{1,2}[\/-]\d{4})\b/
+            ];
+            for (const pat of dobPats) { const m = text.match(pat); if (m) { result.dob = m[1]; break; } }
+
+            // ── Skills ──
+            // Section header can be "SKILLS", "Skills", "KỸ NĂNG"
+            const skillSection = extractSection(text,
+                /^(?:k[ỹy] n[ăa]ng|skills?|technical skills?|c[oô]ng ngh[eệ]|technologies)/im,
+                /^(?:kinh nghi[eệ]m|experience|h[oọ]c v[aấ]n|education|d[uự] [aá]n|projects?|ch[uứ]ng ch[iỉ]|certif|awards?|activities?|references?)/im
+            );
+            if (skillSection) {
+                // Handle "Category: val1, val2" table format (common in CVs)
+                const catFormat = [];
+                const catRegex = /^.{1,30}:\s*(.+)$/gm;
+                let m;
+                while ((m = catRegex.exec(skillSection)) !== null) {
+                    m[1].split(/[,;]/).map(s => s.trim()).filter(s => s.length > 1 && s.length < 60).forEach(s => catFormat.push(s));
+                }
+                if (catFormat.length >= 2) {
+                    result.skills = catFormat.slice(0, 25).join(', ');
+                } else {
+                    // Bullet / comma list fallback
+                    const skills = skillSection
+                        .split(/[,;\n•\-\*\+]/).map(s => s.trim())
+                        .filter(s => s.length > 1 && s.length < 50 && !/^\d{4}/.test(s))
+                        .slice(0, 20);
+                    if (skills.length) result.skills = skills.join(', ');
+                }
+            }
+
+            // ── Education ──
+            const eduSection = extractSection(text,
+                /^(?:h[oọ]c v[aấ]n|education|tr[uư][oờ]ng|university|college|cao [đd][aằ]ng|[đd][aạ]i h[oọ]c)/im,
+                /^(?:kinh nghi[eệ]m|experience|k[ỹy] n[ăa]ng|skills|d[uự] [aá]n|projects?|awards?|activities?)/im
+            );
+            if (eduSection) result.education = eduSection.replace(/\n{2,}/g,' | ').replace(/\n/g,' ').trim().substring(0, 300);
+
+            // ── Work Experience / Projects ──
+            const expSection = extractSection(text,
+                /^(?:kinh nghi[eệ]m|experience|work history|projects?|d[uự] [aá]n)/im,
+                /^(?:h[oọ]c v[aấ]n|education|k[ỹy] n[ăa]ng|skills|ch[uứ]ng ch[iỉ]|certif|awards?|activities?|references?)/im
+            );
+            if (expSection) result.experience = expSection.replace(/\n{2,}/g,' | ').replace(/\n/g,' ').trim().substring(0, 500);
+
+            return result;
+        }
+
+        function extractSection(text, startPat, endPat) {
+            const lines = text.split(/\n/);
+            let capturing = false;
+            const captured = [];
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!capturing) {
+                    // Match header (trim line before testing)
+                    if (startPat.test(trimmed)) { capturing = true; continue; }
+                } else {
+                    // Stop at next major section header
+                    if (trimmed && endPat.test(trimmed)) break;
+                    // Also stop at an ALL-CAPS-only line that looks like a new section header
+                    if (trimmed.length > 2 && trimmed.length < 40 &&
+                        /^[A-Z\s&\/]+$/.test(trimmed) &&
+                        !startPat.test(trimmed)) break;
+                    if (trimmed) captured.push(trimmed);
+                    if (captured.length > 40) break;
+                }
+            }
+            return captured.join('\n').trim();
+        }
+
+        function showParseLoading() {
+            document.getElementById('cvReviewBody').innerHTML =
+                `<div class="cv-parse-loading">
+                    <div class="spinner-lg"></div>
+                    <div>Đang phân tích CV...</div>
+                    <div style="font-size:12px;margin-top:8px;color:#94a3b8;">Có thể mất vài giây</div>
+                </div>`;
+        }
+
+        function field(id, label, value, type = 'input', note = '') {
+            const tag = type === 'textarea' ? 'textarea' : 'input';
+            const attrs = type === 'textarea' ? 'rows="3"' : `type="text"`;
+            return `<div class="cv-field-group">
+                <label class="cv-field-label" for="cvf_${id}">${label}</label>
+                <${tag} class="cv-field-input" id="cvf_${id}" name="${id}" ${attrs}>${
+                    type === 'textarea' ? (value||'') : ''
+                }</${tag === 'textarea' ? 'textarea' : 'input'}>
+                ${note ? `<div class="cv-field-note">${note}</div>` : ''}
+            </div>`;
+            // Set value for input separately
+        }
+
+        function renderCvReviewForm(data) {
+            const body = document.getElementById('cvReviewBody');
+            body.innerHTML = `
+                <div class="cv-section-title">👤 Thông tin cơ bản</div>
+                <div class="cv-review-grid">
+                    <div class="cv-field-group">
+                        <label class="cv-field-label" for="cvf_name">Họ và tên</label>
+                        <input class="cv-field-input" id="cvf_name" type="text" placeholder="Chưa tìm thấy" value="${esc(data.name||'')}">
+                    </div>
+                    <div class="cv-field-group">
+                        <label class="cv-field-label" for="cvf_email">Email</label>
+                        <input class="cv-field-input" id="cvf_email" type="email" placeholder="Chưa tìm thấy" value="${esc(data.email||'')}">
+                    </div>
+                    <div class="cv-field-group">
+                        <label class="cv-field-label" for="cvf_phone">Số điện thoại</label>
+                        <input class="cv-field-input" id="cvf_phone" type="text" placeholder="Chưa tìm thấy" value="${esc(data.phone||'')}">
+                    </div>
+                    <div class="cv-field-group">
+                        <label class="cv-field-label" for="cvf_dob">Ngày sinh</label>
+                        <input class="cv-field-input" id="cvf_dob" type="text" placeholder="Chưa tìm thấy" value="${esc(data.dob||'')}">
+                    </div>
+                </div>
+                <div class="cv-field-group">
+                    <label class="cv-field-label" for="cvf_occupation">Nghề nghiệp / Vị trí</label>
+                    <input class="cv-field-input" id="cvf_occupation" type="text" placeholder="Chưa tìm thấy" value="${esc(data.occupation||'')}">
+                </div>
+
+                <div class="cv-section-title">🛠️ Kỹ năng</div>
+                <div class="cv-field-group">
+                    <label class="cv-field-label" for="cvf_skills">Skills (phân cách bằng dấu phẩy)</label>
+                    <textarea class="cv-field-input" id="cvf_skills" rows="3" placeholder="Chưa tìm thấy">${esc(data.skills||'')}</textarea>
+                </div>
+
+                <div class="cv-section-title">🎓 Học vấn</div>
+                <div class="cv-field-group">
+                    <label class="cv-field-label" for="cvf_education">Trường học / Bằng cấp</label>
+                    <textarea class="cv-field-input" id="cvf_education" rows="3" placeholder="Chưa tìm thấy">${esc(data.education||'')}</textarea>
+                </div>
+            `;
+        }
+
+        function esc(str) {
+            return String(str||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        function openCvReview() {
+            document.getElementById('cvReviewBackdrop').classList.add('open');
+        }
+
+        function closeCvReview() {
+            document.getElementById('cvReviewBackdrop').classList.remove('open');
+        }
+
+        function applyCvToProfile() {
+            // Mapping CV review fields to the main profile form
+            const val = (id) => document.getElementById(id)?.value?.trim() || '';
+
+            if (elements.fullName)     elements.fullName.value     = val('cvf_name');
+            if (elements.phone)        elements.phone.value        = val('cvf_phone');
+            if (elements.contactEmail) elements.contactEmail.value = val('cvf_email');
+            if (elements.dob)          elements.dob.value          = val('cvf_dob');
+            if (elements.occupation)   elements.occupation.value   = val('cvf_occupation');
+            if (elements.skills)       elements.skills.value       = val('cvf_skills');
+            if (elements.education)    elements.education.value    = val('cvf_education');
+
+            // Refresh visual skills editor
+            skillsData = parseSkillsData(elements.skills.value);
+            renderSkillsEditor();
+
+            closeCvReview();
+            setMessage('info', '✅ Đã điền thông tin từ CV vào hồ sơ. Vui lòng nhấn "Lưu thông tin" để hoàn tất.');
+            elements.fullName?.focus();
+        }
+
+        // Close on backdrop click
+        document.getElementById('cvReviewBackdrop').addEventListener('click', function(e) {
+            if (e.target === this) closeCvReview();
+        });
     </script>
 </body>
 </html>

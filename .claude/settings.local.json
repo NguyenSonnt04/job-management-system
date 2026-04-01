@@ -6,7 +6,9 @@
       "Bash(powershell -Command:*)",
       "Bash(find c:/Nhom08-QLTD -maxdepth 2 -type f \\\\\\(-name *.json -o -name *.md -o -name *.txt -o -name *.html -o -name *.css \\\\\\))",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(mvn clean:*)",
+      "Bash(mvn compile:*)"
     ]
   }
 }

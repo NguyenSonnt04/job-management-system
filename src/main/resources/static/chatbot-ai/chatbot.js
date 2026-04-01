@@ -279,16 +279,14 @@
 
     // Get default response
     function getDefaultResponse(message) {
-        return `🤔 Xin lỗi, tôi chưa hiểu câu hỏi "${message}" của bạn.
+        return `Xin lỗi, tôi chưa hiểu câu hỏi "${message}" của bạn.
 
-**Bạn có thể hỏi về:**
-• Các chức năng của hệ thống
-• Cách tạo công việc mới
-• Vai trò người dùng
-• Bảo mật và đăng nhập
-• Công nghệ sử dụng
+                **Bạn có thể hỏi về:**
+                • Các chức năng của hệ thống
+                • Cách tạo CV mới
+                • Cách chấm điểm AI
 
-Hoặc chọn một trong các câu hỏi gợi ý bên dưới! 😊`;
+Hoặc chọn một trong các câu hỏi gợi ý bên dưới!`;
     }
 
     // Save chat state

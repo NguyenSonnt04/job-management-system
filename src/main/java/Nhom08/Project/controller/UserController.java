@@ -49,6 +49,13 @@ public class UserController {
         response.put("email", user.getEmail());
         response.put("fullName", user.getFullName());
         response.put("phone", user.getPhone());
+        response.put("contactEmail", user.getContactEmail());
+        response.put("dob", user.getDob());
+        response.put("occupation", user.getOccupation());
+        response.put("skills", user.getSkills());
+        response.put("education", user.getEducation());
+        response.put("experience", user.getExperience());
+        response.put("projects", user.getProjects());
         response.put("role", user.getRole().getName());
 
         // Build displayName — always set regardless of employer record
@@ -99,6 +106,13 @@ public class UserController {
         User user = userOpt.get();
         user.setFullName(normalize(dto.getFullName()));
         user.setPhone(normalize(dto.getPhone()));
+        user.setContactEmail(normalize(dto.getContactEmail()));
+        user.setDob(normalize(dto.getDob()));
+        user.setOccupation(normalize(dto.getOccupation()));
+        user.setSkills(normalize(dto.getSkills()));
+        user.setEducation(normalize(dto.getEducation()));
+        user.setExperience(normalize(dto.getExperience()));
+        user.setProjects(normalize(dto.getProjects()));
         userRepository.save(user);
 
         response.put("success", true);
@@ -107,6 +121,13 @@ public class UserController {
         response.put("fullName", user.getFullName());
         response.put("phone", user.getPhone());
         response.put("email", user.getEmail());
+        response.put("contactEmail", user.getContactEmail());
+        response.put("dob", user.getDob());
+        response.put("occupation", user.getOccupation());
+        response.put("skills", user.getSkills());
+        response.put("education", user.getEducation());
+        response.put("experience", user.getExperience());
+        response.put("projects", user.getProjects());
         return ResponseEntity.ok(response);
     }
 

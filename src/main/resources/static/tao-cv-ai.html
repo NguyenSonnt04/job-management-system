@@ -38,16 +38,32 @@
                         <h3>PHONG CÁCH</h3>
                         <div class="style-options">
                             <label class="style-option">
-                                <input type="checkbox" checked>
-                                <span>Tối giản (Minimalist)</span>
-                            </label>
-                            <label class="style-option">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" data-style="professional" checked>
                                 <span>Chuyên nghiệp</span>
                             </label>
                             <label class="style-option">
-                                <input type="checkbox">
+                                <input type="checkbox" data-style="classic" checked>
+                                <span>Cổ điển</span>
+                            </label>
+                            <label class="style-option">
+                                <input type="checkbox" data-style="modern" checked>
+                                <span>Hiện đại</span>
+                            </label>
+                            <label class="style-option">
+                                <input type="checkbox" data-style="impactful" checked>
+                                <span>Ấn tượng</span>
+                            </label>
+                            <label class="style-option">
+                                <input type="checkbox" data-style="creative" checked>
                                 <span>Sáng tạo</span>
+                            </label>
+                            <label class="style-option">
+                                <input type="checkbox" data-style="ats" checked>
+                                <span>ATS</span>
+                            </label>
+                            <label class="style-option">
+                                <input type="checkbox" data-style="harvard" checked>
+                                <span>Harvard</span>
                             </label>
                         </div>
                     </section>
@@ -62,17 +78,17 @@
                         </div>
                         
                         <div class="quick-filters">
-                            <div class="filter-btn">
-                                <span>Chuyên nghiệp</span>
-                                <i data-lucide="chevron-down"></i>
+                            <div class="filter-select-wrap">
+                                <i data-lucide="folder-kanban"></i>
+                                <select id="cvTypeFilter" class="filter-select" aria-label="Lọc theo loại CV">
+                                    <option value="">Loại CV: Tất cả</option>
+                                </select>
                             </div>
-                            <div class="filter-btn">
-                                <span>Mức kinh nghiệm</span>
-                                <i data-lucide="chevron-down"></i>
-                            </div>
-                            <div class="filter-btn">
-                                <span>Màu sắc</span>
-                                <i data-lucide="palette"></i>
+                            <div class="filter-select-wrap">
+                                <i data-lucide="swatches"></i>
+                                <select id="cvStyleFilter" class="filter-select" aria-label="Lọc theo kiểu CV">
+                                    <option value="">Kiểu CV: Tất cả</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -217,6 +233,87 @@
     <script>
         let allTemplates = [];
         let activeCategory = '';
+        let searchKeyword = '';
+        const activeStyleFilters = new Set(['professional', 'classic', 'modern', 'impactful', 'creative', 'ats', 'harvard']);
+        const styleMeta = {
+            professional: { label: 'Chuyên nghiệp', bg: '#dbeafe', fg: '#1d4ed8' },
+            classic: { label: 'Cổ điển', bg: '#fdf2e2', fg: '#9a3412' },
+            modern: { label: 'Hiện đại', bg: '#cffafe', fg: '#0f766e' },
+            impactful: { label: 'Ấn tượng', bg: '#fee2e2', fg: '#b91c1c' },
+            creative: { label: 'Sáng tạo', bg: '#fce7f3', fg: '#be185d' },
+            ats: { label: 'ATS', bg: '#e5e7eb', fg: '#111827' },
+            harvard: { label: 'Harvard', bg: '#f3f4f6', fg: '#111827' }
+        };
+
+        function normalizeStyleTag(style) {
+            const normalized = String(style || '').trim().toLowerCase();
+            if (normalized === 'minimalist') return 'modern';
+            if (normalized === 'topcv') return 'ats';
+            if (normalized === 'impressive') return 'impactful';
+            return styleMeta[normalized] ? normalized : 'professional';
+        }
+
+        function normalizeTemplateRecord(template) {
+            return {
+                ...template,
+                styleTag: normalizeStyleTag(template.styleTag)
+            };
+        }
+
+        function getStyleMeta(style) {
+            return styleMeta[normalizeStyleTag(style)] || styleMeta.professional;
+        }
+
+        function buildStyleFilter() {
+            const select = document.getElementById('cvStyleFilter');
+            if (!select) return;
+
+            select.innerHTML = `
+                <option value="">Kiểu CV: Tất cả</option>
+                ${Object.entries(styleMeta).map(([key, meta]) => `<option value="${key}">${meta.label}</option>`).join('')}
+            `;
+            syncStyleControls();
+        }
+
+        function syncStyleCheckboxes() {
+            document.querySelectorAll('.style-option input[type="checkbox"]').forEach(input => {
+                input.checked = activeStyleFilters.has(normalizeStyleTag(input.dataset.style));
+            });
+        }
+
+        function syncStyleFilterControl() {
+            const select = document.getElementById('cvStyleFilter');
+            if (!select) return;
+            const selectedStyles = [...activeStyleFilters];
+            select.value = selectedStyles.length === 1 ? selectedStyles[0] : '';
+        }
+
+        function syncStyleControls() {
+            syncStyleCheckboxes();
+            syncStyleFilterControl();
+        }
+
+        function getFilteredTemplates() {
+            return allTemplates.filter(t => {
+                const style = normalizeStyleTag(t.styleTag);
+                const haystack = [
+                    t.name,
+                    t.description,
+                    t.category,
+                    getStyleMeta(style).label
+                ].join(' ').toLowerCase();
+
+                const matchesCategory = !activeCategory || t.category === activeCategory;
+                const matchesStyle = activeStyleFilters.has(style);
+                const matchesSearch = !searchKeyword || haystack.includes(searchKeyword);
+
+                return matchesCategory && matchesStyle && matchesSearch;
+            });
+        }
+
+        function applyFilters() {
+            renderTemplates(getFilteredTemplates());
+        }
 
         // Fetch templates from API
         async function loadTemplates(category = '') {
@@ -225,8 +322,8 @@
                     ? `/api/cv-templates/public?category=${encodeURIComponent(category)}`
                     : '/api/cv-templates/public';
                 const res = await fetch(url);
-                allTemplates = await res.json();
-                renderTemplates(allTemplates);
+                allTemplates = (await res.json()).map(normalizeTemplateRecord);
+                renderTemplates(getFilteredTemplates());
                 buildCategoryFilter(allTemplates);
             } catch (e) {
                 document.getElementById('templateGrid').innerHTML =
@@ -237,79 +334,179 @@
         function buildCvMiniature(t) {
             let cv = {};
             try { cv = JSON.parse(t.templateContent || '{}'); } catch(e) {}
+            const style = normalizeStyleTag(t.styleTag);
             const accent = t.previewColor || '#2E3B8E';
             const esc = escHtml;
-
-            // Skills HTML (left column) — using tag pills for clean uniform look
-            const skillsHtml = (cv.skills || []).map(sg => `
-                <div class="cvm-skill-group">
-                    <div class="cvm-skill-cat">${esc(sg.category)}</div>
-                    <div class="cvm-skill-list" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:3px;">
-                        ${(sg.items || []).map(item => `
-                            <span class="cvm-skill-item">
-                                <span style="color:${accent}; font-size:8px;">●</span> ${esc(item)}
-                            </span>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('');
-
-            // Education HTML (left column)
-            const eduHtml = (cv.education || []).slice(0, 1).map(e => `
-                <div class="cvm-edu-item">
-                    <div class="cvm-edu-degree">${esc(e.degree || '')}</div>
-                    <div class="cvm-edu-school">${esc(e.school || '')}</div>
-                    <div class="cvm-edu-year">${esc(e.period || '')}</div>
-                    ${(e.details || []).slice(0, 2).map(d => `<div class="cvm-edu-detail">• ${esc(d)}</div>`).join('')}
-                </div>`).join('');
-
-            // Experience HTML (right column)
-            const expHtml = (cv.experience || []).slice(0, 2).map(e => `
-                <div class="cvm-exp-item">
-                    <div class="cvm-exp-role">${esc(e.role || '')}</div>
-                    <div class="cvm-exp-company">${esc(e.company || '')} &nbsp;|&nbsp; ${esc(e.period || '')}</div>
-                    ${(e.details || []).slice(0, 3).map(d => `<div class="cvm-exp-detail">• ${esc(d)}</div>`).join('')}
-                </div>`).join('');
-
-            // Summary
-            const summaryHtml = cv.summary
-                ? `<div class="cvm-section cvm-summary-section">
-                    <div class="cvm-section-title" style="color:${accent}; border-bottom:1.5px solid ${accent};">MỤC TIÊU NGHỀ NGHIỆP</div>
-                    <div class="cvm-summary-text">${esc(cv.summary)}</div>
+            const name = esc(cv.name || t.name || 'CV Template');
+            const subtitle = esc(cv.subtitle || 'Professional Profile');
+            const summaryRaw = String(cv.summary || 'Tóm tắt định hướng nghề nghiệp và điểm mạnh nổi bật.')
+                .replace(/\s+/g, ' ')
+                .trim();
+            const summary = esc(summaryRaw.length > 110 ? `${summaryRaw.slice(0, 107)}...` : summaryRaw);
+            const experience = (cv.experience || [])[0] || {};
+            const education = (cv.education || [])[0] || {};
+            const primarySkills = (cv.skills || [])
+                .flatMap(group => group.items || [])
+                .slice(0, 5)
+                .map(item => `<span style="padding:2px 5px;border-radius:999px;background:${accent}14;color:${accent};font-size:5.8px;font-weight:700;">${esc(item)}</span>`)
+                .join('');
+            const firstSkillGroup = (cv.skills || [])[0];
+            const skillBlock = firstSkillGroup
+                ? `<div style="display:flex; gap:6px; font-size:6px; line-height:1.5;">
+                        <strong style="min-width:38px; color:#0f172a;">${esc(firstSkillGroup.category || 'Kỹ năng')}</strong>
+                        <span style="color:#475569;">${esc((firstSkillGroup.items || []).slice(0, 4).join(', '))}</span>
                    </div>`
                 : '';
 
+            if (style === 'creative') {
+                return `
+                    <div class="cv-miniature" style="background:#fff;">
+                        <div style="height:38px;background:linear-gradient(135deg, ${accent}, ${accent}bb 65%, #111827);padding:10px 12px;color:#fff;display:flex;align-items:flex-start;gap:10px;">
+                            <div style="width:28px;height:28px;border-radius:10px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);"></div>
+                            <div style="min-width:0;flex:1;">
+                                <div style="font-size:10px;font-weight:800;letter-spacing:.2px;">${name}</div>
+                                <div style="font-size:6px;opacity:.9;letter-spacing:1px;text-transform:uppercase;">${subtitle}</div>
+                            </div>
+                        </div>
+                        <div style="padding:10px 12px 12px;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);display:grid;grid-template-columns:37% 1fr;gap:10px;">
+                            <div style="display:flex;flex-direction:column;gap:8px;">
+                                <div style="font-size:5.6px;font-weight:800;color:${accent};letter-spacing:1.2px;text-transform:uppercase;">Giới thiệu</div>
+                                <div style="font-size:5.9px;line-height:1.55;color:#475569;">${summary}</div>
+                                <div style="display:flex;flex-wrap:wrap;gap:4px;">${primarySkills}</div>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:8px;">
+                                <div style="padding:8px 9px;border-radius:12px;background:#fff;border:1px solid ${accent}22;box-shadow:0 8px 20px rgba(15,23,42,.06);">
+                                    <div style="font-size:8px;font-weight:800;color:#0f172a;">${esc(experience.role || 'Lead Product Designer')}</div>
+                                    <div style="font-size:5.8px;color:${accent};font-weight:700;">${esc(experience.company || 'Creative Studio')} | ${esc(experience.period || '2022 - nay')}</div>
+                                    <div style="margin-top:5px;font-size:5.8px;line-height:1.55;color:#475569;">${esc(((experience.details || [])[0]) || 'Dẫn dắt các dự án thiết kế sản phẩm số và cải thiện trải nghiệm người dùng.')}</div>
+                                </div>
+                                <div style="padding:8px 9px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;">
+                                    <div style="font-size:5.6px;font-weight:800;color:${accent};letter-spacing:1.1px;text-transform:uppercase;">Học vấn</div>
+                                    <div style="margin-top:4px;font-size:6px;font-weight:700;color:#0f172a;">${esc(education.degree || 'Cử nhân Thiết kế')}</div>
+                                    <div style="font-size:5.8px;color:#64748b;">${esc(education.school || 'Đại học Mỹ thuật')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            if (style === 'modern') {
+                return `
+                    <div class="cv-miniature" style="background:#fff;border:1px solid #eef2f7;">
+                        <div style="display:flex;align-items:stretch;">
+                            <div style="width:6px;background:${accent};"></div>
+                            <div style="flex:1;padding:12px 14px 10px;">
+                                <div style="font-size:10px;font-weight:800;letter-spacing:-.1px;color:#0f172a;">${name}</div>
+                                <div style="font-size:6px;color:#64748b;margin-top:2px;">${subtitle}</div>
+                                <div style="margin-top:6px;font-size:5.7px;color:#94a3b8;">${esc(cv.email || 'email@example.com')} · ${esc(cv.phone || '0900 000 000')}</div>
+                            </div>
+                        </div>
+                        <div style="padding:0 14px 12px;">
+                            <div style="display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 0;border-top:1px solid #eef2f7;">
+                                <div style="font-size:5.1px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:${accent};">Hồ sơ</div>
+                                <div style="font-size:5.9px;line-height:1.65;color:#475569;">${summary}</div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 0;border-top:1px solid #eef2f7;">
+                                <div style="font-size:5.1px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:${accent};">Kinh nghiệm</div>
+                                <div style="font-size:5.8px;line-height:1.55;color:#475569;">
+                                    <div style="font-size:7px;font-weight:700;color:#0f172a;">${esc(experience.role || 'Backend Developer')}</div>
+                                    <div style="font-size:5.5px;color:#94a3b8;">${esc(experience.period || '2022 - nay')}</div>
+                                    <div style="margin-top:4px;">${esc(((experience.details || [])[0]) || 'Xây dựng hệ thống ổn định, dễ mở rộng và tối ưu hiệu suất.')}</div>
+                                </div>
+                            </div>
+                            ${skillBlock ? `<div style="padding-top:8px;border-top:1px solid #eef2f7;">${skillBlock}</div>` : ''}
+                        </div>
+                    </div>`;
+            }
+
+            if (style === 'classic') {
+                return `
+                    <div class="cv-miniature" style="background:#fffdf8;border:1px solid #e7dcc7;">
+                        <div style="padding:12px 14px 10px;text-align:center;border-top:4px solid ${accent};border-bottom:1px solid #eadfcd;">
+                            <div style="font-family:Georgia,serif;font-size:10px;font-weight:700;color:#1f2937;letter-spacing:.4px;">${name}</div>
+                            <div style="font-family:Georgia,serif;font-size:6px;font-style:italic;color:${accent};margin-top:2px;">${subtitle}</div>
+                            <div style="font-size:5.6px;color:#6b7280;margin-top:5px;">${esc(cv.email || 'email@example.com')} · ${esc(cv.phone || '0900 000 000')}</div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 74px;gap:12px;padding:10px 14px 12px;">
+                            <div>
+                                <div style="font-size:5.2px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${accent};margin-bottom:5px;">Kinh nghiệm</div>
+                                <div style="font-family:Georgia,serif;font-size:7px;font-weight:700;color:#111827;">${esc(experience.role || 'Financial Analyst')}</div>
+                                <div style="font-size:5.7px;color:#6b7280;font-style:italic;">${esc(experience.company || 'Corporate Group')}</div>
+                                <div style="margin-top:4px;font-size:5.8px;line-height:1.55;color:#4b5563;">${esc(((experience.details || [])[0]) || 'Định hình chiến lược, báo cáo và phân tích chuyên sâu cho lãnh đạo.')}</div>
+                            </div>
+                            <div style="border-left:1px solid #eadfcd;padding-left:10px;">
+                                <div style="font-size:5.2px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${accent};margin-bottom:5px;">Học vấn</div>
+                                <div style="font-family:Georgia,serif;font-size:6.5px;font-weight:700;color:#111827;">${esc(education.degree || 'MBA')}</div>
+                                <div style="font-size:5.6px;color:#6b7280;">${esc(education.school || 'University')}</div>
+                                <div style="margin-top:8px;font-size:5.2px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:${accent};">Kỹ năng</div>
+                                <div style="margin-top:4px;font-size:5.6px;line-height:1.5;color:#4b5563;">${esc(primarySkills.length ? (cv.skills || []).flatMap(group => group.items || []).slice(0, 5).join(', ') : 'Phân tích, quản trị, giao tiếp')}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            if (style === 'harvard') {
+                return `
+                    <div class="cv-miniature" style="background:#fff;border:1px solid #d1d5db;">
+                        <div style="padding:12px 14px 8px;text-align:center;">
+                            <div style="font-family:'Times New Roman',serif;font-size:10px;font-weight:700;color:#111827;letter-spacing:.5px;">${name}</div>
+                            <div style="font-family:'Times New Roman',serif;font-size:6px;color:#4b5563;margin-top:4px;padding-top:4px;border-top:1px solid #111827;">${esc(cv.email || 'email@example.com')} | ${esc(cv.phone || '0900 000 000')} | ${esc(cv.address || 'Hà Nội')}</div>
+                        </div>
+                        <div style="padding:0 14px 12px;">
+                            <div style="margin-top:6px;font-family:'Times New Roman',serif;font-size:5.6px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;border-bottom:1px solid #111827;padding-bottom:2px;">Professional Summary</div>
+                            <div style="margin-top:5px;font-family:'Times New Roman',serif;font-size:6px;line-height:1.55;color:#1f2937;">${summary}</div>
+                            <div style="margin-top:8px;font-family:'Times New Roman',serif;font-size:5.6px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;border-bottom:1px solid #111827;padding-bottom:2px;">Experience</div>
+                            <div style="margin-top:5px;font-family:'Times New Roman',serif;font-size:6px;line-height:1.55;color:#1f2937;">
+                                <div style="display:flex;justify-content:space-between;gap:8px;">
+                                    <strong>${esc(experience.role || 'Research Assistant')}</strong>
+                                    <span>${esc(experience.period || '2021 - nay')}</span>
+                                </div>
+                                <div>${esc(experience.company || 'Academic Institution')}</div>
+                                <div style="margin-top:3px;">• ${esc(((experience.details || [])[0]) || 'Dẫn dắt nghiên cứu, tổng hợp dữ liệu và trình bày kết quả học thuật.')}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
             return `
-                <div class="cv-miniature" style="--cv-accent:${accent};">
-                    <div class="cvm-header" style="background:${accent};">
-                        <div class="cvm-avatar"></div>
-                        <div class="cvm-header-info">
-                            <div class="cvm-name">${esc(cv.name || t.name || '')}</div>
-                            <div class="cvm-job-title">${esc(cv.subtitle || '')}</div>
-                            <div class="cvm-contact-row">
-                                ${cv.email ? `<span>✉ ${esc(cv.email)}</span>` : ''}
-                                ${cv.phone ? `<span>☎ ${esc(cv.phone)}</span>` : ''}
-                                ${cv.address ? `<span>📍 ${esc(cv.address)}</span>` : ''}
+                <div class="cv-miniature" style="background:#fff;">
+                    <div style="height:38px;background:linear-gradient(135deg, ${accent}, ${accent}cc);padding:10px 12px;color:#fff;display:flex;gap:10px;">
+                        <div style="width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.65);background:rgba(255,255,255,.18);"></div>
+                        <div style="min-width:0;flex:1;">
+                            <div style="font-size:10px;font-weight:800;letter-spacing:.3px;">${name}</div>
+                            <div style="font-size:6px;opacity:.92;">${subtitle}</div>
+                            <div style="margin-top:5px;font-size:5.4px;opacity:.85;display:flex;flex-wrap:wrap;gap:6px;">
+                                <span>${esc(cv.email || 'email@example.com')}</span>
+                                <span>${esc(cv.phone || '0900 000 000')}</span>
                             </div>
                         </div>
                     </div>
-                    <div class="cvm-body">
-                        <div class="cvm-left">
-                            ${skillsHtml ? `<div class="cvm-section">
-                                <div class="cvm-section-title" style="color:${accent};">KỸ NĂNG</div>
-                                ${skillsHtml}
-                            </div>` : ''}
-                            ${eduHtml ? `<div class="cvm-section" style="margin-top:12px;">
-                                <div class="cvm-section-title" style="color:${accent};">HỌC VẤN</div>
-                                ${eduHtml}
-                            </div>` : ''}
+                    <div style="display:grid;grid-template-columns:36% 1fr;min-height:120px;">
+                        <div style="background:#f6f8fb;padding:10px 10px 12px;border-right:1px solid #e2e8f0;">
+                            <div style="font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};margin-bottom:6px;">Kỹ năng</div>
+                            <div style="display:flex;flex-direction:column;gap:6px;font-size:5.7px;color:#475569;">
+                                ${(cv.skills || []).slice(0, 2).map(group => `
+                                    <div>
+                                        <div style="font-weight:700;color:#0f172a;margin-bottom:2px;">${esc(group.category || '')}</div>
+                                        <div>${esc((group.items || []).slice(0, 3).join(', '))}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div style="margin-top:8px;font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};margin-bottom:5px;">Học vấn</div>
+                            <div style="font-size:5.8px;color:#475569;line-height:1.5;">
+                                <div style="font-weight:700;color:#0f172a;">${esc(education.degree || 'Cử nhân CNTT')}</div>
+                                <div>${esc(education.school || 'Đại học')}</div>
+                            </div>
                         </div>
-                        <div class="cvm-right">
-                            ${summaryHtml}
-                            ${expHtml ? `<div class="cvm-section" style="margin-top:10px;">
-                                <div class="cvm-section-title" style="color:${accent}; border-bottom:1.5px solid ${accent};">KINH NGHIỆM LÀM VIỆC</div>
-                                ${expHtml}
-                            </div>` : ''}
+                        <div style="padding:10px 12px;">
+                            <div style="font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};padding-bottom:4px;border-bottom:1.4px solid ${accent};">Hồ sơ</div>
+                            <div style="margin-top:5px;font-size:5.9px;line-height:1.6;color:#475569;">${summary}</div>
+                            <div style="margin-top:10px;font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};padding-bottom:4px;border-bottom:1.4px solid ${accent};">Kinh nghiệm</div>
+                            <div style="margin-top:6px;">
+                                <div style="font-size:7.1px;font-weight:700;color:#0f172a;">${esc(experience.role || 'Software Engineer')}</div>
+                                <div style="font-size:5.8px;color:${accent};font-weight:700;">${esc(experience.company || 'FPT Software')} | ${esc(experience.period || '2022 - nay')}</div>
+                                <div style="margin-top:4px;font-size:5.8px;line-height:1.55;color:#475569;">${esc(((experience.details || [])[0]) || 'Phát triển sản phẩm, tối ưu hiệu suất và cải thiện trải nghiệm người dùng.')}</div>
+                            </div>
                         </div>
                     </div>
                 </div>`;
@@ -323,6 +520,7 @@
             }
             grid.innerHTML = templates.map(t => {
                 const bgColor = t.previewColor || '#f8fafc';
+                const style = getStyleMeta(t.styleTag);
                 return `
                 <div class="template-card">
                     <div class="template-preview" style="background:${bgColor};">
@@ -336,7 +534,10 @@
                     <div class="template-info">
                         <div class="template-head">
                             <h3 class="template-title">${escHtml(t.name)}</h3>
-                            ${t.badgeLabel ? `<span class="badge-style" style="background:${t.badgeBgColor||'#e2e8f0'};color:${t.badgeTextColor||'#374151'}">${escHtml(t.badgeLabel)}</span>` : ''}
+                            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+                                <span class="badge-style" style="background:${style.bg};color:${style.fg}">${style.label}</span>
+                                ${t.badgeLabel ? `<span class="badge-style" style="background:${t.badgeBgColor||'#e2e8f0'};color:${t.badgeTextColor||'#374151'}">${escHtml(t.badgeLabel)}</span>` : ''}
+                            </div>
                         </div>
                         <p class="template-desc">${escHtml(t.description || '')}</p>
                         <button class="btn-use-template" data-id="${t.id}">
@@ -378,18 +579,28 @@
                 div.addEventListener('click', () => selectCategory(cat, div));
                 filterList.appendChild(div);
             });
+            buildTypeFilter(categories);
             lucide.createIcons();
         }
 
+        function buildTypeFilter(categories) {
+            const select = document.getElementById('cvTypeFilter');
+            if (!select) return;
+
+            select.innerHTML = `
+                <option value="">Loại CV: Tất cả</option>
+                ${categories.map(cat => `<option value="${escHtml(cat)}">${escHtml(cat)}</option>`).join('')}
+            `;
+            select.value = activeCategory;
+        }
+
         function selectCategory(category, el) {
-            document.querySelector('.filter-item.active').classList.remove('active');
+            document.querySelector('.filter-item.active')?.classList.remove('active');
             el.classList.add('active');
             activeCategory = category;
-            if (category) {
-                renderTemplates(allTemplates.filter(t => t.category === category));
-            } else {
-                renderTemplates(allTemplates);
-            }
+            const typeFilter = document.getElementById('cvTypeFilter');
+            if (typeFilter) typeFilter.value = category;
+            applyFilters();
         }
 
         function escHtml(str) {
@@ -592,6 +803,243 @@
             selectCategory('', this);
         });
 
+        document.querySelectorAll('.style-option input[type="checkbox"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const style = normalizeStyleTag(this.dataset.style);
+                if (this.checked) activeStyleFilters.add(style);
+                else activeStyleFilters.delete(style);
+                syncStyleFilterControl();
+                applyFilters();
+            });
+        });
+
+        document.getElementById('cvTypeFilter')?.addEventListener('change', function() {
+            const selectedCategory = this.value;
+            const target = [...document.querySelectorAll('.filter-item')]
+                .find(item => item.dataset.category === selectedCategory)
+                || document.querySelector('.filter-item[data-category=""]');
+            if (target) selectCategory(selectedCategory, target);
+        });
+
+        document.getElementById('cvStyleFilter')?.addEventListener('change', function() {
+            activeStyleFilters.clear();
+
+            if (this.value) {
+                activeStyleFilters.add(normalizeStyleTag(this.value));
+            } else {
+                Object.keys(styleMeta).forEach(style => activeStyleFilters.add(style));
+            }
+
+            syncStyleControls();
+            applyFilters();
+        });
+
+        document.querySelector('.search-input')?.addEventListener('input', function() {
+            searchKeyword = this.value.trim().toLowerCase();
+            applyFilters();
+        });
+
+        function buildCvMiniature(t) {
+            let cv = {};
+            try { cv = JSON.parse(t.templateContent || '{}'); } catch(e) {}
+            const style = normalizeStyleTag(t.styleTag);
+            const accent = t.previewColor || '#2E3B8E';
+            const esc = escHtml;
+            const name = esc(cv.name || t.name || 'CV Template');
+            const subtitle = esc(cv.subtitle || 'Professional Profile');
+            const summaryRaw = String(cv.summary || 'Tóm tắt định hướng nghề nghiệp và điểm mạnh nổi bật.').replace(/\s+/g, ' ').trim();
+            const summary = esc(summaryRaw.length > 110 ? `${summaryRaw.slice(0, 107)}...` : summaryRaw);
+            const experience = (cv.experience || [])[0] || {};
+            const education = (cv.education || [])[0] || {};
+            const flatSkills = (cv.skills || []).flatMap(group => group.items || []).slice(0, 5);
+            const firstSkillGroup = (cv.skills || [])[0];
+            const skillPills = flatSkills.map(item => `<span style="padding:2px 6px;border-radius:999px;background:${accent}14;color:${accent};font-size:5.8px;font-weight:700;">${esc(item)}</span>`).join('');
+            const skillText = esc((firstSkillGroup?.items || []).slice(0, 4).join(', ') || 'Phân tích, giao tiếp, quản trị');
+
+            if (style === 'impactful') {
+                return `<div class="cv-miniature" style="background:#fff;border:1px solid rgba(15,23,42,.08);">
+                    <div style="height:42px;background:linear-gradient(135deg,#0f172a 0%, ${accent} 62%, #f97316 100%);padding:10px 12px;color:#fff;display:flex;gap:10px;">
+                        <div style="width:28px;height:28px;border-radius:10px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);"></div>
+                        <div style="min-width:0;flex:1;">
+                            <div style="font-size:10px;font-weight:900;letter-spacing:.25px;">${name}</div>
+                            <div style="font-size:5.8px;opacity:.9;text-transform:uppercase;letter-spacing:1.3px;">${subtitle}</div>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:34% 1fr;gap:10px;padding:10px 12px 12px;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);">
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            <div style="font-size:5.2px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#0f172a;">Nổi bật</div>
+                            <div style="display:flex;flex-wrap:wrap;gap:4px;">${skillPills}</div>
+                            <div style="padding:7px 8px;border-radius:12px;background:#0f172a;color:#fff;">
+                                <div style="font-size:5.2px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;opacity:.78;">Giới thiệu</div>
+                                <div style="margin-top:4px;font-size:5.8px;line-height:1.52;opacity:.92;">${summary}</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            <div style="padding:8px 9px;border-radius:14px;background:#fff;border:1px solid rgba(15,23,42,.08);box-shadow:0 14px 26px rgba(15,23,42,.1);">
+                                <div style="font-size:8px;font-weight:800;color:#0f172a;">${esc(experience.role || 'Head of Product')}</div>
+                                <div style="font-size:5.8px;color:${accent};font-weight:700;">${esc(experience.company || 'High Growth Startup')} | ${esc(experience.period || '2022 - nay')}</div>
+                                <div style="margin-top:5px;font-size:5.8px;line-height:1.55;color:#475569;">${esc(((experience.details || [])[0]) || 'Dẫn dắt đội ngũ, tối ưu vận hành và tạo tác động kinh doanh rõ rệt.')}</div>
+                            </div>
+                            <div style="font-size:5.2px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;color:${accent};padding-bottom:4px;border-bottom:1px solid ${accent}55;">Kỹ năng chính</div>
+                            <div style="font-size:5.8px;line-height:1.55;color:#334155;">${skillText}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            if (style === 'creative') {
+                return `<div class="cv-miniature" style="background:#fff;">
+                    <div style="height:38px;background:linear-gradient(135deg, ${accent}, ${accent}bb 65%, #111827);padding:10px 12px;color:#fff;display:flex;gap:10px;">
+                        <div style="width:28px;height:28px;border-radius:10px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);"></div>
+                        <div style="min-width:0;flex:1;">
+                            <div style="font-size:10px;font-weight:800;letter-spacing:.2px;">${name}</div>
+                            <div style="font-size:6px;opacity:.9;letter-spacing:1px;text-transform:uppercase;">${subtitle}</div>
+                        </div>
+                    </div>
+                    <div style="padding:10px 12px 12px;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);display:grid;grid-template-columns:37% 1fr;gap:10px;">
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            <div style="font-size:5.6px;font-weight:800;color:${accent};letter-spacing:1.2px;text-transform:uppercase;">Giới thiệu</div>
+                            <div style="font-size:5.9px;line-height:1.55;color:#475569;">${summary}</div>
+                            <div style="display:flex;flex-wrap:wrap;gap:4px;">${skillPills}</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            <div style="padding:8px 9px;border-radius:12px;background:#fff;border:1px solid ${accent}22;box-shadow:0 8px 20px rgba(15,23,42,.06);">
+                                <div style="font-size:8px;font-weight:800;color:#0f172a;">${esc(experience.role || 'Lead Product Designer')}</div>
+                                <div style="font-size:5.8px;color:${accent};font-weight:700;">${esc(experience.company || 'Creative Studio')} | ${esc(experience.period || '2022 - nay')}</div>
+                                <div style="margin-top:5px;font-size:5.8px;line-height:1.55;color:#475569;">${esc(((experience.details || [])[0]) || 'Dẫn dắt các dự án thiết kế sản phẩm số và cải thiện trải nghiệm người dùng.')}</div>
+                            </div>
+                            <div style="padding:8px 9px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;">
+                                <div style="font-size:5.6px;font-weight:800;color:${accent};letter-spacing:1.1px;text-transform:uppercase;">Học vấn</div>
+                                <div style="margin-top:4px;font-size:6px;font-weight:700;color:#0f172a;">${esc(education.degree || 'Cử nhân Thiết kế')}</div>
+                                <div style="font-size:5.8px;color:#64748b;">${esc(education.school || 'Đại học Mỹ thuật')}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            if (style === 'modern') {
+                return `<div class="cv-miniature" style="background:#fff;border:1px solid #eef2f7;">
+                    <div style="display:flex;align-items:stretch;">
+                        <div style="width:6px;background:${accent};"></div>
+                        <div style="flex:1;padding:12px 14px 10px;">
+                            <div style="font-size:10px;font-weight:800;letter-spacing:-.1px;color:#0f172a;">${name}</div>
+                            <div style="font-size:6px;color:#64748b;margin-top:2px;">${subtitle}</div>
+                            <div style="margin-top:6px;font-size:5.7px;color:#94a3b8;">${esc(cv.email || 'email@example.com')} · ${esc(cv.phone || '0900 000 000')}</div>
+                        </div>
+                    </div>
+                    <div style="padding:0 14px 12px;">
+                        <div style="display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 0;border-top:1px solid #eef2f7;">
+                            <div style="font-size:5.1px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:${accent};">Hồ sơ</div>
+                            <div style="font-size:5.9px;line-height:1.65;color:#475569;">${summary}</div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 0;border-top:1px solid #eef2f7;">
+                            <div style="font-size:5.1px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:${accent};">Kinh nghiệm</div>
+                            <div style="font-size:5.8px;line-height:1.55;color:#475569;">
+                                <div style="font-size:7px;font-weight:700;color:#0f172a;">${esc(experience.role || 'Product Analyst')}</div>
+                                <div style="font-size:5.5px;color:#94a3b8;">${esc(experience.period || '2022 - nay')}</div>
+                                <div style="margin-top:4px;">${esc(((experience.details || [])[0]) || 'Tối ưu quy trình, hệ thống hóa dữ liệu và trình bày thông tin mạch lạc.')}</div>
+                            </div>
+                        </div>
+                        <div style="padding-top:8px;border-top:1px solid #eef2f7;">${firstSkillGroup ? `<div style="display:flex;gap:6px;font-size:6px;line-height:1.5;"><strong style="min-width:38px;color:#0f172a;">${esc(firstSkillGroup.category || 'Kỹ năng')}</strong><span style="color:#475569;">${skillText}</span></div>` : ''}</div>
+                    </div>
+                </div>`;
+            }
+
+            if (style === 'classic') {
+                return `<div class="cv-miniature" style="background:#fffdf8;border:1px solid #e7dcc7;">
+                    <div style="padding:12px 14px 10px;text-align:center;border-top:4px solid ${accent};border-bottom:1px solid #eadfcd;">
+                        <div style="font-family:Georgia,serif;font-size:10px;font-weight:700;color:#1f2937;letter-spacing:.4px;">${name}</div>
+                        <div style="font-family:Georgia,serif;font-size:6px;font-style:italic;color:${accent};margin-top:2px;">${subtitle}</div>
+                        <div style="font-size:5.6px;color:#6b7280;margin-top:5px;">${esc(cv.email || 'email@example.com')} · ${esc(cv.phone || '0900 000 000')}</div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 74px;gap:12px;padding:10px 14px 12px;">
+                        <div>
+                            <div style="font-size:5.2px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${accent};margin-bottom:5px;">Kinh nghiệm</div>
+                            <div style="font-family:Georgia,serif;font-size:7px;font-weight:700;color:#111827;">${esc(experience.role || 'Financial Analyst')}</div>
+                            <div style="font-size:5.7px;color:#6b7280;font-style:italic;">${esc(experience.company || 'Corporate Group')}</div>
+                            <div style="margin-top:4px;font-size:5.8px;line-height:1.55;color:#4b5563;">${esc(((experience.details || [])[0]) || 'Định hình chiến lược, báo cáo và phân tích chuyên sâu cho lãnh đạo.')}</div>
+                        </div>
+                        <div style="border-left:1px solid #eadfcd;padding-left:10px;">
+                            <div style="font-size:5.2px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${accent};margin-bottom:5px;">Học vấn</div>
+                            <div style="font-family:Georgia,serif;font-size:6.5px;font-weight:700;color:#111827;">${esc(education.degree || 'MBA')}</div>
+                            <div style="font-size:5.6px;color:#6b7280;">${esc(education.school || 'University')}</div>
+                            <div style="margin-top:8px;font-size:5.2px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:${accent};">Kỹ năng</div>
+                            <div style="margin-top:4px;font-size:5.6px;line-height:1.5;color:#4b5563;">${esc(flatSkills.length ? flatSkills.join(', ') : 'Phân tích, quản trị, giao tiếp')}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            if (style === 'ats') {
+                return `<div class="cv-miniature" style="background:#fff;border:1px solid #d1d5db;">
+                    <div style="padding:12px 14px 10px;border-bottom:1px solid #111827;">
+                        <div style="font-size:10px;font-weight:800;color:#111827;letter-spacing:.2px;">${name}</div>
+                        <div style="font-size:5.8px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:#4b5563;margin-top:3px;">${subtitle}</div>
+                        <div style="margin-top:6px;font-size:5.6px;color:#6b7280;">${esc(cv.email || 'email@example.com')} | ${esc(cv.phone || '0900 000 000')} | ${esc(cv.address || 'Hà Nội')}</div>
+                    </div>
+                    <div style="padding:10px 14px 12px;">
+                        <div style="font-size:5.2px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#111827;padding-bottom:3px;border-bottom:1px solid #111827;">Tóm tắt chuyên môn</div>
+                        <div style="margin-top:5px;font-size:5.8px;line-height:1.55;color:#374151;">${summary}</div>
+                        <div style="margin-top:8px;font-size:5.2px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#111827;padding-bottom:3px;border-bottom:1px solid #111827;">Kinh nghiệm</div>
+                        <div style="margin-top:5px;font-size:5.9px;line-height:1.55;color:#374151;">
+                            <div style="display:flex;justify-content:space-between;gap:8px;">
+                                <strong>${esc(experience.role || 'Business Analyst')}</strong>
+                                <span>${esc(experience.period || '2022 - nay')}</span>
+                            </div>
+                            <div style="margin-top:2px;color:#6b7280;">${esc(experience.company || 'Corporate Services')}</div>
+                            <div style="margin-top:3px;">• ${esc(((experience.details || [])[0]) || 'Tóm lược kinh nghiệm bằng ngôn ngữ rõ ràng, dễ quét bởi nhà tuyển dụng và ATS.')}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            if (style === 'harvard') {
+                return `<div class="cv-miniature" style="background:#fff;border:1px solid #d1d5db;">
+                    <div style="padding:12px 14px 8px;text-align:center;">
+                        <div style="font-family:'Times New Roman',serif;font-size:10px;font-weight:700;color:#111827;letter-spacing:.5px;">${name}</div>
+                        <div style="font-family:'Times New Roman',serif;font-size:6px;color:#4b5563;margin-top:4px;padding-top:4px;border-top:1px solid #111827;">${esc(cv.email || 'email@example.com')} | ${esc(cv.phone || '0900 000 000')} | ${esc(cv.address || 'Hà Nội')}</div>
+                    </div>
+                    <div style="padding:0 14px 12px;">
+                        <div style="margin-top:6px;font-family:'Times New Roman',serif;font-size:5.6px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;border-bottom:1px solid #111827;padding-bottom:2px;">Professional Summary</div>
+                        <div style="margin-top:5px;font-family:'Times New Roman',serif;font-size:6px;line-height:1.55;color:#1f2937;">${summary}</div>
+                        <div style="margin-top:8px;font-family:'Times New Roman',serif;font-size:5.6px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;border-bottom:1px solid #111827;padding-bottom:2px;">Experience</div>
+                        <div style="margin-top:5px;font-family:'Times New Roman',serif;font-size:6px;line-height:1.55;color:#1f2937;">
+                            <div style="display:flex;justify-content:space-between;gap:8px;"><strong>${esc(experience.role || 'Research Assistant')}</strong><span>${esc(experience.period || '2021 - nay')}</span></div>
+                            <div>${esc(experience.company || 'Academic Institution')}</div>
+                            <div style="margin-top:3px;">• ${esc(((experience.details || [])[0]) || 'Dẫn dắt nghiên cứu, tổng hợp dữ liệu và trình bày kết quả học thuật.')}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            return `<div class="cv-miniature" style="background:#fff;">
+                <div style="height:38px;background:linear-gradient(135deg, ${accent}, ${accent}cc);padding:10px 12px;color:#fff;display:flex;gap:10px;">
+                    <div style="width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.65);background:rgba(255,255,255,.18);"></div>
+                    <div style="min-width:0;flex:1;">
+                        <div style="font-size:10px;font-weight:800;letter-spacing:.3px;">${name}</div>
+                        <div style="font-size:6px;opacity:.92;">${subtitle}</div>
+                        <div style="margin-top:5px;font-size:5.4px;opacity:.85;display:flex;flex-wrap:wrap;gap:6px;"><span>${esc(cv.email || 'email@example.com')}</span><span>${esc(cv.phone || '0900 000 000')}</span></div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:36% 1fr;min-height:120px;">
+                    <div style="background:#f6f8fb;padding:10px 10px 12px;border-right:1px solid #e2e8f0;">
+                        <div style="font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};margin-bottom:6px;">Kỹ năng</div>
+                        <div style="display:flex;flex-direction:column;gap:6px;font-size:5.7px;color:#475569;">${(cv.skills || []).slice(0, 2).map(group => `<div><div style="font-weight:700;color:#0f172a;margin-bottom:2px;">${esc(group.category || '')}</div><div>${esc((group.items || []).slice(0, 3).join(', '))}</div></div>`).join('')}</div>
+                        <div style="margin-top:8px;font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};margin-bottom:5px;">Học vấn</div>
+                        <div style="font-size:5.8px;color:#475569;line-height:1.5;"><div style="font-weight:700;color:#0f172a;">${esc(education.degree || 'Cử nhân CNTT')}</div><div>${esc(education.school || 'Đại học')}</div></div>
+                    </div>
+                    <div style="padding:10px 12px;">
+                        <div style="font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};padding-bottom:4px;border-bottom:1.4px solid ${accent};">Hồ sơ</div>
+                        <div style="margin-top:5px;font-size:5.9px;line-height:1.6;color:#475569;">${summary}</div>
+                        <div style="margin-top:10px;font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};padding-bottom:4px;border-bottom:1.4px solid ${accent};">Kinh nghiệm</div>
+                        <div style="margin-top:6px;"><div style="font-size:7.1px;font-weight:700;color:#0f172a;">${esc(experience.role || 'Software Engineer')}</div><div style="font-size:5.8px;color:${accent};font-weight:700;">${esc(experience.company || 'FPT Software')} | ${esc(experience.period || '2022 - nay')}</div><div style="margin-top:4px;font-size:5.8px;line-height:1.55;color:#475569;">${esc(((experience.details || [])[0]) || 'Phát triển sản phẩm, tối ưu hiệu suất và cải thiện trải nghiệm người dùng.')}</div></div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        buildStyleFilter();
         loadTemplates();
     </script>
 </body>
