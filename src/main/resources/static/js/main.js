@@ -280,8 +280,24 @@ document.addEventListener('DOMContentLoaded', function() {
 (function() {
     'use strict';
 
+    const isPdfExportContext = function() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('download') === 'pdf'
+                || document.body?.classList?.contains('pdf-export-mode');
+        } catch {
+            return false;
+        }
+    };
+
+    const removeExistingWidget = function() {
+        document.querySelectorAll('.contact-widget, .chatbot-modal-backdrop').forEach(node => node.remove());
+    };
+
     // Inject CSS
     const injectCSS = function() {
+        if (isPdfExportContext()) return;
+
         const links = [
             '/contact-widget/contact-widget.css',
             '/contact-widget/chatbot-modal.css'
@@ -301,6 +317,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Inject JavaScript
     const injectJS = function() {
+        if (isPdfExportContext()) return;
+
         const src = '/contact-widget/contact-widget.js';
 
         // Check if already injected
@@ -316,10 +334,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize widget when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
+            if (isPdfExportContext()) {
+                removeExistingWidget();
+                return;
+            }
             injectCSS();
             injectJS();
         });
     } else {
+        if (isPdfExportContext()) {
+            removeExistingWidget();
+            return;
+        }
         injectCSS();
         injectJS();
     }

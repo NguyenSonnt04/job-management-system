@@ -1,8 +1,10 @@
 package Nhom08.Project.controller;
 
 import Nhom08.Project.entity.CvTemplate;
+import Nhom08.Project.entity.CvTemplateVersion;
 import Nhom08.Project.repository.CvTemplateRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import Nhom08.Project.repository.CvTemplateVersionRepository;
+import Nhom08.Project.service.CvVersioningService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,8 +16,18 @@ import java.util.Optional;
 @RequestMapping("/api/cv-templates")
 public class CvTemplateController {
 
-    @Autowired
-    private CvTemplateRepository cvTemplateRepository;
+    private final CvTemplateRepository cvTemplateRepository;
+    private final CvTemplateVersionRepository cvTemplateVersionRepository;
+    private final CvVersioningService cvVersioningService;
+
+    public CvTemplateController(
+            CvTemplateRepository cvTemplateRepository,
+            CvTemplateVersionRepository cvTemplateVersionRepository,
+            CvVersioningService cvVersioningService) {
+        this.cvTemplateRepository = cvTemplateRepository;
+        this.cvTemplateVersionRepository = cvTemplateVersionRepository;
+        this.cvVersioningService = cvVersioningService;
+    }
 
     /** Public: get all active templates (for tao-cv-ai.html) */
     @GetMapping("/public")
@@ -47,7 +59,7 @@ public class CvTemplateController {
     /** Admin: create template */
     @PostMapping
     public ResponseEntity<CvTemplate> createTemplate(@RequestBody CvTemplate template) {
-        CvTemplate saved = cvTemplateRepository.save(template);
+        CvTemplate saved = cvVersioningService.createTemplate(template, "Admin created initial template version");
         return ResponseEntity.ok(saved);
     }
 
@@ -59,6 +71,7 @@ public class CvTemplateController {
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
 
         CvTemplate template = opt.get();
+        String previousContent = template.getTemplateContent();
         template.setName(body.getName());
         template.setDescription(body.getDescription());
         template.setPreviewColor(body.getPreviewColor());
@@ -71,7 +84,16 @@ public class CvTemplateController {
         template.setActive(body.getActive());
         template.setTemplateContent(body.getTemplateContent());
 
-        return ResponseEntity.ok(cvTemplateRepository.save(template));
+        return ResponseEntity.ok(
+            cvVersioningService.updateTemplate(template, previousContent, "Admin updated template content")
+        );
+    }
+
+    /** Admin: version history for one template */
+    @GetMapping("/{id}/versions")
+    public ResponseEntity<List<CvTemplateVersion>> getTemplateVersions(@PathVariable Long id) {
+        if (!cvTemplateRepository.existsById(id)) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(cvTemplateVersionRepository.findByTemplateIdOrderByVersionNoDesc(id));
     }
 
     /** Admin: toggle active/inactive */
@@ -88,6 +110,7 @@ public class CvTemplateController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteTemplate(@PathVariable Long id) {
         if (!cvTemplateRepository.existsById(id)) return ResponseEntity.notFound().build();
+        cvTemplateVersionRepository.deleteByTemplateId(id);
         cvTemplateRepository.deleteById(id);
         return ResponseEntity.ok(Map.of("message", "Đã xóa mẫu CV thành công"));
     }

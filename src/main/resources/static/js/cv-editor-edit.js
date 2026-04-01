@@ -86,7 +86,7 @@ function refreshEditModeUI() {
         preview.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
         preview.querySelectorAll('.cvh-editable-active').forEach(el => el.classList.remove('cvh-editable-active'));
         setActiveItemShell(null, preview);
-        if (btn)   { btn.classList.remove('active'); btn.innerHTML = '✏️ Chỉnh sửa'; }
+        if (btn)   { btn.classList.remove('active'); btn.innerHTML = 'Chỉnh sửa'; }
         if (badge)   badge.style.display = 'none';
     }
     initSortable();
@@ -94,7 +94,34 @@ function refreshEditModeUI() {
 
 function applyPreviewEditableState(preview = document.getElementById('cvPreview')) {
     if (!preview || !isEditMode) return;
-    preview.querySelectorAll('.cv-editable').forEach(el => el.setAttribute('contenteditable', 'true'));
+    preview.querySelectorAll('.cv-editable').forEach(el => {
+        el.setAttribute('contenteditable', 'true');
+        togglePlaceholderClass(el);
+    });
+    // Listen for input to toggle placeholder visibility
+    if (!preview.dataset.placeholderBound) {
+        preview.addEventListener('input', e => {
+            const el = e.target.closest?.('.cv-editable[data-placeholder]');
+            if (el) togglePlaceholderClass(el);
+        });
+        preview.addEventListener('focus', e => {
+            const el = e.target.closest?.('.cv-editable[data-placeholder]');
+            if (el) togglePlaceholderClass(el);
+        }, true);
+        preview.addEventListener('blur', e => {
+            const el = e.target.closest?.('.cv-editable[data-placeholder]');
+            if (el) togglePlaceholderClass(el);
+        }, true);
+        preview.dataset.placeholderBound = 'true';
+    }
+}
+
+function togglePlaceholderClass(el) {
+    if (!el || !el.dataset.placeholder) return;
+    const text = (el.textContent || '').replace(/\u00A0/g, ' ').trim();
+    const isEmpty = text.length === 0;
+    el.classList.toggle('cv-placeholder-empty', isEmpty);
+    el.classList.toggle('cv-editable-empty', isEmpty);
 }
 
 // ── Link navigation prevention ────────────────────────────────
@@ -107,6 +134,21 @@ function preventPreviewLinkNavigation(event) {
 // ── Sync DOM → JSON model ─────────────────────────────────────
 function cleanPreviewText(text) {
     return String(text || '').replace(/\u00A0/g, ' ').replace(/\s{2,}/g,' ').trim();
+}
+
+function syncSectionTitleElementToDesignState(element) {
+    if (!(element instanceof HTMLElement)) return;
+    const sectionKey = element.dataset.sectionTitleKey;
+    if (!sectionKey) return;
+    designState.sectionTitles = { ...(designState.sectionTitles || {}) };
+    const title = cleanPreviewText(element.innerText);
+    if (title) designState.sectionTitles[sectionKey] = title;
+    else delete designState.sectionTitles[sectionKey];
+}
+
+function syncPreviewSectionTitles(preview) {
+    if (!preview) return;
+    preview.querySelectorAll('[data-section-title-key]').forEach(syncSectionTitleElementToDesignState);
 }
 
 function parseBulletText(text) {
@@ -135,6 +177,7 @@ function syncPreviewToCurrentCv() {
     if (!currentCvJson) return;
     const preview = document.getElementById('cvPreview');
     if (!preview) return;
+    syncPreviewSectionTitles(preview);
 
     const style = normalizeCvStyle(currentCvJson._styleTag || getCurrentPreviewStyle());
 
@@ -261,23 +304,71 @@ function syncHarvardPreviewToJson(preview) {
     if (subtitleEl) currentCvJson.subtitle = cleanPreviewText(subtitleEl.innerText);
     if (summaryEl)  currentCvJson.summary  = cleanPreviewText(summaryEl.innerText);
 
-    const getHarvardItems = (sectionTitle) => {
-        const normalized = sectionTitle.toUpperCase();
-        const section = [...preview.querySelectorAll('.cvh-section')]
-            .find(s => (s.querySelector('.cvh-title')?.textContent||'').toUpperCase().includes(normalized));
-        if (!section) return [];
-        return [...section.querySelectorAll('.cvh-item')].map(item => ({
-            role:    cleanPreviewText(item.querySelector('.cvh-item-title')?.innerText||''),
-            company: cleanPreviewText(item.querySelector('.cvh-item-sub')?.innerText||''),
-            period:  cleanPreviewText(item.querySelector('.cvh-item-date')?.innerText||''),
-            details: [...item.querySelectorAll('.cvh-bullet:not(.cvh-github-bullet)')].map(b=>parseBulletText(b.innerText)).filter(Boolean)
-        }));
+    preview.querySelectorAll('.cvh-contact-item[data-contact-key]').forEach(item => {
+        const key = item.dataset.contactKey;
+        if (!key) return;
+        currentCvJson[key] = cleanPreviewText(item.innerText);
+    });
+
+    const getHarvardSection = (sectionKey, fallbackTitle = '') => {
+        const byKey = preview.querySelector(`.cvh-section[data-cv-section="${sectionKey}"]`);
+        if (byKey) return byKey;
+        const normalized = fallbackTitle.toUpperCase();
+        return [...preview.querySelectorAll('.cvh-section')]
+            .find(section => (section.querySelector('.cvh-title')?.textContent || '').toUpperCase().includes(normalized)) || null;
     };
 
-    const exp = getHarvardItems('EXPERIENCE');
+    const mapHarvardItems = (sectionKey, fallbackTitle, mapper) => {
+        const section = getHarvardSection(sectionKey, fallbackTitle);
+        if (!section) return [];
+        return [...section.querySelectorAll('.cvh-item')].map(item => {
+            const subLines = [...item.querySelectorAll('.cvh-item-sub')]
+                .map(node => cleanPreviewText(node.innerText))
+                .filter(Boolean);
+            const details = readPreviewDetailLines(item, '.cvh-bullet:not(.cvh-github-bullet)');
+            return mapper(item, subLines, details);
+        });
+    };
+
+    const exp = mapHarvardItems('experience', 'EXPERIENCE', (item, subLines, details) => ({
+        role: cleanPreviewText(item.querySelector('.cvh-item-title')?.innerText || ''),
+        company: subLines[0] || '',
+        period: cleanPreviewText(item.querySelector('.cvh-item-date')?.innerText || ''),
+        details
+    }));
     if (exp.length) currentCvJson.experience = exp;
-    const edu = getHarvardItems('EDUCATION');
+
+    const edu = mapHarvardItems('education', 'EDUCATION', (item, subLines, details) => ({
+        degree: cleanPreviewText(item.querySelector('.cvh-item-title')?.innerText || ''),
+        school: subLines[0] || '',
+        period: cleanPreviewText(item.querySelector('.cvh-item-date')?.innerText || ''),
+        details
+    }));
     if (edu.length) currentCvJson.education = edu;
+
+    const projects = mapHarvardItems('projects', 'PROJECTS', (item, subLines, details) => {
+        const techLine = subLines.find(line => /^Technologies\s*:/i.test(line)) || '';
+        return {
+            name: cleanPreviewText(item.querySelector('.cvh-item-title')?.innerText || ''),
+            period: cleanPreviewText(item.querySelector('.cvh-item-date')?.innerText || ''),
+            tech: techLine.replace(/^Technologies\s*:\s*/i, '').trim(),
+            github: cleanPreviewText(item.querySelector('.cvh-github-bullet')?.innerText || ''),
+            details
+        };
+    });
+    if (projects.length) currentCvJson.projects = projects;
+
+    const skillsSection = getHarvardSection('skills', 'SKILLS');
+    if (skillsSection) {
+        const skills = [...skillsSection.querySelectorAll('.cvh-skill-group')].map(group => ({
+            category: cleanPreviewText(group.querySelector('.cvh-skill-cat')?.innerText || ''),
+            items: cleanPreviewText(group.querySelector('.cvh-skill-items')?.innerText || '')
+                .split(',')
+                .map(item => item.trim())
+                .filter(Boolean)
+        }));
+        if (skills.length) currentCvJson.skills = skills;
+    }
 }
 
 // ── Harvard editable input ────────────────────────────────────
@@ -297,7 +388,10 @@ function bindPreviewEditableEvents() {
         preview.addEventListener('input', event => {
             if (!isEditMode) return;
             const target = event.target instanceof HTMLElement ? event.target : null;
-            if (target?.matches('.cv-editable')) queueEditorHistorySnapshot();
+            if (target?.matches('.cv-editable')) {
+                syncSectionTitleElementToDesignState(target);
+                queueEditorHistorySnapshot();
+            }
         });
         preview.addEventListener('input', handleHarvardEditableInput);
         preview.dataset.shellInputBound = 'true';
@@ -550,12 +644,14 @@ function tagPreviewSections(style = 'professional') {
         'KỸ NĂNG': 'skills', 'SKILLS': 'skills', 'SKILLS & EXPERTISE': 'skills',
         'DỰ ÁN NỔI BẬT': 'projects', 'DỰ ÁN': 'projects', 'PROJECTS': 'projects',
         'CHỨNG CHỈ': 'certifications', 'CERTIFICATIONS': 'certifications',
-        'GIẢI THƯỞNG': 'awards', 'AWARDS & HONORS': 'awards',
-        'HOẠT ĐỘNG': 'activities', 'LEADERSHIP & ACTIVITIES': 'activities'
+        'GIẢI THƯỞNG': 'awards', 'AWARDS & HONORS': 'awards', 'AWARDS': 'awards',
+        'HOẠT ĐỘNG': 'activities', 'LEADERSHIP & ACTIVITIES': 'activities', 'ACTIVITIES': 'activities',
+        'NGƯỜI THAM CHIẾU': 'references', 'SỞ THÍCH': 'hobbies',
+        'GIỚI THIỆU BẢN THÂN': 'summary', 'KINH NGHIỆM LÀM VIỆC': 'experience'
     };
 
-    preview.querySelectorAll('section, .cvh-section, .cvm2-block, .cvc2-zone, .cvcl2-section, .cv-topcv-section').forEach(section => {
-        const titleEl = section.querySelector('h1, h2, h3, h4, .cvm-section-title, .cvc2-zone-title, .cvm2-block-label, .cvh-title, .cvcl2-sec-title, .cvcl2-sec-title-r, .cv-topcv-title');
+    preview.querySelectorAll('section, .cvh-section, .cvm2-block, .cvc2-zone, .cvcl2-section, .cv-topcv-section, .cvi-section, .cvi-sidebar-section').forEach(section => {
+        const titleEl = section.querySelector('h1, h2, h3, h4, .cvm-section-title, .cvc2-zone-title, .cvm2-block-label, .cvh-title, .cvcl2-sec-title, .cvcl2-sec-title-r, .cv-topcv-title, .cvi-section-title, .cvi-sidebar-title');
         const text    = (titleEl?.textContent || '').trim();
         const key     = resolvePreviewSectionKey(section.dataset.cvSection || '', text) || HEADING_MAP[text.toUpperCase()];
         if (key) section.setAttribute('data-cv-section', key);
@@ -592,8 +688,8 @@ function applySectionOrderToPreview(style = getCurrentPreviewStyle()) {
 
     // Two-column: distribute visible sections row-by-row so drag order matches the layout grid.
     const columns = [
-        preview.querySelector('.cvm-left, .cvc2-left, .cvcl2-left'),
-        preview.querySelector('.cvm-right, .cvc2-right, .cvcl2-right')
+        preview.querySelector('.cvm-left, .cvc2-left, .cvcl2-left, .cvi-sidebar'),
+        preview.querySelector('.cvm-right, .cvc2-right, .cvcl2-right, .cvi-main')
     ].filter(Boolean);
     if (!columns.length) return;
 
@@ -601,7 +697,7 @@ function applySectionOrderToPreview(style = getCurrentPreviewStyle()) {
     columns.forEach(col => {
         [...col.children].forEach(child => {
             const rawKey = child?.dataset?.cvSection || '';
-            const titleText = child.querySelector('h1, h2, h3, h4, .cvm-section-title, .cvc2-zone-title, .cvm2-block-label, .cvh-title, .cvcl2-sec-title, .cvcl2-sec-title-r, .cv-topcv-title')?.textContent || '';
+            const titleText = child.querySelector('h1, h2, h3, h4, .cvm-section-title, .cvc2-zone-title, .cvm2-block-label, .cvh-title, .cvcl2-sec-title, .cvcl2-sec-title-r, .cv-topcv-title, .cvi-section-title, .cvi-sidebar-title')?.textContent || '';
             const key = resolvePreviewSectionKey(rawKey, titleText);
             if (!key) return;
             child.dataset.cvSection = key;

@@ -6,6 +6,8 @@ let savedCvId         = null;
 let templateName      = '';
 let loadedCvName      = '';
 let autoDownloadStarted = false;
+let pdfExportInProgress = false;
+let html2PdfLoadPromise = null;
 
 function setSaveButtonState(state = 'default') {
     const btnSave = document.getElementById('btnSaveCv');
@@ -23,6 +25,7 @@ function setSaveButtonState(state = 'default') {
     if (state === 'saved') {
         btnSave.textContent = 'Đã lưu';
         btnSave.classList.add('saved');
+        btnSave.disabled = true;
         return;
     }
 
@@ -129,29 +132,136 @@ function queueAutoPdfDownload() {
     autoDownloadStarted = true;
 
     window.setTimeout(async () => {
-        const ok = await downloadPdf();
-        if (ok && window.opener && params.get('source') === 'my-cvs') {
-            window.setTimeout(() => window.close(), 900);
-        }
+        await downloadPdf();
     }, 700);
 }
 
+function getPdfExportFilename(name) {
+    const rawName = String(name || 'CV').trim() || 'CV';
+    const safeName = rawName
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[<>:"/\\|?*\u0000-\u001F]/g, ' ')
+        .replace(/\s+/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '');
+    return `CV_${safeName || 'CV'}.pdf`;
+}
+
+function loadExternalScript(src) {
+    return new Promise((resolve, reject) => {
+        const existing = [...document.querySelectorAll('script[src]')]
+            .find(script => script.src === src);
+
+        if (existing) {
+            if (existing.dataset.loaded === 'true') {
+                resolve();
+                return;
+            }
+            existing.addEventListener('load', resolve, { once: true });
+            existing.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true });
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.crossOrigin = 'anonymous';
+        script.addEventListener('load', () => {
+            script.dataset.loaded = 'true';
+            resolve();
+        }, { once: true });
+        script.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true });
+        document.head.appendChild(script);
+    });
+}
+
+async function ensureHtml2PdfAvailable() {
+    if (typeof html2pdf !== 'undefined') return true;
+    if (html2PdfLoadPromise) return html2PdfLoadPromise;
+
+    const fallbackSources = [
+        'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js',
+        'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js'
+    ];
+
+    html2PdfLoadPromise = (async () => {
+        for (const src of fallbackSources) {
+            try {
+                await loadExternalScript(src);
+                if (typeof html2pdf !== 'undefined') return true;
+            } catch (error) {
+                console.warn('ensureHtml2PdfAvailable:', error);
+            }
+        }
+        return typeof html2pdf !== 'undefined';
+    })();
+
+    return html2PdfLoadPromise;
+}
+
+async function waitForPdfAssets(root) {
+    if (!root) return;
+
+    const imagePromises = [...root.querySelectorAll('img')]
+        .filter(img => !img.complete)
+        .map(img => new Promise(resolve => {
+            img.addEventListener('load', resolve, { once: true });
+            img.addEventListener('error', resolve, { once: true });
+        }));
+
+    if (document.fonts?.ready) {
+        try {
+            await document.fonts.ready;
+        } catch (error) {
+            console.warn('waitForPdfAssets fonts:', error);
+        }
+    }
+
+    if (imagePromises.length) {
+        await Promise.race([
+            Promise.all(imagePromises),
+            new Promise(resolve => window.setTimeout(resolve, 2500))
+        ]);
+    }
+}
+
+function getCvExportRoot() {
+    const preview = document.getElementById('cvPreview');
+    if (!preview) return null;
+
+    return preview.querySelector('.cv-full.cv-professional-root')
+        || preview.querySelector('.cv-full')
+        || preview.firstElementChild
+        || null;
+}
+
 async function downloadPdf() {
+    if (pdfExportInProgress) return false;
+    pdfExportInProgress = true;
+
     const wasEditMode = isEditMode;
     if (wasEditMode) { isEditMode = false; refreshEditModeUI(); }
 
-    const preview = document.getElementById('cvPreview');
-    const cvDoc   = preview?.firstElementChild;
-    if (!cvDoc) { if (wasEditMode) { isEditMode = true; refreshEditModeUI(); } return false; }
+    const cvDoc = getCvExportRoot();
+    if (!cvDoc) {
+        pdfExportInProgress = false;
+        if (wasEditMode) { isEditMode = true; refreshEditModeUI(); }
+        return false;
+    }
 
     const name     = currentCvJson?.name || loadedCvName || 'CV';
-    const filename = `CV_${name.replace(/\s+/g, '_')}.pdf`;
+    const filename = getPdfExportFilename(name);
     const btn      = document.querySelector('.btn-pdf');
     const oldText  = btn?.innerHTML;
     if (btn) { btn.innerHTML = '⏳ Đang tạo...'; btn.disabled = true; }
 
-    if (typeof html2pdf !== 'undefined') {
+    const html2PdfReady = await ensureHtml2PdfAvailable();
+
+    if (html2PdfReady) {
         try {
+            await waitForPdfAssets(cvDoc);
+
             // Sanitize unsupported CSS color functions for html2canvas
             const sanitized = [];
             cvDoc.querySelectorAll('*').forEach(el => {
@@ -171,6 +281,7 @@ async function downloadPdf() {
                     filename,
                     image:       { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2, useCORS: true, removeContainer: true },
+                    pagebreak:   { mode: ['css'] },
                     jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 })
                 .from(cvDoc)
@@ -181,17 +292,22 @@ async function downloadPdf() {
             return true;
         } catch (error) {
             console.error('downloadPdf:', error);
+            document.title = filename;
+            window.print();
             alert('Có lỗi khi tải PDF. Vui lòng thử lại!');
             return false;
         } finally {
             if (btn) { btn.innerHTML = oldText; btn.disabled = false; }
             if (wasEditMode) { isEditMode = true; refreshEditModeUI(); }
+            pdfExportInProgress = false;
         }
     } else {
         document.title = filename;
+        alert('Khong tai duoc thu vien xuat PDF tu dong. Trang se mo hop thoai in de ban luu thanh PDF.');
         window.print();
         if (btn) { btn.innerHTML = oldText; btn.disabled = false; }
         if (wasEditMode) { isEditMode = true; refreshEditModeUI(); }
+        pdfExportInProgress = false;
         return true;
     }
 }
@@ -305,8 +421,7 @@ async function createCvPdfBlobForScoring() {
     }
 
     try {
-        const preview = document.getElementById('cvPreview');
-        const cvDoc = preview?.firstElementChild;
+        const cvDoc = getCvExportRoot();
         if (!cvDoc || typeof html2pdf === 'undefined') return null;
 
         const worker = html2pdf()
@@ -314,6 +429,7 @@ async function createCvPdfBlobForScoring() {
                 margin: 0,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true },
+                pagebreak: { mode: ['css', 'legacy'] },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             })
             .from(cvDoc)
@@ -424,33 +540,21 @@ confirmSave = async function confirmSavePatched() {
         currentCvJson._savedName = cvName;
         captureEditorHistorySnapshot(true);
 
-        let scoreSessionId = null;
-
-        try {
-            const btnSave = document.getElementById('btnSaveCv');
-            if (btnSave) {
-                btnSave.textContent = 'Đang chấm điểm...';
-                btnSave.disabled = true;
-                btnSave.classList.remove('saved');
-            }
-
-            const scoring = await scoreCurrentCvForSuccessPage(savedCvId, cvName);
-            scoreSessionId = scoring?.sessionId || scoring?.data?.id || null;
-        } catch (scoreError) {
-            console.error('scoreCurrentCvForSuccessPage:', scoreError);
-            cacheSaveSuccessPayload({
-                cvId: savedCvId,
-                sessionId: null,
-                cvName,
-                templateName: templateName || '',
-                scoreData: null,
-                scoreError: scoreError.message || 'Không thể chấm điểm CV',
-                savedAt: new Date().toISOString()
-            });
-        }
+        // Cache basic info for the success page (scoring will happen there)
+        cacheSaveSuccessPayload({
+            cvId: savedCvId,
+            sessionId: null,
+            cvName,
+            templateName: templateName || '',
+            scoreData: null,
+            savedAt: new Date().toISOString()
+        });
 
         setSaveButtonState('saved');
-        redirectToSaveSuccessPage(savedCvId, scoreSessionId);
+        // Disable editing so browser back doesn't return to editable state
+        if (isEditMode) { isEditMode = false; window.isEditMode = false; refreshEditModeUI(); }
+        // Redirect immediately — success page will handle scoring
+        redirectToSaveSuccessPage(savedCvId, '');
     } catch (error) {
         console.error('confirmSave:', error);
         setSaveButtonState('default');
