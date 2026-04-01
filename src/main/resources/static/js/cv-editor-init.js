@@ -49,6 +49,9 @@ function buildTemplateAppliedCv(sourceCv, templateRecord) {
     if (sourceDesignState.previewIcons && typeof sourceDesignState.previewIcons === 'object') {
         mergedDesignState.previewIcons = cloneCvEditorData(sourceDesignState.previewIcons, {});
     }
+    if (sourceDesignState.sectionTitles && typeof sourceDesignState.sectionTitles === 'object') {
+        mergedDesignState.sectionTitles = cloneCvEditorData(sourceDesignState.sectionTitles, {});
+    }
 
     return {
         ...parsedSource,

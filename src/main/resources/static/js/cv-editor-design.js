@@ -89,6 +89,9 @@ function applyDesignStateToPreview() {
     if (cvRoot) {
         cvRoot.style.setProperty('--font-main', designState.font);
         cvRoot.style.setProperty('--cv-accent', designState.color);
+        cvRoot.style.setProperty('--cv-font-scale', String((designState.fontSize || 100) / 100));
+        cvRoot.style.setProperty('--cv-line-height', String(designState.lineSpacing || 1.5));
+        cvRoot.style.fontFamily = designState.font;
     }
 
     applyBackground(designState.background);
