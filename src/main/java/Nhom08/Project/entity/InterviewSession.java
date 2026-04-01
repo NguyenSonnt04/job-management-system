@@ -59,6 +59,10 @@ public class InterviewSession {
     @Column(name = "has_cv", nullable = false)
     private Boolean hasCv = false;
 
+    /** Phong cách phỏng vấn: "standard" | "techlead" | "startup" | "strict" */
+    @Column(name = "interview_style", length = 30)
+    private String interviewStyle = "standard";
+
     /** Trạng thái: "in_progress" | "completed" | "abandoned" */
     @Column(name = "status", nullable = false, length = 30)
     private String status = "in_progress";
@@ -120,6 +124,9 @@ public class InterviewSession {
 
     public Boolean getHasCv() { return hasCv; }
     public void setHasCv(Boolean hasCv) { this.hasCv = hasCv; }
+
+    public String getInterviewStyle() { return interviewStyle; }
+    public void setInterviewStyle(String interviewStyle) { this.interviewStyle = interviewStyle; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

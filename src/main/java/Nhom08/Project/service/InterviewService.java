@@ -17,14 +17,15 @@ import java.util.stream.Collectors;
 @Service
 public class InterviewService {
 
-    @Autowired private InterviewSessionRepository    sessionRepo;
-    @Autowired private InterviewMessageRepository    messageRepo;
-    @Autowired private InterviewResultRepository     resultRepo;
-    @Autowired private InterviewRoleRepository       roleRepo;
-    @Autowired private InterviewLevelRepository      levelRepo;
-    @Autowired private InterviewTypeRepository       typeRepo;
-    @Autowired private InterviewQuestionBankRepository questionRepo;
-    @Autowired private ClaudeService                 claudeService;
+    @Autowired private InterviewSessionRepository        sessionRepo;
+    @Autowired private InterviewMessageRepository        messageRepo;
+    @Autowired private InterviewResultRepository         resultRepo;
+    @Autowired private InterviewRoleRepository           roleRepo;
+    @Autowired private InterviewLevelRepository          levelRepo;
+    @Autowired private InterviewTypeRepository           typeRepo;
+    @Autowired private InterviewQuestionBankRepository   questionRepo;
+    @Autowired private InterviewPromptTemplateRepository promptRepo;
+    @Autowired private GeminiService                     geminiService;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -50,7 +51,7 @@ public class InterviewService {
     @Transactional
     public InterviewSession createSession(User user, String mode, String roleKey,
                                           String levelKey, String typeKey,
-                                          String cvFileName, boolean hasCv) {
+                                          String cvFileName, boolean hasCv, String interviewStyle) {
         String roleName = roleRepo.findByRoleKey(roleKey)
                 .map(InterviewRole::getRoleName)
                 .orElse(roleKey);
@@ -58,6 +59,7 @@ public class InterviewService {
         InterviewSession session = new InterviewSession(user, mode, roleName, roleKey, levelKey, typeKey);
         session.setCvFileName(cvFileName);
         session.setHasCv(hasCv);
+        session.setInterviewStyle(interviewStyle != null && !interviewStyle.isBlank() ? interviewStyle : "standard");
         return sessionRepo.save(session);
     }
 
@@ -90,7 +92,11 @@ public class InterviewService {
                 .orElseThrow(() -> new IllegalArgumentException("Session không tồn tại: " + sessionId));
 
         String systemPrompt = buildSystemPrompt(session, cvContext);
-        String reply = claudeService.chat(systemPrompt, messages, 800);
+        // Claude API requires at least 1 message — inject a starter if empty
+        List<Map<String, String>> effectiveMessages = messages.isEmpty()
+                ? List.of(Map.of("role", "user", "content", "Bắt đầu phỏng vấn"))
+                : messages;
+        String reply = geminiService.chat(systemPrompt, effectiveMessages);
 
         // Lưu tin nhắn user (tin nhắn cuối trong danh sách)
         if (!messages.isEmpty()) {
@@ -127,7 +133,7 @@ public class InterviewService {
         List<Map<String, String>> evalMessages = List.of(
                 Map.of("role", "user", "content", evalUserMsg));
 
-        String raw = claudeService.chat(evalPrompt, evalMessages, 1200);
+        String raw = geminiService.chat(evalPrompt, evalMessages);
 
         // Parse JSON từ Claude
         InterviewResult result = new InterviewResult();
@@ -199,33 +205,99 @@ public class InterviewService {
     // PRIVATE HELPERS
     // ================================================================
 
-    private String buildSystemPrompt(InterviewSession session, String cvContext) {
-        String typeDesc = switch (session.getTypeKey()) {
-            case "hr"         -> "HR và soft skills (tính cách, thái độ, văn hóa công ty)";
-            case "technical"  -> "chuyên môn kỹ thuật sâu theo vị trí";
-            case "behavioral" -> "behavioral theo cấu trúc STAR (tình huống thực tế)";
-            default           -> "tổng hợp gồm HR, chuyên môn và behavioral";
-        };
+    // ── Prompt helper: đọc từ DB, fallback hardcode ──
 
+    private String getPrompt(String key) {
+        return promptRepo.findByPromptKeyAndActiveTrue(key)
+                .map(InterviewPromptTemplate::getPromptContent)
+                .orElse(null);
+    }
+
+    private String buildSystemPrompt(InterviewSession session, String cvContext) {
+        // Type description
+        String typeDesc = getPrompt("type_" + session.getTypeKey());
+        if (typeDesc == null) {
+            typeDesc = switch (session.getTypeKey()) {
+                case "hr"         -> "HR và soft skills (tính cách, thái độ, văn hóa công ty)";
+                case "technical"  -> "chuyên môn kỹ thuật sâu theo vị trí";
+                case "behavioral" -> "behavioral theo cấu trúc STAR (tình huống thực tế)";
+                default           -> "tổng hợp gồm HR, chuyên môn và behavioral";
+            };
+        }
+
+        // Interviewer style
+        String style = session.getInterviewStyle() != null ? session.getInterviewStyle() : "standard";
+        String styleDesc = getPrompt("style_" + style);
+        if (styleDesc == null) {
+            styleDesc = switch (style) {
+                case "techlead" -> "Bạn là Tech Lead / Senior Engineer 10+ năm kinh nghiệm. Hỏi sâu vào kỹ thuật, " +
+                    "phản biện câu trả lời chưa chính xác, đặt follow-up để kiểm tra hiểu biết thực sự. " +
+                    "Ví dụ: 'Tại sao lại dùng cách đó?', 'Scale lên 10x thì xử lý thế nào?'. Giọng nghiêm túc, ít khen chung chung.";
+                case "startup"  -> "Bạn là Founder/CTO startup đang scale nhanh. Hỏi thẳng vào thực tế, " +
+                    "kiểm tra tự học, chịu áp lực và làm với nguồn lực hạn chế. Đánh giá mindset hơn bằng cấp. Giọng nhanh, thực dụng.";
+                case "strict"   -> "Bạn là interviewer chuẩn FAANG. Nghiêm khắc, ít gợi ý, yêu cầu chính xác và chiều sâu. " +
+                    "Nếu ứng viên trả lời mơ hồ, hỏi lại: 'Bạn có thể nói cụ thể hơn không?'. Không khen nếu chưa xứng đáng.";
+                default         -> "Bạn là nhà tuyển dụng chuyên nghiệp, cân bằng và thân thiện. " +
+                    "Đặt câu hỏi rõ ràng, nhận xét mang tính xây dựng sau mỗi câu trả lời.";
+            };
+        }
+
+        // Level-specific guide
+        String levelGuide = getPrompt("level_" + session.getLevelKey().toLowerCase());
+        if (levelGuide == null) {
+            levelGuide = switch (session.getLevelKey().toLowerCase()) {
+                case "intern" -> "\n\nHướng dẫn đặc biệt cho Intern:\n" +
+                    "- Bắt đầu bằng câu hỏi giới thiệu bản thân: bạn đang học trường nào, năm mấy, tại sao chọn ngành này.\n" +
+                    "- Tiếp theo hỏi 1-2 câu OOP cơ bản (4 tính chất, ví dụ thực tế, so sánh abstract class vs interface...).\n" +
+                    "- Hỏi 1-2 câu DSA cơ bản (array vs linked list, Big-O, sorting đơn giản...).\n" +
+                    "- Nếu ứng viên có CV/project, hỏi sâu vào project đã làm: dùng công nghệ gì, gặp khó khăn gì, bạn đảm nhận phần nào.\n" +
+                    "- Giọng điệu nhẹ nhàng, khuyến khích, vì đây là người mới bắt đầu.";
+                default -> "";
+            };
+        }
+
+        // CV section
         String cvSection = (session.getHasCv() && cvContext != null && !cvContext.isBlank())
                 ? "\n\nThông tin CV ứng viên:\n" + cvContext +
                   "\nHãy cá nhân hóa câu hỏi dựa trên kinh nghiệm và kỹ năng trong CV này."
                 : "";
 
+        // Main template — đọc từ DB hoặc dùng mặc định
+        String mainTemplate = getPrompt("system_main");
+        if (mainTemplate != null) {
+            return mainTemplate
+                    .replace("{{role}}", session.getRoleName())
+                    .replace("{{level}}", session.getLevelKey())
+                    .replace("{{typeDesc}}", typeDesc)
+                    .replace("{{styleDesc}}", styleDesc)
+                    .replace("{{levelGuide}}", levelGuide)
+                    .replace("{{cvSection}}", cvSection);
+        }
+
         return """
-            Bạn là một nhà tuyển dụng chuyên nghiệp, đang phỏng vấn ứng viên cho vị trí %s ở cấp độ %s.
-            Phong cách phỏng vấn: %s.
-            Nguyên tắc:
-            - Mỗi lượt chỉ hỏi MỘT câu hỏi duy nhất, ngắn gọn và rõ ràng.
-            - Sau khi ứng viên trả lời, đưa ra nhận xét ngắn (2-3 câu): điểm tốt, điểm cần cải thiện.
-            - Sau nhận xét, hỏi câu tiếp theo có liên quan hoặc đi sâu hơn.
-            - Sử dụng tiếng Việt xuyên suốt. Giọng điệu chuyên nghiệp nhưng thân thiện.
-            - KHÔNG liệt kê nhiều câu hỏi cùng lúc. KHÔNG dùng markdown (không dùng **, ##).
-            - Khi bắt đầu, hãy chào ứng viên và hỏi câu hỏi đầu tiên ngay.%s
-            """.formatted(session.getRoleName(), session.getLevelKey(), typeDesc, cvSection);
+            Bạn là AI Interviewer của JCO (Job Connection Online). Bạn đang phỏng vấn ứng viên cho vị trí %s ở cấp độ %s.
+            Loại phỏng vấn: %s.
+
+            Phong cách của bạn: %s
+
+            Nguyên tắc bất biến:
+            - Khi bắt đầu, hãy giới thiệu: "Xin chào, tôi là AI Interviewer của JCO." rồi giới thiệu ngắn gọn cuộc phỏng vấn và hỏi câu đầu tiên.
+            - KHÔNG bao giờ tự đặt tên người thật cho mình (ví dụ: [Tên của tôi], Minh, Hùng...). Luôn xưng là "tôi" hoặc "AI Interviewer của JCO".
+            - Mỗi lượt chỉ hỏi MỘT câu hỏi duy nhất.
+            - Sau khi ứng viên trả lời, đưa ra nhận xét ngắn (2-3 câu) rồi hỏi tiếp.
+            - Sử dụng tiếng Việt xuyên suốt.
+            - KHÔNG liệt kê nhiều câu hỏi cùng lúc. KHÔNG dùng markdown (không dùng **, ##).%s%s
+            """.formatted(session.getRoleName(), session.getLevelKey(), typeDesc, styleDesc, levelGuide, cvSection);
     }
 
     private String buildEvalSystemPrompt(InterviewSession session) {
+        String evalTemplate = getPrompt("eval_system");
+        if (evalTemplate != null) {
+            return evalTemplate
+                    .replace("{{role}}", session.getRoleName())
+                    .replace("{{level}}", session.getLevelKey());
+        }
+
         return """
             Bạn là chuyên gia đánh giá phỏng vấn. Phân tích toàn bộ cuộc phỏng vấn và trả về JSON.
             Vị trí: %s — Cấp độ: %s.

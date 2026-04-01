@@ -465,6 +465,43 @@
 
 .mi-cv-ai-note i { color: #8b5cf6; flex-shrink: 0; margin-top: 1px; }
 
+.mi-cv-analyzing {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #00BFA5;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.mi-cv-spinner {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 2px solid rgba(0,191,165,0.25);
+    border-top-color: #00BFA5;
+    border-radius: 50%;
+    animation: mi-spin 0.75s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes mi-spin {
+    to { transform: rotate(360deg); }
+}
+
+.mi-unlock-btn {
+    background: none;
+    border: none;
+    color: #00BFA5;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    margin-left: 4px;
+}
+
+
 /* =====================================================
    CATEGORY TABS & ROLE SEARCH
    ===================================================== */
@@ -2508,3 +2545,53 @@
 }
 
 .mi-ss-section { margin-bottom: 8px; }
+
+
+/* ── Interviewer Style Grid ── */
+.mi-style-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.mi-style-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    padding: 10px 13px;
+    border-radius: 10px;
+    border: 1.5px solid #e5e9f2;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 150ms, background 150ms, box-shadow 150ms;
+    text-align: left;
+}
+
+.mi-style-btn:hover {
+    border-color: #a5b4fc;
+    background: #f8f9ff;
+}
+
+.mi-style-btn.active {
+    border-color: #6366f1;
+    background: #eef2ff;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
+
+.mi-style-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a2456;
+    line-height: 1.2;
+}
+
+.mi-style-btn.active .mi-style-name {
+    color: #4f46e5;
+}
+
+.mi-style-desc {
+    font-size: 11px;
+    color: #6b7280;
+    line-height: 1.3;
+}

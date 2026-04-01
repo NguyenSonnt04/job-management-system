@@ -213,6 +213,16 @@ function initSetupEvents() {
         });
     }
 
+    // Interviewer style selector
+    document.querySelectorAll('.mi-style-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.mi-style-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            session.interviewStyle = btn.dataset.style;
+        });
+    });
+    session.interviewStyle = 'standard'; // default
+
     // Range (số câu hỏi)
     const qCount = document.getElementById('qCount');
     const qCountLabel = document.getElementById('qCountLabel');
@@ -293,7 +303,7 @@ async function loadSavedCvs() {
             container.insertBefore(item, noSaved);
 
             item.querySelector('.mi-scv-select').addEventListener('click', () => {
-                selectSavedCv(item, cv.cvName, templateInfo + 'Cập nhật ' + updatedLabel);
+                selectSavedCv(item, cv.cvName, templateInfo + 'Cập nhật ' + updatedLabel, cv.id);
             });
         });
     } catch (e) {
@@ -303,20 +313,76 @@ async function loadSavedCvs() {
     }
 }
 
-function selectSavedCv(item, cvName, cvDesc) {
+function selectSavedCv(item, cvName, cvDesc, cvId) {
     const cvUploadZone = document.getElementById('cvUploadZone');
-    cvState = { hasCV: true, cvName, cvSize: cvDesc, source: 'saved' };
+    cvState = { hasCV: true, cvName, cvSize: 'Đang phân tích...', source: 'saved' };
 
     document.getElementById('cvUploadInner').style.display   = 'none';
     document.getElementById('cvSelectedState').style.display = 'flex';
     cvUploadZone?.classList.add('has-file');
     document.getElementById('cvFileName').textContent = cvName;
-    document.getElementById('cvFileSize').textContent = '✓ Đã chọn · ' + cvDesc;
+    document.getElementById('cvFileSize').innerHTML = '<span class="mi-cv-analyzing"><span class="mi-cv-spinner"></span>AI đang phân tích CV...</span>';
 
     document.querySelectorAll('.mi-saved-cv-item').forEach(i => i.classList.remove('selected'));
     item.classList.add('selected');
     const cvAiNote = document.getElementById('cvAiNote');
     if (cvAiNote) cvAiNote.style.display = 'flex';
+
+    if (cvId) analyzeSavedCvAndLockForm(cvId, cvName, cvDesc);
+}
+
+async function analyzeSavedCvAndLockForm(cvId, cvName, cvDesc) {
+    const sizeEl = document.getElementById('cvFileSize');
+    try {
+        const res  = await fetch(`/api/interview/analyze-cv/${cvId}`, { credentials: 'include' });
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        session.roleKey = data.roleKey || '';
+        session.role    = data.roleName || '';
+        session.level   = data.levelKey || 'fresher';
+        session.type    = data.typeKey  || 'mixed';
+        cvState.cvSummary = data.cvSummary || '';
+        cvState.cvSize    = '✓ Đã chọn · ' + cvDesc;
+        if (sizeEl) sizeEl.textContent = cvState.cvSize;
+
+        // Auto-select role
+        let matched = false;
+        document.querySelectorAll('.mi-role-btn').forEach(btn => {
+            const active = btn.dataset.roleKey === data.roleKey;
+            btn.classList.toggle('active', active);
+            if (active) matched = true;
+        });
+        if (!matched && data.roleName) {
+            const customInput = document.getElementById('customRole');
+            if (customInput) customInput.value = data.roleName;
+        }
+
+        // Auto-select level
+        document.querySelectorAll('.mi-level-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.level === data.levelKey);
+        });
+
+        // Auto-select type
+        document.querySelectorAll('.mi-type-card').forEach(card => {
+            card.classList.toggle('active', card.dataset.type === data.typeKey);
+            const radio = card.querySelector('input[type=radio]');
+            if (radio) radio.checked = card.dataset.type === data.typeKey;
+        });
+
+        lockFormFields(true);
+
+        const cvAiNote = document.getElementById('cvAiNote');
+        if (cvAiNote) {
+            cvAiNote.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>AI đã phân tích CV: <strong>${escapeHtml(data.roleName || data.roleKey)}</strong> · ${getLevelName(data.levelKey)} · Các trường đã được tự động điền. <button type="button" class="mi-unlock-btn" onclick="lockFormFields(false)">Chỉnh sửa</button></span>`;
+            cvAiNote.style.display = 'flex';
+        }
+    } catch (e) {
+        if (sizeEl) sizeEl.textContent = '✓ Đã chọn · ' + cvDesc;
+        console.warn('Không thể phân tích CV đã lưu:', e);
+    }
 }
 
 function formatRelativeTime(isoString) {
@@ -372,25 +438,120 @@ function initCvUpload() {
         document.getElementById('cvSelectedState').style.display= 'none';
         cvUploadZone.classList.remove('has-file');
         const cvAiNote = document.getElementById('cvAiNote');
-        if (cvAiNote) cvAiNote.style.display = 'none';
+        if (cvAiNote) {
+            cvAiNote.style.display = 'none';
+            cvAiNote.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>AI đã đọc CV của bạn và sẽ tạo câu hỏi phù hợp với kinh nghiệm, kỹ năng và vị trí mong muốn.</span>`;
+        }
         if (cvFileInput) cvFileInput.value = '';
         document.querySelectorAll('.mi-saved-cv-item').forEach(i => i.classList.remove('selected'));
+        lockFormFields(false);
     });
 }
 
 function setCVFile(file) {
     const kb   = Math.round(file.size / 1024);
     const size = kb > 1024 ? `${(kb/1024).toFixed(1)} MB` : `${kb} KB`;
-    cvState = { hasCV: true, cvName: file.name, cvSize: size + ' · Đã sẵn sàng', source: 'upload' };
+    cvState = { hasCV: true, cvName: file.name, cvSize: size + ' · Đang phân tích...', source: 'upload' };
 
     document.getElementById('cvFileName').textContent = cvState.cvName;
-    document.getElementById('cvFileSize').textContent = cvState.cvSize;
+    document.getElementById('cvFileSize').innerHTML = '<span class="mi-cv-analyzing"><span class="mi-cv-spinner"></span>AI đang phân tích CV...</span>';
     document.getElementById('cvUploadInner').style.display   = 'none';
     document.getElementById('cvSelectedState').style.display = 'flex';
     document.getElementById('cvUploadZone').classList.add('has-file');
     const cvAiNote = document.getElementById('cvAiNote');
-    if (cvAiNote) cvAiNote.style.display = 'flex';
+    if (cvAiNote) cvAiNote.style.display = 'none';
     document.querySelectorAll('.mi-saved-cv-item').forEach(i => i.classList.remove('selected'));
+
+    // Gọi Gemini phân tích CV → auto-fill + lock form
+    analyzeCvAndLockForm(file);
+}
+
+async function analyzeCvAndLockForm(file) {
+    const sizeEl = document.getElementById('cvFileSize');
+    try {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res  = await fetch('/api/interview/analyze-cv', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.error);
+
+        // Cập nhật session state từ kết quả Gemini
+        session.roleKey = data.roleKey || '';
+        session.role    = data.roleName || '';
+        session.level   = data.levelKey || 'fresher';
+        session.type    = data.typeKey  || 'mixed';
+
+        // Lưu context CV vào cvState
+        cvState.cvSummary = data.cvSummary || '';
+        cvState.cvSize = file.size > 1024*1024
+            ? `${(file.size/1024/1024).toFixed(1)} MB · Đã phân tích`
+            : `${Math.round(file.size/1024)} KB · Đã phân tích`;
+        if (sizeEl) sizeEl.textContent = cvState.cvSize;
+
+        // Auto-select role button
+        let matched = false;
+        document.querySelectorAll('.mi-role-btn').forEach(btn => {
+            const active = btn.dataset.roleKey === data.roleKey;
+            btn.classList.toggle('active', active);
+            if (active) matched = true;
+        });
+        // Nếu không khớp roleKey nào → hiện trong custom input
+        if (!matched && data.roleName) {
+            const customInput = document.getElementById('customRole');
+            if (customInput) customInput.value = data.roleName;
+        }
+
+        // Auto-select level
+        document.querySelectorAll('.mi-level-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.level === data.levelKey);
+        });
+
+        // Auto-select type
+        document.querySelectorAll('.mi-type-card').forEach(card => {
+            card.classList.toggle('active', card.dataset.type === data.typeKey);
+            const radio = card.querySelector('input[type=radio]');
+            if (radio) radio.checked = card.dataset.type === data.typeKey;
+        });
+
+        // Lock tất cả các field (role, level, type)
+        lockFormFields(true);
+
+        // Hiện thông báo đã phân tích
+        const cvAiNote = document.getElementById('cvAiNote');
+        if (cvAiNote) {
+            cvAiNote.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>AI đã phân tích CV: <strong>${escapeHtml(data.roleName || data.roleKey)}</strong> · ${getLevelName(data.levelKey)} · Các trường đã được tự động điền. <button type="button" class="mi-unlock-btn" onclick="lockFormFields(false)">Chỉnh sửa</button></span>`;
+            cvAiNote.style.display = 'flex';
+        }
+
+    } catch (e) {
+        if (sizeEl) sizeEl.textContent = cvState.cvName ? `${Math.round(file.size/1024)} KB · Đã sẵn sàng` : '';
+        console.warn('Không thể phân tích CV:', e);
+    }
+}
+
+function lockFormFields(locked) {
+    // Chỉ lock phần Vị trí ứng tuyển (role grid, category tabs, role search, custom role)
+    ['#catTabs', '#roleGrid', '#customRole'].forEach(sel => {
+        const el = document.querySelector(sel);
+        if (el) {
+            el.style.pointerEvents = locked ? 'none' : '';
+            el.style.opacity       = locked ? '0.5'  : '';
+        }
+    });
+    const roleSearchEl = document.querySelector('#roleSearch');
+    if (roleSearchEl) {
+        roleSearchEl.disabled      = locked;
+        roleSearchEl.style.opacity = locked ? '0.5' : '';
+    }
+}
+
+function getLevelName(key) {
+    const map = { fresher: 'Fresher', junior: 'Junior', middle: 'Middle', senior: 'Senior', lead: 'Lead/Manager' };
+    return map[key] || key;
 }
 
 /* =====================================================
@@ -847,53 +1008,47 @@ async function startVoiceInterview() {
 }
 
 async function startChatInterview() {
-    chatState.role      = session.role     || 'Vị trí chưa xác định';
-    chatState.level     = session.level    || 'fresher';
-    chatState.type      = session.type     || 'mixed';
-    chatState.hasCV     = cvState.hasCV    || false;
-    chatState.cvContext = cvState.cvName ? `CV đã tải lên: ${cvState.cvName} (${cvState.cvSize})` : '';
-    chatState.messages  = [];
-    chatState.sessionId = null;
-    chatState.ttsEnabled = document.getElementById('ttsEnabled')?.checked ?? true;
-    chatState.sttEnabled = document.getElementById('sttEnabled')?.checked ?? false;
+    const role           = session.role  || 'Vị trí chưa xác định';
+    const roleKey        = session.roleKey || toRoleKey(role);
+    const level          = session.level || 'fresher';
+    const type           = session.type  || 'mixed';
+    const interviewStyle = session.interviewStyle || 'standard';
+    const hasCV          = cvState.hasCV || false;
+    const cvName         = cvState.cvName || '';
 
-    const label = document.getElementById('chatSessionLabel');
-    if (label) label.textContent = `${chatState.role} · ${chatState.level}`;
-
-    const chatMsgs = document.getElementById('chatMessages');
-    if (chatMsgs) chatMsgs.innerHTML = '';
-
-    showStep('stepChat');
-    showTyping(true);
+    // Tạo session trước, rồi redirect
+    const startBtn = document.getElementById('startBtn');
+    if (startBtn) { startBtn.disabled = true; startBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang khởi tạo...'; }
 
     try {
-        // Tạo session DB
         const startRes = await fetch('/api/interview/session/start', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                mode:       'ai',
-                roleKey:    session.roleKey || toRoleKey(session.role),
-                levelKey:   chatState.level,
-                typeKey:    chatState.type,
-                cvFileName: cvState.cvName || '',
-                hasCv:      chatState.hasCV,
-            }),
+            credentials: 'include',
+            body: JSON.stringify({ mode: 'ai', roleKey, levelKey: level, typeKey: type, interviewStyle, cvFileName: cvName, hasCv: hasCV }),
         });
-        if (startRes.ok) {
-            const d = await startRes.json();
-            chatState.sessionId = d.sessionId;
+        const d = startRes.ok ? await startRes.json() : {};
+        const sessionId = d.sessionId || '';
+
+        // Lưu cvSummary vào sessionStorage (quá dài cho URL param)
+        if (cvState.cvSummary) {
+            sessionStorage.setItem('interviewCvContext', cvState.cvSummary);
         }
 
-        const reply = await callChatAPI([]);
-        showTyping(false);
-        appendMessage('assistant', reply);
-        if (chatState.ttsEnabled) speak(reply);
-
+        const params = new URLSearchParams({
+            sessionId,
+            role,
+            roleKey,
+            level,
+            type,
+            interviewStyle,
+            hasCV: hasCV ? '1' : '0',
+            cvName,
+        });
+        window.location.href = `/interview-chat.html?${params}`;
     } catch (err) {
-        showTyping(false);
-        appendMessage('assistant', 'Xin lỗi, tôi gặp sự cố kết nối. Vui lòng thử lại.');
-        console.error(err);
+        if (startBtn) { startBtn.disabled = false; startBtn.innerHTML = '<i class="fa-solid fa-play"></i> Bắt đầu phỏng vấn'; }
+        alert('Không thể khởi tạo phiên. Vui lòng thử lại.');
     }
 }
 
