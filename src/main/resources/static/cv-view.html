@@ -267,8 +267,6 @@
                     return;
                 }
 
-                const parsed = JSON.parse(data.cvContent);
-
                 // Set up render state (reuse cv-editor-state globals)
                 window.avatarDataUrl = parsed.avatarUrl || parsed.avatarDataUrl || null;
                 hydrateDesignState(parsed._designState || { color: parsed._accent });
