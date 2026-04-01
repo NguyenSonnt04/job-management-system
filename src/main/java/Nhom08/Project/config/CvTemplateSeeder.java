@@ -1,10 +1,11 @@
 package Nhom08.Project.config;
 
 import Nhom08.Project.entity.CvTemplate;
-import Nhom08.Project.repository.CvTemplateRepository;
+import Nhom08.Project.service.CvVersioningService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,10 +15,11 @@ import org.springframework.stereotype.Component;
  *   - UPDATE all fields if name already exists (so code changes are applied on restart)
  */
 @Component
+@Order(1)
 public class CvTemplateSeeder implements ApplicationRunner {
 
     @Autowired
-    private CvTemplateRepository cvTemplateRepository;
+    private CvVersioningService cvVersioningService;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -62,22 +64,8 @@ public class CvTemplateSeeder implements ApplicationRunner {
      * This ensures seeder changes are reflected in DB on every restart.
      */
     private void seedTemplate(CvTemplate tpl) {
-        cvTemplateRepository.findByName(tpl.getName()).ifPresentOrElse(
-            existing -> {
-                existing.setDescription(tpl.getDescription());
-                existing.setPreviewColor(tpl.getPreviewColor());
-                existing.setBadgeLabel(tpl.getBadgeLabel());
-                existing.setBadgeBgColor(tpl.getBadgeBgColor());
-                existing.setBadgeTextColor(tpl.getBadgeTextColor());
-                existing.setCategory(tpl.getCategory());
-                existing.setStyleTag(tpl.getStyleTag());
-                existing.setSortOrder(tpl.getSortOrder());
-                existing.setTemplateContent(tpl.getTemplateContent());
+        cvVersioningService.upsertSeedTemplate(tpl);
                 // Note: we do NOT override `active` — respect admin's toggle
-                cvTemplateRepository.save(existing);
-            },
-            () -> cvTemplateRepository.save(tpl)
-        );
     }
 
     // ── 1. Công nghệ & IT ──────────────────────────────────────────────────────

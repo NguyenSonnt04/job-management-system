@@ -1,17 +1,14 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CV Builder | CoHoiViecLam</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/cv-editor.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;700&family=Merriweather:wght@300;400;700&display=swap"
-      rel="stylesheet"
-    />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Builder | CareerViet</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cv-editor.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
     <!-- Third-party libs -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -23,439 +20,225 @@
     <script src="js/cv-editor-edit.js"></script>
     <script src="js/cv-editor-save.js"></script>
     <script src="js/cv-editor-init.js"></script>
-  </head>
-  <body>
+</head>
+<body>
+
     <div id="header-placeholder"></div>
 
     <div class="editor-workspace">
-      <!-- ── Left: Design Column ── -->
-      <aside class="design-column" id="designColumn">
-        <div class="design-column-header">
-          <i data-lucide="layout-template"></i>
-          Trình chỉnh CV
-        </div>
-
-        <div class="design-shell">
-          <div class="design-nav" role="tablist" aria-label="Nhóm công cụ CV">
-            <button
-              class="design-nav-item active"
-              type="button"
-              data-panel="design"
-              onclick="switchDesignPanel('design')"
-            >
-              <i data-lucide="palette"></i>
-              <span>Thiết kế & Font</span>
-            </button>
-            <button
-              class="design-nav-item"
-              type="button"
-              data-panel="sections"
-              onclick="switchDesignPanel('sections')"
-            >
-              <i data-lucide="plus"></i>
-              <span>Thêm mục</span>
-            </button>
-            <button
-              class="design-nav-item"
-              type="button"
-              data-panel="layout"
-              onclick="switchDesignPanel('layout')"
-            >
-              <i data-lucide="panel-left"></i>
-              <span>Bố cục</span>
-            </button>
-          </div>
-
-          <div class="design-panels">
-            <section class="design-panel active" data-panel="design">
-              <div class="design-panel-heading">
-                <h3>Thiết kế & Font</h3>
-                <p>
-                  Điều chỉnh kiểu chữ và giao diện CV. Các thay đổi sẽ áp dụng
-                  ngay trên bản xem trước.
-                </p>
-              </div>
-
-              <div class="design-group">
-                <label class="design-label">Phông chữ</label>
-                <select
-                  class="design-input"
-                  id="cvFontFamily"
-                  onchange="updateDesign('font', this.value)"
-                >
-                  <option value="'Inter', sans-serif">Inter (Mặc định)</option>
-                  <option value="'Roboto', sans-serif">Roboto</option>
-                  <option value="'Open Sans', sans-serif">Open Sans</option>
-                  <option value="'Merriweather', serif">
-                    Merriweather (Cổ điển)
-                  </option>
-                  <option value="'Georgia', serif">Georgia</option>
-                  <option value="'Times New Roman', serif">
-                    Times New Roman
-                  </option>
-                </select>
-              </div>
-
-              <div class="design-group">
-                <label class="design-label"
-                  >Cỡ chữ: <span id="cvFontSizeLabel">100%</span></label
-                >
-                <input
-                  type="range"
-                  class="design-input"
-                  id="cvFontSize"
-                  min="80"
-                  max="130"
-                  value="100"
-                  oninput="updateDesign('fontSize', this.value)"
-                />
-                <div class="design-range-hints">
-                  <span>Nhỏ</span><span>Vừa</span><span>Lớn</span>
-                </div>
-              </div>
-
-              <div class="design-group">
-                <label class="design-label"
-                  >Giãn dòng: <span id="cvLineSpacingLabel">1.5</span></label
-                >
-                <input
-                  type="range"
-                  class="design-input"
-                  id="cvLineSpacing"
-                  min="1.1"
-                  max="2.0"
-                  step="0.1"
-                  value="1.5"
-                  oninput="updateDesign('lineSpacing', this.value)"
-                />
-              </div>
-
-              <div class="design-group">
-                <label class="design-label">Màu chủ đạo</label>
-                <div class="color-options" id="colorOptions">
-                  <div
-                    class="color-dot active"
-                    style="background: #2e3b8e"
-                    onclick="updateDesign('color', '#2E3B8E', this)"
-                    title="Midnight Blue"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #0f766e"
-                    onclick="updateDesign('color', '#0f766e', this)"
-                    title="Teal"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #b91c1c"
-                    onclick="updateDesign('color', '#b91c1c', this)"
-                    title="Crimson"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #1e293b"
-                    onclick="updateDesign('color', '#1e293b', this)"
-                    title="Slate"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #7c3aed"
-                    onclick="updateDesign('color', '#7c3aed', this)"
-                    title="Violet"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #ea580c"
-                    onclick="updateDesign('color', '#ea580c', this)"
-                    title="Orange"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #059669"
-                    onclick="updateDesign('color', '#059669', this)"
-                    title="Emerald"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #be185d"
-                    onclick="updateDesign('color', '#be185d', this)"
-                    title="Pink"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #1d4ed8"
-                    onclick="updateDesign('color', '#1d4ed8', this)"
-                    title="Royal Blue"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #0369a1"
-                    onclick="updateDesign('color', '#0369a1', this)"
-                    title="Ocean Blue"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #4338ca"
-                    onclick="updateDesign('color', '#4338ca', this)"
-                    title="Indigo"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #b45309"
-                    onclick="updateDesign('color', '#b45309', this)"
-                    title="Amber"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #3f3f46"
-                    onclick="updateDesign('color', '#3f3f46', this)"
-                    title="Zinc"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #4d7c0f"
-                    onclick="updateDesign('color', '#4d7c0f', this)"
-                    title="Lime green"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #a21caf"
-                    onclick="updateDesign('color', '#a21caf', this)"
-                    title="Fuchsia"
-                  ></div>
-                  <div
-                    class="color-dot"
-                    style="background: #0f172a"
-                    onclick="updateDesign('color', '#0f172a', this)"
-                    title="Navy"
-                  ></div>
-                </div>
-              </div>
-
-              <div class="design-group">
-                <label class="design-label">Hình nền CV</label>
-                <select
-                  class="design-input"
-                  id="cvBackground"
-                  onchange="updateDesign('background', this.value)"
-                >
-                  <option value="solid">Trơn (Mặc định)</option>
-                  <option value="gradient-light">Gradient nhạt</option>
-                  <option value="gradient-dark">Gradient đậm</option>
-                  <option value="pattern-dots">Chấm bi</option>
-                  <option value="pattern-lines">Kẻ sọc</option>
-                  <option value="pattern-subtle">Họa tiết mờ</option>
-                </select>
-              </div>
-            </section>
-
-            <section class="design-panel" data-panel="sections">
-              <div class="design-panel-heading">
-                <h3>Thêm mục</h3>
-                <p>
-                  Bật các phần còn thiếu để chèn nhanh nội dung mẫu, sau đó sửa
-                  trực tiếp ngay trên CV.
-                </p>
-              </div>
-
-              <div class="section-library">
-                <div class="section-library-block">
-                  <div class="section-library-title">Mục chưa dùng</div>
-                  <div
-                    class="section-library-list"
-                    id="unusedSectionList"
-                  ></div>
-                </div>
-
-                <div class="section-library-block">
-                  <div class="section-library-title">Mục đã dùng</div>
-                  <div class="section-library-list" id="usedSectionList"></div>
-                </div>
-              </div>
-            </section>
-
-            <section class="design-panel" data-panel="layout">
-              <div class="layout-studio">
-                <div class="layout-studio-header">
-                  <div>
-                    <h3>Bố cục CV</h3>
-                    <p>
-                      Chọn phần đang dùng, kéo thả để đổi vị trí và ẩn hoặc thêm
-                      lại ngay trong lúc chỉnh CV.
-                    </p>
-                  </div>
-                  <button
-                    class="layout-studio-close"
-                    type="button"
-                    onclick="switchDesignPanel('design')"
-                    aria-label="Đóng bảng bố cục"
-                  >
-                    <i data-lucide="x"></i>
-                  </button>
-                </div>
-
-                <button
-                  class="layout-guide-link"
-                  type="button"
-                  onclick="openLayoutGuide()"
-                >
-                  Xem hướng dẫn Tùy chỉnh bố cục >>
-                </button>
-
-                <div class="layout-board">
-                  <div class="layout-fixed-grid" id="layoutFixedGrid"></div>
-                  <div class="layout-board-scroll">
-                    <div class="layout-grid" id="layoutUsedGrid"></div>
-                  </div>
-                </div>
-
-                <div class="layout-unused-box">
-                  <div class="layout-unused-title">Mục chưa sử dụng</div>
-                  <div
-                    class="layout-grid layout-grid-unused"
-                    id="layoutUnusedGrid"
-                  ></div>
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-      </aside>
-
-      <!-- ── Center: CV Preview ── -->
-      <section class="preview-column" style="position: relative">
-        <button
-          class="cv-floating-save-btn"
-          id="btnSaveCv"
-          type="button"
-          onclick="openSaveModal()"
-        >
-          Lưu CV
-        </button>
-        <!-- Generating overlay -->
-        <div class="generating-overlay" id="generatingOverlay">
-          <div class="spinner"></div>
-          <span>Đang chuẩn bị CV của bạn...</span>
-          <small style="color: #64748b; font-weight: 400"
-            >Đây có thể mất 10–20 giây</small
-          >
-        </div>
-
-        <div class="cv-document" id="cvPreview">
-          <div
-            id="cvPlaceholder"
-            style="text-align: center; padding: 60px 20px; color: #94a3b8"
-          >
-            <div style="font-size: 48px; margin-bottom: 16px"></div>
-            <p
-              style="
-                font-size: 16px;
-                font-weight: 700;
-                color: #64748b;
-                margin-bottom: 8px;
-              "
-            >
-              CV của bạn sẽ hiện ra ở đây
-            </p>
-            <p style="font-size: 13px">
-              Chọn mẫu hoặc mở CV đã lưu<br />để bắt đầu chỉnh sửa
-            </p>
-          </div>
-        </div>
-
-        <!-- CV Action Toolbar: shown after CV is generated -->
-        <div class="cv-action-toolbar" id="cvToolbar">
-          <button
-            class="btn-cv-action btn-history"
-            id="btnUndoCv"
-            type="button"
-            onclick="undoCvChange()"
-            title="Undo"
-          >
-            <i data-lucide="undo-2"></i>
-            Undo
-          </button>
-          <button
-            class="btn-cv-action btn-history"
-            id="btnRedoCv"
-            type="button"
-            onclick="redoCvChange()"
-            title="Redo"
-          >
-            <i data-lucide="redo-2"></i>
-            Redo
-          </button>
-          <button
-            class="btn-cv-action btn-upload-avatar"
-            onclick="triggerAvatarUpload()"
-            title="Tải ảnh đại diện"
-          >
-            🖼️ Ảnh
-          </button>
-          <button
-            class="btn-cv-action btn-edit-toggle"
-            id="btnEditToggle"
-            onclick="toggleEditMode()"
-            title="Chỉnh sửa trực tiếp"
-          >
-            ✏️ Chỉnh sửa
-          </button>
-          <button class="btn-cv-action btn-save-cv" onclick="openSaveModal()">
-            💾 Lưu CV
-          </button>
-          <button class="btn-cv-action btn-pdf" onclick="downloadPdf()">
-            📄 Tải PDF
-          </button>
-          <button
-            class="btn-cv-action btn-my-cvs"
-            onclick="window.location.href = '/my-cvs.html'"
-          >
-            📂 CV của tôi
-          </button>
-        </div>
-        <!-- Hidden avatar input -->
-        <input
-          type="file"
-          id="avatarFileInput"
-          accept="image/*"
-          onchange="handleAvatarUpload(event)"
-        />
-
-        <!-- Save Name Modal -->
-        <div class="cv-modal-backdrop" id="saveModal">
-          <div class="cv-modal">
-            <h3>💾 Lưu CV</h3>
-            <p>Đặt tên để dễ nhận biết CV này sau này</p>
-            <input
-              type="text"
-              id="cvNameInput"
-              placeholder="VD: CV Software Engineer 2024"
-              maxlength="100"
-            />
-            <div class="cv-modal-actions">
-              <button class="btn-modal-cancel" onclick="closeSaveModal()">
-                Hủy
-              </button>
-              <button
-                class="btn-modal-confirm"
-                id="btnConfirmSave"
-                onclick="confirmSave()"
-              >
-                Lưu ngay
-              </button>
+        <!-- ── Left: Design Column ── -->
+        <aside class="design-column" id="designColumn">
+            <div class="design-column-header">
+                <i data-lucide="layout-template"></i>
+                Trình chỉnh CV
             </div>
-          </div>
-        </div>
-      </section>
+
+            <div class="design-shell">
+                <div class="design-nav" role="tablist" aria-label="Nhóm công cụ CV">
+                    <button class="design-nav-item active" type="button" data-panel="design" onclick="switchDesignPanel('design')">
+                        <i data-lucide="palette"></i>
+                        <span>Thiết kế & Font</span>
+                    </button>
+                    <button class="design-nav-item" type="button" data-panel="sections" onclick="switchDesignPanel('sections')">
+                        <i data-lucide="plus"></i>
+                        <span>Thêm mục</span>
+                    </button>
+                    <button class="design-nav-item" type="button" data-panel="layout" onclick="switchDesignPanel('layout')">
+                        <i data-lucide="panel-left"></i>
+                        <span>Bố cục</span>
+                    </button>
+                </div>
+
+                <div class="design-panels">
+                    <section class="design-panel active" data-panel="design">
+                        <div class="design-panel-heading">
+                            <h3>Thiết kế & Font</h3>
+                            <p>Điều chỉnh kiểu chữ và giao diện CV. Các thay đổi sẽ áp dụng ngay trên bản xem trước.</p>
+                        </div>
+
+                        <div class="design-group">
+                            <label class="design-label">Phông chữ</label>
+                            <select class="design-input" id="cvFontFamily" onchange="updateDesign('font', this.value)">
+                                <option value="'Inter', sans-serif">Inter (Mặc định)</option>
+                                <option value="'Roboto', sans-serif">Roboto</option>
+                                <option value="'Open Sans', sans-serif">Open Sans</option>
+                                <option value="'Merriweather', serif">Merriweather (Cổ điển)</option>
+                                <option value="'Georgia', serif">Georgia</option>
+                                <option value="'Times New Roman', serif">Times New Roman</option>
+                            </select>
+                        </div>
+
+                        <div class="design-group">
+                            <label class="design-label">Cỡ chữ: <span id="cvFontSizeLabel">100%</span></label>
+                            <input type="range" class="design-input" id="cvFontSize" min="80" max="130" value="100" oninput="updateDesign('fontSize', this.value)">
+                            <div class="design-range-hints">
+                                <span>Nhỏ</span><span>Vừa</span><span>Lớn</span>
+                            </div>
+                        </div>
+
+                        <div class="design-group">
+                            <label class="design-label">Giãn dòng: <span id="cvLineSpacingLabel">1.5</span></label>
+                            <input type="range" class="design-input" id="cvLineSpacing" min="1.1" max="2.0" step="0.1" value="1.5" oninput="updateDesign('lineSpacing', this.value)">
+                        </div>
+
+                        <div class="design-group">
+                            <label class="design-label">Màu chủ đạo</label>
+                            <div class="color-options" id="colorOptions">
+                                <div class="color-dot active" style="background: #2E3B8E" onclick="updateDesign('color', '#2E3B8E', this)" title="Midnight Blue"></div>
+                                <div class="color-dot" style="background: #0f766e" onclick="updateDesign('color', '#0f766e', this)" title="Teal"></div>
+                                <div class="color-dot" style="background: #b91c1c" onclick="updateDesign('color', '#b91c1c', this)" title="Crimson"></div>
+                                <div class="color-dot" style="background: #1e293b" onclick="updateDesign('color', '#1e293b', this)" title="Slate"></div>
+                                <div class="color-dot" style="background: #7c3aed" onclick="updateDesign('color', '#7c3aed', this)" title="Violet"></div>
+                                <div class="color-dot" style="background: #ea580c" onclick="updateDesign('color', '#ea580c', this)" title="Orange"></div>
+                                <div class="color-dot" style="background: #059669" onclick="updateDesign('color', '#059669', this)" title="Emerald"></div>
+                                <div class="color-dot" style="background: #be185d" onclick="updateDesign('color', '#be185d', this)" title="Pink"></div>
+                                <div class="color-dot" style="background: #1d4ed8" onclick="updateDesign('color', '#1d4ed8', this)" title="Royal Blue"></div>
+                                <div class="color-dot" style="background: #0369a1" onclick="updateDesign('color', '#0369a1', this)" title="Ocean Blue"></div>
+                                <div class="color-dot" style="background: #4338ca" onclick="updateDesign('color', '#4338ca', this)" title="Indigo"></div>
+                                <div class="color-dot" style="background: #b45309" onclick="updateDesign('color', '#b45309', this)" title="Amber"></div>
+                                <div class="color-dot" style="background: #3f3f46" onclick="updateDesign('color', '#3f3f46', this)" title="Zinc"></div>
+                                <div class="color-dot" style="background: #4d7c0f" onclick="updateDesign('color', '#4d7c0f', this)" title="Lime green"></div>
+                                <div class="color-dot" style="background: #a21caf" onclick="updateDesign('color', '#a21caf', this)" title="Fuchsia"></div>
+                                <div class="color-dot" style="background: #0f172a" onclick="updateDesign('color', '#0f172a', this)" title="Navy"></div>
+                            </div>
+                        </div>
+
+                        <div class="design-group">
+                            <label class="design-label">Hình nền CV</label>
+                            <select class="design-input" id="cvBackground" onchange="updateDesign('background', this.value)">
+                                <option value="solid">Trơn (Mặc định)</option>
+                                <option value="gradient-light">Gradient nhạt</option>
+                                <option value="gradient-dark">Gradient đậm</option>
+                                <option value="pattern-dots">Chấm bi</option>
+                                <option value="pattern-lines">Kẻ sọc</option>
+                                <option value="pattern-subtle">Họa tiết mờ</option>
+                            </select>
+                        </div>
+                    </section>
+
+                    <section class="design-panel" data-panel="sections">
+                        <div class="design-panel-heading">
+                            <h3>Thêm mục</h3>
+                            <p>Bật các phần còn thiếu để chèn nhanh nội dung mẫu, sau đó sửa trực tiếp ngay trên CV.</p>
+                        </div>
+
+                        <div class="section-library">
+                            <div class="section-library-block">
+                                <div class="section-library-title">Mục chưa dùng</div>
+                                <div class="section-library-list" id="unusedSectionList"></div>
+                            </div>
+
+                            <div class="section-library-block">
+                                <div class="section-library-title">Mục đã dùng</div>
+                                <div class="section-library-list" id="usedSectionList"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="design-panel" data-panel="layout">
+                        <div class="layout-studio">
+                            <div class="layout-studio-header">
+                                <div>
+                                    <h3>Bố cục CV</h3>
+                                    <p>Chọn phần đang dùng, kéo thả để đổi vị trí và ẩn hoặc thêm lại ngay trong lúc chỉnh CV.</p>
+                                </div>
+                                <button class="layout-studio-close" type="button" onclick="switchDesignPanel('design')" aria-label="Đóng bảng bố cục">
+                                    <i data-lucide="x"></i>
+                                </button>
+                            </div>
+
+                            <button class="layout-guide-link" type="button" onclick="openLayoutGuide()">
+                                Xem hướng dẫn Tùy chỉnh bố cục >>
+                            </button>
+
+                            <div class="layout-board">
+                                <div class="layout-fixed-grid" id="layoutFixedGrid"></div>
+                                <div class="layout-board-scroll">
+                                    <div class="layout-grid" id="layoutUsedGrid"></div>
+                                </div>
+                            </div>
+
+                            <div class="layout-unused-box">
+                                <div class="layout-unused-title">Mục chưa sử dụng</div>
+                                <div class="layout-grid layout-grid-unused" id="layoutUnusedGrid"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+        </aside>
+
+        <!-- ── Center: CV Preview ── -->
+        <section class="preview-column" style="position:relative;">
+            <button class="cv-floating-save-btn" id="btnSaveCv" type="button" onclick="openSaveModal()">
+                Lưu CV
+            </button>
+            <!-- Generating overlay -->
+            <div class="generating-overlay" id="generatingOverlay">
+                <div class="spinner"></div>
+                <span>Đang chuẩn bị CV của bạn...</span>
+                <small style="color:#64748b; font-weight:400;">Đây có thể mất 10–20 giây</small>
+            </div>
+
+            <div class="cv-document" id="cvPreview">
+                <div id="cvPlaceholder" style="text-align:center; padding:60px 20px; color:#94a3b8;">
+                    <div style="font-size:48px; margin-bottom:16px;"></div>
+                    <p style="font-size:16px; font-weight:700; color:#64748b; margin-bottom:8px;">CV của bạn sẽ hiện ra ở đây</p>
+                    <p style="font-size:13px;">Chọn mẫu hoặc mở CV đã lưu<br>để bắt đầu chỉnh sửa</p>
+                </div>
+            </div>
+
+            <!-- CV Action Toolbar: shown after CV is generated -->
+            <div class="cv-action-toolbar" id="cvToolbar">
+                <button class="btn-cv-action btn-history" id="btnUndoCv" type="button" onclick="undoCvChange()" title="Undo">
+                    <i data-lucide="undo-2"></i>
+                    Undo
+                </button>
+                <button class="btn-cv-action btn-history" id="btnRedoCv" type="button" onclick="redoCvChange()" title="Redo">
+                    <i data-lucide="redo-2"></i>
+                    Redo
+                </button>
+                <button class="btn-cv-action btn-upload-avatar" onclick="triggerAvatarUpload()" title="Tải ảnh đại diện">
+                    Ảnh
+                </button>
+                <button class="btn-cv-action btn-edit-toggle" id="btnEditToggle" onclick="toggleEditMode()" title="Chỉnh sửa trực tiếp">
+                    Chỉnh sửa
+                </button>
+                <button class="btn-cv-action btn-save-cv" onclick="openSaveModal()">
+                    Lưu CV
+                </button>
+                <button class="btn-cv-action btn-pdf" type="button">
+                    Tải PDF
+                </button>
+                <button class="btn-cv-action btn-my-cvs" onclick="window.location.href='/my-cvs.html'">
+                    CV của tôi
+                </button>
+            </div>
+            <!-- Hidden avatar input -->
+            <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)">
+
+            <!-- Save Name Modal -->
+            <div class="cv-modal-backdrop" id="saveModal">
+                <div class="cv-modal">
+                    <h3>Lưu CV</h3>
+                    <p>Đặt tên để dễ nhận biết CV này sau này</p>
+                    <input type="text" id="cvNameInput" placeholder="VD: CV Software Engineer 2024" maxlength="100">
+                    <div class="cv-modal-actions">
+                        <button class="btn-modal-cancel" onclick="closeSaveModal()">Hủy</button>
+                        <button class="btn-modal-confirm" id="btnConfirmSave" onclick="confirmSave()">Lưu ngay</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <div id="footer-placeholder"></div>
-    <div class="edit-mode-badge" id="editModeBadge">
-      ✏️ Đang chỉnh sửa trực tiếp
-    </div>
+    <div class="edit-mode-badge" id="editModeBadge">Đang chỉnh sửa trực tiếp</div>
     <script src="js/main.js"></script>
     <!-- CV logic moved to js/cv-editor-*.js modules -->
 
-    <!-- ATS/Impactful module moved to cv-editor-render.js -->
-  </body>
+<!-- ATS/Impactful module moved to cv-editor-render.js -->
+
+</body>
 </html>

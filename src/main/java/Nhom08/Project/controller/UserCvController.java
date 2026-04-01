@@ -2,8 +2,11 @@ package Nhom08.Project.controller;
 
 import Nhom08.Project.entity.User;
 import Nhom08.Project.entity.UserCv;
+import Nhom08.Project.entity.UserCvVersion;
 import Nhom08.Project.repository.UserCvRepository;
+import Nhom08.Project.repository.UserCvVersionRepository;
 import Nhom08.Project.service.AuthService;
+import Nhom08.Project.service.CvVersioningService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -33,12 +36,20 @@ import java.util.UUID;
 public class UserCvController {
 
     private final UserCvRepository userCvRepository;
-    private final AuthService      authService;
-    private final ObjectMapper     objectMapper = new ObjectMapper();
+    private final UserCvVersionRepository userCvVersionRepository;
+    private final AuthService authService;
+    private final CvVersioningService cvVersioningService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public UserCvController(UserCvRepository userCvRepository, AuthService authService) {
+    public UserCvController(
+            UserCvRepository userCvRepository,
+            UserCvVersionRepository userCvVersionRepository,
+            AuthService authService,
+            CvVersioningService cvVersioningService) {
         this.userCvRepository = userCvRepository;
-        this.authService      = authService;
+        this.userCvVersionRepository = userCvVersionRepository;
+        this.authService = authService;
+        this.cvVersioningService = cvVersioningService;
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -79,6 +90,10 @@ public class UserCvController {
                 try { cv.setTemplateId(Long.parseLong(String.valueOf(templateIdObj))); } catch (Exception ignored) {}
             }
             cv.setTemplateName(String.valueOf(body.getOrDefault("templateName", "")));
+            Object sourceTemplateVersionNoObj = body.get("sourceTemplateVersionNo");
+            if (sourceTemplateVersionNoObj != null) {
+                try { cv.setSourceTemplateVersionNo(Integer.parseInt(String.valueOf(sourceTemplateVersionNoObj))); } catch (Exception ignored) {}
+            }
 
             // cvContent may arrive as a JSON string OR as an object — serialize to string
             Object cvContent = body.get("cvContent");
@@ -88,11 +103,12 @@ public class UserCvController {
                 cv.setCvContent(objectMapper.writeValueAsString(cvContent));
             }
 
-            UserCv saved = userCvRepository.save(cv);
+            UserCv saved = cvVersioningService.createUserCv(cv, "USER");
 
             Map<String, Object> result = new HashMap<>();
             result.put("success", true);
             result.put("id",      saved.getId());
+            result.put("currentVersionNo", saved.getCurrentVersionNo());
             result.put("message", "CV đã được lưu thành công!");
             return ResponseEntity.ok(result);
 
@@ -125,6 +141,9 @@ public class UserCvController {
             }
 
             try {
+                String previousName = cv.getCvName();
+                String previousContent = cv.getCvContent();
+
                 if (body.containsKey("cvName"))
                     cv.setCvName(String.valueOf(body.get("cvName")));
 
@@ -136,16 +155,21 @@ public class UserCvController {
                     cv.setTemplateName(String.valueOf(body.get("templateName")));
                 }
 
+                if (body.containsKey("sourceTemplateVersionNo") && body.get("sourceTemplateVersionNo") != null) {
+                    try { cv.setSourceTemplateVersionNo(Integer.parseInt(String.valueOf(body.get("sourceTemplateVersionNo")))); } catch (Exception ignored) {}
+                }
+
                 Object cvContent = body.get("cvContent");
                 if (cvContent != null) {
                     cv.setCvContent(cvContent instanceof String s
                         ? s
                         : objectMapper.writeValueAsString(cvContent));
                 }
-                userCvRepository.save(cv);
+                UserCv saved = cvVersioningService.updateUserCv(cv, previousName, previousContent, "USER");
 
                 Map<String, Object> result = new HashMap<>();
                 result.put("success", true);
+                result.put("currentVersionNo", saved.getCurrentVersionNo());
                 result.put("message", "CV đã được cập nhật!");
                 return ResponseEntity.ok(result);
 
@@ -178,6 +202,8 @@ public class UserCvController {
             m.put("cvName",       cv.getCvName());
             m.put("templateId",   cv.getTemplateId());
             m.put("templateName", cv.getTemplateName());
+            m.put("sourceTemplateVersionNo", cv.getSourceTemplateVersionNo());
+            m.put("currentVersionNo", cv.getCurrentVersionNo());
             m.put("updatedAt",    cv.getUpdatedAt());
             m.put("createdAt",    cv.getCreatedAt());
             return m;
@@ -205,6 +231,8 @@ public class UserCvController {
             result.put("cvName",       cv.getCvName());
             result.put("templateId",   cv.getTemplateId());
             result.put("templateName", cv.getTemplateName());
+            result.put("sourceTemplateVersionNo", cv.getSourceTemplateVersionNo());
+            result.put("currentVersionNo", cv.getCurrentVersionNo());
             result.put("cvContent",    cv.getCvContent());
             result.put("updatedAt",    cv.getUpdatedAt());
             return ResponseEntity.ok(result);
@@ -217,6 +245,32 @@ public class UserCvController {
     }
 
     // ── Delete CV ────────────────────────────────────────────────────────────
+
+    @GetMapping("/{id}/versions")
+    public ResponseEntity<?> versions(@PathVariable Long id, Authentication auth) {
+        Optional<User> userOpt = resolveUser(auth);
+        if (userOpt.isEmpty()) return unauthorized();
+
+        return userCvRepository.findById(id).map(cv -> {
+            if (!cv.getUser().getId().equals(userOpt.get().getId())) {
+                Map<String, Object> err = new HashMap<>();
+                err.put("success", false);
+                err.put("message", "KhÃ´ng cÃ³ quyá»n xem lá»‹ch sá»­ CV nÃ y.");
+                return ResponseEntity.status(403).body(err);
+            }
+
+            List<Map<String, Object>> result = userCvVersionRepository.findByUserCvIdOrderByVersionNoDesc(id)
+                .stream()
+                .map(this::toVersionSummary)
+                .toList();
+            return ResponseEntity.ok(result);
+        }).orElseGet(() -> {
+            Map<String, Object> err = new HashMap<>();
+            err.put("success", false);
+            err.put("message", "KhÃ´ng tÃ¬m tháº¥y CV.");
+            return ResponseEntity.status(404).body(err);
+        });
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(
@@ -233,6 +287,7 @@ public class UserCvController {
                 result.put("message", "Không có quyền xóa CV này.");
                 return ResponseEntity.status(403).body(result);
             }
+            userCvVersionRepository.deleteByUserCvId(id);
             userCvRepository.delete(cv);
             result.put("success", true);
             result.put("message", "Đã xóa CV thành công.");
@@ -243,7 +298,6 @@ public class UserCvController {
             return ResponseEntity.status(404).body(result);
         });
     }
-
     // ── Upload PDF file ──────────────────────────────────────────────────────
 
     /**
@@ -308,5 +362,15 @@ public class UserCvController {
             result.put("message", "Lỗi khi lưu file: " + e.getMessage());
             return ResponseEntity.status(500).body(result);
         }
+    }
+}
+    private Map<String, Object> toVersionSummary(UserCvVersion version) {
+        Map<String, Object> item = new HashMap<>();
+        item.put("id", version.getId());
+        item.put("versionNo", version.getVersionNo());
+        item.put("cvName", version.getCvName());
+        item.put("savedBy", version.getSavedBy());
+        item.put("createdAt", version.getCreatedAt());
+        return item;
     }
 }

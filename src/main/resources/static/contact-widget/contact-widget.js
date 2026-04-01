@@ -9,11 +9,13 @@
 
     // ===== Configuration =====
     const CONFIG = {
-        phone: '0918846349',    
-        zalo: '0918846349',         
+        phone: '0918846349',
+        zalo: '0918846349',
         apiBase: '/api/contact-chat',
         localStorageKey: 'chatbot_session_id',
-        hoverDelay: 200 // ms before showing sub-buttons on hover
+        hoverDelay: 200, // ms before showing sub-buttons on hover
+        iconChangeInterval: 2000, // ms giữa các lần đổi icon
+        autoRunEnabled: true // bật/tắt chế độ tự động chạy
     };
 
     // ===== State Management =====
@@ -22,7 +24,9 @@
         isClickedOpen: false, // Track if opened by click
         sessionId: null,
         isChatbotOpen: false,
-        hoverTimer: null
+        hoverTimer: null,
+        iconChangeTimer: null,
+        currentIconIndex: 0
     };
 
     // ===== Initialize Widget =====
@@ -38,6 +42,11 @@
 
         // Attach event listeners
         attachEventListeners();
+
+        // Start auto run animation if enabled
+        if (CONFIG.autoRunEnabled) {
+            startAutoRunAnimation();
+        }
 
         console.log('Contact Widget Premium initialized');
     }
@@ -104,11 +113,9 @@
         const subButtons = document.querySelector('.contact-widget__sub-buttons');
         const chatbotBtn = document.querySelector('.chatbot-btn');
 
-        // Click to toggle widget (keep open when clicked)
+        // Click to execute action of current icon
         mainBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            // Clear any pending hover timers
-            clearTimeout(state.hoverTimer);
             toggleWidgetClick();
         });
 
@@ -116,6 +123,9 @@
         mainBtn.addEventListener('mouseenter', function() {
             // Don't auto-open if user clicked to open
             if (state.isClickedOpen) return;
+
+            // Stop icon auto change when hovering
+            stopAutoRunAnimation();
 
             clearTimeout(state.hoverTimer);
             state.hoverTimer = setTimeout(() => {
@@ -156,11 +166,21 @@
             }, 100);
         });
 
+        // Resume icon change when leaving widget completely
+        const widget = document.querySelector('.contact-widget');
+        widget.addEventListener('mouseleave', function() {
+            if (!state.isClickedOpen && !state.isOpen) {
+                startAutoRunAnimation();
+            }
+        });
+
         // Close widget when clicking outside
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.contact-widget')) {
                 closeWidget();
                 state.isClickedOpen = false; // Reset click state
+                // Resume icon change when closed
+                startAutoRunAnimation();
             }
         });
 
@@ -169,6 +189,8 @@
             if (e.key === 'Escape' && state.isOpen) {
                 closeWidget();
                 state.isClickedOpen = false; // Reset click state
+                // Resume icon change when closed
+                startAutoRunAnimation();
             }
         });
 
@@ -204,18 +226,13 @@
         }
     }
 
-    // ===== Helper: Check if mouse is over sub-buttons =====
-    function isMouseOverSubButtons() {
-        const subButtons = document.querySelector('.contact-widget__sub-buttons');
-        if (!subButtons) return false;
-
-        return subButtons.matches(':hover');
-    }
-
     // ===== Toggle Widget (Click) =====
     function toggleWidgetClick() {
         const mainBtn = document.querySelector('.contact-widget__main-btn');
         const subButtons = document.querySelector('.contact-widget__sub-buttons');
+
+        // Stop icon auto change when user clicks
+        stopAutoRunAnimation();
 
         if (state.isOpen && state.isClickedOpen) {
             // Widget is open from click - close it
@@ -226,16 +243,22 @@
             // Widget is open from hover - just mark as clicked open (don't close)
             state.isClickedOpen = true;
         } else {
-            // Widget is closed - open it
-            state.isOpen = true;
-            state.isClickedOpen = true;
-            mainBtn.classList.add('active');
-            subButtons.classList.add('active');
+            // Widget is closed - execute action of current icon
+            const currentIcon = ICONS[state.currentIconIndex];
+            if (currentIcon && currentIcon.action) {
+                currentIcon.action();
+            } else {
+                // If no action, open widget normally
+                state.isOpen = true;
+                state.isClickedOpen = true;
+                mainBtn.classList.add('active');
+                subButtons.classList.add('active');
 
-            // Hide ring indicator when opened
-            const ringIndicator = mainBtn.querySelector('.ring-indicator');
-            if (ringIndicator) {
-                ringIndicator.style.display = 'none';
+                // Hide ring indicator when opened
+                const ringIndicator = mainBtn.querySelector('.ring-indicator');
+                if (ringIndicator) {
+                    ringIndicator.style.display = 'none';
+                }
             }
         }
     }
@@ -270,6 +293,14 @@
 
         // Clear hover timer
         clearTimeout(state.hoverTimer);
+    }
+
+    // ===== Helper: Check if mouse is over sub-buttons =====
+    function isMouseOverSubButtons() {
+        const subButtons = document.querySelector('.contact-widget__sub-buttons');
+        if (!subButtons) return false;
+
+        return subButtons.matches(':hover');
     }
 
     // ===== Open Chatbot Modal =====
@@ -652,26 +683,6 @@
         }, 3000);
     }
 
-    // ===== Create Session =====
-    async function createSession() {
-        try {
-            const response = await fetch(`${CONFIG.apiBase}/session`, {
-                method: 'POST',
-                credentials: 'include'
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.sessionId) {
-                    state.sessionId = data.sessionId;
-                    localStorage.setItem(CONFIG.localStorageKey, data.sessionId);
-                }
-            }
-        } catch (error) {
-            console.error('Error creating session:', error);
-        }
-    }
-
     // ===== Display Messages =====
     function displayMessages(messages) {
         const messagesContainer = document.querySelector('.chatbot-modal__messages');
@@ -962,6 +973,109 @@
         return div.innerHTML;
     }
 
+    // ===== Auto Run Animation =====
+    // Icons configuration - theo thứ tự: Điện thoại → Zalo → Chatbot
+    const ICONS = [
+        {
+            name: 'phone',
+            className: 'icon-phone',
+            svg: `<svg class="icon-phone" width="24" height="24" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+            </svg>`,
+            ariaLabel: 'Điện thoại',
+            action: () => {
+                window.location.href = `tel:${CONFIG.phone}`;
+            }
+        },
+        {
+            name: 'zalo',
+            className: 'icon-zalo',
+            svg: `<svg class="icon-zalo" width="24" height="24" viewBox="0 0 24 24">
+                <rect x="1" y="4" width="22" height="16" rx="3" fill="currentColor"/>
+                <text x="12" y="15" text-anchor="middle" font-size="7" font-weight="bold" fill="white">Zalo</text>
+            </svg>`,
+            ariaLabel: 'Zalo',
+            action: () => {
+                window.open(`https://zalo.me/${CONFIG.zalo}`, '_blank');
+            }
+        },
+        {
+            name: 'chatbot',
+            className: 'icon-ai',
+            svg: `<svg class="icon-ai" width="24" height="24" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>`,
+            ariaLabel: 'Chatbot AI',
+            action: () => {
+                openChatbotModal();
+            }
+        }
+    ];
+
+    function startAutoRunAnimation() {
+        console.log('🚀 Starting icon auto change animation...');
+
+        // Clear existing timer if any
+        if (state.iconChangeTimer) {
+            clearInterval(state.iconChangeTimer);
+        }
+
+        // Start cycling through icons every 2 seconds
+        state.iconChangeTimer = setInterval(() => {
+            changeIcon();
+        }, CONFIG.iconChangeInterval);
+
+        // Immediately show first icon change
+        setTimeout(() => {
+            changeIcon();
+        }, 500);
+    }
+
+    function stopAutoRunAnimation() {
+        if (state.iconChangeTimer) {
+            clearInterval(state.iconChangeTimer);
+            state.iconChangeTimer = null;
+            console.log('⏸️ Icon auto change stopped');
+        }
+    }
+
+    function changeIcon() {
+        // Don't change if user is interacting with widget
+        if (state.isClickedOpen || state.isOpen) {
+            return;
+        }
+
+        // Move to next icon in sequence
+        state.currentIconIndex = (state.currentIconIndex + 1) % ICONS.length;
+        const nextIcon = ICONS[state.currentIconIndex];
+
+        updateMainButtonIcon(nextIcon.svg, nextIcon.ariaLabel);
+    }
+
+    function updateMainButtonIcon(svg, ariaLabel) {
+        const mainBtn = document.querySelector('.contact-widget__main-btn');
+        if (!mainBtn) return;
+
+        const iconContainer = mainBtn.querySelector('.main-icon-container');
+        if (!iconContainer) return;
+
+        // Add animation class to container
+        iconContainer.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+        iconContainer.style.transform = 'scale(0.5) rotate(360deg)';
+        iconContainer.style.opacity = '0';
+
+        // Change icon after animation starts
+        setTimeout(() => {
+            // Wrap SVG in div with both classes: main-icon + icon-specific class
+            iconContainer.innerHTML = `<div class="main-icon ${ICONS[state.currentIconIndex].className}">${svg}</div>`;
+            iconContainer.style.transform = 'scale(1) rotate(0deg)';
+            iconContainer.style.opacity = '1';
+        }, 150);
+
+        // Update aria-label
+        mainBtn.setAttribute('aria-label', ariaLabel);
+    }
+
     // ===== Auto-initialize on DOM ready =====
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initWidget);
@@ -971,12 +1085,24 @@
 
     // ===== Expose public API =====
     window.ContactWidget = {
-        open: () => document.querySelector('.contact-widget__main-btn')?.click(),
+        open: () => {
+            const mainBtn = document.querySelector('.contact-widget__main-btn');
+            if (mainBtn) mainBtn.click();
+        },
         close: () => closeWidget(),
         openChatbot: () => openChatbotModal(),
         closeChatbot: () => closeChatbotModal(),
         isOpen: () => state.isOpen,
-        isChatbotOpen: () => state.isChatbotOpen
+        isChatbotOpen: () => state.isChatbotOpen,
+        startAutoRun: () => startAutoRunAnimation(),
+        stopAutoRun: () => stopAutoRunAnimation(),
+        setIconChangeInterval: (ms) => {
+            CONFIG.iconChangeInterval = ms;
+            if (state.iconChangeTimer) {
+                stopAutoRunAnimation();
+                startAutoRunAnimation();
+            }
+        }
     };
 
 })();

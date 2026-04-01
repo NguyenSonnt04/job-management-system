@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/cham-diem-cv.css">
+    <!-- <link rel="stylesheet" href="css/cham-diem-cv.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -33,12 +33,17 @@
                     <div class="cv-left">
                         <!-- Section Header -->
                         <div class="section-header-left-simple">
+                            <div class="section-header-badge">
+                                <span class="square-badge square-badge-light"><i class="fas fa-layer-group"></i></span>
+                                CV Matching Studio
+                            </div>
                             <h3 class="section-header-title">So sánh CV với Công Việc</h3>
                             <p class="section-header-subtitle">Phân tích mức độ phù hợp giữa CV và yêu cầu công việc</p>
                         </div>
 
                         <!-- Upload card -->
                         <div class="cv-upload-card" id="uploadCard">
+                            <div class="workspace-block">
                             <div class="section-header">
                                 <h2>Tải CV của bạn</h2>
                                 <p>Chọn file CV để bắt đầu so sánh</p>
@@ -72,8 +77,10 @@
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
+                            </div>
 
                             <!-- Job Selection -->
+                            <div class="workspace-block workspace-block-job">
                             <div class="job-select-section">
                                 <label class="jd-label">
                                     <i class="fas fa-briefcase"></i> Chọn công việc phù hợp
@@ -130,6 +137,7 @@
                                     <div class="total-score-text">
                                         <div class="total-score-num" id="matchScoreNum">0</div>
                                         <div class="total-score-max">%</div>
+                                        <div class="total-score-label">Mức độ phù hợp</div>
                                     </div>
                                 </div>
                                 <div class="result-header-info">
@@ -186,6 +194,46 @@
                     <!-- RIGHT: Info -->
                     <div class="cv-right">
 
+                        <div class="info-card info-card-activity">
+                            <div class="info-card-title">
+                                <span class="square-badge square-badge-soft square-badge-blue"><i class="fas fa-bolt"></i></span>
+                                Hoạt động
+                            </div>
+                            <div class="activity-metrics">
+                                <div class="activity-metric">
+                                    <span class="activity-metric-label">CV hiện tại</span>
+                                    <strong id="activityFileState">Chưa tải lên</strong>
+                                </div>
+                                <div class="activity-metric">
+                                    <span class="activity-metric-label">Công ty mục tiêu</span>
+                                    <strong id="activityJobState">Chưa chọn</strong>
+                                </div>
+                            </div>
+                            <div class="activity-feed">
+                                <div class="activity-feed-item">
+                                    <span class="square-badge square-badge-soft square-badge-emerald"><i class="fas fa-file-arrow-up"></i></span>
+                                    <div>
+                                        <strong id="activityFileName">Chưa có CV nào được chọn</strong>
+                                        <span>CV sẽ xuất hiện tại đây sau khi bạn tải lên.</span>
+                                    </div>
+                                </div>
+                                <div class="activity-feed-item">
+                                    <span class="square-badge square-badge-soft square-badge-violet"><i class="fas fa-briefcase"></i></span>
+                                    <div>
+                                        <strong id="activityJobName">Chưa chọn công ty hoặc vị trí</strong>
+                                        <span>Hãy chọn job phù hợp để hệ thống tạo JD chuẩn.</span>
+                                    </div>
+                                </div>
+                                <div class="activity-feed-item">
+                                    <span class="square-badge square-badge-soft square-badge-orange"><i class="fas fa-chart-line"></i></span>
+                                    <div>
+                                        <strong id="activityStatusText">Sẵn sàng bắt đầu phiên so sánh</strong>
+                                        <span id="activityTimestamp">Tải CV và chọn job để mở kết quả phân tích.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- How it works -->
                         <div class="info-card">
                             <div class="info-card-title">
@@ -240,6 +288,7 @@
                                 <i class="fas fa-history"></i> Lịch sử tải CV
                                 <span class="history-count" id="cvUploadHistoryCount">0</span>
                             </div>
+                            <p class="history-panel-note">Bấm vào một mục để nạp lại CV đã dùng trước đó vào khung so sánh.</p>
                             <div id="cvUploadHistoryList"></div>
                         </div>
 
@@ -291,6 +340,9 @@
 
     let selectedFile = null;
     let currentResult = null;
+    const CV_UPLOAD_HISTORY_STORAGE_KEY = 'cvUploadHistory';
+    const CV_UPLOAD_HISTORY_DB_NAME = 'cvUploadHistoryDB';
+    const CV_UPLOAD_HISTORY_STORE = 'files';
 
     const MATCH_GRADE_MAP = [
         { min: 80, label: 'Rất phù hợp',  color: '#00BFA5', emoji: '🎯' },
@@ -301,8 +353,241 @@
 
     // ---- Init ----
     document.addEventListener('DOMContentLoaded', async () => {
+        replaceBadgeIcons();
+        replaceContentIcons();
+        applyPageCopy();
+        enhanceWorkspaceSections();
+        enhanceSidebarTitles();
+        replaceBadgeIcons();
+        replaceContentIcons();
+        updateActivityPanel();
         await checkLogin();
     });
+
+    function getBadgeIconSvg(iconClass) {
+        const icons = {
+            'fa-layer-group': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 4 8l8 4 8-4-8-4Z"/><path d="m4 12 8 4 8-4"/><path d="m4 16 8 4 8-4"/></svg>`,
+            'fa-cloud-arrow-up': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 1 1 .7-7.94A5.5 5.5 0 0 1 18 12h1a3 3 0 0 1 0 6H7Z"/><path d="m12 15.5v-6"/><path d="m9.5 12 2.5-2.5 2.5 2.5"/></svg>`,
+            'fa-briefcase': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/><path d="M3 12h18"/></svg>`,
+            'fa-bolt': `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.2 2 5.8 13h4.7L9.8 22l8.4-11h-4.7L13.2 2Z"/></svg>`,
+            'fa-file-arrow-up': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="m12 17v-6"/><path d="m9.5 13.5 2.5-2.5 2.5 2.5"/></svg>`,
+            'fa-chart-line': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="m5 15 4-4 3 3 6-7"/></svg>`,
+            'fa-lightbulb': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M8.8 14.8A6 6 0 1 1 15.2 14.8c-.7.7-1.2 1.5-1.4 2.2h-3.6c-.2-.7-.7-1.5-1.4-2.2Z"/></svg>`,
+            'fa-clock-rotate-left': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.8 8A9 9 0 1 1 6 17.5"/><path d="M12 7v5l3 2"/></svg>`,
+            'fa-folder-open': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h14.5a2 2 0 0 0 1.9-1.4L21 11a2 2 0 0 0-1.9-2.6H10l-2-2H5a2 2 0 0 0-2 2v10.5A.5.5 0 0 0 3 19Z"/></svg>`,
+            'fa-building': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v14"/><path d="M2 20h20"/><path d="M8 8h.01M12 8h.01M8 12h.01M12 12h.01M8 16h.01M12 16h.01"/></svg>`,
+            'fa-check': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>`,
+            'fa-crosshairs': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>`,
+            'fa-file-pen': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="m10 16 4.8-4.8 1.8 1.8L11.8 17.8 9 18l.2-2.8Z"/></svg>`,
+            'fa-screwdriver-wrench': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 6.5 3-3 3 3-3 3"/><path d="m13 8 3 3"/><path d="m4 20 8.5-8.5"/><path d="m3 7 4 4"/><path d="m5 5 4 4"/></svg>`,
+            'fa-key': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M10.5 13 21 2.5"/><path d="M17 6h3v3"/><path d="M14 9h3v3"/></svg>`,
+            'fa-check-circle': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.3 2.3 4.7-4.8"/></svg>`,
+            'fa-exclamation-triangle': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.8 19h18.4L12 3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`,
+            'fa-graduation-cap': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m2 8 10-5 10 5-10 5L2 8Z"/><path d="M6 10.5V15c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5"/><path d="M22 8v6"/></svg>`,
+            'fa-balance-scale': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16"/><path d="M5 8h14"/><path d="m7 8-3 5h6l-3-5Z"/><path d="m17 8-3 5h6l-3-5Z"/><path d="M9 20h6"/></svg>`,
+            'fa-cloud-upload-alt': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 1 1 .7-7.94A5.5 5.5 0 0 1 18 12h1a3 3 0 0 1 0 6H7Z"/><path d="m12 15.5-2.5-2.5"/><path d="m12 15.5 2.5-2.5"/><path d="M12 15.5V9"/></svg>`,
+            'fa-plus-circle': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>`,
+            'fa-search': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg>`,
+            'fa-map-marker-alt': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6-5.3 6-11a6 6 0 1 0-12 0c0 5.7 6 11 6 11Z"/><circle cx="12" cy="10" r="2.2"/></svg>`,
+            'fa-redo': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6v6h-6"/><path d="M20 12a8 8 0 1 1-2.3-5.7L21 9"/></svg>`,
+            'fa-lock': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 1 1 8 0v3"/></svg>`,
+            'fa-circle-info': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 10v6"/><path d="M12 7h.01"/></svg>`,
+            'fa-chevron-up': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 6-6 6 6"/></svg>`,
+            'fa-chevron-down': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 10 6 6 6-6"/></svg>`,
+            'fa-spinner': `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-opacity="0.2" stroke-width="2.2"/><path d="M20 12a8 8 0 0 0-8-8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`
+        };
+
+        return icons[iconClass] || `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 7v5"/></svg>`;
+    }
+
+    function replaceBadgeIcons() {
+        document.querySelectorAll('.square-badge i').forEach(icon => {
+            const iconClass = Array.from(icon.classList).find(cls => cls.startsWith('fa-') && cls !== 'fas');
+            const wrapper = document.createElement('span');
+            wrapper.className = 'badge-svg';
+            wrapper.innerHTML = getBadgeIconSvg(iconClass);
+            icon.replaceWith(wrapper);
+        });
+    }
+
+    function replaceContentIcons() {
+        const iconTargets = [
+            '.section-title i',
+            '.feedback-card h3 i',
+            '.history-item-name i',
+            '.suggestions-list li i',
+            '.history-toggle-btn i',
+            '.dropzone-icon',
+            '#fileTypeIcon',
+            '.jd-label i',
+            '.job-select-placeholder i',
+            '.job-select-hint i',
+            '.analyzing-icon',
+            '.login-warning i',
+            '.btn-analyze i',
+            '.btn-rescore i',
+            '.jobs-loading i',
+            '.jobs-error i',
+            '.job-search-box i',
+            '.modal-close i',
+            '.job-selected-remove i',
+            '.file-remove i',
+            '.job-modal-company i',
+            '.job-modal-meta i',
+            '#mainContent .filter-tab i'
+        ];
+
+        document.querySelectorAll(iconTargets.join(', ')).forEach(icon => {
+            if (icon.closest('.square-badge')) return;
+
+            const iconClass = Array.from(icon.classList).find(cls => cls.startsWith('fa-') && cls !== 'fas');
+            const wrapper = document.createElement('span');
+            wrapper.className = 'inline-svg-icon';
+            wrapper.innerHTML = getBadgeIconSvg(iconClass);
+            icon.replaceWith(wrapper);
+        });
+    }
+
+    function applyPageCopy() {
+        document.title = 'So sánh CV với JD | CareerViet';
+
+        const loginWarning = document.getElementById('loginWarning');
+        if (loginWarning) {
+            loginWarning.innerHTML = '<i class="fas fa-lock"></i><span>Vui lòng <a href="candidate-login.html">đăng nhập</a> để sử dụng tính năng so sánh CV với JD</span>';
+        }
+
+        const sectionTitle = document.querySelector('.section-header-title');
+        const sectionSubtitle = document.querySelector('.section-header-subtitle');
+        if (sectionTitle) sectionTitle.textContent = 'So sánh CV với công việc mục tiêu';
+        if (sectionSubtitle) sectionSubtitle.textContent = 'Tải CV, chọn đúng công ty hoặc vị trí phù hợp rồi để hệ thống phân tích mức độ khớp và những phần bạn nên cải thiện.';
+
+        const uploadHeaderTitle = document.querySelector('.workspace-block .section-header h2');
+        const uploadHeaderText = document.querySelector('.workspace-block .section-header p');
+        if (uploadHeaderTitle) uploadHeaderTitle.textContent = 'Tải CV của bạn';
+        if (uploadHeaderText) uploadHeaderText.textContent = 'Chọn CV hiện tại để bắt đầu phiên so sánh chuyên sâu.';
+
+        const dropzoneText = document.querySelector('.dropzone-text');
+        const dropzoneHint = document.querySelector('.dropzone-hint');
+        const dropzoneFormats = document.querySelector('.dropzone-formats');
+        if (dropzoneText) dropzoneText.textContent = 'Kéo thả file CV vào đây';
+        if (dropzoneHint) dropzoneHint.innerHTML = 'hoặc <span class="dropzone-link">chọn file từ máy</span>';
+        if (dropzoneFormats) dropzoneFormats.textContent = 'PDF · DOCX · DOC (tối đa 5MB)';
+
+        const jobLabel = document.querySelector('.jd-label');
+        const jobHint = document.querySelector('.job-select-hint');
+        const jobPlaceholder = document.querySelector('#jobSelectPlaceholder span');
+        const analyzeButton = document.getElementById('btnCompare');
+        if (jobLabel) jobLabel.innerHTML = '<i class="fas fa-building"></i> Công ty và công việc mục tiêu';
+        if (jobHint) jobHint.innerHTML = '<i class="fas fa-circle-info"></i> Hệ thống sẽ phân tích kỹ năng, kinh nghiệm và các từ khóa quan trọng từ job bạn đã chọn.';
+        if (jobPlaceholder) jobPlaceholder.textContent = 'Chọn công ty hoặc vị trí tuyển dụng để so sánh với CV của bạn';
+        if (analyzeButton) analyzeButton.innerHTML = '<i class="fas fa-balance-scale"></i> So sánh ngay';
+    }
+
+    function enhanceWorkspaceSections() {
+        const uploadBlock = document.querySelector('.workspace-block');
+        const jobBlock = document.querySelector('.workspace-block-job');
+
+        injectWorkspaceTitle(
+            uploadBlock,
+            'fa-cloud-arrow-up',
+            'Tải CV của bạn',
+            'Chọn CV hiện tại để bắt đầu phiên so sánh chuyên sâu.'
+        );
+        injectWorkspaceTitle(
+            jobBlock,
+            'fa-briefcase',
+            'Chọn công ty và vị trí phù hợp',
+            'Chọn job để hệ thống lấy yêu cầu tuyển dụng làm chuẩn so sánh.'
+        );
+    }
+
+    function injectWorkspaceTitle(container, iconClass, title, description) {
+        if (!container || container.querySelector('.workspace-block-title')) return;
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'workspace-block-title';
+        titleEl.innerHTML = `
+            <span class="square-badge"><i class="fas ${iconClass}"></i></span>
+            <div>
+                <h2>${title}</h2>
+                <p>${description}</p>
+            </div>
+        `;
+        container.insertBefore(titleEl, container.firstChild);
+
+        const legacyHeader = container.querySelector('.section-header');
+        if (legacyHeader) {
+            legacyHeader.style.display = 'none';
+        }
+    }
+
+    function enhanceSidebarTitles() {
+        const legacyHowCard = document.querySelector('.cv-right .info-card:not(.info-card-activity)');
+        if (legacyHowCard && legacyHowCard.querySelector('.how-step')) {
+            legacyHowCard.style.display = 'none';
+        }
+
+        const titleIconMap = {
+            'hoạt động': 'fa-bolt square-badge-blue',
+            'mẹo': 'fa-lightbulb square-badge-orange',
+            'lịch sử': 'fa-clock-rotate-left square-badge-slate'
+        };
+
+        document.querySelectorAll('.cv-right .info-card-title').forEach(title => {
+            if (title.querySelector('.square-badge')) return;
+
+            const icon = title.querySelector('i');
+            const titleText = (title.textContent || '').toLowerCase();
+            let mapped = 'fa-circle square-badge-blue';
+            Object.keys(titleIconMap).forEach(key => {
+                if (titleText.includes(key)) {
+                    mapped = titleIconMap[key];
+                }
+            });
+
+            const [iconClass, badgeTone] = mapped.split(' ');
+            const square = document.createElement('span');
+            square.className = `square-badge square-badge-soft ${badgeTone}`;
+            square.innerHTML = `<i class="fas ${iconClass}"></i>`;
+            if (icon) icon.remove();
+            title.insertBefore(square, title.firstChild);
+        });
+
+        const tipsItems = document.querySelectorAll('.tips-list li');
+        const tipIcons = ['fa-crosshairs', 'fa-layer-group', 'fa-file-pen', 'fa-screwdriver-wrench'];
+        tipsItems.forEach(item => {
+            if (item.querySelector('.square-badge')) return;
+            const text = item.textContent.trim();
+            const iconClass = tipIcons[Math.min(Array.from(tipsItems).indexOf(item), tipIcons.length - 1)];
+            item.innerHTML = `<span class="square-badge square-badge-soft square-badge-orange"><i class="fas ${iconClass}"></i></span><span>${text}</span>`;
+        });
+    }
+
+    function updateActivityPanel(statusMessage, helperMessage) {
+        const fileState = document.getElementById('activityFileState');
+        const jobState = document.getElementById('activityJobState');
+        const fileName = document.getElementById('activityFileName');
+        const jobName = document.getElementById('activityJobName');
+        const statusText = document.getElementById('activityStatusText');
+        const timestampText = document.getElementById('activityTimestamp');
+
+        if (!fileState || !jobState || !fileName || !jobName || !statusText || !timestampText) return;
+
+        fileState.textContent = selectedFile ? 'Đã tải lên' : 'Chưa tải lên';
+        jobState.textContent = selectedJob ? 'Đã chọn job' : 'Chưa chọn';
+        fileName.textContent = selectedFile ? selectedFile.name : 'Chưa có CV nào được chọn';
+        jobName.textContent = selectedJob
+            ? `${selectedJob.title || 'Vị trí chưa đặt tên'} • ${selectedJob.companyName || 'Công ty chưa rõ'}`
+            : 'Chưa chọn công ty hoặc vị trí';
+
+        statusText.textContent = statusMessage || 'Sẵn sàng bắt đầu phiên so sánh';
+        timestampText.textContent = helperMessage || 'Tải CV và chọn job để mở kết quả phân tích.';
+
+        if (currentResult) {
+            statusText.textContent = `Kết quả gần nhất: ${currentResult.matchScore || 0}% phù hợp`;
+            timestampText.textContent = 'Bạn có thể tải lại CV khác hoặc dùng lịch sử để thử nhanh nhiều phiên bản.';
+        }
+    }
 
     // ---- Check login status ----
     async function checkLogin() {
@@ -343,7 +628,7 @@
         if (input.files[0]) processFile(input.files[0]);
     }
 
-    function processFile(file) {
+    function processFile(file, options = {}) {
         const ext  = file.name.split('.').pop().toLowerCase();
         const allowed = ['pdf', 'doc', 'docx'];
 
@@ -369,10 +654,12 @@
             ? 'fas fa-file-pdf' : 'fas fa-file-word';
         icon.style.color = ext === 'pdf' ? '#EE0033' : '#2E3B8E';
 
-        // Save to upload history
-        saveCVUploadHistory(file.name, file.size);
+        if (options.persistHistory !== false) {
+            saveCVUploadHistory(file);
+        }
 
         checkFormReady();
+        updateActivityPanel('CV đã sẵn sàng để phân tích', 'Bây giờ hãy chọn công ty hoặc vị trí phù hợp ở bên dưới.');
     }
 
     function removeFile() {
@@ -381,6 +668,7 @@
         document.getElementById('dropzoneInner').style.display = 'block';
         document.getElementById('filePreview').style.display   = 'none';
         checkFormReady();
+        updateActivityPanel('Đã gỡ CV khỏi phiên làm việc', 'Tải lại CV hoặc chọn từ lịch sử ở cột bên phải.');
     }
 
     function checkFormReady() {
@@ -395,6 +683,7 @@
         // Switch to loading state
         document.getElementById('uploadCard').style.display   = 'none';
         document.getElementById('analyzingCard').style.display = 'block';
+        updateActivityPanel('Đang phân tích CV với JD', 'AI đang đọc CV, bóc tách kỹ năng và đối chiếu với job bạn đã chọn.');
 
         // Build JD text from selected job
         const jdText = buildJobDescription(selectedJob);
@@ -424,6 +713,7 @@
         } catch (err) {
             document.getElementById('analyzingCard').style.display = 'none';
             document.getElementById('uploadCard').style.display    = 'block';
+            updateActivityPanel('Phiên phân tích chưa thành công', 'Hãy kiểm tra lại CV hoặc chọn công việc khác rồi thử lại.');
             showToast('❌ ' + err.message, 'error');
         }
     }
@@ -433,6 +723,10 @@
         currentResult = data;
         const matchScore = data.matchScore || 0;
         const grade = getMatchGrade(matchScore);
+        const matchedSkills = (data.matchedSkills || []).filter(s => typeof s === 'string' && s.trim());
+        const missingSkills = (data.missingSkills || []).filter(s => typeof s === 'string' && s.trim());
+        const suggestions = (data.suggestions || []).filter(s => typeof s === 'string' && s.trim());
+        const keywordsToAdd = (data.keywordsToAdd || []).filter(s => typeof s === 'string' && s.trim());
 
         // Animate score ring
         const circumference = 326.7;
@@ -458,13 +752,13 @@
 
         // Matched skills
         const matchedEl = document.getElementById('matchedSkills');
-        matchedEl.innerHTML = (data.matchedSkills || []).map(s =>
+        matchedEl.innerHTML = matchedSkills.map(s =>
             `<span class="skill-tag matched">${s}</span>`
         ).join('') || '<p class="text-muted">Không có dữ liệu</p>';
 
         // Missing skills
         const missingEl = document.getElementById('missingSkills');
-        missingEl.innerHTML = (data.missingSkills || []).map(s =>
+        missingEl.innerHTML = missingSkills.map(s =>
             `<span class="skill-tag missing">${s}</span>`
         ).join('') || '<p class="text-muted">Không có dữ liệu</p>';
 
@@ -478,21 +772,27 @@
 
         // Suggestions
         const suggestionsEl = document.getElementById('suggestionsList');
-        suggestionsEl.innerHTML = (data.suggestions || []).map(s =>
+        suggestionsEl.innerHTML = suggestions.map(s =>
             `<li><i class="fas fa-lightbulb"></i> ${s}</li>`
         ).join('') || '<li class="text-muted">Không có gợi ý</li>';
 
         // Keywords to add
         const keywordsEl = document.getElementById('keywordsToAdd');
         const keywordsSection = document.getElementById('keywordsSection');
-        if (data.keywordsToAdd && data.keywordsToAdd.length > 0) {
+        if (keywordsToAdd.length > 0) {
             keywordsSection.style.display = 'block';
-            keywordsEl.innerHTML = data.keywordsToAdd.map(kw =>
+            keywordsEl.innerHTML = keywordsToAdd.map(kw =>
                 `<span class="skill-tag keyword">${kw}</span>`
             ).join('');
         } else {
             keywordsSection.style.display = 'none';
         }
+
+        replaceContentIcons();
+        updateActivityPanel(
+            `Kết quả gần nhất: ${matchScore}% phù hợp`,
+            'Bạn có thể sửa CV theo gợi ý rồi chạy lại hoặc dùng lịch sử tải lên để thử nhanh phiên bản khác.'
+        );
     }
 
     // ---- Reset ----
@@ -502,6 +802,7 @@
         document.getElementById('resultCard').style.display = 'none';
         document.getElementById('uploadCard').style.display = 'block';
         currentResult = null;
+        updateActivityPanel();
     }
 
     function buildJobDescription(job) {
@@ -547,10 +848,10 @@ ${job.requirements || 'Không có thông tin'}
     let _cvUploadExpanded = false;
 
     function loadCVUploadHistory() {
-        const saved = localStorage.getItem('cvUploadHistory');
+        const saved = localStorage.getItem(CV_UPLOAD_HISTORY_STORAGE_KEY);
         if (saved) {
             try {
-                _cvUploadHistory = JSON.parse(saved);
+                _cvUploadHistory = JSON.parse(saved).map(normalizeCVUploadHistoryItem);
             } catch {
                 _cvUploadHistory = [];
             }
@@ -558,20 +859,80 @@ ${job.requirements || 'Không có thông tin'}
         renderCVUploadHistory();
     }
 
-    function saveCVUploadHistory(fileName, fileSize) {
-        const newItem = {
-            id: Date.now(),
-            fileName: fileName,
-            fileSize: fileSize,
-            timestamp: new Date().toISOString()
+    function normalizeCVUploadHistoryItem(item) {
+        return {
+            id: String(item.id || `cv-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`),
+            fileName: item.fileName || 'CV đã tải lên',
+            fileSize: Number(item.fileSize || 0),
+            fileType: item.fileType || guessMimeTypeFromName(item.fileName || ''),
+            lastModified: item.lastModified || Date.now(),
+            timestamp: item.timestamp || new Date().toISOString(),
+            canRestore: item.canRestore === true || (item.canRestore !== false && !!item.fileType && !!item.lastModified)
         };
+    }
 
+    function persistCVUploadHistoryMeta() {
+        localStorage.setItem(CV_UPLOAD_HISTORY_STORAGE_KEY, JSON.stringify(_cvUploadHistory));
+    }
+
+    function guessMimeTypeFromName(fileName) {
+        const ext = (fileName.split('.').pop() || '').toLowerCase();
+        if (ext === 'pdf') return 'application/pdf';
+        if (ext === 'doc') return 'application/msword';
+        if (ext === 'docx') return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        return 'application/octet-stream';
+    }
+
+    function openCVUploadHistoryDb() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(CV_UPLOAD_HISTORY_DB_NAME, 1);
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(CV_UPLOAD_HISTORY_STORE)) {
+                    db.createObjectStore(CV_UPLOAD_HISTORY_STORE, { keyPath: 'id' });
+                }
+            };
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error || new Error('Không thể mở lịch sử CV'));
+        });
+    }
+
+    async function saveCVUploadHistory(file) {
+        const newItem = normalizeCVUploadHistoryItem({
+            id: `cv-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type || guessMimeTypeFromName(file.name),
+            lastModified: file.lastModified || Date.now(),
+            timestamp: new Date().toISOString(),
+            canRestore: true
+        });
+
+        try {
+            const db = await openCVUploadHistoryDb();
+            await new Promise((resolve, reject) => {
+                const tx = db.transaction(CV_UPLOAD_HISTORY_STORE, 'readwrite');
+                tx.objectStore(CV_UPLOAD_HISTORY_STORE).put({
+                    ...newItem,
+                    blob: file
+                });
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error || new Error('Không thể lưu file CV'));
+            });
+        } catch (error) {
+            newItem.canRestore = false;
+            console.warn('Cannot persist CV file for restore', error);
+        }
+
+        _cvUploadHistory = _cvUploadHistory.filter(item => item.fileName !== newItem.fileName || item.fileSize !== newItem.fileSize);
         _cvUploadHistory.unshift(newItem);
         if (_cvUploadHistory.length > 10) {
             _cvUploadHistory = _cvUploadHistory.slice(0, 10);
         }
 
-        localStorage.setItem('cvUploadHistory', JSON.stringify(_cvUploadHistory));
+        persistCVUploadHistoryMeta();
         _cvUploadExpanded = false;
         renderCVUploadHistory();
     }
@@ -582,7 +943,17 @@ ${job.requirements || 'Không có thông tin'}
         const card = document.getElementById('cvUploadHistoryCard');
 
         if (_cvUploadHistory.length === 0) {
-            card.style.display = 'none';
+            card.style.display = 'block';
+            countEl.textContent = '0';
+            container.innerHTML = `
+                <div class="history-empty-state">
+                    <span class="square-badge square-badge-soft square-badge-slate"><i class="fas fa-folder-open"></i></span>
+                    <div>
+                        <strong>Chưa có CV nào trong lịch sử</strong>
+                        <span>Các CV bạn tải lên sẽ xuất hiện ở đây để có thể dùng lại nhanh hơn.</span>
+                    </div>
+                </div>
+            `;
             return;
         }
 
@@ -593,20 +964,22 @@ ${job.requirements || 'Không có thông tin'}
         const items = _cvUploadExpanded ? _cvUploadHistory : _cvUploadHistory.slice(0, LIMIT);
 
         container.innerHTML = items.map(h => {
-            const date = new Date(h.timestamp).toLocaleDateString('vi-VN');
+            const date = new Date(h.timestamp).toLocaleString('vi-VN');
+            const fileIcon = h.fileName.toLowerCase().endsWith('.pdf') ? 'fa-file-pdf' : 'fa-file-word';
+            const restoreState = h.canRestore === false
+                ? '<span class="history-item-note">Cần tải lại để kích hoạt</span>'
+                : '<span class="history-item-note history-item-note-ready">Bấm để dùng lại</span>';
             return `
-                <div class="history-item" onclick="loadCVFromHistory('${h.fileName}', ${h.fileSize})">
+                <div class="history-item" onclick="loadCVFromHistory('${h.id}')">
                     <div class="history-item-left">
                         <div class="history-item-name">
-                            <i class="fas fa-file-pdf"></i> ${h.fileName}
+                            <i class="fas ${fileIcon}"></i> ${h.fileName}
                         </div>
                         <div class="history-item-date">${date}</div>
+                        ${restoreState}
                     </div>
                     <div class="history-item-right">
                         <div class="history-item-size">${Math.round(h.fileSize / 1024)} KB</div>
-                        <button class="history-delete-btn" onclick="deleteCVUploadHistory(${h.id}, event)" title="Xóa">
-                            <i class="fas fa-trash-can"></i>
-                        </button>
                     </div>
                 </div>
             `;
@@ -620,6 +993,7 @@ ${job.requirements || 'Không có thông tin'}
         ` : '';
 
         container.innerHTML += toggleBtn || '';
+        replaceContentIcons();
     }
 
     function toggleCVUploadHistory() {
@@ -645,6 +1019,90 @@ ${job.requirements || 'Không có thông tin'}
         localStorage.setItem('cvUploadHistory', JSON.stringify(_cvUploadHistory));
         renderCVUploadHistory();
         showToast('Đã xóa', 'success');
+    }
+
+    async function loadCVFromHistory(historyId) {
+        const historyItem = _cvUploadHistory.find(item => String(item.id) === String(historyId));
+        if (!historyItem) {
+            showToast('Không tìm thấy CV trong lịch sử', 'error');
+            return;
+        }
+
+        if (historyItem.canRestore === false) {
+            showToast('CV này được lưu từ phiên cũ và chưa có dữ liệu file để khôi phục. Hãy tải lại một lần để kích hoạt.', 'error');
+            return;
+        }
+
+        try {
+            const db = await openCVUploadHistoryDb();
+            const stored = await new Promise((resolve, reject) => {
+                const tx = db.transaction(CV_UPLOAD_HISTORY_STORE, 'readonly');
+                const request = tx.objectStore(CV_UPLOAD_HISTORY_STORE).get(historyId);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error || new Error('Không thể đọc CV từ lịch sử'));
+            });
+
+            if (!stored || !stored.blob) {
+                throw new Error('CV này chưa có dữ liệu file để khôi phục');
+            }
+
+            const restoredFile = new File([stored.blob], historyItem.fileName, {
+                type: historyItem.fileType || guessMimeTypeFromName(historyItem.fileName),
+                lastModified: historyItem.lastModified || Date.now()
+            });
+
+            document.getElementById('uploadCard').style.display = 'block';
+            document.getElementById('analyzingCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'none';
+            currentResult = null;
+
+            processFile(restoredFile, { persistHistory: false });
+            touchCVUploadHistory(historyId);
+            showToast('Đã nạp lại CV từ lịch sử', 'success');
+        } catch (error) {
+            console.error(error);
+            showToast(error.message || 'Không thể khôi phục CV từ lịch sử', 'error');
+        }
+    }
+
+    function touchCVUploadHistory(historyId) {
+        const index = _cvUploadHistory.findIndex(item => String(item.id) === String(historyId));
+        if (index === -1) return;
+
+        const [item] = _cvUploadHistory.splice(index, 1);
+        item.timestamp = new Date().toISOString();
+        _cvUploadHistory.unshift(item);
+        persistCVUploadHistoryMeta();
+        renderCVUploadHistory();
+    }
+
+    async function deleteCVUploadHistory(id, event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if (!confirm('Xóa file CV này khỏi lịch sử?')) return;
+
+        _cvUploadHistory = _cvUploadHistory.filter(item => String(item.id) !== String(id));
+        persistCVUploadHistoryMeta();
+        renderCVUploadHistory();
+        showToast('Đã xóa', 'success');
+        await deleteCVUploadHistoryBlob(id);
+    }
+
+    async function deleteCVUploadHistoryBlob(id) {
+        try {
+            const db = await openCVUploadHistoryDb();
+            await new Promise((resolve, reject) => {
+                const tx = db.transaction(CV_UPLOAD_HISTORY_STORE, 'readwrite');
+                tx.objectStore(CV_UPLOAD_HISTORY_STORE).delete(id);
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error || new Error('Không thể xóa file CV'));
+            });
+        } catch (error) {
+            console.warn('Cannot remove history blob', error);
+        }
     }
 
     // ---- Job Selection Management ----
@@ -753,6 +1211,7 @@ ${job.requirements || 'Không có thông tin'}
 
         closeJobModal();
         checkFormReady();
+        updateActivityPanel('Đã chọn job để so sánh', 'Bạn có thể bấm So sánh ngay hoặc đổi lại CV trước khi phân tích.');
     }
 
     function removeSelectedJob(event) {
@@ -762,6 +1221,7 @@ ${job.requirements || 'Không có thông tin'}
         document.getElementById('jobSelectPlaceholder').style.display = 'flex';
         document.getElementById('jobSelected').style.display = 'none';
         checkFormReady();
+        updateActivityPanel('Đã gỡ job khỏi phiên làm việc', 'Hãy chọn lại công ty hoặc vị trí phù hợp để tiếp tục.');
     }
 
     function showToast(msg, type = 'info') {
@@ -778,72 +1238,107 @@ ${job.requirements || 'Không có thông tin'}
     </script>
 
     <style>
-    /* ===== LAYOUT PHÂN CHIA 2 CỘT CÂN ĐỐI ===== */
+    /* ===== PROFESSIONAL LAYOUT DESIGN ===== */
     .cv-layout {
         display: grid;
-        grid-template-columns: 1fr 380px;
-        gap: 28px;
+        grid-template-columns: 1.3fr 360px;
+        gap: 32px;
         align-items: start;
+        max-width: 1400px;
+        margin: 0 auto;
     }
 
-    /* LEFT COLUMN - Phần So Sánh */
+    /* LEFT COLUMN - Main Comparison Area */
     .cv-left {
         background: white;
-        border-radius: 16px;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
         overflow: hidden;
-        border: 1px solid #e8e8e8;
-        min-height: 600px;
+        border: 1px solid #e8ecef;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .cv-left:hover {
+        box-shadow: 0 6px 32px rgba(0, 0, 0, 0.12);
     }
 
     .cv-upload-card {
-        padding: 28px 28px 12px 28px;
-        min-height: 544px;
+        padding: 32px 32px 16px 32px;
     }
 
     .cv-analyzing,
     .cv-result-card {
-        padding: 32px 28px;
-        min-height: 544px;
+        padding: 40px 32px;
     }
 
-    .upload-header-compact {
-        margin-top: 0;
-        margin-bottom: 24px;
-        padding-bottom: 20px;
-        border-bottom: 2px solid #f0f0f0;
-    }
-
-    .upload-header-compact h2 {
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 6px;
-    }
-
-    .upload-header-compact p {
-        font-size: 14px;
-        color: #666;
-        line-height: 1.5;
-    }
-
-    /* Section Header cho LEFT COLUMN */
+    /* Section Header - Premium Design */
     .section-header-left-simple {
-        padding: 24px 28px;
-        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
-        border-bottom: 2px solid #e0e6ff;
+        padding: 28px 32px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-bottom: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .section-header-left-simple::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .section-header-left-simple::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: 20%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
     }
 
     .section-header-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #1a1a2e;
-        margin: 0 0 6px 0;
-        letter-spacing: -0.4px;
+        font-size: 24px;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0 0 8px 0;
+        letter-spacing: -0.5px;
+        position: relative;
+        z-index: 1;
     }
 
     .section-header-subtitle {
         font-size: 14px;
-        color: #666;
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0;
+        line-height: 1.6;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Upload Section Header */
+    .section-header {
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 24px;
+    }
+
+    .section-header h2 {
+        font-size: 19px;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0 0 6px 0;
+        letter-spacing: -0.3px;
+    }
+
+    .section-header p {
+        font-size: 14px;
+        color: #64748b;
         margin: 0;
         line-height: 1.5;
     }
@@ -853,41 +1348,59 @@ ${job.requirements || 'Không có thông tin'}
         display: flex;
         flex-direction: column;
         gap: 16px;
-        min-height: 600px;
     }
 
     .info-card {
         background: white;
-        border-radius: 12px;
-        padding: 18px 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e8e8e8;
-        transition: all 0.2s;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e8ecef;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .info-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        transform: scaleX(0);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .info-card:hover {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        border-color: #d0d0d0;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        border-color: #d1d5db;
+        transform: translateY(-2px);
+    }
+
+    .info-card:hover::before {
+        transform: scaleX(1);
     }
 
     .info-card-title {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 11px;
         font-size: 15px;
         font-weight: 700;
         color: #1a1a2e;
-        margin-bottom: 14px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #f0f0f0;
         letter-spacing: -0.3px;
     }
 
     .info-card-title i {
-        color: #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         font-size: 18px;
         width: 24px;
         text-align: center;
@@ -1081,26 +1594,87 @@ ${job.requirements || 'Không có thông tin'}
         line-height: 1.5;
     }
 
-    /* Dropzone Compact */
+    /* Dropzone - Premium Upload Area */
     .dropzone-compact {
-        border: 2px dashed #d0d0d0;
-        border-radius: 12px;
-        padding: 30px 20px;
+        border: 2px dashed #d1d5db;
+        border-radius: 16px;
+        padding: 40px 24px;
         text-align: center;
         cursor: pointer;
-        transition: all 0.3s;
-        background: #fafafa;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dropzone-compact::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
     .dropzone-compact:hover {
         border-color: #667eea;
-        background: #f8f9ff;
+        transform: scale(1.01);
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+    }
+
+    .dropzone-compact:hover::before {
+        opacity: 1;
     }
 
     .dropzone-compact.drag-over {
         border-color: #667eea;
-        background: #f0f4ff;
-        transform: scale(1.01);
+        background: linear-gradient(135deg, #f0f4ff 0%, #e8eefc 100%);
+        transform: scale(1.02);
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+    }
+
+    .dropzone-icon {
+        font-size: 48px;
+        color: #667eea;
+        margin-bottom: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .dropzone-compact:hover .dropzone-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .dropzone-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a2e;
+        margin-bottom: 8px;
+    }
+
+    .dropzone-hint {
+        font-size: 14px;
+        color: #64748b;
+    }
+
+    .dropzone-link {
+        color: #667eea;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .dropzone-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .dropzone-formats {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 12px;
     }
 
     .dropzone-text {
@@ -1134,23 +1708,30 @@ ${job.requirements || 'Không có thông tin'}
     .jd-label {
         display: flex;
         align-items: center;
-        gap: 6px;
-        font-weight: 600;
-        margin-bottom: 10px;
+        gap: 8px;
+        font-weight: 700;
+        margin-bottom: 12px;
         color: #1a1a2e;
         font-size: 14px;
+        letter-spacing: -0.2px;
     }
 
     .jd-label i {
-        color: #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .job-select-hint {
-        font-size: 12px;
+        font-size: 13px;
         color: #667eea;
         margin-top: 8px;
         line-height: 1.5;
-        font-style: italic;
+        padding: 12px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+        border-radius: 8px;
+        border-left: 3px solid #667eea;
     }
 
     .section-header {
@@ -1174,37 +1755,105 @@ ${job.requirements || 'Không có thông tin'}
         line-height: 1.5;
     }
 
+    /* Buttons - Premium Design */
+    .btn-analyze {
+        width: 100%;
+        padding: 16px 32px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        letter-spacing: -0.3px;
+        margin-top: 16px;
+    }
+
+    .btn-analyze:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-analyze:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .btn-analyze:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-rescore {
+        padding: 10px 20px;
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-rescore:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    }
+
     .skills-tags {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        margin-top: 10px;
+        margin-top: 0;
     }
 
     .skill-tag {
         display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
+        padding: 8px 16px;
+        border-radius: 24px;
         font-size: 13px;
-        font-weight: 500;
+        font-weight: 600;
+        letter-spacing: -0.2px;
+        transition: all 0.2s ease;
     }
 
     .skill-tag.matched {
-        background: #e8f5e9;
-        color: #2e7d32;
-        border: 1px solid #c8e6c9;
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #0f5132;
+        border: 1px solid #b8dbc8;
+    }
+
+    .skill-tag.matched:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
     }
 
     .skill-tag.missing {
-        background: #ffebee;
-        color: #c62828;
-        border: 1px solid #ffcdd2;
+        background: linear-gradient(135deg, #ffe5d0 0%, #ffd4c2 100%);
+        color: #c41c0b;
+        border: 1px solid #ffb8a8;
+    }
+
+    .skill-tag.missing:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(198, 40, 40, 0.15);
     }
 
     .skill-tag.keyword {
-        background: #e3f2fd;
-        color: #1565c0;
-        border: 1px solid #bbdefb;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        border: 1px solid #a5b8fc;
+    }
+
+    .skill-tag.keyword:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
     }
 
     .feedback-card {
@@ -1675,41 +2324,61 @@ ${job.requirements || 'Không có thông tin'}
         gap: 4px;
     }
 
-    /* History Items (giống cham-diem-cv) */
+    /* History Items - Premium Enhanced */
     .history-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px;
-        border: 1px solid #e8e8e8;
-        border-radius: 8px;
+        padding: 14px;
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
         margin-bottom: 10px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .history-item::before {
+        display: none;
     }
 
     .history-item:hover {
         border-color: #667eea;
-        background: #f8f9ff;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        background: #ffffff;
+        transform: translateX(4px);
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.12);
     }
 
     .history-item-left {
         flex: 1;
         min-width: 0;
+        padding-left: 0;
     }
 
     .history-item-name {
-        font-weight: 600;
+        font-weight: 700;
         color: #1a1a2e;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
         font-size: 14px;
         line-height: 1.4;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .history-item-name i {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 16px;
     }
 
     .history-item-date {
         font-size: 12px;
-        color: #999;
+        color: #94a3b8;
         font-weight: 500;
     }
 
@@ -1721,63 +2390,765 @@ ${job.requirements || 'Không có thông tin'}
 
     .history-item-size {
         font-size: 13px;
-        color: #666;
-        font-weight: 600;
-    }
-
-    .history-item-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .history-item-size {
-        font-size: 13px;
-        color: #666;
-        font-weight: 600;
-    }
-
-    .history-delete-btn {
-        background: none;
-        border: none;
-        color: #999;
-        cursor: pointer;
-        padding: 4px;
-        font-size: 14px;
-        transition: color 0.2s;
-    }
-
-    .history-delete-btn:hover {
-        color: #EF5350;
+        color: #64748b;
+        font-weight: 700;
+        padding: 6px 12px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
     }
 
     .history-toggle-btn {
         width: 100%;
-        padding: 8px;
-        background: none;
-        border: none;
-        color: #667eea;
+        padding: 12px;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px dashed #cbd5e1;
+        border-radius: 10px;
+        color: #64748b;
         font-size: 13px;
+        font-weight: 700;
         cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        margin-top: 8px;
+        gap: 8px;
+        margin-top: 12px;
     }
 
     .history-toggle-btn:hover {
-        background: #f8f9ff;
-        border-radius: 6px;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        border-color: #94a3b8;
+        color: #1a1a2e;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    /* ===== Workspace Refresh ===== */
+    .cv-layout {
+        grid-template-columns: minmax(0, 1.5fr) minmax(320px, 420px);
+        gap: 28px;
+    }
+
+    .cv-left {
+        border-radius: 24px;
+        border: 1px solid #dbe4f0;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+    }
+
+    .cv-right {
+        gap: 18px;
+    }
+
+    .section-header-left-simple {
+        padding: 28px 32px 24px;
+        background:
+            radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 28%),
+            linear-gradient(135deg, #123c7a 0%, #2c68b5 56%, #37b7a5 100%);
+    }
+
+    .section-header-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        margin-bottom: 16px;
+        position: relative;
+        z-index: 1;
+        backdrop-filter: blur(12px);
+    }
+
+    .square-badge {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #dbeafe 0%, #eef2ff 100%);
+        color: #123c7a;
+        box-shadow: inset 0 0 0 1px rgba(18, 60, 122, 0.08);
+        flex-shrink: 0;
+        font-size: 13px;
+        line-height: 1;
+    }
+
+    .square-badge-light {
+        width: 28px;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+    }
+
+    .square-badge-soft {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        font-size: 11px;
+        box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.08);
+    }
+
+    .badge-svg {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 14px;
+        height: 14px;
+        line-height: 0;
+    }
+
+    .badge-svg svg {
+        width: 14px;
+        height: 14px;
+        display: block;
+    }
+
+    .inline-svg-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 0;
+        flex-shrink: 0;
+    }
+
+    .inline-svg-icon svg {
+        width: 14px;
+        height: 14px;
+        display: block;
+    }
+
+    .dropzone-icon.inline-svg-icon,
+    .analyzing-icon.inline-svg-icon {
+        width: auto;
+        height: auto;
+    }
+
+    .dropzone-icon.inline-svg-icon svg {
+        width: 54px;
+        height: 54px;
+    }
+
+    .analyzing-icon.inline-svg-icon svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    #fileTypeIcon.inline-svg-icon svg,
+    .btn-analyze .inline-svg-icon svg,
+    .btn-rescore .inline-svg-icon svg,
+    .file-remove .inline-svg-icon svg,
+    .job-selected-remove .inline-svg-icon svg,
+    .modal-close .inline-svg-icon svg,
+    .job-search-box .inline-svg-icon svg,
+    .login-warning .inline-svg-icon svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .square-badge-blue {
+        background: linear-gradient(135deg, #dbeafe 0%, #e0ecff 100%);
+        color: #2563eb;
+    }
+
+    .square-badge-emerald {
+        background: linear-gradient(135deg, #dcfce7 0%, #e8fff2 100%);
+        color: #059669;
+    }
+
+    .square-badge-violet {
+        background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%);
+        color: #7c3aed;
+    }
+
+    .square-badge-orange {
+        background: linear-gradient(135deg, #ffedd5 0%, #fff7ed 100%);
+        color: #ea580c;
+    }
+
+    .square-badge-slate {
+        background: linear-gradient(135deg, #e2e8f0 0%, #f8fafc 100%);
+        color: #475569;
+    }
+
+    .section-header-highlights {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .header-highlight {
+        display: flex;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+    }
+
+    .header-highlight strong,
+    .header-highlight span {
+        display: block;
+        color: #fff;
+    }
+
+    .header-highlight strong {
+        margin-bottom: 3px;
+        font-size: 14px;
+    }
+
+    .header-highlight span {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.88);
+        line-height: 1.45;
+    }
+
+    .cv-upload-card {
+        padding: 28px;
+        display: grid;
+        gap: 22px;
+    }
+
+    .workspace-block {
+        padding: 22px;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .workspace-block-job {
+        background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+    }
+
+    .workspace-block-title {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .workspace-block-title h2 {
+        margin: 0 0 4px;
+        font-size: 18px;
+        color: #0f172a;
+    }
+
+    .workspace-block-title p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    .job-select-section {
+        margin: 0;
+    }
+
+    .job-select-hint {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        padding: 12px 14px;
+        border-radius: 12px;
+    }
+
+    .btn-analyze {
+        width: 100%;
+        margin-top: 0;
+        height: 56px;
+        border-radius: 16px;
+        box-shadow: 0 18px 36px rgba(37, 99, 235, 0.18);
+    }
+
+    .info-card {
+        border-radius: 22px;
+        padding: 22px;
+        border: 1px solid #dbe4f0;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+    }
+
+    .info-card-title {
+        gap: 12px;
+        font-size: 17px;
+        border-bottom: 1px solid #e8eef6;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+    }
+
+    .info-card-title i {
+        background: none;
+        -webkit-text-fill-color: currentColor;
+        color: inherit;
+        font-size: 11px;
+        width: auto;
+        line-height: 1;
+    }
+
+    .activity-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .activity-metric {
+        padding: 14px;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+        border: 1px solid #d7e4fb;
+    }
+
+    .activity-metric-label {
+        display: block;
+        font-size: 12px;
+        color: #64748b;
+        margin-bottom: 6px;
+    }
+
+    .activity-metric strong {
+        color: #0f172a;
+        font-size: 15px;
+    }
+
+    .activity-feed {
+        display: grid;
+        gap: 12px;
+    }
+
+    .activity-feed-item {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+    }
+
+    .activity-feed-item strong,
+    .activity-feed-item span {
+        display: block;
+    }
+
+    .activity-feed-item strong {
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 14px;
+    }
+
+    .activity-feed-item span {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    #resultCard .text-muted {
+        margin: 0;
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .tips-list {
+        display: grid;
+        gap: 12px;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    .tips-list li {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        color: #334155;
+        line-height: 1.55;
+    }
+
+    .history-panel-note {
+        margin: -4px 0 14px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .history-item {
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .history-item-left {
+        padding-left: 0;
+    }
+
+    .history-item-date {
+        margin-top: 2px;
+    }
+
+    .history-item-note {
+        display: inline-flex;
+        margin-top: 8px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: #fff7ed;
+        color: #c2410c;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .history-item-note-ready {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .history-empty-state {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 14px;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #f8fbff 0%, #f1f5f9 100%);
+        border: 1px dashed #cbd5e1;
+    }
+
+    .history-empty-state strong,
+    .history-empty-state span {
+        display: block;
+    }
+
+    .history-empty-state strong {
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 14px;
+    }
+
+    .history-empty-state span {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .history-item-right {
+        flex-shrink: 0;
+    }
+
+    .history-item-size {
+        min-width: 74px;
+        text-align: center;
+    }
+
+    .cv-result-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border-top: 1px solid #e2e8f0;
+        padding-top: 24px;
+        padding-bottom: 22px;
+    }
+
+    .result-header {
+        display: grid;
+        grid-template-columns: 210px minmax(0, 1fr);
+        gap: 22px;
+        align-items: center;
+        padding: 20px 22px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #f7faff 0%, #eef6ff 100%);
+        border: 1px solid #d8e6f8;
+        margin-bottom: 18px;
+    }
+
+    .total-score-wrap {
+        position: relative;
+        width: 156px;
+        height: 156px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: radial-gradient(circle at center, #ffffff 0 58%, #eef4ff 58% 100%);
+        box-shadow:
+            inset 0 0 0 14px rgba(255, 255, 255, 0.92),
+            0 18px 36px rgba(37, 99, 235, 0.12);
+    }
+
+    .score-ring {
+        width: 156px;
+        height: 156px;
+        display: block;
+        transform: rotate(-90deg);
+        overflow: visible;
+    }
+
+    .score-ring circle {
+        fill: none;
+    }
+
+    .score-ring-bg {
+        stroke: #dbeafe;
+        stroke-width: 12;
+    }
+
+    .score-ring-fill {
+        stroke: #2563eb;
+        stroke-width: 12;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 1.2s ease, stroke 0.3s ease;
+        filter: drop-shadow(0 6px 14px rgba(37, 99, 235, 0.2));
+    }
+
+    .total-score-text {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .total-score-num {
+        font-size: 42px;
+        line-height: 1;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.06em;
+    }
+
+    .total-score-max {
+        margin-top: 2px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #2563eb;
+    }
+
+    .total-score-label {
+        margin-top: 8px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: rgba(37, 99, 235, 0.08);
+        color: #1d4ed8;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+    }
+
+    .result-header-info {
+        display: grid;
+        gap: 10px;
+        align-content: center;
+    }
+
+    .result-grade {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 9px 14px;
+        border-radius: 999px;
+        background: #fff;
+        border: 1px solid #dbe4f0;
+        font-size: 15px;
+        font-weight: 800;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+    }
+
+    .result-file-name {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        font-size: 14px;
+        font-weight: 700;
+        color: #334155;
+        padding: 8px 12px;
+        border-radius: 12px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+    }
+
+    .result-overall {
+        margin: 0;
+        color: #334155;
+        font-size: 14px;
+        line-height: 1.65;
+        max-width: 62ch;
+    }
+
+    .result-actions {
+        margin-top: 2px;
+    }
+
+    .criteria-section {
+        padding: 16px 18px;
+        border-radius: 20px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+        margin-bottom: 12px;
+        position: relative;
+    }
+
+    .criteria-section::before,
+    .criteria-section::after,
+    .section-title::before,
+    .section-title::after,
+    .skills-tags::before,
+    .skills-tags::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 12px;
+        font-size: 15px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .section-title i,
+    .feedback-card h3 i,
+    .section-title .inline-svg-icon,
+    .feedback-card h3 .inline-svg-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #dbeafe 0%, #eef2ff 100%);
+        color: #2563eb;
+        margin-right: 0;
+        flex-shrink: 0;
+    }
+
+    .sw-section {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .feedback-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 16px 18px;
+        margin-bottom: 0;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+    }
+
+    .feedback-card h3 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 10px;
+        color: #0f172a;
+    }
+
+    .feedback-card p {
+        color: #475569;
+        line-height: 1.6;
+        font-size: 14px;
+    }
+
+    .suggestions-list {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .suggestions-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 14px;
+        background: linear-gradient(180deg, #fffaf0 0%, #fff7e6 100%);
+        border: 1px solid #fde2ae;
+        border-left: none;
+        border-radius: 14px;
+        margin-bottom: 0;
+        color: #7c5a12;
+        line-height: 1.55;
+    }
+
+    .suggestions-list li i,
+    .suggestions-list li .inline-svg-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        color: #f59e0b;
+        margin-right: 0;
+        flex-shrink: 0;
+    }
+
+    .history-item-name .inline-svg-icon {
+        width: 18px;
+        height: 18px;
+        color: #ef4444;
+    }
+
+    .history-item-name .inline-svg-icon svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .history-toggle-btn .inline-svg-icon {
+        width: 14px;
+        height: 14px;
+        color: inherit;
     }
 
     /* ===== RESPONSIVE DESIGN ===== */
-    @media (max-width: 992px) {
+    @media (max-width: 1024px) {
         .cv-layout {
             grid-template-columns: 1fr;
             gap: 24px;
         }
 
+        .section-header-left-simple {
+            padding: 20px 24px;
+        }
+
+        .section-header-title {
+            font-size: 20px;
+        }
+
+        .section-header-subtitle {
+            font-size: 13px;
+        }
+
+        .cv-upload-card,
+        .cv-analyzing,
+        .cv-result-card {
+            padding: 24px;
+        }
+
+        .info-card {
+            padding: 18px;
+        }
+    }
+
+    @media (max-width: 768px) {
         .section-header-left-simple {
             padding: 16px 20px;
         }
@@ -1793,12 +3164,148 @@ ${job.requirements || 'Không có thông tin'}
         .cv-upload-card,
         .cv-analyzing,
         .cv-result-card {
-            padding-left: 20px;
-            padding-right: 20px;
+            padding: 20px;
+        }
+
+        .dropzone-compact {
+            padding: 32px 16px;
+        }
+
+        .dropzone-icon {
+            font-size: 40px;
+        }
+
+        .dropzone-text {
+            font-size: 15px;
+        }
+
+        .btn-analyze {
+            padding: 14px 24px;
+            font-size: 15px;
+        }
+
+        .history-item {
+            padding: 12px;
+        }
+
+        .history-item-name {
+            font-size: 13px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .section-header-left-simple {
+            padding: 12px 16px;
+        }
+
+        .section-header-title {
+            font-size: 16px;
+        }
+
+        .section-header-subtitle {
+            font-size: 12px;
+        }
+
+        .cv-upload-card,
+        .cv-analyzing,
+        .cv-result-card {
+            padding: 16px;
+        }
+
+        .info-card {
+            padding: 16px;
+        }
+
+        .info-card-title {
+            font-size: 14px;
+        }
+
+        .dropzone-compact {
+            padding: 24px 12px;
+        }
+
+        .dropzone-icon {
+            font-size: 36px;
+        }
+
+        .dropzone-text {
+            font-size: 14px;
+        }
+
+        .dropzone-hint {
+            font-size: 13px;
+        }
+
+        .btn-analyze {
+            padding: 12px 20px;
+            font-size: 14px;
+        }
+
+        .how-step {
+            gap: 10px;
+        }
+
+        .how-step-num {
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+        }
+
+        .how-step-text strong {
+            font-size: 13px;
+        }
+
+        .how-step-text span {
+            font-size: 12px;
         }
     }
 
     @media (max-width: 768px) {
+        .section-header-highlights,
+        .activity-metrics,
+        .sw-section {
+            grid-template-columns: 1fr;
+        }
+
+        .workspace-block {
+            padding: 18px;
+        }
+
+        .activity-feed-item,
+        .history-item {
+            padding: 12px;
+        }
+
+        .history-item {
+            flex-direction: column;
+        }
+
+        .history-item-right {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .result-header {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 16px;
+            padding: 18px;
+        }
+
+        .result-header-info {
+            justify-items: center;
+        }
+
+        .total-score-wrap,
+        .score-ring {
+            width: 152px;
+            height: 152px;
+        }
+
+        .total-score-num {
+            font-size: 42px;
+        }
+
         .modal-container {
             max-width: 95%;
             max-height: 90vh;

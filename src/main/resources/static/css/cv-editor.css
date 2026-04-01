@@ -22,6 +22,155 @@ body {
     overflow: hidden;
 }
 
+body.pdf-export-mode {
+    overflow: auto;
+    background: #ffffff;
+}
+
+body.pdf-export-mode #header-placeholder,
+body.pdf-export-mode #footer-placeholder,
+body.pdf-export-mode .design-column,
+body.pdf-export-mode .cv-floating-save-btn,
+body.pdf-export-mode .cv-action-toolbar,
+body.pdf-export-mode .edit-mode-badge,
+body.pdf-export-mode #avatarFileInput,
+body.pdf-export-mode .generating-overlay,
+body.pdf-export-mode .cv-modal-backdrop,
+body.pdf-export-mode .contact-widget,
+body.pdf-export-mode .chatbot-modal-backdrop {
+    display: none !important;
+}
+
+body.pdf-export-mode .editor-workspace {
+    display: block;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    background: #ffffff;
+}
+
+body.pdf-export-mode .preview-column,
+body.pdf-export-mode .pdf-export-column {
+    display: block;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding: 0;
+    background: #ffffff;
+}
+
+body.pdf-export-mode .cv-document {
+    max-width: none;
+    width: auto;
+    min-height: 0;
+    margin: 0 auto;
+    box-shadow: none;
+    background: transparent;
+}
+
+body.pdf-export-mode #cvPreview > :not(.cv-full) {
+    display: none !important;
+}
+
+body.pdf-export-mode #cvPreview > .cv-full {
+    margin: 0 auto !important;
+}
+
+body.pdf-export-mode .cv-document > * {
+    box-shadow: none !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-body {
+    display: grid !important;
+    grid-template-columns: 300px 1fr !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-left {
+    background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%) !important;
+    border-right: 1px solid #e2e8f0 !important;
+    border-bottom: 0 !important;
+    padding: 36px 28px !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-right {
+    padding: 36px 40px 44px !important;
+    gap: 26px !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-exp-item,
+body.pdf-export-mode .cv-professional-root .cvm-edu-item,
+body.pdf-export-mode .cv-professional-root .cvm-skill-group {
+    padding: 18px 20px !important;
+    border-radius: 18px !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    border: 1px solid rgba(203, 213, 225, 0.85) !important;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05) !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-skill-list {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin: 0 !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-skill-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 6px 12px !important;
+    border-radius: 999px !important;
+    background: #ffffff !important;
+    border: 1px solid #d9e2ec !important;
+    color: #102a43 !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-section {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-exp-item,
+body.pdf-export-mode .cv-professional-root .cvm-edu-item,
+body.pdf-export-mode .cv-professional-root .cvm-skill-group {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+}
+
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvm-exp-item,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvc2-card,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvm2-row,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvcl2-item,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvh-item,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cv-topcv-row {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+}
+
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cv-details-block,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvm-exp-detail,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvc2-card-bullet,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvm2-bullet,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvcl2-bullet,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvh-bullet,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cv-ats-detail {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+    orphans: 2;
+    widows: 2;
+}
+
+/* Prevent page-break cutting through individual items (NOT sections) */
+.cvh-item,
+.cvh-skill-row,
+.cv-topcv-row,
+.cvm2-row,
+.cvc2-card,
+.cvcl2-item, .cvcl2-r-item,
+.cvi-timeline-item, .cvi-side-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
 #footer-placeholder {
     display: none;
 }
@@ -765,6 +914,37 @@ input:checked + .slider:before {
 }
 
 @media print {
+    body,
+    body.pdf-export-mode {
+        overflow: visible !important;
+        background: #ffffff !important;
+    }
+
+    body.pdf-export-mode #header-placeholder,
+    body.pdf-export-mode #footer-placeholder,
+    body.pdf-export-mode .design-column,
+    body.pdf-export-mode .cv-floating-save-btn,
+    body.pdf-export-mode .cv-action-toolbar,
+    body.pdf-export-mode .edit-mode-badge,
+    body.pdf-export-mode #avatarFileInput,
+    body.pdf-export-mode .generating-overlay,
+    body.pdf-export-mode .cv-modal-backdrop,
+    body.pdf-export-mode .contact-widget,
+    body.pdf-export-mode .chatbot-modal-backdrop {
+        display: none !important;
+    }
+
+    body.pdf-export-mode .editor-workspace,
+    body.pdf-export-mode .preview-column,
+    body.pdf-export-mode .pdf-export-column {
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+    }
+
     .cv-document {
         max-width: none !important;
         margin: 0 !important;
@@ -773,6 +953,78 @@ input:checked + .slider:before {
         background: white !important;
         padding: 0 !important;
         box-shadow: none !important;
+    }
+
+    body.pdf-export-mode #cvPreview > :not(.cv-full) {
+        display: none !important;
+    }
+
+    body.pdf-export-mode .cv-document {
+        width: auto !important;
+        min-height: 0 !important;
+        margin: 0 auto !important;
+        background: transparent !important;
+    }
+
+    body.pdf-export-mode #cvPreview > .cv-full {
+        width: 210mm !important;
+        margin: 0 auto !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-body {
+        display: grid !important;
+        grid-template-columns: 300px 1fr !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-left {
+        background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%) !important;
+        border-right: 1px solid #e2e8f0 !important;
+        border-bottom: 0 !important;
+        padding: 36px 28px !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-right {
+        padding: 36px 40px 44px !important;
+        gap: 26px !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-exp-item,
+    body.pdf-export-mode .cv-professional-root .cvm-edu-item,
+    body.pdf-export-mode .cv-professional-root .cvm-skill-group {
+        padding: 18px 20px !important;
+        border-radius: 18px !important;
+        background: rgba(255, 255, 255, 0.92) !important;
+        border: 1px solid rgba(203, 213, 225, 0.85) !important;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05) !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-skill-list {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        margin: 0 !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-skill-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 6px 12px !important;
+        border-radius: 999px !important;
+        background: #ffffff !important;
+        border: 1px solid #d9e2ec !important;
+        color: #102a43 !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-section {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-exp-item,
+    body.pdf-export-mode .cv-professional-root .cvm-edu-item,
+    body.pdf-export-mode .cv-professional-root .cvm-skill-group {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
     }
 }
 
@@ -1049,39 +1301,52 @@ input:checked + .slider:before {
    STYLE 5: HARVARD â€” Authentic Harvard resume format
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cvh-root {
-    font-family: 'Times New Roman', 'Georgia', serif;
+    font-family: var(--font-main, 'Inter', 'Arial', sans-serif);
     background: white;
     color: #000;
-    line-height: 1.4;
+    line-height: var(--cv-line-height, 1.45);
 }
 
 .cvh-header {
-    padding: 40px 50px 30px;
+    padding: 40px 50px 24px;
     text-align: center;
-    border-bottom: 2px solid #000;
-    margin-bottom: 24px;
 }
 
 .cvh-name {
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
+    font-size: calc(32px * var(--cv-font-scale, 1));
+    font-weight: 900;
+    letter-spacing: 3px;
     text-transform: uppercase;
     margin-bottom: 6px;
     color: #000;
+    font-family: var(--font-main, 'Inter', 'Arial', sans-serif);
 }
 
 .cvh-subtitle {
-    font-size: 15px;
-    font-style: italic;
+    font-size: calc(14px * var(--cv-font-scale, 1));
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
     color: #000;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .cvh-contact {
-    font-size: 11px;
+    font-size: calc(12px * var(--cv-font-scale, 1));
     color: #000;
-    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    padding-top: 10px;
+    border-top: 1px solid #000;
+}
+
+.cvh-contact-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    white-space: nowrap;
 }
 
 .cvh-body {
@@ -1089,29 +1354,29 @@ input:checked + .slider:before {
 }
 
 .cvh-section {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .cvh-title {
-    font-size: 12px;
-    font-weight: 700;
+    font-size: calc(14px * var(--cv-font-scale, 1));
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    border-bottom: 1px solid #000;
+    letter-spacing: 1px;
+    border-bottom: 1.5px solid #000;
     padding-bottom: 4px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     color: #000;
 }
 
 .cvh-summary {
-    font-size: 13px;
-    line-height: 1.6;
-    color: #000;
+    font-size: calc(13px * var(--cv-font-scale, 1));
+    line-height: var(--cv-line-height, 1.6);
+    color: inherit;
     margin-bottom: 4px;
 }
 
 .cvh-item {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .cvh-item-head {
@@ -1122,52 +1387,73 @@ input:checked + .slider:before {
 }
 
 .cvh-item-title {
-    font-size: 14px;
+    font-size: calc(13.5px * var(--cv-font-scale, 1));
     font-weight: 700;
-    color: #000;
+    color: inherit;
 }
 
 .cvh-item-date {
-    font-size: 12px;
-    font-weight: 600;
-    color: #000;
+    font-size: calc(12px * var(--cv-font-scale, 1));
+    font-weight: 400;
+    color: inherit;
     white-space: nowrap;
     margin-left: 12px;
 }
 
 .cvh-item-sub {
-    font-size: 13px;
+    font-size: calc(13px * var(--cv-font-scale, 1));
+    font-weight: 700;
+    font-style: italic;
+    color: inherit;
+    margin-bottom: 4px;
+}
+
+.cvh-item-tech {
+    font-size: calc(12.5px * var(--cv-font-scale, 1));
+    font-weight: 700;
     font-style: italic;
     color: #000;
     margin-bottom: 4px;
 }
 
 .cvh-bullet {
-    font-size: 12px;
-    color: #000;
-    line-height: 1.5;
+    font-size: calc(12.5px * var(--cv-font-scale, 1));
+    color: inherit;
+    line-height: var(--cv-line-height, 1.55);
     padding-left: 18px;
     text-indent: -12px;
     margin-bottom: 2px;
 }
 
-.cvh-skill-group {
+/* Skills table layout matching PDF */
+.cvh-skill-table {
     display: flex;
-    gap: 8px;
-    margin-bottom: 6px;
-    font-size: 12px;
-    line-height: 1.5;
+    flex-direction: column;
+}
+
+.cvh-skill-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 4px 16px;
+    padding: 4px 0;
+    border-bottom: 1px solid #e5e5e5;
+    font-size: calc(13px * var(--cv-font-scale, 1));
+    line-height: var(--cv-line-height, 1.5);
+    align-items: baseline;
+}
+
+.cvh-skill-row:last-child {
+    border-bottom: none;
 }
 
 .cvh-skill-cat {
     font-weight: 700;
     color: #000;
-    min-width: 120px;
     flex-shrink: 0;
 }
 
 .cvh-skill-items {
-    color: #000;
+    color: inherit;
 }
 
 .cvm-skill-group { margin-bottom: 15px; }
@@ -1248,27 +1534,27 @@ input:checked + .slider:before {
 .cvcl2-section-title { font-size: 18px; font-weight: bold; border-bottom: 1px solid #aaa; margin-top: 25px; margin-bottom: 15px; }
 
 /* â”€â”€ Harvard Styles â”€â”€ */
-.cvh-root { padding: 50px; font-family: 'Times New Roman', serif; }
-.cvh-header { text-align: center; margin-bottom: 30px; }
-.cvh-name { font-size: 28px; font-weight: bold; border-bottom: 1px solid #000; display: inline-block; padding: 0 40px; }
+.cvh-root { padding: 0; font-family: var(--font-main, 'Inter', 'Arial', sans-serif); }
+.cvh-header { text-align: center; margin-bottom: 0; }
+.cvh-name { font-size: calc(32px * var(--cv-font-scale, 1)); font-weight: 900; letter-spacing: 3px; display: block; padding: 0; border-bottom: none; }
 .cvh-inline-item {
-    font-size: 12px;
-    color: #000;
-    line-height: 1.5;
+    font-size: calc(12px * var(--cv-font-scale, 1));
+    color: inherit;
+    line-height: var(--cv-line-height, 1.5);
     margin-bottom: 4px;
 }
 
 @media print {
-    .cvh-root {
-        font-family: 'Times New Roman', 'Georgia', serif !important;
-    }
+        .cvh-root {
+            font-family: var(--font-main, 'Times New Roman', 'Georgia', serif) !important;
+        }
     .cvh-header {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
-    .cvh-title {
-        border-bottom: 1px solid #000 !important;
-    }
+        .cvh-title {
+            border-bottom: 1px solid var(--cv-accent, currentColor) !important;
+        }
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -1343,6 +1629,53 @@ input:checked + .slider:before {
 .cvc2-card-bullet { font-size: 13px; color: #475569; line-height: 1.6; }
 .cvc2-proj-item { display: flex; gap: 12px; margin-bottom: 14px; }
 .cvc2-proj-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   STYLE 2b: IMPACTFUL — Bold Executive with dark sidebar + timeline
+   ═══════════════════════════════════════════════════════════════ */
+.cvi-root { font-family: 'Inter', sans-serif; background: white; }
+.cvi-layout { display: grid; grid-template-columns: 260px 1fr; min-height: 297mm; }
+
+.cvi-sidebar { color: #e2e8f0; padding: 32px 22px 40px; display: flex; flex-direction: column; gap: 22px; }
+.cvi-sidebar-header { text-align: center; padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.cvi-name { font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.3px; margin-top: 14px; margin-bottom: 4px; }
+.cvi-subtitle { font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+
+.cvi-sidebar-contacts { display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #cbd5e1; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.cvi-contact-item { display: flex; align-items: center; gap: 4px; }
+
+.cvi-sidebar-section { display: flex; flex-direction: column; gap: 8px; }
+.cvi-sidebar-title { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px; }
+
+.cvi-skill-group { margin-bottom: 8px; }
+.cvi-skill-cat { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.cvi-skill-items { display: flex; flex-wrap: wrap; gap: 4px; }
+.cvi-skill-pill { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+
+.cvi-side-item { margin-bottom: 10px; }
+.cvi-side-title { font-size: 13px; font-weight: 700; color: #f1f5f9; line-height: 1.4; }
+.cvi-side-sub { font-size: 11.5px; color: #94a3b8; }
+.cvi-side-date { font-size: 11px; color: #64748b; }
+
+.cvi-main { padding: 36px 40px 44px; display: flex; flex-direction: column; gap: 28px; }
+.cvi-section { display: flex; flex-direction: column; gap: 14px; }
+.cvi-section-title { font-size: 13px; font-weight: 800; letter-spacing: 1.8px; text-transform: uppercase; padding-left: 14px; color: #1e293b; }
+.cvi-summary { font-size: 14px; color: #374151; line-height: 1.75; }
+
+.cvi-timeline { padding-left: 18px; display: flex; flex-direction: column; gap: 20px; }
+.cvi-timeline-item { position: relative; padding-left: 16px; }
+.cvi-timeline-dot { position: absolute; left: -24px; top: 6px; width: 10px; height: 10px; border-radius: 50%; }
+.cvi-timeline-content { display: flex; flex-direction: column; gap: 4px; }
+.cvi-timeline-role { font-size: 16px; font-weight: 700; color: #0f172a; }
+.cvi-timeline-meta { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.cvi-timeline-company { font-size: 13px; font-weight: 600; color: #64748b; }
+.cvi-timeline-period { font-size: 12px; font-weight: 700; }
+.cvi-timeline-detail { font-size: 13.5px; color: #475569; line-height: 1.65; margin-top: 4px; }
+
+@media print {
+    .cvi-sidebar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .cvi-timeline-dot { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    STYLE 3 (NEW): MINIMALIST â€” Left colored bar + meta/content rows
@@ -2660,9 +2993,12 @@ input:checked + .slider:before {
 }
 
 .cvh-editable-active,
-.cvh-item-title[contenteditable="true"],
-.cvh-item-sub[contenteditable="true"],
-.cvh-item-date[contenteditable="true"] {
+.cvh-item-title[contenteditable="true"]:focus,
+.cvh-item-sub[contenteditable="true"]:focus,
+.cvh-item-date[contenteditable="true"]:focus,
+.cvh-skill-cat[contenteditable="true"]:focus,
+.cvh-skill-items[contenteditable="true"]:focus,
+.cvh-contact-item[contenteditable="true"]:focus {
     box-shadow: inset 0 0 0 1px #1A2456;
     border-radius: 8px;
 }
@@ -3078,7 +3414,8 @@ input:checked + .slider:before {
         /* â”€â”€ Save Name Modal â”€â”€ */
         .cv-modal-backdrop {
             display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.45); z-index: 9000;
+            background: rgba(15, 23, 42, 0.76); z-index: 9000;
+            backdrop-filter: blur(10px);
             align-items: center; justify-content: center;
         }
         .cv-modal-backdrop.show { display: flex; }
@@ -3087,6 +3424,14 @@ input:checked + .slider:before {
             padding: 32px; width: 420px; max-width: 90vw;
             box-shadow: 0 20px 60px rgba(0,0,0,0.25);
             animation: modalIn 0.22s ease;
+        }
+        body.save-modal-open #header-placeholder,
+        body.save-modal-open #footer-placeholder,
+        body.save-modal-open .editor-workspace,
+        body.save-modal-open .edit-mode-badge {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            user-select: none !important;
         }
         @keyframes modalIn { from { opacity:0; transform:scale(0.94) translateY(-12px); } to { opacity:1; transform:none; } }
         .cv-modal h3 { font-size: 18px; font-weight: 800; color: #1e293b; margin: 0 0 6px; }
@@ -3143,12 +3488,12 @@ input:checked + .slider:before {
             position: relative;
             z-index: 3;
         }
-        .cv-editable-mode .cvh-root .cv-editable.cvh-editable-active,
-        .cv-editable-mode .cvh-root .cv-editable[contenteditable="true"] {
-            border-color: #1A2456 !important;
-            border-style: solid !important;
-            box-shadow: inset 0 0 0 1px #1A2456, 0 0 0 1px rgba(26, 36, 86, 0.12) !important;
-            background: transparent !important;
+.cv-editable-mode .cvh-root .cv-editable.cvh-editable-active,
+.cv-editable-mode .cvh-root .cv-editable[contenteditable="true"]:focus {
+    border-color: #1A2456 !important;
+    border-style: solid !important;
+    box-shadow: inset 0 0 0 1px #1A2456, 0 0 0 1px rgba(26, 36, 86, 0.12) !important;
+    background: transparent !important;
             position: relative;
             z-index: 2;
             border-radius: 4px;
@@ -3480,8 +3825,33 @@ input:checked + .slider:before {
             .cvm-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .cvm-left { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .cvm-bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .cvm-exp-item { page-break-inside: avoid; }
-            .cvm-section { page-break-inside: avoid; }
+            .cvm-section { break-inside: auto; page-break-inside: auto; }
+            .cvm-exp-item,
+            .cvm-edu-item,
+            .cvm-skill-group { break-inside: avoid; page-break-inside: avoid; }
+
+            [data-cv-section="projects"] .cvm-exp-item,
+            [data-cv-section="projects"] .cvc2-card,
+            [data-cv-section="projects"] .cvm2-row,
+            [data-cv-section="projects"] .cvcl2-item,
+            [data-cv-section="projects"] .cvh-item,
+            [data-cv-section="projects"] .cv-topcv-row {
+                break-inside: auto;
+                page-break-inside: auto;
+            }
+
+            [data-cv-section="projects"] .cv-details-block,
+            [data-cv-section="projects"] .cvm-exp-detail,
+            [data-cv-section="projects"] .cvc2-card-bullet,
+            [data-cv-section="projects"] .cvm2-bullet,
+            [data-cv-section="projects"] .cvcl2-bullet,
+            [data-cv-section="projects"] .cvh-bullet,
+            [data-cv-section="projects"] .cv-ats-detail {
+                break-inside: auto;
+                page-break-inside: auto;
+                orphans: 2;
+                widows: 2;
+            }
         }
 
         /* â”€â”€ Sidebar redesign â”€â”€ */
@@ -4062,10 +4432,12 @@ input:checked + .slider:before {
         }
 
         .layout-grid,
-        .layout-grid.layout-grid-single,
         .layout-grid-unused {
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 8px;
+        }
+        .layout-grid.layout-grid-single {
+            grid-template-columns: 1fr;
         }
 
         .layout-section-card {
@@ -4551,7 +4923,7 @@ input:checked + .slider:before {
             display: block;
             padding: 0;
             border: none;
-            font-size: 30px;
+            font-size: calc(30px * var(--cv-font-scale, 1));
             letter-spacing: 0.6px;
         }
 
@@ -4563,11 +4935,11 @@ input:checked + .slider:before {
         .cvh-contact {
             margin-top: 10px;
             padding-top: 8px;
-            border-top: 1px solid #111827;
+            border-top: 1px solid var(--cv-accent, #111827);
         }
 
         .cvh-title {
-            font-size: 12px;
+            font-size: calc(12px * var(--cv-font-scale, 1));
             letter-spacing: 1.6px;
         }
 
@@ -4764,6 +5136,9 @@ input:checked + .slider:before {
 .preview-column .cvcl2-body,
 .preview-column .cvh-body,
 .preview-column .cv-topcv-body,
+.preview-column .cvi-layout,
+.preview-column .cvi-sidebar,
+.preview-column .cvi-main,
 .preview-column .cvm-left,
 .preview-column .cvm-right,
 .preview-column .cvc2-left,
@@ -5260,7 +5635,7 @@ input:checked + .slider:before {
 }
 
 .cv-harvard-root .cvh-name {
-    font-size: 28px;
+    font-size: calc(28px * var(--cv-font-scale, 1));
     letter-spacing: 1.2px;
 }
 
@@ -5821,6 +6196,177 @@ input:checked + .slider:before {
     .preview-column .cvm-left .cvm-exp-detail-group,
     .preview-column .cvm-left .cvm-exp-detail {
         margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-section,
+    body.pdf-export-mode #cvPreview .cvc2-zone,
+    body.pdf-export-mode #cvPreview .cvm2-block,
+    body.pdf-export-mode #cvPreview .cvcl2-section,
+    body.pdf-export-mode #cvPreview .cv-topcv-section,
+    body.pdf-export-mode #cvPreview .cvh-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-exp-item,
+    body.pdf-export-mode #cvPreview .cvm-edu-item,
+    body.pdf-export-mode #cvPreview .cvc2-card,
+    body.pdf-export-mode #cvPreview .cvm2-row,
+    body.pdf-export-mode #cvPreview .cvcl2-item,
+    body.pdf-export-mode #cvPreview .cvcl2-r-item,
+    body.pdf-export-mode #cvPreview .cv-topcv-row,
+    body.pdf-export-mode #cvPreview .cvh-item {
+        margin-bottom: 6px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-skill-group,
+    body.pdf-export-mode #cvPreview .cvc2-skill-group,
+    body.pdf-export-mode #cvPreview .cvcl2-skill,
+    body.pdf-export-mode #cvPreview .cvh-skill-group {
+        margin-bottom: 4px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-exp-detail,
+    body.pdf-export-mode #cvPreview .cvm-edu-detail,
+    body.pdf-export-mode #cvPreview .cvc2-card-bullet,
+    body.pdf-export-mode #cvPreview .cvm2-bullet,
+    body.pdf-export-mode #cvPreview .cvcl2-bullet,
+    body.pdf-export-mode #cvPreview .cvh-bullet,
+    body.pdf-export-mode #cvPreview .cvh-details {
+        margin-top: 2px !important;
+        margin-bottom: 0 !important;
+        line-height: 1.35 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-skill-list,
+    body.pdf-export-mode #cvPreview .cvc2-tags,
+    body.pdf-export-mode #cvPreview .cvm2-row-org,
+    body.pdf-export-mode #cvPreview .cvcl2-skill-vals,
+    body.pdf-export-mode #cvPreview .cvh-skill-items,
+    body.pdf-export-mode #cvPreview p,
+    body.pdf-export-mode #cvPreview li {
+        line-height: 1.35 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-section-title,
+    body.pdf-export-mode #cvPreview .cvc2-sec,
+    body.pdf-export-mode #cvPreview .cvm2-title,
+    body.pdf-export-mode #cvPreview .cvcl2-sec-title,
+    body.pdf-export-mode #cvPreview .cvcl2-sec-title-r,
+    body.pdf-export-mode #cvPreview .cvh-title,
+    body.pdf-export-mode #cvPreview .cv-topcv-title {
+        margin-bottom: 8px !important;
+        padding-bottom: 6px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-exp-role,
+    body.pdf-export-mode #cvPreview .cvm-edu-degree,
+    body.pdf-export-mode #cvPreview .cvc2-card-title,
+    body.pdf-export-mode #cvPreview .cvm2-row-title,
+    body.pdf-export-mode #cvPreview .cvcl2-role,
+    body.pdf-export-mode #cvPreview .cvcl2-r-degree,
+    body.pdf-export-mode #cvPreview .cvh-item-title {
+        margin-bottom: 2px !important;
+        line-height: 1.25 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-exp-company,
+    body.pdf-export-mode #cvPreview .cvm-edu-school,
+    body.pdf-export-mode #cvPreview .cvm-edu-year,
+    body.pdf-export-mode #cvPreview .cvc2-card-sub,
+    body.pdf-export-mode #cvPreview .cvm2-row-period,
+    body.pdf-export-mode #cvPreview .cvm2-row-org,
+    body.pdf-export-mode #cvPreview .cvcl2-company,
+    body.pdf-export-mode #cvPreview .cvcl2-date,
+    body.pdf-export-mode #cvPreview .cvcl2-r-school,
+    body.pdf-export-mode #cvPreview .cvcl2-r-period,
+    body.pdf-export-mode #cvPreview .cvh-item-sub,
+    body.pdf-export-mode #cvPreview .cvh-item-date {
+        margin-bottom: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-left section,
+    body.pdf-export-mode #cvPreview .cvm-right section,
+    body.pdf-export-mode #cvPreview .cvm2-block,
+    body.pdf-export-mode #cvPreview .cv-topcv-content,
+    body.pdf-export-mode #cvPreview .cvh-section {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-body,
+    body.pdf-export-mode #cvPreview .cvc2-body,
+    body.pdf-export-mode #cvPreview .cvm2-body,
+    body.pdf-export-mode #cvPreview .cvcl2-body,
+    body.pdf-export-mode #cvPreview .cvh-root {
+        row-gap: 12px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-body {
+        row-gap: 12px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right {
+        gap: 10px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-section,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left section.cvm-section,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-summary-section,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+        padding-top: 0 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-section-title,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-section-title {
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-summary-text-full {
+        margin-top: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-item,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-exp-item,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-exp-item,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-skill-group {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-degree,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-exp-role {
+        margin-bottom: 1px !important;
+        line-height: 1.22 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-school,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-year,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-exp-company,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-exp-role,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-skill-cat,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-exp-company,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-skill-list {
+        margin-bottom: 1px !important;
+        line-height: 1.26 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-detail-group,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-detail,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-exp-detail-group,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-exp-detail,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-exp-detail-group,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-exp-detail {
+        margin-top: 1px !important;
+        margin-bottom: 0 !important;
         line-height: 1.28 !important;
     }
 

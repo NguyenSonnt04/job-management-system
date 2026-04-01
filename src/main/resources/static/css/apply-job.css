@@ -515,9 +515,18 @@
 }
 
 /* ---- Responsive ---- */
+/* Laptop & Tablet */
+@media (max-width: 1024px) {
+    .apply-grid {
+        gap: 24px;
+    }
+}
+
+/* Tablet Small */
 @media (max-width: 768px) {
     .apply-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
 
     .job-info-sidebar {
@@ -527,5 +536,101 @@
 
     .cv-select-grid {
         grid-template-columns: 1fr;
+    }
+
+    .form-section {
+        padding: 24px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .apply-container {
+        padding: 16px 0;
+    }
+
+    .form-section {
+        padding: 20px 16px;
+    }
+
+    .form-title {
+        font-size: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+
+    .btn-success {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+
+    .btn-success-back {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+
+    .job-info-sidebar {
+        padding: 16px;
+    }
+
+    .job-info-title {
+        font-size: 16px;
+    }
+
+    .job-info-item {
+        font-size: 13px;
+        padding: 8px 0;
+    }
+
+    .cv-select-card {
+        padding: 16px;
+    }
+
+    .cv-card-title {
+        font-size: 14px;
+    }
+
+    .cv-card-meta {
+        font-size: 12px;
+    }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+    .form-section {
+        padding: 16px 12px;
+    }
+
+    .form-title {
+        font-size: 18px;
+    }
+
+    .btn-success {
+        width: 100%;
+    }
+
+    .btn-success-back {
+        width: 100%;
+    }
+
+    .job-info-sidebar {
+        padding: 12px;
+    }
+
+    .cv-select-card {
+        padding: 12px;
     }
 }

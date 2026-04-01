@@ -904,13 +904,156 @@
 }
 
 /* ---- Responsive ---- */
-@media (max-width: 900px) {
-    .cv-layout { grid-template-columns: 1fr; }
-    .cv-right { order: -1; }
-    .criteria-grid, .sw-section { grid-template-columns: 1fr; }
-    .strengths-card { border-right: none; border-bottom: 1px solid #e8ecef; }
-    .cv-hero-title { font-size: 32px; }
-    .result-header { flex-direction: column; text-align: center; }
+/* Laptop & Tablet */
+@media (max-width: 1024px) {
+    .cv-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .cv-right {
+        order: -1;
+    }
+
+    .criteria-grid,
+    .sw-section {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .cv-hero-title {
+        font-size: 36px;
+    }
+
+    .result-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+}
+
+/* Tablet Small */
+@media (max-width: 768px) {
+    .cv-hero-title {
+        font-size: 28px;
+    }
+
+    .criteria-grid,
+    .sw-section {
+        grid-template-columns: 1fr;
+    }
+
+    .strengths-card {
+        border-right: none;
+        border-bottom: 1px solid #e8ecef;
+    }
+
+    .cv-score-circle {
+        width: 120px;
+        height: 120px;
+    }
+
+    .cv-score-value {
+        font-size: 32px;
+    }
+
+    .match-jobs-card {
+        margin-top: 16px;
+    }
+
+    .match-jobs-header {
+        padding: 16px 20px;
+    }
+
+    .match-jobs-title {
+        font-size: 14px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .cv-hero-title {
+        font-size: 24px;
+    }
+
+    .cv-hero-subtitle {
+        font-size: 14px;
+    }
+
+    .cv-section {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .cv-section-title {
+        font-size: 16px;
+    }
+
+    .criteria-item {
+        padding: 12px;
+    }
+
+    .criteria-name {
+        font-size: 13px;
+    }
+
+    .criteria-score {
+        font-size: 14px;
+    }
+
+    .cv-score-circle {
+        width: 100px;
+        height: 100px;
+    }
+
+    .cv-score-value {
+        font-size: 28px;
+    }
+
+    .strength-item {
+        font-size: 13px;
+        padding: 8px 0;
+    }
+
+    .match-jobs-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .match-jobs-title {
+        font-size: 14px;
+    }
+
+    .match-jobs-badge {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+    .cv-hero-title {
+        font-size: 20px;
+    }
+
+    .cv-section {
+        padding: 12px;
+    }
+
+    .cv-section-title {
+        font-size: 15px;
+    }
+
+    .cv-score-circle {
+        width: 90px;
+        height: 90px;
+    }
+
+    .cv-score-value {
+        font-size: 24px;
+    }
 }
 
 /* ===== MATCH JOBS SECTION ===== */

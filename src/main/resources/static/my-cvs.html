@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #f9fafb;
@@ -31,7 +31,7 @@
             --radius-sm: 8px;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; outline: none; }
 
         html, body {
             min-height: 100%;
@@ -58,8 +58,10 @@
             gap: 22px;
         }
 
-        .main-column,
-        .sidebar-column {
+        .shell {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            padding: 40px 24px 100px;
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -229,7 +231,8 @@
         /* ── Section (CV Library) ── */
         .collection-card { padding: 22px 24px; text-align: left; }
 
-        .section-header {
+        /* --- CV GALLERY --- */
+        .gallery-header {
             display: flex;
             align-items: flex-start;
             text-align: left;
@@ -311,10 +314,9 @@
         }
 
         .cv-card {
-            --card-accent: #0f9f5f;
-            --card-soft: #edf8f1;
-            display: flex;
-            flex-direction: column;
+            background: white;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--line-soft);
             overflow: hidden;
             border-radius: 12px;
             border: 1px solid var(--line);
@@ -436,6 +438,15 @@
             overflow: hidden;
             background: #f3f4f6;
         }
+        .modal-bg.active { display: flex; }
+        .modal-content {
+            background: white; width: 100%; max-width: 520px; padding: 56px; border-radius: var(--radius-xl);
+            box-shadow: 0 40px 120px rgba(26, 36, 86, 0.2); text-align: center;
+        }
+        .modal-title { font-size: 28px; font-weight: 900; color: var(--primary); margin: 0 0 16px; letter-spacing: -0.04em; }
+        .modal-p { color: var(--muted); line-height: 1.6; margin-bottom: 32px; font-weight: 500; }
+        .field { width: 100%; height: 64px; border: 2px solid var(--line-soft); border-radius: 18px; padding: 0 24px; font-size: 16px; margin-bottom: 32px; transition: 0.2s; }
+        .field:focus { border-color: var(--primary); background: var(--bg); }
 
         .loading-thumb::after,
         .loading-line::after,
@@ -992,6 +1003,7 @@
                         <p>Không gian CV của bạn đã sẵn sàng để cập nhật và ứng tuyển nhanh hơn.</p>
                     </div>
                 </div>
+            </div>
 
                 <div class="profile-stats">
                     <div class="profile-stat">
@@ -1039,12 +1051,12 @@
     <!-- ── Rename Modal ── -->
     <div class="modal-backdrop" id="renameModal">
         <div class="modal-content">
-            <h4>Đổi tên CV</h4>
-            <p>Đặt tên dễ nhớ hơn để phân biệt các bản CV theo vị trí ứng tuyển hoặc phiên bản nội dung.</p>
-            <input type="text" id="renameInput" class="modal-input" placeholder="Ví dụ: Backend Developer - Bản ứng tuyển 2026" maxlength="100">
-            <div class="modal-actions">
-                <button class="btn-modal secondary" onclick="closeRename()">Hủy</button>
-                <button class="btn-modal primary" onclick="confirmRename()">Lưu thay đổi</button>
+            <h4 class="modal-title">Đổi tên CV</h4>
+            <p class="modal-p">Đặt tên ngắn gọn, dễ nhận biết cho phiên bản CV này.</p>
+            <input type="text" id="renameInput" class="field" placeholder="Ví dụ: Backend Developer - HN">
+            <div class="modal-btns">
+                <button class="btn-modal cancel" onclick="closeModal('renameModal')">Hủy</button>
+                <button class="btn-modal primary" onclick="confirmRename()">Lưu tên mới</button>
             </div>
         </div>
     </div>
@@ -1052,11 +1064,11 @@
     <!-- ── Delete Modal ── -->
     <div class="modal-backdrop" id="deleteModal">
         <div class="modal-content">
-            <h4 style="color: var(--danger);">Xóa CV</h4>
-            <p id="deleteMsg">Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa bản CV này?</p>
-            <div class="modal-actions">
-                <button class="btn-modal secondary" onclick="closeDelete()">Hủy</button>
-                <button class="btn-modal danger" onclick="confirmDelete()">Xóa vĩnh viễn</button>
+            <h4 class="modal-title" style="color: var(--danger);">Xóa hồ sơ?</h4>
+            <p class="modal-p" id="deleteMsg">Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa bản CV này?</p>
+            <div class="modal-btns">
+                <button class="btn-modal cancel" onclick="closeModal('deleteModal')">Hủy</button>
+                <button class="btn-modal primary" style="background: var(--danger);" onclick="confirmDelete()">Xóa vĩnh viễn</button>
             </div>
         </div>
     </div>
@@ -1086,38 +1098,22 @@
 
     <script src="js/main.js"></script>
     <script>
-        let cvList = [];
-        let renameTargetId = null;
-        let deleteTargetId = null;
-
-        const previewTones = [
-            { accent: '#0f9f5f', soft: '#edf8f1' },
-            { accent: '#1456c4', soft: '#eef4ff' },
-            { accent: '#0f766e', soft: '#ecfeff' },
-            { accent: '#b7791f', soft: '#fff7e6' }
-        ];
+        let cvRecords = [];
+        let activeId = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            setupToggles();
-            setupModalBehaviors();
-            bindRenameShortcut();
-            syncJobSearchUi(true);
-            loadCvList();
-            getUserInfo();
+            fetchUser();
+            initDashboard();
+            setupStatusToggle();
         });
 
-        async function getUserInfo() {
+        async function fetchUser() {
             try {
                 const res = await fetch('/api/user/me', { credentials: 'include' });
-                if (!res.ok) return;
-                const data = await res.json();
-                document.getElementById('sidebarUserName').textContent = data.fullName || data.username || 'Người dùng';
-                if (data.avatarUrl || data.avatar) {
-                    document.getElementById('sidebarAvatar').src = data.avatarUrl || data.avatar;
+                if (res.status === 401) {
+                    window.location.href = '/login.html?redirect=/my-cvs.html';
                 }
-            } catch (error) {
-                console.error('Error fetching user info:', error);
-            }
+            } catch (err) { console.error('Auth check failed', err); }
         }
 
         function setupToggles() {
@@ -1156,62 +1152,44 @@
             });
         }
 
-        function bindRenameShortcut() {
-            const input = document.getElementById('renameInput');
-            if (!input) return;
-            input.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    confirmRename();
-                }
-            });
-        }
+        async function loadCvs() {
+            const grid = document.getElementById('cvGrid');
+            const loader = document.getElementById('loader');
+            const empty = document.getElementById('emptyMsg');
 
-        async function loadCvList() {
-            show('loadingState', 'grid');
-            hide('emptyState');
-            clear('cvGrid');
-            updateSummary('Đang tải danh sách CV', 'Danh sách CV đang được đồng bộ...', 'Chưa chọn CV nổi bật');
+            loader.style.display = 'block';
+            grid.innerHTML = '';
+            empty.style.display = 'none';
 
             try {
                 const res = await fetch('/api/user-cv', { credentials: 'include' });
-                if (res.status === 401) {
-                    window.location.href = '/login.html?redirect=/my-cvs.html';
-                    return;
-                }
                 const data = await res.json();
-                cvList = Array.isArray(data) ? data.slice() : [];
-                cvList.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-            } catch (error) {
-                cvList = [];
-                toast('Lỗi tải danh sách CV: ' + error.message, 'error');
+                cvRecords = Array.isArray(data) ? data : [];
+                cvRecords.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            } catch (err) {
+                showToast('Lỗi kết nối cơ sở dữ liệu', 'error');
             }
 
-            hide('loadingState');
-            if (!cvList.length) {
-                resetDashboard();
-                show('emptyState', 'block');
-                return;
+            loader.style.display = 'none';
+            if (cvRecords.length === 0) {
+                empty.style.display = 'block';
+                updateStats(0, 0, 'Chưa có hồ sơ nào');
+            } else {
+                updateStats(cvRecords.length, getRecentCount(cvRecords), `Cập nhật lần cuối: ${fmtLast(cvRecords[0].updatedAt)}`);
+                renderGallery();
             }
-
-            updateDashboard();
-            renderCvGrid();
         }
 
-        function renderCvGrid() {
+        function renderGallery() {
             const grid = document.getElementById('cvGrid');
-            grid.innerHTML = '';
-            cvList.forEach((cv, index) => grid.appendChild(buildCard(cv, index)));
+            cvRecords.forEach((cv, idx) => {
+                grid.appendChild(createCvCard(cv, idx));
+            });
         }
 
-        function buildCard(cv, index) {
-            const card = document.createElement('article');
-            const tone = previewTones[index % previewTones.length];
-            const safeName = JSON.stringify(cv.cvName || '');
-            const templateName = cv.templateName || 'CV tiêu chuẩn';
-            card.className = 'cv-card' + (index === 0 ? ' is-featured' : '');
-            card.style.setProperty('--card-accent', tone.accent);
-            card.style.setProperty('--card-soft', tone.soft);
+        function createCvCard(cv, idx) {
+            const card = document.createElement('div');
+            card.className = 'cv-card';
             card.innerHTML = `
                 <div class="cv-card-row">
                     <div class="cv-row-icon" onclick="openCvEditor(${cv.id})" style="cursor:pointer" title="Mở CV"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
@@ -1233,54 +1211,65 @@
             return card;
         }
 
-        function updateDashboard() {
-            const total = cvList.length;
-            const recent = cvList.filter((cv) => isWithinDays(cv.updatedAt, 7)).length;
-            const featured = cvList[0];
-            document.getElementById('totalCvMetric').textContent = String(total).padStart(2, '0');
-            document.getElementById('recentCvMetric').textContent = String(recent).padStart(2, '0');
-            document.getElementById('selectedMetric').textContent = featured ? limitText(featured.cvName || 'CV của bạn', 16) : '--';
-            document.getElementById('sidebarTotalCv').textContent = String(total);
-            document.getElementById('sidebarReadyMetric').textContent = String(total);
-            document.getElementById('selectedCvName').textContent = featured.cvName || 'CV của bạn';
-            document.getElementById('selectedCvMeta').textContent = `Cập nhật ${fmtDate(featured.updatedAt)} · ${fmtRelativeDate(featured.updatedAt)} · ${featured.templateName || 'CV tiêu chuẩn'}`;
-            updateSummary(`${total} CV đang lưu`, `Lần cập nhật gần nhất: ${fmtDate(featured.updatedAt)} (${fmtRelativeDate(featured.updatedAt)})`, `CV nổi bật: ${limitText(featured.cvName || 'CV của bạn', 26)}`);
+        function updateStats(total, recent, summary) {
+            document.getElementById('totalCvCount').textContent = String(total).padStart(2, '0');
+            document.getElementById('recentCvCount').textContent = String(recent).padStart(2, '0');
+            document.getElementById('gallerySummary').textContent = summary;
         }
 
-        function resetDashboard() {
-            document.getElementById('totalCvMetric').textContent = '00';
-            document.getElementById('recentCvMetric').textContent = '00';
-            document.getElementById('selectedMetric').textContent = '--';
-            document.getElementById('sidebarTotalCv').textContent = '0';
-            document.getElementById('sidebarReadyMetric').textContent = '0';
-            document.getElementById('selectedCvName').textContent = 'Chưa có CV nổi bật';
-            document.getElementById('selectedCvMeta').textContent = 'Tạo một CV để hiển thị thông tin tóm tắt tại đây.';
-            updateSummary('Chưa có CV nào', 'Tạo CV đầu tiên để bắt đầu quản lý hồ sơ.', 'Chưa chọn CV nổi bật');
+        function getRecentCount(list) {
+            const weekIdx = Date.now() - (7 * 24 * 60 * 60 * 1000);
+            return list.filter(c => new Date(c.updatedAt).getTime() > weekIdx).length;
         }
 
-        function updateSummary(collectionText, updateText, selectionText) {
-            document.getElementById('collectionStatus').textContent = collectionText;
-            document.getElementById('lastUpdateSummary').textContent = updateText;
-            document.getElementById('cvSelectionStatus').textContent = selectionText;
+        function fmtLast(iso) { return new Date(iso).toLocaleDateString('vi-VN'); }
+        function fmtRelative(iso) {
+            const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+            if (s < 60) return 'Vừa xong';
+            if (s < 3600) return Math.floor(s/60) + ' phút trước';
+            if (s < 86400) return Math.floor(s/3600) + ' giờ trước';
+            return Math.floor(s/86400) + ' ngày trước';
         }
 
-        function openCvEditor(id) { window.location.href = `/cv-editor.html?cvId=${id}`; }
-        function renameCV(id, name) { renameTargetId = id; document.getElementById('renameInput').value = name; document.getElementById('renameModal').classList.add('show'); setTimeout(() => document.getElementById('renameInput').focus(), 80); }
-        function closeRename() { document.getElementById('renameModal').classList.remove('show'); }
-        function deleteCV(id, name) { deleteTargetId = id; document.getElementById('deleteMsg').innerHTML = `Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa bản CV <strong>"${esc(name)}"</strong>?`; document.getElementById('deleteModal').classList.add('show'); }
-        function closeDelete() { document.getElementById('deleteModal').classList.remove('show'); }
+        function setupStatusToggle() {
+            const toggle = document.getElementById('jobStatusToggle');
+            const title = document.getElementById('jobSearchTitle');
+            toggle.addEventListener('change', () => {
+                title.textContent = toggle.checked ? 'Đang tìm việc' : 'Tạm ẩn hồ sơ';
+                showToast(toggle.checked ? 'Đã bật chế độ tìm việc' : 'Đã tạm ẩn hồ sơ khỏi tìm kiếm', 'success');
+            });
+        }
+
+        // Modals
+        function openRename(id, name) {
+            activeId = id;
+            document.getElementById('renameInput').value = name;
+            document.getElementById('renameModal').classList.add('active');
+            document.getElementById('renameInput').focus();
+        }
+        function openDelete(id, name) {
+            activeId = id;
+            document.getElementById('deleteMsg').innerHTML = `Xác nhận xóa bản CV <strong>"${name}"</strong>? Việc này sẽ xóa vĩnh viễn dữ liệu.`;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
         async function confirmRename() {
             const newName = document.getElementById('renameInput').value.trim();
-            if (!newName) return toast('Tên CV không được để trống.', 'error');
+            if (!newName) return;
             try {
-                const res = await fetch(`/api/user-cv/${renameTargetId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ cvName: newName }) });
-                const data = await parseJsonSafe(res);
-                if (!res.ok) throw new Error(data.message || 'Không thể đổi tên CV.');
-                toast('Đã đổi tên CV thành công.', 'success');
-                closeRename();
-                await loadCvList();
-            } catch (error) { toast(error.message || 'Không thể đổi tên CV.', 'error'); }
+                const res = await fetch(`/api/user-cv/${activeId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cvName: newName }),
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    showToast('Đã đổi tên thành công');
+                    closeModal('renameModal');
+                    loadCvs();
+                }
+            } catch (err) { showToast('Không thể cập nhật tên', 'error'); }
         }
 
         async function confirmDelete() {

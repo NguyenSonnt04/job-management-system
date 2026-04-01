@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem CV | CareerViet Studio</title>
+    <meta name="description" content="Xem bản xem trước CV của bạn với giao diện chuyên nghiệp đúng chuẩn.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cv-editor.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Load the complete CV engine (same as editor, minus save/PDF) -->
+    <script src="js/cv-editor-state.js"></script>
+    <script src="js/cv-editor-design.js"></script>
+    <script src="js/cv-editor-render.js"></script>
+    <script src="js/cv-editor-edit.js"></script>
+
+    <style>
+        :root {
+            --primary: #1A2456;
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --ink: #0F172A;
+            --muted: #64748B;
+            --line: #E2E8F0;
+            --line-soft: #F1F5F9;
+
+            --shadow-soft: 0 10px 40px rgba(26, 36, 86, 0.05);
+            --shadow-float: 0 30px 60px rgba(26, 36, 86, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        /* cv-editor.css sets body { overflow: hidden } for the editor layout.
+           Override it here so the view page can scroll normally. */
+        html { overflow-y: auto !important; }
+        body { overflow: auto !important; min-height: 100%; margin: 0; font-family: "Be Vietnam Pro", sans-serif; background: var(--bg); }
+
+        body::before {
+            content: "";
+            position: fixed; inset: 0;
+            background: radial-gradient(circle at 10% 5%, rgba(59, 130, 246, 0.04) 0%, transparent 35%),
+                        radial-gradient(circle at 90% 95%, rgba(26, 36, 86, 0.04) 0%, transparent 35%);
+            z-index: -1; pointer-events: none;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        button { border: none; background: none; cursor: pointer; font: inherit; transition: 0.2s; }
+
+        #header-placeholder { position: sticky; top: 0; z-index: 1000; }
+
+        .page-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* --- TOP BAR --- */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            gap: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 12px 24px; background: var(--surface);
+            border: 1px solid var(--line-soft); border-radius: 100px;
+            font-size: 14px; font-weight: 700; color: var(--muted);
+            box-shadow: var(--shadow-soft);
+        }
+        .back-btn:hover { color: var(--primary); transform: translateX(-4px); }
+
+        .action-group { display: flex; gap: 12px; }
+
+        .btn {
+            height: 52px; padding: 0 28px; border-radius: 100px;
+            font-size: 14px; font-weight: 800;
+            display: inline-flex; align-items: center; justify-content: center;
+            text-transform: uppercase; letter-spacing: 0.02em;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(26, 36, 86, 0.1); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: white; border: 2px solid var(--primary); color: var(--primary); }
+
+        /* --- CV VIEWER CARD --- */
+        .cv-viewer-card {
+            background: white;
+            border-radius: 40px;
+            box-shadow: var(--shadow-float);
+            border: 1px solid var(--line-soft);
+            overflow: hidden;
+        }
+
+        .cv-card-header {
+            padding: 32px 48px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--line-soft);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .cv-card-header h1 {
+            font-size: 28px; font-weight: 900; color: var(--primary);
+            margin: 0 0 8px; letter-spacing: -0.03em;
+        }
+
+        .cv-header-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .meta-pill { padding: 4px 14px; background: rgba(26,36,86,0.07); color: var(--primary); border-radius: 100px; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+        .meta-text { font-size: 13px; font-weight: 600; color: var(--muted); }
+
+        /* --- CV RENDER AREA --- */
+        .cv-render-shell {
+            padding: 48px;
+            background: white;
+        }
+
+        /* 
+         * The cv-document container mirrors the editor's preview column.
+         * We apply the same width/scaling so .cv-full renders correctly.
+         */
+        .cv-document {
+            width: 210mm;       /* A4 width */
+            max-width: 100%;
+            margin: 0 auto;
+            background: #fff;
+            box-shadow: var(--shadow-float);
+            border-radius: 8px;
+            position: relative;
+        }
+
+        /* READ-ONLY GUARD: blocks all editing interactions */
+        .cv-document::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            cursor: default;
+        }
+
+        /* Override editor's edit-mode styles so nothing looks clickable */
+        .cv-document .cv-editable { cursor: default !important; outline: none !important; }
+        .cv-document .cv-editable:hover { background: transparent !important; }
+        .cv-document .cv-item-controls,
+        .cv-document .cv-contact-controls,
+        .cv-document .avatar-upload-overlay,
+        .cv-document .cv-floating-save-btn { display: none !important; }
+
+        /* States */
+        .state-box { text-align: center; padding: 100px 48px; }
+        .state-box h3 { font-size: 24px; font-weight: 900; color: var(--primary); margin: 0 0 12px; }
+        .state-box p { color: var(--muted); font-size: 16px; margin: 0 0 32px; }
+
+        .spinner {
+            width: 48px; height: 48px;
+            border: 4px solid var(--line-soft);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 24px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast-box { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 5000; }
+        .toast { padding: 16px 32px; background: var(--primary); color: white; border-radius: 100px; font-weight: 800; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+
+        @media (max-width: 900px) {
+            .cv-render-shell { padding: 24px 16px; }
+            .cv-document { width: 100%; }
+            .cv-card-header { flex-direction: column; padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-wrap">
+        <div class="top-bar">
+            <a href="my-cvs.html" class="back-btn">← Quay lại quản lý CV</a>
+            <div class="action-group">
+                <button class="btn btn-secondary" id="btnEdit" onclick="goEdit()">Chỉnh sửa</button>
+                <button class="btn btn-primary" id="btnPdf" onclick="goExportPdf()">Xuất PDF</button>
+            </div>
+        </div>
+
+        <div class="cv-viewer-card" id="viewerCard" style="display:none;">
+            <div class="cv-card-header">
+                <div>
+                    <h1 id="cvTitle">Đang tải...</h1>
+                    <div class="cv-header-meta">
+                        <span class="meta-pill" id="cvTemplate">—</span>
+                        <span class="meta-text" id="cvDate">—</span>
+                        <span class="meta-text" id="cvSerial">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cv-render-shell">
+                <!-- The real CV renders here, using the same engine as the editor -->
+                <div class="cv-document" id="cvPreview"></div>
+            </div>
+        </div>
+
+        <div class="state-box" id="loadingBox">
+            <div class="spinner"></div>
+            <h3>Đang tải hồ sơ...</h3>
+            <p>Hệ thống đang đồng bộ dữ liệu CV của bạn.</p>
+        </div>
+
+        <div class="state-box" id="errorBox" style="display:none;">
+            <h3 style="color:#EF4444;">Không thể hiển thị CV</h3>
+            <p id="errorMsg">Đã có lỗi xảy ra. Vui lòng thử lại hoặc quay lại danh sách.</p>
+            <a href="my-cvs.html" class="btn btn-primary">Quay lại danh sách</a>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-box"></div>
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // ── Read-only mode setup ──
+        // Globals are already declared by cv-editor-state.js — just reset values:
+        currentCvJson = null;
+        avatarDataUrl = null;
+        isEditMode    = false; // must stay false so no edit toolbar is rendered
+
+        // Stub ONLY the functions that would cause side-effects in view mode
+        // (edit controls, save button, sortable drag, etc.)
+        // Critical render functions (applySectionVisibilityToPreview, etc.)
+        // are provided by the real cv-editor-edit.js loaded above.
+        function openSaveModal()   {}
+        function triggerAvatarUpload() {} // disable avatar click overlay
+
+        // ── Main page logic ──
+        const cvId = new URLSearchParams(window.location.search).get('cvId');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!cvId) {
+                showError('Thiếu mã định danh CV. Hãy chọn CV từ thư viện hồ sơ.');
+                return;
+            }
+            loadAndRenderCv();
+        });
+
+        async function loadAndRenderCv() {
+            try {
+                const res = await fetch(`/api/user-cv/${cvId}`, { credentials: 'include' });
+
+                if (res.status === 401) {
+                    window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+                    return;
+                }
+
+                if (!res.ok) throw new Error(`Lỗi máy chủ: ${res.status}`);
+
+                const cv = await res.json();
+                const content = parseContent(cv.cvContent || cv.cvData);
+
+                if (!content) throw new Error('Dữ liệu CV không hợp lệ hoặc bị rỗng.');
+
+                // Populate header
+                document.getElementById('cvTitle').textContent    = cv.cvName || 'Bản nháp CV';
+                document.getElementById('cvTemplate').textContent = cv.templateName || 'Tiêu chuẩn';
+                document.getElementById('cvDate').textContent     = 'Cập nhật: ' + fmtDate(cv.updatedAt);
+                document.getElementById('cvSerial').textContent   = '#' + cv.id;
+
+                // Render using the real engine
+                renderCvPreview(content);
+
+                // Activate Lucide icons after render
+                if (window.lucide) lucide.createIcons();
+
+                document.getElementById('loadingBox').style.display = 'none';
+                document.getElementById('viewerCard').style.display = 'block';
+
+            } catch (err) {
+                console.error('CV load error:', err);
+                showError(err.message || 'Không thể tải CV. Vui lòng thử lại.');
+            }
+        }
+
+        function parseContent(raw) {
+            if (!raw) return null;
+            if (typeof raw === 'object') return raw;
+            try { return JSON.parse(raw); } catch { return null; }
+        }
+
+        function goEdit()      { window.location.href = `/cv-editor.html?cvId=${cvId}`; }
+        function goExportPdf() {
+            showToast('Đang khởi tạo trình xuất PDF...');
+            window.open(`/cv-editor.html?cvId=${cvId}&download=pdf`, '_blank');
+        }
+
+        function showError(msg) {
+            document.getElementById('loadingBox').style.display = 'none';
+            document.getElementById('errorBox').style.display   = 'block';
+            document.getElementById('errorMsg').textContent     = msg;
+        }
+
+        function fmtDate(iso) {
+            if (!iso) return '—';
+            try { return new Date(iso).toLocaleDateString('vi-VN'); } catch { return iso; }
+        }
+
+        function showToast(msg) {
+            const node = document.createElement('div');
+            node.className = 'toast';
+            node.textContent = msg;
+            document.getElementById('toastContainer').appendChild(node);
+            setTimeout(() => node.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
