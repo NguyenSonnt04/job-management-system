@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="css/style.css">
     <!-- Page Specific Style -->
     <link rel="stylesheet" href="css/tao-cv-ai.css">
+    <!-- CV Editor Styles (for miniature rendering) -->
+    <link rel="stylesheet" href="css/cv-editor.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -152,22 +154,7 @@
                         </div>
                     </label>
 
-                    <!-- Option 2: Keep template, change industry -->
-                    <label class="cv-method-option" for="method-keep-template">
-                        <input type="radio" name="cvMethod" id="method-keep-template" value="keep_template">
-                        <div class="cv-method-option-icon" style="background:#FFF7ED; color:#EA580C;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        </div>
-                        <div class="cv-method-option-content">
-                            <span class="cv-method-option-title">Giữ nguyên mẫu, đổi ngành nghề</span>
-                            <span class="cv-method-option-desc">Dùng nội dung mẫu CV làm gợi ý, AI sẽ điều chỉnh theo ngành bạn chọn</span>
-                        </div>
-                        <div class="cv-method-option-check">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                    </label>
-
-                    <!-- Option 3: Brand new from profile -->
+                    <!-- Option 2: Brand new from profile -->
                     <label class="cv-method-option" for="method-from-profile">
                         <input type="radio" name="cvMethod" id="method-from-profile" value="from_profile">
                         <div class="cv-method-option-icon" style="background:#F0FDF4; color:#16A34A;">
@@ -184,26 +171,19 @@
 
                 </div>
 
-                <!-- Industry selector (shown only for option 2) -->
-                <div class="cv-method-industry-selector" id="cvIndustrySelector">
-                    <label class="cv-industry-label" for="cvIndustrySelect">Chọn ngành nghề mục tiêu</label>
-                    <div class="cv-industry-select-wrapper">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                        <select id="cvIndustrySelect" class="cv-industry-select">
-                            <option value="">-- Chọn ngành nghề --</option>
-                            <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-                            <option value="Tài chính - Ngân hàng">Tài chính - Ngân hàng</option>
-                            <option value="Marketing - Truyền thông">Marketing - Truyền thông</option>
-                            <option value="Thiết kế đồ họa">Thiết kế đồ họa</option>
-                            <option value="Kỹ thuật - Xây dựng">Kỹ thuật - Xây dựng</option>
-                            <option value="Y tế - Dược">Y tế - Dược</option>
-                            <option value="Giáo dục - Đào tạo">Giáo dục - Đào tạo</option>
-                            <option value="Nhân sự - Hành chính">Nhân sự - Hành chính</option>
-                            <option value="Bán hàng - Kinh doanh">Bán hàng - Kinh doanh</option>
-                            <option value="Logistics - Vận tải">Logistics - Vận tải</option>
-                            <option value="Khác">Khác</option>
+                <!-- Existing CV selector (shown only for option 1) -->
+                <div class="cv-method-existing-cv-selector" id="cvExistingCvSelector">
+                    <label class="cv-existing-cv-label" for="cvExistingCvSelect">Chọn CV đã lưu</label>
+                    <div class="cv-existing-cv-select-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        <select id="cvExistingCvSelect" class="cv-existing-cv-select">
+                            <option value="">-- Đang tải danh sách CV --</option>
                         </select>
-                        <svg class="cv-industry-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        <svg class="cv-existing-cv-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <div class="cv-existing-cv-empty" id="cvExistingCvEmpty" style="display:none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>Bạn chưa có CV nào được lưu. Hãy tạo CV mới trước!</span>
                     </div>
                 </div>
 
@@ -218,6 +198,9 @@
 
 
     <script src="js/main.js"></script>
+    <!-- CV Editor JS (for miniature rendering) -->
+    <script src="js/cv-editor-state.js"></script>
+    <script src="js/cv-editor-render.js"></script>
     <script>
         let allTemplates = [];
         let activeCategory = '';
@@ -320,184 +303,54 @@
         }
 
         function buildCvMiniature(t) {
+            // Parse template content from database
             let cv = {};
             try { cv = JSON.parse(t.templateContent || '{}'); } catch(e) {}
             const style = normalizeStyleTag(t.styleTag);
             const accent = t.previewColor || '#2E3B8E';
-            const esc = escHtml;
-            const name = esc(cv.name || t.name || 'CV Template');
-            const subtitle = esc(cv.subtitle || 'Professional Profile');
-            const summaryRaw = String(cv.summary || 'Tóm tắt định hướng nghề nghiệp và điểm mạnh nổi bật.')
-                .replace(/\s+/g, ' ')
-                .trim();
-            const summary = esc(summaryRaw.length > 110 ? `${summaryRaw.slice(0, 107)}...` : summaryRaw);
-            const experience = (cv.experience || [])[0] || {};
-            const education = (cv.education || [])[0] || {};
-            const primarySkills = (cv.skills || [])
-                .flatMap(group => group.items || [])
-                .slice(0, 5)
-                .map(item => `<span style="padding:2px 5px;border-radius:999px;background:${accent}14;color:${accent};font-size:5.8px;font-weight:700;">${esc(item)}</span>`)
-                .join('');
-            const firstSkillGroup = (cv.skills || [])[0];
-            const skillBlock = firstSkillGroup
-                ? `<div style="display:flex; gap:6px; font-size:6px; line-height:1.5;">
-                        <strong style="min-width:38px; color:#0f172a;">${esc(firstSkillGroup.category || 'Kỹ năng')}</strong>
-                        <span style="color:#475569;">${esc((firstSkillGroup.items || []).slice(0, 4).join(', '))}</span>
-                   </div>`
-                : '';
 
+            // Save current state to restore after rendering
+            const savedColor = designState.color;
+            const savedSections = { ...designState.sections };
+            const savedTitles = { ...(designState.sectionTitles || {}) };
+
+            // Set up global state for rendering functions
+            window.currentTemplate = {
+                previewColor: accent,
+                styleTag: style,
+                name: t.name || ''
+            };
+            currentCvJson = cv;
+            designState.color = accent;
+            // Enable all sections so miniature shows full template content
+            Object.keys(designState.sections).forEach(k => designState.sections[k] = true);
+            designState.sectionTitles = cv._designState?.sectionTitles || {};
+
+            // Use the same rendering functions as the actual CV editor
+            let html = '';
             if (style === 'creative') {
-                return `
-                    <div class="cv-miniature" style="background:#fff;">
-                        <div style="height:38px;background:linear-gradient(135deg, ${accent}, ${accent}bb 65%, #111827);padding:10px 12px;color:#fff;display:flex;align-items:flex-start;gap:10px;">
-                            <div style="width:28px;height:28px;border-radius:10px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);"></div>
-                            <div style="min-width:0;flex:1;">
-                                <div style="font-size:10px;font-weight:800;letter-spacing:.2px;">${name}</div>
-                                <div style="font-size:6px;opacity:.9;letter-spacing:1px;text-transform:uppercase;">${subtitle}</div>
-                            </div>
-                        </div>
-                        <div style="padding:10px 12px 12px;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);display:grid;grid-template-columns:37% 1fr;gap:10px;">
-                            <div style="display:flex;flex-direction:column;gap:8px;">
-                                <div style="font-size:5.6px;font-weight:800;color:${accent};letter-spacing:1.2px;text-transform:uppercase;">Giới thiệu</div>
-                                <div style="font-size:5.9px;line-height:1.55;color:#475569;">${summary}</div>
-                                <div style="display:flex;flex-wrap:wrap;gap:4px;">${primarySkills}</div>
-                            </div>
-                            <div style="display:flex;flex-direction:column;gap:8px;">
-                                <div style="padding:8px 9px;border-radius:12px;background:#fff;border:1px solid ${accent}22;box-shadow:0 8px 20px rgba(15,23,42,.06);">
-                                    <div style="font-size:8px;font-weight:800;color:#0f172a;">${esc(experience.role || 'Lead Product Designer')}</div>
-                                    <div style="font-size:5.8px;color:${accent};font-weight:700;">${esc(experience.company || 'Creative Studio')} | ${esc(experience.period || '2022 - nay')}</div>
-                                    <div style="margin-top:5px;font-size:5.8px;line-height:1.55;color:#475569;">${esc(((experience.details || [])[0]) || 'Dẫn dắt các dự án thiết kế sản phẩm số và cải thiện trải nghiệm người dùng.')}</div>
-                                </div>
-                                <div style="padding:8px 9px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;">
-                                    <div style="font-size:5.6px;font-weight:800;color:${accent};letter-spacing:1.1px;text-transform:uppercase;">Học vấn</div>
-                                    <div style="margin-top:4px;font-size:6px;font-weight:700;color:#0f172a;">${esc(education.degree || 'Cử nhân Thiết kế')}</div>
-                                    <div style="font-size:5.8px;color:#64748b;">${esc(education.school || 'Đại học Mỹ thuật')}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
+                html = renderCreativeStyle(cv, accent);
+            } else if (style === 'impactful') {
+                html = renderImpactfulStyle(cv, accent);
+            } else if (style === 'modern') {
+                html = renderModernStyle(cv, accent);
+            } else if (style === 'classic') {
+                html = renderClassicStyle(cv, accent);
+            } else if (style === 'harvard') {
+                html = renderHarvardStyle(cv, accent);
+            } else if (style === 'ats') {
+                html = renderAtsStyle(cv, accent);
+            } else {
+                html = renderProfessionalStyle(cv, accent);
             }
 
-            if (style === 'modern') {
-                return `
-                    <div class="cv-miniature" style="background:#fff;border:1px solid #eef2f7;">
-                        <div style="display:flex;align-items:stretch;">
-                            <div style="width:6px;background:${accent};"></div>
-                            <div style="flex:1;padding:12px 14px 10px;">
-                                <div style="font-size:10px;font-weight:800;letter-spacing:-.1px;color:#0f172a;">${name}</div>
-                                <div style="font-size:6px;color:#64748b;margin-top:2px;">${subtitle}</div>
-                                <div style="margin-top:6px;font-size:5.7px;color:#94a3b8;">${esc(cv.email || 'email@example.com')} · ${esc(cv.phone || '0900 000 000')}</div>
-                            </div>
-                        </div>
-                        <div style="padding:0 14px 12px;">
-                            <div style="display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 0;border-top:1px solid #eef2f7;">
-                                <div style="font-size:5.1px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:${accent};">Hồ sơ</div>
-                                <div style="font-size:5.9px;line-height:1.65;color:#475569;">${summary}</div>
-                            </div>
-                            <div style="display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 0;border-top:1px solid #eef2f7;">
-                                <div style="font-size:5.1px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:${accent};">Kinh nghiệm</div>
-                                <div style="font-size:5.8px;line-height:1.55;color:#475569;">
-                                    <div style="font-size:7px;font-weight:700;color:#0f172a;">${esc(experience.role || 'Backend Developer')}</div>
-                                    <div style="font-size:5.5px;color:#94a3b8;">${esc(experience.period || '2022 - nay')}</div>
-                                    <div style="margin-top:4px;">${esc(((experience.details || [])[0]) || 'Xây dựng hệ thống ổn định, dễ mở rộng và tối ưu hiệu suất.')}</div>
-                                </div>
-                            </div>
-                            ${skillBlock ? `<div style="padding-top:8px;border-top:1px solid #eef2f7;">${skillBlock}</div>` : ''}
-                        </div>
-                    </div>`;
-            }
+            // Restore state
+            designState.color = savedColor;
+            Object.assign(designState.sections, savedSections);
+            designState.sectionTitles = savedTitles;
 
-            if (style === 'classic') {
-                return `
-                    <div class="cv-miniature" style="background:#fffdf8;border:1px solid #e7dcc7;">
-                        <div style="padding:12px 14px 10px;text-align:center;border-top:4px solid ${accent};border-bottom:1px solid #eadfcd;">
-                            <div style="font-family:Georgia,serif;font-size:10px;font-weight:700;color:#1f2937;letter-spacing:.4px;">${name}</div>
-                            <div style="font-family:Georgia,serif;font-size:6px;font-style:italic;color:${accent};margin-top:2px;">${subtitle}</div>
-                            <div style="font-size:5.6px;color:#6b7280;margin-top:5px;">${esc(cv.email || 'email@example.com')} · ${esc(cv.phone || '0900 000 000')}</div>
-                        </div>
-                        <div style="display:grid;grid-template-columns:1fr 74px;gap:12px;padding:10px 14px 12px;">
-                            <div>
-                                <div style="font-size:5.2px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${accent};margin-bottom:5px;">Kinh nghiệm</div>
-                                <div style="font-family:Georgia,serif;font-size:7px;font-weight:700;color:#111827;">${esc(experience.role || 'Financial Analyst')}</div>
-                                <div style="font-size:5.7px;color:#6b7280;font-style:italic;">${esc(experience.company || 'Corporate Group')}</div>
-                                <div style="margin-top:4px;font-size:5.8px;line-height:1.55;color:#4b5563;">${esc(((experience.details || [])[0]) || 'Định hình chiến lược, báo cáo và phân tích chuyên sâu cho lãnh đạo.')}</div>
-                            </div>
-                            <div style="border-left:1px solid #eadfcd;padding-left:10px;">
-                                <div style="font-size:5.2px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${accent};margin-bottom:5px;">Học vấn</div>
-                                <div style="font-family:Georgia,serif;font-size:6.5px;font-weight:700;color:#111827;">${esc(education.degree || 'MBA')}</div>
-                                <div style="font-size:5.6px;color:#6b7280;">${esc(education.school || 'University')}</div>
-                                <div style="margin-top:8px;font-size:5.2px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:${accent};">Kỹ năng</div>
-                                <div style="margin-top:4px;font-size:5.6px;line-height:1.5;color:#4b5563;">${esc(primarySkills.length ? (cv.skills || []).flatMap(group => group.items || []).slice(0, 5).join(', ') : 'Phân tích, quản trị, giao tiếp')}</div>
-                            </div>
-                        </div>
-                    </div>`;
-            }
-
-            if (style === 'harvard') {
-                return `
-                    <div class="cv-miniature" style="background:#fff;border:1px solid #d1d5db;">
-                        <div style="padding:12px 14px 8px;text-align:center;">
-                            <div style="font-family:'Times New Roman',serif;font-size:10px;font-weight:700;color:#111827;letter-spacing:.5px;">${name}</div>
-                            <div style="font-family:'Times New Roman',serif;font-size:6px;color:#4b5563;margin-top:4px;padding-top:4px;border-top:1px solid #111827;">${esc(cv.email || 'email@example.com')} | ${esc(cv.phone || '0900 000 000')} | ${esc(cv.address || 'Hà Nội')}</div>
-                        </div>
-                        <div style="padding:0 14px 12px;">
-                            <div style="margin-top:6px;font-family:'Times New Roman',serif;font-size:5.6px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;border-bottom:1px solid #111827;padding-bottom:2px;">Professional Summary</div>
-                            <div style="margin-top:5px;font-family:'Times New Roman',serif;font-size:6px;line-height:1.55;color:#1f2937;">${summary}</div>
-                            <div style="margin-top:8px;font-family:'Times New Roman',serif;font-size:5.6px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;border-bottom:1px solid #111827;padding-bottom:2px;">Experience</div>
-                            <div style="margin-top:5px;font-family:'Times New Roman',serif;font-size:6px;line-height:1.55;color:#1f2937;">
-                                <div style="display:flex;justify-content:space-between;gap:8px;">
-                                    <strong>${esc(experience.role || 'Research Assistant')}</strong>
-                                    <span>${esc(experience.period || '2021 - nay')}</span>
-                                </div>
-                                <div>${esc(experience.company || 'Academic Institution')}</div>
-                                <div style="margin-top:3px;">• ${esc(((experience.details || [])[0]) || 'Dẫn dắt nghiên cứu, tổng hợp dữ liệu và trình bày kết quả học thuật.')}</div>
-                            </div>
-                        </div>
-                    </div>`;
-            }
-
-            return `
-                <div class="cv-miniature" style="background:#fff;">
-                    <div style="height:38px;background:linear-gradient(135deg, ${accent}, ${accent}cc);padding:10px 12px;color:#fff;display:flex;gap:10px;">
-                        <div style="width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.65);background:rgba(255,255,255,.18);"></div>
-                        <div style="min-width:0;flex:1;">
-                            <div style="font-size:10px;font-weight:800;letter-spacing:.3px;">${name}</div>
-                            <div style="font-size:6px;opacity:.92;">${subtitle}</div>
-                            <div style="margin-top:5px;font-size:5.4px;opacity:.85;display:flex;flex-wrap:wrap;gap:6px;">
-                                <span>${esc(cv.email || 'email@example.com')}</span>
-                                <span>${esc(cv.phone || '0900 000 000')}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="display:grid;grid-template-columns:36% 1fr;min-height:120px;">
-                        <div style="background:#f6f8fb;padding:10px 10px 12px;border-right:1px solid #e2e8f0;">
-                            <div style="font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};margin-bottom:6px;">Kỹ năng</div>
-                            <div style="display:flex;flex-direction:column;gap:6px;font-size:5.7px;color:#475569;">
-                                ${(cv.skills || []).slice(0, 2).map(group => `
-                                    <div>
-                                        <div style="font-weight:700;color:#0f172a;margin-bottom:2px;">${esc(group.category || '')}</div>
-                                        <div>${esc((group.items || []).slice(0, 3).join(', '))}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <div style="margin-top:8px;font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};margin-bottom:5px;">Học vấn</div>
-                            <div style="font-size:5.8px;color:#475569;line-height:1.5;">
-                                <div style="font-weight:700;color:#0f172a;">${esc(education.degree || 'Cử nhân CNTT')}</div>
-                                <div>${esc(education.school || 'Đại học')}</div>
-                            </div>
-                        </div>
-                        <div style="padding:10px 12px;">
-                            <div style="font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};padding-bottom:4px;border-bottom:1.4px solid ${accent};">Hồ sơ</div>
-                            <div style="margin-top:5px;font-size:5.9px;line-height:1.6;color:#475569;">${summary}</div>
-                            <div style="margin-top:10px;font-size:5.4px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:${accent};padding-bottom:4px;border-bottom:1.4px solid ${accent};">Kinh nghiệm</div>
-                            <div style="margin-top:6px;">
-                                <div style="font-size:7.1px;font-weight:700;color:#0f172a;">${esc(experience.role || 'Software Engineer')}</div>
-                                <div style="font-size:5.8px;color:${accent};font-weight:700;">${esc(experience.company || 'FPT Software')} | ${esc(experience.period || '2022 - nay')}</div>
-                                <div style="margin-top:4px;font-size:5.8px;line-height:1.55;color:#475569;">${esc(((experience.details || [])[0]) || 'Phát triển sản phẩm, tối ưu hiệu suất và cải thiện trải nghiệm người dùng.')}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
+            // Return the rendered CV inside the miniature wrapper
+            return `<div class="cv-miniature">${html}</div>`;
         }
 
         function renderTemplates(templates) {
@@ -613,7 +466,7 @@
             // Reset selection state
             document.querySelectorAll('input[name="cvMethod"]').forEach(r => r.checked = false);
             document.getElementById('cvMethodProceedBtn').disabled = true;
-            document.getElementById('cvIndustrySelector').classList.remove('visible');
+            document.getElementById('cvExistingCvSelector').classList.remove('visible');
             document.querySelectorAll('.cv-method-option').forEach(o => o.classList.remove('selected'));
 
             // Inject mini CV preview
@@ -650,31 +503,70 @@
             if (e.key === 'Escape') closeCvMethodModal();
         });
 
+        // ── Fetch user's existing CVs ──────────────────────────
+        let userCvListCache = null;
+
+        async function fetchUserCvList() {
+            if (userCvListCache !== null) return userCvListCache;
+            const select = document.getElementById('cvExistingCvSelect');
+            const emptyMsg = document.getElementById('cvExistingCvEmpty');
+            try {
+                const res = await fetch('/api/user-cv');
+                if (res.status === 401) {
+                    select.innerHTML = '<option value="">-- Bạn cần đăng nhập --</option>';
+                    userCvListCache = [];
+                    return userCvListCache;
+                }
+                const list = await res.json();
+                userCvListCache = Array.isArray(list) ? list : [];
+
+                if (userCvListCache.length === 0) {
+                    select.closest('.cv-existing-cv-select-wrapper').style.display = 'none';
+                    emptyMsg.style.display = 'flex';
+                } else {
+                    select.closest('.cv-existing-cv-select-wrapper').style.display = 'flex';
+                    emptyMsg.style.display = 'none';
+                    select.innerHTML = '<option value="">-- Chọn CV đã lưu --</option>' +
+                        userCvListCache.map(cv => {
+                            const date = cv.updatedAt ? new Date(cv.updatedAt).toLocaleDateString('vi-VN') : '';
+                            const label = escHtml(cv.cvName || 'CV chưa đặt tên') + (date ? ` (${date})` : '');
+                            return `<option value="${cv.id}">${label}</option>`;
+                        }).join('');
+                }
+                return userCvListCache;
+            } catch (e) {
+                console.error('[tao-cv-ai] fetch user CV list error:', e);
+                select.innerHTML = '<option value="">-- Không thể tải danh sách --</option>';
+                userCvListCache = [];
+                return userCvListCache;
+            }
+        }
+
         // Radio option selection
         document.querySelectorAll('input[name="cvMethod"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 document.querySelectorAll('.cv-method-option').forEach(o => o.classList.remove('selected'));
                 this.closest('.cv-method-option').classList.add('selected');
 
-                const industrySelector = document.getElementById('cvIndustrySelector');
+                const existingCvSelector = document.getElementById('cvExistingCvSelector');
                 const proceedBtn = document.getElementById('cvMethodProceedBtn');
 
-                if (this.value === 'keep_template') {
-                    industrySelector.classList.add('visible');
-                    // Enable only if industry also selected
-                    const industry = document.getElementById('cvIndustrySelect').value;
-                    proceedBtn.disabled = !industry;
+                if (this.value === 'existing_cv') {
+                    existingCvSelector.classList.add('visible');
+                    fetchUserCvList();
+                    const selectedCv = document.getElementById('cvExistingCvSelect').value;
+                    proceedBtn.disabled = !selectedCv;
                 } else {
-                    industrySelector.classList.remove('visible');
+                    existingCvSelector.classList.remove('visible');
                     proceedBtn.disabled = false;
                 }
             });
         });
 
-        // Industry select change
-        document.getElementById('cvIndustrySelect').addEventListener('change', function() {
+        // Existing CV select change
+        document.getElementById('cvExistingCvSelect').addEventListener('change', function() {
             const selectedMethod = document.querySelector('input[name="cvMethod"]:checked');
-            if (selectedMethod && selectedMethod.value === 'keep_template') {
+            if (selectedMethod && selectedMethod.value === 'existing_cv') {
                 document.getElementById('cvMethodProceedBtn').disabled = !this.value;
             }
         });
@@ -687,9 +579,9 @@
             const method = selectedMethod.value;
             let url = `cv-editor.html?template=${selectedTemplateId}&method=${method}`;
 
-            if (method === 'keep_template') {
-                const industry = document.getElementById('cvIndustrySelect').value;
-                if (industry) url += `&industry=${encodeURIComponent(industry)}`;
+            if (method === 'existing_cv') {
+                const sourceCvId = document.getElementById('cvExistingCvSelect').value;
+                if (sourceCvId) url += `&sourceCvId=${encodeURIComponent(sourceCvId)}`;
             }
 
             window.location.href = url;
@@ -940,5 +832,9 @@
         buildStyleFilter();
         loadTemplates();
     </script>
+    
+    <!-- CV Editor JS (for miniature rendering) -->
+    <script src="js/cv-editor-state.js"></script>
+    <script src="js/cv-editor-render.js"></script>
 </body>
 </html>

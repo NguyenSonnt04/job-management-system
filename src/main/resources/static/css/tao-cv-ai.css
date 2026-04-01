@@ -1029,6 +1029,88 @@ body {
     color: white;
 }
 
+/* Existing CV Selector (conditional) */
+.cv-method-existing-cv-selector {
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 0.75rem;
+    animation: slideDown 0.2s ease;
+}
+
+.cv-method-existing-cv-selector.visible {
+    display: flex;
+}
+
+.cv-existing-cv-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1E40AF;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.cv-existing-cv-select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cv-existing-cv-select-wrapper > svg:first-child {
+    position: absolute;
+    left: 0.75rem;
+    color: #2563EB;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.cv-existing-cv-select {
+    width: 100%;
+    padding: 0.625rem 2.5rem 0.625rem 2.25rem;
+    border: 1.5px solid #93C5FD;
+    border-radius: 0.5rem;
+    background: #ffffff;
+    font-family: var(--font-family);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s;
+}
+
+.cv-existing-cv-select:focus {
+    outline: none;
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.cv-existing-cv-chevron {
+    position: absolute;
+    right: 0.75rem;
+    color: #2563EB;
+    pointer-events: none;
+}
+
+.cv-existing-cv-empty {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #1E40AF;
+    padding: 0.5rem 0 0;
+}
+
+.cv-existing-cv-empty svg {
+    flex-shrink: 0;
+    color: #3B82F6;
+}
+
 /* Industry Selector (conditional) */
 .cv-method-industry-selector {
     display: none;

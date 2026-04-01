@@ -136,6 +136,29 @@ body.pdf-export-mode .cv-professional-root .cvm-skill-group {
     page-break-inside: avoid !important;
 }
 
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvm-exp-item,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvc2-card,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvm2-row,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvcl2-item,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvh-item,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cv-topcv-row {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+}
+
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cv-details-block,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvm-exp-detail,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvc2-card-bullet,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvm2-bullet,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvcl2-bullet,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cvh-bullet,
+body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cv-ats-detail {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+    orphans: 2;
+    widows: 2;
+}
+
 #footer-placeholder {
     display: none;
 }
@@ -3713,6 +3736,29 @@ input:checked + .slider:before {
             .cvm-exp-item,
             .cvm-edu-item,
             .cvm-skill-group { break-inside: avoid; page-break-inside: avoid; }
+
+            [data-cv-section="projects"] .cvm-exp-item,
+            [data-cv-section="projects"] .cvc2-card,
+            [data-cv-section="projects"] .cvm2-row,
+            [data-cv-section="projects"] .cvcl2-item,
+            [data-cv-section="projects"] .cvh-item,
+            [data-cv-section="projects"] .cv-topcv-row {
+                break-inside: auto;
+                page-break-inside: auto;
+            }
+
+            [data-cv-section="projects"] .cv-details-block,
+            [data-cv-section="projects"] .cvm-exp-detail,
+            [data-cv-section="projects"] .cvc2-card-bullet,
+            [data-cv-section="projects"] .cvm2-bullet,
+            [data-cv-section="projects"] .cvcl2-bullet,
+            [data-cv-section="projects"] .cvh-bullet,
+            [data-cv-section="projects"] .cv-ats-detail {
+                break-inside: auto;
+                page-break-inside: auto;
+                orphans: 2;
+                widows: 2;
+            }
         }
 
         /* â”€â”€ Sidebar redesign â”€â”€ */
@@ -6052,6 +6098,177 @@ input:checked + .slider:before {
     .preview-column .cvm-left .cvm-exp-detail-group,
     .preview-column .cvm-left .cvm-exp-detail {
         margin-top: 1px !important;
+        line-height: 1.28 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-section,
+    body.pdf-export-mode #cvPreview .cvc2-zone,
+    body.pdf-export-mode #cvPreview .cvm2-block,
+    body.pdf-export-mode #cvPreview .cvcl2-section,
+    body.pdf-export-mode #cvPreview .cv-topcv-section,
+    body.pdf-export-mode #cvPreview .cvh-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-exp-item,
+    body.pdf-export-mode #cvPreview .cvm-edu-item,
+    body.pdf-export-mode #cvPreview .cvc2-card,
+    body.pdf-export-mode #cvPreview .cvm2-row,
+    body.pdf-export-mode #cvPreview .cvcl2-item,
+    body.pdf-export-mode #cvPreview .cvcl2-r-item,
+    body.pdf-export-mode #cvPreview .cv-topcv-row,
+    body.pdf-export-mode #cvPreview .cvh-item {
+        margin-bottom: 6px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-skill-group,
+    body.pdf-export-mode #cvPreview .cvc2-skill-group,
+    body.pdf-export-mode #cvPreview .cvcl2-skill,
+    body.pdf-export-mode #cvPreview .cvh-skill-group {
+        margin-bottom: 4px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-exp-detail,
+    body.pdf-export-mode #cvPreview .cvm-edu-detail,
+    body.pdf-export-mode #cvPreview .cvc2-card-bullet,
+    body.pdf-export-mode #cvPreview .cvm2-bullet,
+    body.pdf-export-mode #cvPreview .cvcl2-bullet,
+    body.pdf-export-mode #cvPreview .cvh-bullet,
+    body.pdf-export-mode #cvPreview .cvh-details {
+        margin-top: 2px !important;
+        margin-bottom: 0 !important;
+        line-height: 1.35 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-skill-list,
+    body.pdf-export-mode #cvPreview .cvc2-tags,
+    body.pdf-export-mode #cvPreview .cvm2-row-org,
+    body.pdf-export-mode #cvPreview .cvcl2-skill-vals,
+    body.pdf-export-mode #cvPreview .cvh-skill-items,
+    body.pdf-export-mode #cvPreview p,
+    body.pdf-export-mode #cvPreview li {
+        line-height: 1.35 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-section-title,
+    body.pdf-export-mode #cvPreview .cvc2-sec,
+    body.pdf-export-mode #cvPreview .cvm2-title,
+    body.pdf-export-mode #cvPreview .cvcl2-sec-title,
+    body.pdf-export-mode #cvPreview .cvcl2-sec-title-r,
+    body.pdf-export-mode #cvPreview .cvh-title,
+    body.pdf-export-mode #cvPreview .cv-topcv-title {
+        margin-bottom: 8px !important;
+        padding-bottom: 6px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-exp-role,
+    body.pdf-export-mode #cvPreview .cvm-edu-degree,
+    body.pdf-export-mode #cvPreview .cvc2-card-title,
+    body.pdf-export-mode #cvPreview .cvm2-row-title,
+    body.pdf-export-mode #cvPreview .cvcl2-role,
+    body.pdf-export-mode #cvPreview .cvcl2-r-degree,
+    body.pdf-export-mode #cvPreview .cvh-item-title {
+        margin-bottom: 2px !important;
+        line-height: 1.25 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-exp-company,
+    body.pdf-export-mode #cvPreview .cvm-edu-school,
+    body.pdf-export-mode #cvPreview .cvm-edu-year,
+    body.pdf-export-mode #cvPreview .cvc2-card-sub,
+    body.pdf-export-mode #cvPreview .cvm2-row-period,
+    body.pdf-export-mode #cvPreview .cvm2-row-org,
+    body.pdf-export-mode #cvPreview .cvcl2-company,
+    body.pdf-export-mode #cvPreview .cvcl2-date,
+    body.pdf-export-mode #cvPreview .cvcl2-r-school,
+    body.pdf-export-mode #cvPreview .cvcl2-r-period,
+    body.pdf-export-mode #cvPreview .cvh-item-sub,
+    body.pdf-export-mode #cvPreview .cvh-item-date {
+        margin-bottom: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-left section,
+    body.pdf-export-mode #cvPreview .cvm-right section,
+    body.pdf-export-mode #cvPreview .cvm2-block,
+    body.pdf-export-mode #cvPreview .cv-topcv-content,
+    body.pdf-export-mode #cvPreview .cvh-section {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cvm-body,
+    body.pdf-export-mode #cvPreview .cvc2-body,
+    body.pdf-export-mode #cvPreview .cvm2-body,
+    body.pdf-export-mode #cvPreview .cvcl2-body,
+    body.pdf-export-mode #cvPreview .cvh-root {
+        row-gap: 12px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-body {
+        row-gap: 12px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right {
+        gap: 10px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-section,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left section.cvm-section,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-summary-section,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-section {
+        margin-top: 8px !important;
+        margin-bottom: 10px !important;
+        padding-top: 0 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-section-title,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-section-title {
+        margin-bottom: 6px !important;
+        padding-bottom: 4px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-summary-text-full {
+        margin-top: 2px !important;
+        line-height: 1.3 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-item,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-exp-item,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-exp-item,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-skill-group {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 4px !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-degree,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-exp-role {
+        margin-bottom: 1px !important;
+        line-height: 1.22 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-school,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-year,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-exp-company,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-exp-role,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-skill-cat,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-exp-company,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-skill-list {
+        margin-bottom: 1px !important;
+        line-height: 1.26 !important;
+    }
+
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-detail-group,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-edu-detail,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-exp-detail-group,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-left .cvm-exp-detail,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-exp-detail-group,
+    body.pdf-export-mode #cvPreview .cv-professional-root .cvm-right .cvm-exp-detail {
+        margin-top: 1px !important;
+        margin-bottom: 0 !important;
         line-height: 1.28 !important;
     }
 

@@ -61,6 +61,61 @@ function buildTemplateAppliedCv(sourceCv, templateRecord) {
     };
 }
 
+function buildCvFromProfile(profile, templateRecord) {
+    const accent = templateRecord?.previewColor || '#1f4b99';
+    const styleTag = normalizeCvStyle(templateRecord?.styleTag || 'professional');
+
+    // Parse skills JSON: {"BACKEND": ["Java","Spring"], ...} → [{category, items}]
+    let skillsArr = [];
+    if (profile.skills) {
+        try {
+            const parsed = typeof profile.skills === 'string' ? JSON.parse(profile.skills) : profile.skills;
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                skillsArr = Object.entries(parsed)
+                    .filter(([, items]) => Array.isArray(items) && items.length > 0)
+                    .map(([category, items]) => ({ category, items }));
+            }
+        } catch (e) {
+            console.warn('[cv-editor-init] parse profile skills error:', e);
+        }
+    }
+
+    // Parse multiline text fields into structured arrays
+    function parseTextBlock(text, type) {
+        if (!text || typeof text !== 'string' || !text.trim()) return [];
+        const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+        if (type === 'education') {
+            return [{ degree: lines[0] || '', school: lines[1] || '', period: lines[2] || '', details: lines.slice(3) }];
+        }
+        if (type === 'experience') {
+            return [{ role: lines[0] || '', company: lines[1] || '', period: lines[2] || '', details: lines.slice(3) }];
+        }
+        if (type === 'projects') {
+            return [{ name: lines[0] || '', period: lines[1] || '', details: lines.slice(2) }];
+        }
+        return [];
+    }
+
+    return {
+        name: profile.fullName || '',
+        subtitle: profile.occupation || '',
+        email: profile.contactEmail || profile.email || '',
+        phone: profile.phone || '',
+        address: '',
+        summary: '',
+        experience: parseTextBlock(profile.experience, 'experience'),
+        education: parseTextBlock(profile.education, 'education'),
+        skills: skillsArr,
+        projects: parseTextBlock(profile.projects, 'projects'),
+        certifications: [],
+        awards: [],
+        activities: [],
+        _styleTag: styleTag,
+        _accent: accent,
+        _designState: { color: accent }
+    };
+}
+
 async function initCvEditor() {
     // Icons
     if (window.lucide) lucide.createIcons();
@@ -174,6 +229,43 @@ async function initCvEditor() {
             }
         } catch (e) {
             console.error('[cv-editor-init] apply existing CV template error:', e);
+        }
+    }
+
+    // ── Create CV from user profile ──────────────────────────
+    if (templateId && creationMethod === 'from_profile') {
+        try {
+            const [templateRes, profileRes] = await Promise.all([
+                fetch(`/api/cv-templates/${templateId}`),
+                fetch('/api/user/me')
+            ]);
+
+            if (templateRes.ok && profileRes.ok) {
+                const tpl = await templateRes.json();
+                const profile = await profileRes.json();
+
+                if (profile.authenticated) {
+                    templateName = tpl.name || '';
+                    window.currentTemplate = {
+                        previewColor: tpl.previewColor || '#1f4b99',
+                        styleTag: normalizeCvStyle(tpl.styleTag || 'professional'),
+                        name: tpl.name || ''
+                    };
+
+                    const parsed = buildCvFromProfile(profile, tpl);
+                    savedCvId = null;
+                    loadedCvName = '';
+                    hydrateDesignState(parsed._designState || { color: parsed._accent });
+                    resetEditorHistory();
+                    renderCvPreview(parsed);
+                    captureEditorHistorySnapshot(true);
+                    enableEditorToolbar();
+                    if (typeof setSaveButtonState === 'function') setSaveButtonState('default');
+                    return;
+                }
+            }
+        } catch (e) {
+            console.error('[cv-editor-init] build CV from profile error:', e);
         }
     }
 
