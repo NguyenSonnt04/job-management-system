@@ -144,6 +144,32 @@
             font-size: 14px;
         }
 
+        .view-notice {
+            max-width: 460px;
+            margin: 60px auto;
+            padding: 32px 28px;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            text-align: center;
+        }
+
+        .view-notice-icon {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 16px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+        }
+
+        .view-notice h3 { margin: 0 0 8px; font-size: 16px; font-weight: 700; color: #111827; }
+        .view-notice p  { margin: 0 0 20px; font-size: 13px; color: #6b7280; line-height: 1.6; }
+        .view-notice-actions { display: flex; gap: 8px; justify-content: center; }
+
         #footer-placeholder { position: relative; z-index: 2; }
     </style>
 </head>
@@ -208,7 +234,11 @@
                 document.getElementById('viewCvName').textContent = cvName;
                 document.title = `${cvName} | CareerViet`;
 
-                if (!data.cvContent) throw new Error('CV chưa có nội dung');
+                // CV tải lên (PDF) không có JSON content — không thể render, chuyển sang editor
+                if (!data.cvContent) {
+                    showUploadedCvNotice(cvName, cvId);
+                    return;
+                }
 
                 const parsed = JSON.parse(data.cvContent);
 
@@ -240,6 +270,28 @@
             const el = document.getElementById('viewState');
             el.className = 'view-error';
             el.textContent = msg;
+        }
+
+        function showUploadedCvNotice(name, id) {
+            const el = document.getElementById('viewState');
+            el.className = '';
+            el.innerHTML = `
+                <div class="view-notice">
+                    <div class="view-notice-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <h3>${esc(name)}</h3>
+                    <p>CV này được tải lên dưới dạng file nên không thể xem trực tiếp tại đây.<br>Bạn có thể mở trong trình chỉnh sửa để thêm nội dung và xem bản xem trước.</p>
+                    <div class="view-notice-actions">
+                        <a href="/my-cvs.html" class="btn-view">Quay lại</a>
+                        <a href="/cv-editor.html?cvId=${id}" class="btn-view primary">Mở trong trình chỉnh sửa</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function esc(str) {
+            return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         }
 
         function downloadPdf() {
