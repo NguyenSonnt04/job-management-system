@@ -76,11 +76,11 @@
 
 .filter-input,
 .filter-select {
-    height: 40px; /* Cố định chiều cao giống các nút khác */
-    padding: 0 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
     color: #333;
     outline: none;
     background-color: white;
@@ -90,27 +90,29 @@
 .filter-input:focus,
 .filter-select:focus {
     border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
 }
 
 .filter-group-actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
 }
 
 .btn-search-main {
     background-color: #4a90e2;
     color: white;
     border: none;
-    height: 40px; /* Bằng chiều cao của ô nhập */
-    padding: 0 24px;
+    height: 34px;
+    padding: 0 16px;
     border-radius: 6px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     transition: all 0.2s;
 }
 
@@ -156,6 +158,10 @@
 .tab-content {
     padding: 24px;
     border-top-left-radius: 0;
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 100px;
 }
 
 /* Sub Filters */
@@ -280,6 +286,8 @@
 /* Table */
 .table-wrapper {
     overflow-x: auto;
+    display: block !important;
+    min-height: 50px;
 }
 
 .candidate-table {
