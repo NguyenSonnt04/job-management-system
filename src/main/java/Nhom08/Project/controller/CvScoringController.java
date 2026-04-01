@@ -3,6 +3,7 @@ package Nhom08.Project.controller;
 import Nhom08.Project.entity.*;
 import Nhom08.Project.repository.CvJobMatchRepository;
 import Nhom08.Project.repository.JobRepository;
+import Nhom08.Project.repository.UserCvRepository;
 import Nhom08.Project.service.AuthService;
 import Nhom08.Project.service.CvScoringService;
 import Nhom08.Project.service.GeminiService;
@@ -25,6 +26,7 @@ public class CvScoringController {
     @Autowired private GeminiService       geminiService;
     @Autowired private JobRepository       jobRepo;
     @Autowired private CvJobMatchRepository matchRepo;
+    @Autowired private UserCvRepository    userCvRepo;
 
     // ── Helper: get current user from session ──────────────
     private Optional<User> currentUser(Authentication auth) {
@@ -83,6 +85,62 @@ public class CvScoringController {
             resp.put("success", false);
             resp.put("message", e.getMessage());
             return ResponseEntity.internalServerError().body(resp);
+        } catch (Exception e) {
+            resp.put("success", false);
+            resp.put("message", "Lỗi phân tích CV: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(resp);
+        }
+    }
+
+    /**
+     * POST /api/cv-scoring/score-saved/{cvId}
+     * Score an already-saved CV by its ID (uses cvContent text, no file upload).
+     */
+    @PostMapping("/score-saved/{cvId}")
+    public ResponseEntity<Map<String, Object>> scoreSaved(
+            @PathVariable Long cvId,
+            Authentication auth) {
+
+        Map<String, Object> resp = new HashMap<>();
+
+        Optional<User> userOpt = currentUser(auth);
+        if (userOpt.isEmpty()) {
+            resp.put("success", false);
+            resp.put("message", "Vui lòng đăng nhập để sử dụng tính năng chấm điểm CV");
+            return ResponseEntity.status(401).body(resp);
+        }
+
+        User user = userOpt.get();
+
+        Optional<UserCv> cvOpt = userCvRepo.findById(cvId);
+        if (cvOpt.isEmpty()) {
+            resp.put("success", false);
+            resp.put("message", "Không tìm thấy CV với ID: " + cvId);
+            return ResponseEntity.status(404).body(resp);
+        }
+
+        UserCv userCv = cvOpt.get();
+        if (!userCv.getUser().getId().equals(user.getId())) {
+            resp.put("success", false);
+            resp.put("message", "Bạn không có quyền chấm điểm CV này");
+            return ResponseEntity.status(403).body(resp);
+        }
+
+        String cvContent = userCv.getCvContent();
+        if (cvContent == null || cvContent.isBlank()) {
+            resp.put("success", false);
+            resp.put("message", "CV chưa có nội dung để chấm điểm");
+            return ResponseEntity.badRequest().body(resp);
+        }
+
+        try {
+            String fileName = userCv.getCvName() != null ? userCv.getCvName() : "CV #" + cvId;
+            CvScoreSession session = scoringService.scoreFromText(user, cvContent, fileName);
+            resp.put("success",   true);
+            resp.put("sessionId", session.getId());
+            resp.put("data",      toSessionMap(session));
+            return ResponseEntity.ok(resp);
+
         } catch (Exception e) {
             resp.put("success", false);
             resp.put("message", "Lỗi phân tích CV: " + e.getMessage());

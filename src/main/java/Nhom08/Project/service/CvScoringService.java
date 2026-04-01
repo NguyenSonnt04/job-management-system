@@ -100,6 +100,55 @@ public class CvScoringService {
         return sessionRepo.save(session);
     }
 
+    /**
+     * Score a saved CV from its JSON content text (no file upload needed).
+     */
+    @Transactional
+    public CvScoreSession scoreFromText(User user, String cvText, String fileName) throws Exception {
+        List<CvScoringCriteria> criteriaList = criteriaRepo.findByActiveTrueOrderByDisplayOrderAsc();
+        if (criteriaList.isEmpty()) {
+            throw new IllegalStateException("Chưa có tiêu chí chấm điểm trong DB. Vui lòng thêm vào bảng cv_scoring_criteria.");
+        }
+
+        String geminiJson = geminiService.scoreCvText(cvText, criteriaList);
+        JsonNode root = mapper.readTree(geminiJson);
+
+        CvScoreSession session = new CvScoreSession(user, fileName, "json");
+        session.setTotalScore(root.path("totalScore").asInt(0));
+        session.setMaxTotalScore(root.path("maxTotalScore").asInt(100));
+        session.setOverallFeedback(root.path("overallFeedback").asText(""));
+        sessionRepo.save(session);
+
+        JsonNode criteriaNode = root.path("criteria");
+        List<CvScoreResult> results = new ArrayList<>();
+        for (CvScoringCriteria c : criteriaList) {
+            JsonNode cNode = criteriaNode.path(c.getName());
+            int score = cNode.path("score").asInt(0);
+            String feedback = cNode.path("feedback").asText("");
+            results.add(new CvScoreResult(session, c, score, feedback));
+        }
+        session.setResults(results);
+
+        List<CvScorePoint> points = new ArrayList<>();
+        JsonNode strengthsNode = root.path("strengths");
+        if (strengthsNode.isArray()) {
+            for (int i = 0; i < strengthsNode.size(); i++) {
+                points.add(new CvScorePoint(session, CvScorePoint.PointType.STRENGTH,
+                    strengthsNode.get(i).asText(), i + 1));
+            }
+        }
+        JsonNode weaknessesNode = root.path("weaknesses");
+        if (weaknessesNode.isArray()) {
+            for (int i = 0; i < weaknessesNode.size(); i++) {
+                points.add(new CvScorePoint(session, CvScorePoint.PointType.WEAKNESS,
+                    weaknessesNode.get(i).asText(), i + 1));
+            }
+        }
+        session.setPoints(points);
+
+        return sessionRepo.save(session);
+    }
+
     /** Get all sessions for a user. */
     public List<CvScoreSession> getUserHistory(Long userId) {
         return sessionRepo.findByUserIdOrderByCreatedAtDesc(userId);
