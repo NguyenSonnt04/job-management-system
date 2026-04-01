@@ -281,8 +281,10 @@ function saveSectionIconSelection() {
         designState.sectionIcons = designState.sectionIcons || {};
         designState.sectionIcons[sectionKey] = selectedIcon;
     }
+    syncDesignStateToCurrentCv();
     closeSectionIconPickerModal();
     refreshSectionIconUI();
+    markCvDirty({ immediate: true });
 }
 
 function refreshSectionIconUI() {
@@ -364,9 +366,9 @@ function syncPreviewIconOptionState() {
 
 function openPreviewIconPickerModal(iconKey, fallbackIcon, label = 'này') {
     ensurePreviewIconPickerModal();
-    enhancePreviewIconTriggers(document.getElementById('cvPreview'));
     const modal = document.getElementById('previewIconPickerModal');
     if (!modal) return;
+
     previewIconPickerState.iconKey       = iconKey;
     previewIconPickerState.selectedIcon  = getPreviewIconName(iconKey, fallbackIcon);
     previewIconPickerState.label         = label;
@@ -374,7 +376,10 @@ function openPreviewIconPickerModal(iconKey, fallbackIcon, label = 'này') {
     if (subtitle) subtitle.textContent   = `Chọn icon mới cho ${label} trong bản xem trước CV.`;
     syncPreviewIconOptionState();
     modal.style.display = 'flex';
+    // Render Lucide icons inside the grid (needed every time modal opens)
+    if (window.lucide) lucide.createIcons({ el: modal });
 }
+
 
 function closePreviewIconPickerModal() {
     const modal = document.getElementById('previewIconPickerModal');
@@ -389,8 +394,10 @@ function savePreviewIconSelection() {
         designState.previewIcons = designState.previewIcons || {};
         designState.previewIcons[iconKey] = selectedIcon;
     }
+    syncDesignStateToCurrentCv();
     closePreviewIconPickerModal();
     rerenderCurrentPreview();
+    markCvDirty({ immediate: true });
 }
 
 function enhancePreviewIconTriggers(preview = document.getElementById('cvPreview')) {
@@ -862,3 +869,74 @@ function initSortable() {
         });
     });
 }
+
+function normalizeInteractiveIconTriggers(root = document) {
+    if (!root?.querySelectorAll) return;
+    root.querySelectorAll('.preview-icon-trigger, .section-meta-icon-trigger').forEach(trigger => {
+        if (!(trigger instanceof HTMLElement)) return;
+        trigger.setAttribute('contenteditable', 'false');
+        if (trigger.tagName === 'BUTTON' && !trigger.hasAttribute('type')) {
+            trigger.setAttribute('type', 'button');
+        }
+    });
+}
+
+function openSectionIconModalFromTrigger(trigger) {
+    const sectionKey = trigger?.getAttribute?.('data-section-key');
+    if (sectionKey) openSectionIconPickerModal(sectionKey);
+}
+
+function openPreviewIconModalFromTrigger(trigger) {
+    const iconKey      = trigger?.getAttribute?.('data-preview-icon-key');
+    const fallbackIcon = trigger?.getAttribute?.('data-fallback-icon') || 'star';
+    const label        = trigger?.getAttribute?.('data-label') || 'mục này';
+    if (iconKey) openPreviewIconPickerModal(iconKey, fallbackIcon, label);
+}
+
+document.addEventListener('pointerdown', event => {
+    const sectionTrigger = resolveSectionIconTrigger(event.target);
+    if (sectionTrigger) {
+        event.preventDefault();
+        event.stopPropagation();
+        normalizeInteractiveIconTriggers(document);
+        openSectionIconModalFromTrigger(sectionTrigger);
+        return;
+    }
+
+    const previewTrigger = event.target instanceof Element ? event.target.closest('.preview-icon-trigger') : null;
+    if (!previewTrigger) return;
+    event.preventDefault();
+    event.stopPropagation();
+    normalizeInteractiveIconTriggers(document);
+    openPreviewIconModalFromTrigger(previewTrigger);
+}, true);
+
+if (!window.__cvIconTriggerPatchApplied) {
+    window.__cvIconTriggerPatchApplied = true;
+
+    const originalRenderCvPreview = window.renderCvPreview;
+    if (typeof originalRenderCvPreview === 'function') {
+        const wrappedRenderCvPreview = function(...args) {
+            const result = originalRenderCvPreview.apply(this, args);
+            normalizeInteractiveIconTriggers(document);
+            return result;
+        };
+        window.renderCvPreview = wrappedRenderCvPreview;
+        renderCvPreview = wrappedRenderCvPreview;
+    }
+
+    const originalRenderSectionManager = window.renderSectionManager || renderSectionManager;
+    if (typeof originalRenderSectionManager === 'function') {
+        const wrappedRenderSectionManager = function(...args) {
+            const result = originalRenderSectionManager.apply(this, args);
+            normalizeInteractiveIconTriggers(document);
+            return result;
+        };
+        window.renderSectionManager = wrappedRenderSectionManager;
+        renderSectionManager = wrappedRenderSectionManager;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    normalizeInteractiveIconTriggers(document);
+});

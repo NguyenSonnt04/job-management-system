@@ -59,6 +59,53 @@ function libIcon(name, size = 14, style = '') {
     return `<i data-lucide="${name}" aria-hidden="true" style="width:${size}px;height:${size}px;${style}"></i>`;
 }
 
+// ── Contact row helpers ───────────────────────────────────────
+// All defined contact types (order = display order preference)
+const CONTACT_TYPES = [
+    { key: 'email',     icon: 'mail',      label: 'Email',          placeholder: 'Email' },
+    { key: 'phone',     icon: 'phone',     label: 'Điện thoại',     placeholder: 'Số điện thoại' },
+    { key: 'address',   icon: 'map-pin',   label: 'Địa chỉ',        placeholder: 'Địa chỉ' },
+    { key: 'linkedin',  icon: 'linkedin',  label: 'LinkedIn',        placeholder: 'linkedin.com/in/...' },
+    { key: 'portfolio', icon: 'globe',     label: 'Portfolio',       placeholder: 'portfolio.com' },
+    { key: 'github',    icon: 'github',    label: 'GitHub',          placeholder: 'github.com/...' },
+    { key: 'website',   icon: 'link',      label: 'Website',         placeholder: 'Website URL' },
+    { key: 'zalo',      icon: 'message-circle', label: 'Zalo',      placeholder: 'Zalo số' },
+];
+
+// Expose so edit.js can access
+window.CONTACT_TYPES = CONTACT_TYPES;
+
+function renderContactItem(key, value, iconKey, iconName, label, placeholder) {
+    const iconHtml = renderPreviewIconTrigger
+        ? renderPreviewIconTrigger(`contact-${key}`, iconName, 14, 'margin-right:4px;', label)
+        : libIcon(iconName, 14, 'margin-right:4px;vertical-align:-2px;');
+    return `<span class="cv-contact-item" data-contact-key="${key}" contenteditable="false">` +
+        // Floating control bar: Xóa + Thêm together
+        `<div class="cv-contact-controls" contenteditable="false">` +
+        `<button class="btn-item-ctrl btn-item-del cv-contact-del-btn" type="button" onclick="removeContactField('${key}')" title="Xóa ${label}">Xóa</button>` +
+        `<button class="btn-item-ctrl btn-item-add cv-contact-add-btn" type="button" onclick="openAddContactMenu(this)" title="Thêm liên hệ"><i data-lucide="plus"></i> Thêm</button>` +
+        `</div>` +
+        `${iconHtml}` +
+        `<span class="cv-editable" data-placeholder="${placeholder}">${esc(value)}</span>` +
+        `</span>`;
+}
+
+function renderContactRow(c, containerClass = 'cvm-contact-row') {
+    const items = CONTACT_TYPES
+        .filter(t => c[t.key] !== undefined && c[t.key] !== null)
+        .map(t => renderContactItem(t.key, c[t.key] || '', `contact-${t.key}`, t.icon, t.label, t.placeholder))
+        .join('');
+
+    // If no contacts at all, show a standalone + Thêm button
+    const fallbackAdd = !items
+        ? `<button class="btn-item-ctrl btn-item-add cv-contact-add-btn cv-contact-add-standalone" type="button" onclick="openAddContactMenu(this)" contenteditable="false"><i data-lucide="plus"></i> Thêm liên hệ</button>`
+        : '';
+
+    return `<div class="${containerClass}" data-cv-section="contacts">${items}${fallbackAdd}</div>`;
+}
+
+
+
 function getItemControls(type, index) {
     // Always render controls; CSS hides them outside edit mode
     const arr   = Array.isArray(currentCvJson?.[type]) ? currentCvJson[type] : [];
@@ -159,13 +206,7 @@ function renderProfessionalStyle(c, accent) {
             <div class="cvm-header-info">
                 <h1 class="cvm-name cv-editable" data-placeholder="Họ và tên ứng viên">${esc(c.name||'')}</h1>
                 <div class="cvm-job-title cv-editable" data-placeholder="Vị trí công việc mong muốn">${esc(c.subtitle||'')}</div>
-                <div class="cvm-contact-row" data-cv-section="contacts">
-                    ${c.email?`<span>${renderPreviewIconTrigger('contact-email','mail',14,'margin-right:6px;','email')} <span class="cv-editable" data-placeholder="Email">${esc(c.email)}</span></span>`:''}
-                    ${c.phone?`<span>${renderPreviewIconTrigger('contact-phone','phone',14,'margin-right:6px;','phone')} <span class="cv-editable" data-placeholder="Số điện thoại">${esc(c.phone)}</span></span>`:''}
-                    ${c.address?`<span>${renderPreviewIconTrigger('contact-address','map-pin',14,'margin-right:6px;','địa chỉ')} <span class="cv-editable" data-placeholder="Địa chỉ">${esc(c.address)}</span></span>`:''}
-                    ${c.linkedin?`<span>🔗 <span class="cv-editable" data-placeholder="LinkedIn URL">${esc(c.linkedin)}</span></span>`:''}
-                    ${c.portfolio?`<span>🌐 <span class="cv-editable" data-placeholder="Portfolio URL">${esc(c.portfolio)}</span></span>`:''}
-                </div>
+                ${renderContactRow(c, 'cvm-contact-row')}
             </div>
         </header>
         <div class="cvm-body">
@@ -214,11 +255,7 @@ function renderCreativeStyle(c, accent) {
             <div class="cvc2-header-right">
                 <h1 class="cvc2-name cv-editable">${esc(c.name||'HỌ TÊN ỨNG VIÊN')}</h1>
                 <div class="cvc2-title cv-editable">${esc(c.subtitle||'Vị trí / Chức danh')}</div>
-                <div class="cvc2-contacts" data-cv-section="contacts">
-                    ${c.email?`<span>${renderPreviewIconTrigger('contact-email','mail',14,'','email')} <span class="cv-editable">${esc(c.email)}</span></span>`:''}
-                    ${c.phone?`<span>${renderPreviewIconTrigger('contact-phone','phone',14,'','phone')} <span class="cv-editable">${esc(c.phone)}</span></span>`:''}
-                    ${c.address?`<span>${renderPreviewIconTrigger('contact-address','map-pin',14,'','địa chỉ')} <span class="cv-editable">${esc(c.address)}</span></span>`:''}
-                </div>
+                ${renderContactRow(c, 'cvc2-contacts')}
             </div>
         </header>
         <div class="cvc2-body">

@@ -305,6 +305,20 @@ function bindPreviewEditableEvents() {
             }
         }, true);
 
+        // Also capture contact add/delete buttons
+        preview.addEventListener('click', event => {
+            const btn = event.target instanceof Element
+                ? event.target.closest('.cv-contact-del-btn, .cv-contact-add-btn')
+                : null;
+            if (!btn) return;
+            event.stopPropagation();
+            event.preventDefault();
+            const onclickAttr = btn.getAttribute('onclick');
+            if (onclickAttr) {
+                try { new Function(onclickAttr)(); } catch (e) { console.error('contact btn:', e); }
+            }
+        }, true);
+
         preview.dataset.itemCtrlBound = 'true';
     }
 
@@ -314,6 +328,95 @@ function bindPreviewEditableEvents() {
         preview.dataset.previewLinkGuardBound = 'true';
     }
 }
+
+// ── Contact field CRUD ────────────────────────────────────────
+function removeContactField(key) {
+    if (!currentCvJson) return;
+    delete currentCvJson[key];
+    renderCvPreview(currentCvJson);
+    markCvDirty({ immediate: true });
+}
+
+function addContactField(key) {
+    if (!currentCvJson) return;
+    currentCvJson[key] = '';          // empty string = show placeholder
+    renderCvPreview(currentCvJson);
+    markCvDirty({ immediate: true });
+    // Close any open menu
+    document.getElementById('cv-contact-add-menu')?.remove();
+}
+
+function openAddContactMenu(triggerBtnEl) {
+    // Remove existing menu
+    document.getElementById('cv-contact-add-menu')?.remove();
+    if (!currentCvJson) return;
+
+    // The trigger may be called from onclick attribute (this = button element)
+    const triggerBtn = triggerBtnEl instanceof Element ? triggerBtnEl : null;
+
+    // Fields that are already present (key exists, might be empty string = placeholder)
+    const available = (window.CONTACT_TYPES || []).filter(t => {
+        return !(t.key in currentCvJson);   // only types completely absent
+    });
+
+    if (!available.length) {
+        if (triggerBtn) triggerBtn.title = 'Đã thêm tất cả liên hệ';
+        return;
+    }
+
+    const menu = document.createElement('div');
+    menu.id = 'cv-contact-add-menu';
+    menu.setAttribute('contenteditable', 'false');
+    menu.innerHTML = available.map(t => `
+        <button class="cv-contact-menu-item" type="button" data-key="${t.key}">
+            <i data-lucide="${t.icon}" style="width:13px;height:13px;vertical-align:-2px;"></i>
+            ${t.label}
+        </button>`).join('');
+
+    // Get position — fallback chain if button has no rect (hidden parent etc.)
+    let rect = triggerBtn ? triggerBtn.getBoundingClientRect() : null;
+    if (!rect || (rect.width === 0 && rect.height === 0)) {
+        const bar = triggerBtn?.closest('.cv-contact-controls');
+        rect = bar ? bar.getBoundingClientRect() : null;
+    }
+    if (!rect || (rect.width === 0 && rect.height === 0)) {
+        rect = { bottom: window.innerHeight / 2, left: window.innerWidth / 2 - 80, top: 0 };
+    }
+
+    menu.style.cssText = `
+        position:fixed;top:${rect.bottom + 6}px;left:${rect.left}px;
+        z-index:9999;background:#fff;border:1px solid rgba(37,99,235,0.2);
+        border-radius:10px;padding:6px;box-shadow:0 8px 24px rgba(26,36,86,0.14);
+        display:flex;flex-direction:column;gap:2px;min-width:160px;
+    `;
+
+    menu.addEventListener('click', e => {
+        const btn = e.target instanceof Element ? e.target.closest('[data-key]') : null;
+        if (btn) {
+            e.stopPropagation();
+            addContactField(btn.dataset.key);
+        }
+    });
+
+    document.body.appendChild(menu);
+    if (window.lucide) lucide.createIcons({ el: menu });
+
+    // Close on outside click
+    const closeMenu = e => {
+        if (!menu.contains(e.target) && e.target !== triggerBtn) {
+            menu.remove();
+            document.removeEventListener('click', closeMenu, true);
+        }
+    };
+    setTimeout(() => document.addEventListener('click', closeMenu, true), 0);
+}
+
+
+// Expose for onclick attributes
+window.removeContactField = removeContactField;
+window.addContactField    = addContactField;
+window.openAddContactMenu = openAddContactMenu;
+
 
 // ── Keyboard shortcuts ────────────────────────────────────────
 function handleEditorShortcuts(event) {

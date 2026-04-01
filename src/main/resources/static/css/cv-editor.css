@@ -5865,3 +5865,105 @@ input:checked + .slider:before {
 #cvPreview.cv-editable-mode .cv-details-block[data-placeholder]:empty::before {
     color: rgba(37, 99, 235, 0.35);
 }
+
+
+
+
+
+/* ═══════════════════════════════════════════════════
+   Contact row — controls (Xóa + Thêm together)
+   ═══════════════════════════════════════════════════ */
+
+.cv-contact-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    border-radius: 6px;
+    padding: 2px 4px;
+    transition: background 0.15s ease;
+}
+
+/* Floating bar: hidden by default, shows BELOW item on hover */
+.cv-contact-controls {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    flex-direction: row;
+    gap: 4px;
+    align-items: center;
+    background: rgba(255,255,255,0.97);
+    border: 1px solid rgba(37,99,235,0.18);
+    border-radius: 8px;
+    padding: 3px 5px;
+    box-shadow: 0 6px 18px rgba(26,36,86,0.16);
+    pointer-events: auto;
+    white-space: nowrap;
+}
+
+/* Show on hover (item OR controls themselves, so mouse can move down) */
+#cvPreview.cv-editable-mode .cv-contact-item:hover > .cv-contact-controls,
+#cvPreview.cv-editable-mode .cv-contact-controls:hover {
+    display: flex;
+}
+
+/* Hover tint */
+#cvPreview.cv-editable-mode .cv-contact-item:hover {
+    background: rgba(255,255,255,0.12);
+}
+
+/* + Thêm button inside controls: always shown when controls visible */
+.cv-contact-add-btn {
+    /* inherits btn-item-ctrl btn-item-add styles */
+    pointer-events: auto;
+}
+
+/* Standalone add button (when 0 contacts) — visible in edit mode */
+.cv-contact-add-standalone {
+    display: none;
+}
+#cvPreview.cv-editable-mode .cv-contact-add-standalone {
+    display: inline-flex;
+}
+
+/* Dropdown menu */
+.cv-contact-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 7px 12px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: #1a2456;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    transition: background 0.12s ease;
+}
+.cv-contact-menu-item:hover {
+    background: rgba(37,99,235,0.08);
+    color: rgba(37,99,235,1);
+}
+
+
+/* ── Fix hover gap: bridge between contact item and floating controls ── */
+
+/* Invisible pseudo-element extends hover zone below the item,
+   covering the gap so mouse doesn't "leave" the item mid-travel */
+#cvPreview.cv-editable-mode .cv-contact-item::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: -8px;
+    right: -8px;
+    height: 14px;            /* matches the gap (6px) + safety margin */
+    background: transparent;
+    pointer-events: auto;    /* catches mouse events in the gap */
+}
