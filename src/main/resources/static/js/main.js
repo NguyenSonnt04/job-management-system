@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Setup login dropdown after header is loaded (with small delay to ensure DOM is ready)
     wireToolsNavigation();
+    wireCareerStartNavigation();
     setTimeout(setupLoginDropdown, 100);
     setTimeout(setupMobileNavigation, 100);
 });
@@ -41,6 +42,16 @@ function wireToolsNavigation() {
         const label = (link.textContent || '').trim();
         if (label.includes('CÃ´ng Cá»¥') || label.includes('Công Cụ') || label.includes('Cong Cu')) {
             link.setAttribute('href', 'cong-cu.html');
+        }
+    });
+}
+
+function wireCareerStartNavigation() {
+    const navLinks = document.querySelectorAll('.nav .nav-link');
+    navLinks.forEach(link => {
+        const label = (link.textContent || '').trim();
+        if (label.includes('CareerStart')) {
+            link.setAttribute('href', 'career-start.html');
         }
     });
 }
