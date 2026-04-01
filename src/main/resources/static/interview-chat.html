@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phỏng vấn AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #f0f4f8;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── Topbar ── */
+        .ic-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: 52px;
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
+            gap: 12px;
+        }
+
+        .ic-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ic-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 140ms;
+        }
+        .ic-back:hover { background: #f9fafb; }
+
+        .ic-session-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ic-role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #f0fdf9;
+            border: 1px solid #b2f0e0;
+            color: #007c63;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .ic-level-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .ic-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ic-end-btn {
+            display: inline-flex;
+            align-items: center;
+            height: 34px;
+            padding: 0 20px;
+            border-radius: 20px;
+            border: 1.5px solid #e5e7eb;
+            background: #fff;
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.01em;
+            transition: all 200ms ease;
+        }
+        .ic-end-btn:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: #fef2f2;
+        }
+
+        /* ── Layout ── */
+        .ic-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 0;
+        }
+
+        /* ── Sidebar ── */
+        .ic-sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: #fff;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            overflow-y: auto;
+            padding: 16px 14px;
+            gap: 12px;
+        }
+
+        .ic-ai-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 12px;
+            background: linear-gradient(135deg, #0f2460 0%, #1a3a8a 100%);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .ic-ai-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .ic-ai-name {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .ic-ai-sub {
+            color: rgba(255,255,255,0.65);
+            font-size: 11px;
+        }
+
+        .ic-ai-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: #6ee7b7;
+            font-weight: 600;
+        }
+
+        .ic-dot-online {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 2px rgba(16,185,129,0.3);
+            animation: pulse-dot 2s ease infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 2px rgba(16,185,129,0.3); }
+            50%       { box-shadow: 0 0 0 5px rgba(16,185,129,0.1); }
+        }
+
+        .ic-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+
+        .ic-card h4 {
+            margin: 0 0 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ic-tips {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .ic-tips li {
+            font-size: 11.5px;
+            color: #6b7280;
+            padding-left: 14px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .ic-tips li::before {
+            content: '–';
+            position: absolute;
+            left: 0;
+            color: #9ca3af;
+        }
+
+        /* Voice toggles */
+        .ic-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #374151;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        .ic-toggle-row span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ic-toggle {
+            position: relative;
+            width: 34px;
+            height: 18px;
+        }
+
+        .ic-toggle input { opacity: 0; width: 0; height: 0; }
+
+        .ic-toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: #d1d5db;
+            border-radius: 20px;
+            transition: background 200ms;
+            cursor: pointer;
+        }
+
+        .ic-toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            top: 2px;
+            left: 2px;
+            transition: transform 200ms;
+        }
+
+        .ic-toggle input:checked + .ic-toggle-slider { background: #00BFA5; }
+        .ic-toggle input:checked + .ic-toggle-slider::before { transform: translateX(16px); }
+
+        /* ── Chat main ── */
+        .ic-chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+
+        .ic-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ic-msg {
+            display: flex;
+            gap: 10px;
+            max-width: 78%;
+            animation: fadeInUp 0.25s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .ic-msg.user { flex-direction: row-reverse; align-self: flex-end; }
+        .ic-msg.assistant { align-self: flex-start; }
+
+        .ic-msg-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .ic-msg.assistant .ic-msg-avatar {
+            background: linear-gradient(135deg, #0f2460, #1a3a8a);
+            color: #fff;
+        }
+
+        .ic-msg.user .ic-msg-avatar {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .ic-msg-bubble {
+            padding: 12px 15px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.65;
+            white-space: pre-wrap;
+        }
+
+        .ic-msg.assistant .ic-msg-bubble {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 4px;
+            color: #1f2937;
+        }
+
+        .ic-msg.user .ic-msg-bubble {
+            background: #0f2460;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Typing indicator */
+        .ic-typing {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 24px 8px;
+        }
+
+        .ic-typing-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0f2460, #1a3a8a);
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .ic-typing-dots {
+            display: flex;
+            gap: 4px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            padding: 10px 14px;
+            border-radius: 14px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .ic-typing-dots span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #9ca3af;
+            animation: bounce-dot 1.2s ease infinite;
+        }
+
+        .ic-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .ic-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce-dot {
+            0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+            40%            { transform: scale(1);   opacity: 1; }
+        }
+
+        /* Input area */
+        .ic-input-area {
+            padding: 12px 20px 16px;
+            background: #fff;
+            border-top: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        .ic-input-box {
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            transition: border-color 200ms;
+        }
+
+        .ic-input-box:focus-within { border-color: #00BFA5; }
+
+        .ic-textarea {
+            display: block;
+            width: 100%;
+            padding: 12px 14px 6px;
+            border: none;
+            outline: none;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            color: #1f2937;
+            background: transparent;
+            line-height: 1.55;
+        }
+
+        .ic-input-actions {
+            display: flex;
+            align-items: center;
+            padding: 6px 10px 8px;
+            gap: 8px;
+        }
+
+        .ic-voice-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1.5px solid #e5e7eb;
+            background: #fff;
+            color: #6b7280;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            font-size: 13px;
+            transition: all 140ms;
+        }
+
+        .ic-voice-btn:hover { border-color: #00BFA5; color: #00BFA5; }
+        .ic-voice-btn.recording { background: #fee2e2; border-color: #ef4444; color: #ef4444; animation: mic-pulse 1s ease infinite; }
+
+        @keyframes mic-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+            50%       { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+        }
+
+        .ic-char-count {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-left: auto;
+        }
+
+        .ic-send-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 34px;
+            padding: 0 16px;
+            border-radius: 8px;
+            border: none;
+            background: #0f2460;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 140ms;
+        }
+
+        .ic-send-btn:hover:not(:disabled) { background: #1a3a8a; }
+        .ic-send-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Voice status bar */
+        .ic-voice-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #ef4444;
+        }
+
+        .ic-voice-pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: mic-pulse 1s ease infinite;
+            flex-shrink: 0;
+        }
+
+        .ic-voice-stop {
+            margin-left: auto;
+            padding: 3px 10px;
+            border-radius: 6px;
+            border: 1px solid #ef4444;
+            background: #fff;
+            color: #ef4444;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Results overlay */
+        .ic-results-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,36,96,0.45);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+
+        .ic-results-modal {
+            background: #fff;
+            border-radius: 24px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 60px rgba(15,36,96,0.18);
+            animation: slideUp 0.3s cubic-bezier(.22,.68,0,1.2);
+        }
+        .ic-results-modal::-webkit-scrollbar { width: 4px; }
+        .ic-results-modal::-webkit-scrollbar-track { background: transparent; }
+        .ic-results-modal::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 20px; }
+        .ic-results-modal::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        .ic-results-modal { scrollbar-width: thin; scrollbar-color: #d1d5db transparent; }
+
+        @keyframes slideUp { from { opacity:0; transform:translateY(24px) } to { opacity:1; transform:translateY(0) } }
+
+        /* Hero score banner */
+        .ic-result-hero {
+            background: linear-gradient(135deg, #0f2460 0%, #1a3a8a 60%, #1e4fd8 100%);
+            border-radius: 24px 24px 0 0;
+            padding: 28px 28px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ic-result-hero::before {
+            content: '';
+            position: absolute;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            top: -60px; right: -40px;
+        }
+
+        .ic-result-hero-left { position: relative; }
+
+        .ic-result-emoji {
+            font-size: 32px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .ic-result-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 4px;
+        }
+
+        .ic-result-subtitle {
+            font-size: 13px;
+            color: rgba(255,255,255,0.65);
+        }
+
+        .ic-score-circle {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            border: 2px solid rgba(255,255,255,0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .ic-score-circle-num {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .ic-score-circle-denom {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            font-weight: 500;
+        }
+
+        .ic-score-pill {
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #fff;
+            color: #0f2460;
+            box-shadow: 0 2px 8px rgba(15,36,96,0.2);
+        }
+
+        /* Body */
+        .ic-result-body {
+            padding: 24px 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Breakdown */
+        .ic-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ic-breakdown-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .ic-breakdown-label {
+            width: 120px;
+            color: #6b7280;
+            flex-shrink: 0;
+            font-size: 12.5px;
+        }
+
+        .ic-breakdown-bar-wrap {
+            flex: 1;
+            height: 8px;
+            background: #f0f4f8;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .ic-breakdown-bar {
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #00BFA5, #1a3a8a);
+            transition: width 1.2s cubic-bezier(.22,.68,0,1);
+            width: 0;
+        }
+
+        .ic-breakdown-score {
+            width: 24px;
+            text-align: right;
+            font-weight: 700;
+            color: #1a3a8a;
+            font-size: 13px;
+        }
+
+        /* Section header */
+        .ic-section-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .ic-section-head .emoji { font-size: 16px; }
+
+        /* Tags */
+        .ic-tag-list { display: flex; flex-wrap: wrap; gap: 7px; }
+
+        .ic-tag {
+            padding: 6px 13px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .ic-tag.strength {
+            background: linear-gradient(135deg, #f0fdf9, #dcfdf0);
+            color: #0d6649;
+            border: 1px solid #a7f3d0;
+        }
+
+        .ic-tag.improve {
+            background: linear-gradient(135deg, #fffbf0, #fef3c7);
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        /* Recommendation */
+        .ic-recommendation {
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #f0f7ff, #e8f0fe);
+            border-radius: 14px;
+            font-size: 13.5px;
+            color: #1e3a8a;
+            line-height: 1.7;
+            border: 1px solid #c7d8fa;
+            position: relative;
+        }
+
+
+        /* Divider */
+        .ic-divider {
+            height: 1px;
+            background: #f0f4f8;
+        }
+
+        /* Actions */
+        .ic-results-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 0 24px 22px;
+        }
+
+        .ic-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            height: 38px;
+            padding: 0 18px;
+            border-radius: 12px;
+            border: 1.5px solid #e5e7eb;
+            background: #fff;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 140ms;
+        }
+
+        .ic-btn:hover { background: #f9fafb; border-color: #d1d5db; }
+        .ic-btn.primary {
+            background: linear-gradient(135deg, #0f2460, #1a3a8a);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(15,36,96,0.25);
+        }
+        .ic-btn.primary:hover { background: linear-gradient(135deg, #1a3a8a, #1e4fd8); }
+
+        /* Loading state */
+        .ic-loading {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .ic-loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #0f2460;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 640px) {
+            .ic-sidebar { display: none; }
+            .ic-level-badge { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Topbar -->
+    <div class="ic-topbar">
+        <div class="ic-topbar-left">
+            <a href="/mock-interview.html" class="ic-back">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Quay lại
+            </a>
+            <div class="ic-session-info">
+                <span class="ic-role-badge"><i class="fa-solid fa-briefcase"></i> <span id="topRole">...</span></span>
+                <span class="ic-level-badge" id="topLevel">...</span>
+            </div>
+        </div>
+        <div class="ic-topbar-right">
+            <button class="ic-end-btn" id="endBtn">Kết thúc phỏng vấn</button>
+        </div>
+    </div>
+
+    <!-- Main layout -->
+    <div class="ic-layout">
+
+        <!-- Sidebar -->
+        <div class="ic-sidebar">
+            <div class="ic-ai-card">
+                <div class="ic-ai-avatar"><i class="fa-solid fa-brain"></i></div>
+                <div class="ic-ai-name">AI Interviewer</div>
+                <div class="ic-ai-sub" id="sidebarLabel">...</div>
+                <div class="ic-ai-status"><span class="ic-dot-online"></span> Đang hoạt động</div>
+            </div>
+
+            <div class="ic-card">
+                <h4><i class="fa-solid fa-lightbulb"></i> Mẹo phỏng vấn</h4>
+                <ul class="ic-tips">
+                    <li>Trả lời đầy đủ, có ví dụ cụ thể</li>
+                    <li>Dùng cấu trúc STAR cho behavioral questions</li>
+                    <li>Đưa số liệu, kết quả đo được</li>
+                    <li>Hỏi lại nếu chưa hiểu câu hỏi</li>
+                </ul>
+            </div>
+
+            <div class="ic-card">
+                <h4><i class="fa-solid fa-sliders"></i> Cài đặt giọng nói</h4>
+                <label class="ic-toggle-row">
+                    <span><i class="fa-solid fa-volume-high"></i> AI đọc câu trả lời</span>
+                    <div class="ic-toggle">
+                        <input type="checkbox" id="ttsEnabled" checked>
+                        <span class="ic-toggle-slider"></span>
+                    </div>
+                </label>
+                <label class="ic-toggle-row" style="margin-top:6px">
+                    <span><i class="fa-solid fa-microphone"></i> Nhận diện giọng nói</span>
+                    <div class="ic-toggle">
+                        <input type="checkbox" id="sttEnabled">
+                        <span class="ic-toggle-slider"></span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Chat main -->
+        <div class="ic-chat-main" id="chatMain">
+            <div class="ic-loading" id="loadingState">
+                <div class="ic-loading-spinner"></div>
+                <span>AI đang chuẩn bị câu hỏi...</span>
+            </div>
+
+            <div class="ic-messages" id="chatMessages" style="display:none"></div>
+
+            <div class="ic-typing" id="typingIndicator" style="display:none">
+                <div class="ic-typing-avatar"><i class="fa-solid fa-brain"></i></div>
+                <div class="ic-typing-dots"><span></span><span></span><span></span></div>
+            </div>
+
+            <div class="ic-input-area" id="inputArea" style="display:none">
+                <div class="ic-input-box">
+                    <textarea id="chatInput" class="ic-textarea" rows="3"
+                        placeholder="Nhập câu trả lời của bạn... (Enter để gửi, Shift+Enter xuống dòng)"></textarea>
+                    <div class="ic-input-actions">
+                        <button class="ic-voice-btn" id="voiceBtn" title="Nhấn để nói">
+                            <i class="fa-solid fa-microphone" id="voiceIcon"></i>
+                        </button>
+                        <span class="ic-char-count" id="charCount">0</span>
+                        <button class="ic-send-btn" id="sendBtn">
+                            <i class="fa-solid fa-paper-plane"></i> Gửi
+                        </button>
+                    </div>
+                </div>
+                <div class="ic-voice-status" id="voiceStatus" style="display:none">
+                    <span class="ic-voice-pulse"></span>
+                    <span>Đang nghe... Hãy nói câu trả lời của bạn</span>
+                    <button class="ic-voice-stop" id="voiceStopBtn">Dừng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results overlay -->
+    <div class="ic-results-overlay" id="resultsOverlay" style="display:none">
+        <div class="ic-results-modal">
+
+            <!-- Hero banner -->
+            <div class="ic-result-hero">
+                <div class="ic-result-hero-left">
+                    <div class="ic-result-emoji" id="resultEmoji" style="display:none"></div>
+                    <div class="ic-result-title">Phỏng vấn hoàn thành</div>
+                    <div class="ic-result-subtitle" id="resultSubtitle"></div>
+                </div>
+                <div class="ic-score-circle">
+                    <div class="ic-score-circle-num" id="scoreNum">–</div>
+                    <div class="ic-score-circle-denom">/10</div>
+                    <div class="ic-score-pill" id="scoreLabel">–</div>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="ic-result-body">
+
+                <!-- Breakdown -->
+                <div class="ic-breakdown" id="breakdown"></div>
+
+                <div class="ic-divider"></div>
+
+                <!-- Strengths -->
+                <div>
+                    <div class="ic-section-head">Điểm mạnh</div>
+                    <div class="ic-tag-list" id="strengthsList"></div>
+                </div>
+
+                <!-- Improve -->
+                <div>
+                    <div class="ic-section-head">Cần cải thiện</div>
+                    <div class="ic-tag-list" id="improveList"></div>
+                </div>
+
+                <!-- Recommendation -->
+                <div class="ic-recommendation" id="recommendation"></div>
+
+            </div>
+
+            <!-- Actions -->
+            <div class="ic-results-actions">
+                <a href="/mock-interview.html" class="ic-btn">Luyện lại</a>
+                <a href="/index.html" class="ic-btn primary">Về trang chủ</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /* ── Params từ URL ── */
+    const p         = new URLSearchParams(location.search);
+    const sessionId = p.get('sessionId') || null;
+    const role      = p.get('role')      || 'Vị trí chưa xác định';
+    const roleKey   = p.get('roleKey')   || '';
+    const level     = p.get('level')     || 'fresher';
+    const type      = p.get('type')      || 'mixed';
+    const hasCV          = p.get('hasCV')          === '1';
+    const cvName         = p.get('cvName')         || '';
+    const interviewStyle = p.get('interviewStyle') || 'standard';
+
+    // Đọc nội dung CV đã phân tích từ sessionStorage
+    const cvContext = sessionStorage.getItem('interviewCvContext') || '';
+    if (cvContext) sessionStorage.removeItem('interviewCvContext'); // dọn dẹp
+
+    const LEVEL_NAMES = { intern:'Intern', fresher:'Fresher', junior:'Junior', middle:'Middle', senior:'Senior', lead:'Lead/Manager' };
+
+    /* ── State ── */
+    const state = {
+        sessionId,
+        messages: [],
+        isSending: false,
+        ttsEnabled: true,
+        sttEnabled: false,
+        recognition: null,
+        isRecording: false,
+        synth: window.speechSynthesis || null,
+    };
+
+    /* ── Init ── */
+    document.getElementById('topRole').textContent    = role;
+    document.getElementById('topLevel').textContent   = LEVEL_NAMES[level] || level;
+    document.getElementById('sidebarLabel').textContent = `${role} · ${LEVEL_NAMES[level] || level}`;
+    document.title = `Phỏng vấn: ${role}`;
+
+    document.getElementById('ttsEnabled').addEventListener('change', e => { state.ttsEnabled = e.target.checked; });
+    document.getElementById('sttEnabled').addEventListener('change', e => { state.sttEnabled = e.target.checked; });
+    document.getElementById('endBtn').addEventListener('click', endSession);
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('voiceBtn').addEventListener('click', toggleVoice);
+    document.getElementById('voiceStopBtn').addEventListener('click', stopVoice);
+
+    const chatInput = document.getElementById('chatInput');
+    chatInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+    chatInput.addEventListener('input', () => {
+        document.getElementById('charCount').textContent = chatInput.value.length;
+    });
+
+    /* Bắt đầu */
+    startChat();
+
+    async function startChat() {
+        try {
+            const reply = await callAPI([]);
+            hideLoading();
+            appendMsg('assistant', reply);
+            if (state.ttsEnabled) speak(reply);
+        } catch (e) {
+            hideLoading();
+            appendMsg('assistant', 'Xin lỗi, tôi gặp sự cố kết nối. Vui lòng thử lại.');
+        }
+    }
+
+    /* ── API ── */
+    async function callAPI(messages) {
+        const url  = state.sessionId
+            ? `/api/interview/session/${state.sessionId}/chat`
+            : '/api/interview/chat';
+        // Claude API requires at least 1 message
+        const effectiveMessages = messages.length === 0
+            ? [{ role: 'user', content: 'Bắt đầu phỏng vấn' }]
+            : messages;
+        const cvData = cvContext || (cvName ? `CV: ${cvName}` : '');
+        const body = state.sessionId
+            ? { messages: effectiveMessages, cvContext: cvData, interviewStyle }
+            : { role, level, type, hasCV, cvContext: cvData, interviewStyle, messages: effectiveMessages };
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return (await res.json()).reply || '';
+    }
+
+    async function sendMessage() {
+        if (state.isSending) return;
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        state.isSending = true;
+        document.getElementById('sendBtn').disabled = true;
+        chatInput.value = '';
+        document.getElementById('charCount').textContent = '0';
+
+        appendMsg('user', text);
+        state.messages.push({ role: 'user', content: text });
+
+        showTyping(true);
+        try {
+            const reply = await callAPI(state.messages);
+            showTyping(false);
+            appendMsg('assistant', reply);
+            state.messages.push({ role: 'assistant', content: reply });
+            if (state.ttsEnabled) speak(reply);
+        } catch (e) {
+            showTyping(false);
+            appendMsg('assistant', 'Xin lỗi, tôi gặp sự cố. Vui lòng thử lại.');
+        } finally {
+            state.isSending = false;
+            document.getElementById('sendBtn').disabled = false;
+            chatInput.focus();
+        }
+    }
+
+    async function endSession() {
+        const btn = document.getElementById('endBtn');
+        btn.disabled = true;
+        btn.textContent = 'Đang đánh giá...';
+
+        try {
+            const url  = state.sessionId
+                ? `/api/interview/session/${state.sessionId}/end`
+                : '/api/interview/end';
+            const body = state.sessionId
+                ? { messages: state.messages }
+                : { role, level, messages: state.messages };
+
+            const res  = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(body),
+            });
+            const data = await res.json();
+            showResults(data);
+        } catch (e) {
+            btn.disabled = false;
+            btn.textContent = 'Kết thúc phỏng vấn';
+            alert('Không thể tải kết quả. Vui lòng thử lại.');
+        }
+    }
+
+    /* ── UI helpers ── */
+    function hideLoading() {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('chatMessages').style.display = 'flex';
+        document.getElementById('inputArea').style.display    = '';
+    }
+
+    function appendMsg(role, text) {
+        const wrap = document.getElementById('chatMessages');
+        const div  = document.createElement('div');
+        div.className = `ic-msg ${role}`;
+        const icon = role === 'assistant' ? 'fa-brain' : 'fa-user';
+        div.innerHTML = `
+            <div class="ic-msg-avatar"><i class="fa-solid ${icon}"></i></div>
+            <div class="ic-msg-bubble">${esc(text)}</div>
+        `;
+        wrap.appendChild(div);
+        wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    function showTyping(on) {
+        document.getElementById('typingIndicator').style.display = on ? 'flex' : 'none';
+        const wrap = document.getElementById('chatMessages');
+        if (on) wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    function esc(s) {
+        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function showResults(data) {
+        const score = data.overallScore ?? 0;
+
+        // Emoji theo điểm
+        document.getElementById('resultEmoji').textContent   = '';
+        document.getElementById('resultSubtitle').textContent = `${role} · ${LEVEL_NAMES[level]||level}`;
+        document.getElementById('scoreNum').textContent      = score || '–';
+        document.getElementById('scoreLabel').textContent    = data.scoreLabel ?? '–';
+
+        // Breakdown bars — render trước, animate sau
+        const cats = data.categories || {};
+        const catLabels = { communication:'Giao tiếp', knowledge:'Kiến thức', problemSolving:'Giải quyết vấn đề', attitude:'Thái độ' };
+        document.getElementById('breakdown').innerHTML = Object.entries(cats).map(([k,v]) => `
+            <div class="ic-breakdown-row">
+                <span class="ic-breakdown-label">${catLabels[k]||k}</span>
+                <div class="ic-breakdown-bar-wrap"><div class="ic-breakdown-bar" data-width="${(v||0)*10}" style="width:0%"></div></div>
+                <span class="ic-breakdown-score">${v||0}</span>
+            </div>
+        `).join('');
+
+        const strengths = Array.isArray(data.strengths) ? data.strengths : [];
+        const improves  = Array.isArray(data.improvements) ? data.improvements : [];
+        document.getElementById('strengthsList').innerHTML = strengths.map(s => `<span class="ic-tag strength">${esc(s)}</span>`).join('');
+        document.getElementById('improveList').innerHTML   = improves.map(s  => `<span class="ic-tag improve">${esc(s)}</span>`).join('');
+
+        const recEl = document.getElementById('recommendation');
+        recEl.textContent = data.recommendation || '';
+
+        document.getElementById('resultsOverlay').style.display = 'flex';
+
+        // Animate bars after paint
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            document.querySelectorAll('.ic-breakdown-bar').forEach(bar => {
+                bar.style.width = bar.dataset.width + '%';
+            });
+        }));
+    }
+
+    /* ── TTS ── */
+    function speak(text) {
+        if (!state.synth || !state.ttsEnabled) return;
+        state.synth.cancel();
+        const utt = new SpeechSynthesisUtterance(text);
+        utt.lang = 'vi-VN';
+        utt.rate = 1;
+        state.synth.speak(utt);
+    }
+
+    /* ── STT ── */
+    function toggleVoice() {
+        if (state.isRecording) { stopVoice(); return; }
+        const SRClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SRClass) { alert('Trình duyệt không hỗ trợ nhận diện giọng nói.'); return; }
+
+        const rec = new SRClass();
+        rec.lang = 'vi-VN';
+        rec.interimResults = false;
+        rec.continuous = false;
+        state.recognition = rec;
+        state.isRecording = true;
+
+        document.getElementById('voiceBtn').classList.add('recording');
+        document.getElementById('voiceIcon').className = 'fa-solid fa-stop';
+        document.getElementById('voiceStatus').style.display = 'flex';
+
+        rec.onresult = e => {
+            const t = e.results[0][0].transcript;
+            chatInput.value += (chatInput.value ? ' ' : '') + t;
+            document.getElementById('charCount').textContent = chatInput.value.length;
+        };
+        rec.onend  = () => stopVoice();
+        rec.onerror = () => stopVoice();
+        rec.start();
+    }
+
+    function stopVoice() {
+        state.recognition?.stop();
+        state.isRecording = false;
+        document.getElementById('voiceBtn').classList.remove('recording');
+        document.getElementById('voiceIcon').className = 'fa-solid fa-microphone';
+        document.getElementById('voiceStatus').style.display = 'none';
+    }
+    </script>
+</body>
+</html>

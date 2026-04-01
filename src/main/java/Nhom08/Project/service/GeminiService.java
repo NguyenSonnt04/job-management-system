@@ -53,6 +53,22 @@ public class GeminiService {
         return callGemini(buildPlainTextRequest(prompt));
     }
 
+    /**
+     * Multi-turn chat: build full conversation history into a single prompt.
+     * systemPrompt = interviewer persona; messages = [{role, content}, ...]
+     */
+    public String chat(String systemPrompt, List<Map<String, String>> messages) {
+        requireApiKey();
+        StringBuilder sb = new StringBuilder(systemPrompt);
+        sb.append("\n\n--- LỊCH SỬ HỘI THOẠI ---\n");
+        for (Map<String, String> m : messages) {
+            String label = "user".equals(m.get("role")) ? "Ứng viên" : "Interviewer";
+            sb.append(label).append(": ").append(m.get("content")).append("\n");
+        }
+        sb.append("\nInterviewer:");
+        return callGemini(buildPlainTextRequest(sb.toString()));
+    }
+
     /** Call Gemini expecting a JSON object response. */
     public String callGeminiJson(String prompt) {
         requireApiKey();
