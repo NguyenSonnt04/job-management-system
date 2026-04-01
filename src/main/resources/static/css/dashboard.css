@@ -4,7 +4,7 @@
 .sub-nav {
     background: var(--white);
     border-bottom: 1px solid var(--light-gray);
-    padding: 12px 0;
+    padding: 6px 0;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -95,23 +95,29 @@
 }
 
 .btn-sub-nav {
-    height: 40px;
-    padding: 0 20px;
-    border-radius: 4px;
-    font-size: 13px;
-    font-weight: 700;
+    height: 32px;
+    padding: 0 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     border: 0;
     margin: 0;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     transition: var(--transition);
     white-space: nowrap;
     box-sizing: border-box;
     text-decoration: none;
-    line-height: 1; /* Cố định line-height để tránh lệch chữ */
+    line-height: 1;
+}
+
+.btn-sub-nav svg {
+    width: 14px;
+    height: 14px;
 }
 
 .btn-search {

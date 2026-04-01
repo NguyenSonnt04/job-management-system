@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Đăng Tuyển - CareerViet</title>
+    <title>Quản Lý Đăng Tuyển - CoHoiViecLam</title>
     <meta name="description" content="Quản lý tin tuyển dụng - Xem, chỉnh sửa, tạm dừng và gia hạn tin tuyển dụng">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,14 +36,7 @@
                     <span class="badge-new">NEW</span>
                 </a>
                 <a href="#" class="sub-nav-link">Đơn Hàng</a>
-                <a href="#" class="sub-nav-link">Tài Khoản</a>
-                <a href="#" class="sub-nav-link">CVRewards</a>
-                <a href="#" class="sub-nav-link">
-                    Xem thêm
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </a>
+                <a href="tai-khoan-ntd.html" class="sub-nav-link">Tài Khoản</a>
             </div>
             <div class="sub-nav-actions">
                 <a href="#" class="btn-sub-nav btn-search">
@@ -258,21 +251,31 @@
     function renderJobs(jobs) {
         const tbody = document.getElementById('jobTableBody');
         if (!jobs || jobs.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="8" class="empty-state">
-                        <div class="empty-content">
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
-                                <path d="M9 11l3 3L22 4"></path>
-                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                            </svg>
-                            <p>Không có vị trí nào trong thư mục này.</p>
-                            <a href="post-job.html" style="margin-top:12px;display:inline-block;padding:10px 20px;background:#e84141;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">+ Đăng tin mới</a>
-                        </div>
-                    </td>
-                </tr>`;
+            tbody.innerHTML = '';
+            // Hiển thị empty state ngoài table để tránh lỗi layout colspan
+            let emptyEl = document.getElementById('jobEmptyState');
+            if (!emptyEl) {
+                emptyEl = document.createElement('div');
+                emptyEl.id = 'jobEmptyState';
+                emptyEl.className = 'job-empty-state';
+                emptyEl.innerHTML = `
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                    <p>Không có vị trí nào trong thư mục này.</p>
+                    <a href="post-job.html" class="job-empty-cta">+ Đăng tin mới</a>
+                `;
+                document.querySelector('.job-table-wrapper').appendChild(emptyEl);
+            }
+            emptyEl.style.display = 'flex';
+            document.querySelector('.job-table thead').style.display = 'none';
             return;
         }
+        // Ẩn empty state nếu có data
+        const emptyEl = document.getElementById('jobEmptyState');
+        if (emptyEl) emptyEl.style.display = 'none';
+        document.querySelector('.job-table thead').style.display = '';
 
         tbody.innerHTML = jobs.map(job => {
             const { label, cls } = statusBadge(job.status, job.deadline);
@@ -471,10 +474,30 @@
         .btn-edit:hover { border-color: #0d6efd; color: #0d6efd; background: #e7f1ff; }
         .btn-delete:hover { border-color: #dc3545; color: #dc3545; background: #fdecea; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-        .empty-state { padding: 60px 20px !important; text-align: center; }
-        .empty-content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #aaa; }
-        .empty-content svg { opacity: .6; }
-        .empty-content p { font-size: 14px; color: #888; margin: 0; }
+        .job-empty-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        .job-empty-state svg { opacity: .4; }
+        .job-empty-state p { font-size: 14px; color: #999; margin: 0; }
+        .job-empty-cta {
+            display: inline-block;
+            padding: 10px 24px;
+            background: #e84141;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 4px;
+            transition: background 0.2s;
+        }
+        .job-empty-cta:hover { background: #d03030; }
     `;
     document.head.appendChild(style);
 
@@ -587,12 +610,12 @@
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Tin Tuyển Dụng');
 
-        // Filename: CareerViet_Jobs_23-02-2026.xlsx
+        // Filename: CoHoiViecLam_Jobs_23-02-2026.xlsx
         const today = new Date();
         const dd    = String(today.getDate()).padStart(2, '0');
         const mm    = String(today.getMonth() + 1).padStart(2, '0');
         const yyyy  = today.getFullYear();
-        const filename = `CareerViet_Jobs_${dd}-${mm}-${yyyy}.xlsx`;
+        const filename = `CoHoiViecLam_Jobs_${dd}-${mm}-${yyyy}.xlsx`;
 
         XLSX.writeFile(wb, filename);
         showToast(`✅ Đã xuất ${jobs.length} tin tuyển dụng ra file Excel!`, 'success');
