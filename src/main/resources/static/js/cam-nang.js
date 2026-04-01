@@ -129,7 +129,7 @@
                     <div class="guide-lead-meta">
                         <span><i class="fa-regular fa-calendar"></i> ${formatDate(lead.publishedAt)}</span>
                         <span><i class="fa-regular fa-clock"></i> ${escapeHtml(lead.readTimeMinutes || 5)} phút đọc</span>
-                        <span><i class="fa-regular fa-user"></i> ${escapeHtml(lead.authorName || 'CareerViet')}</span>
+                        <span><i class="fa-regular fa-user"></i> ${escapeHtml(lead.authorName || 'CoHoiViecLam')}</span>
                     </div>
                     <a href="${articleHref(lead.slug)}" class="guide-lead-cta">Đọc bài viết <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
@@ -191,7 +191,7 @@
                     <div class="guide-card-meta">
                         <span><i class="fa-regular fa-calendar"></i> ${formatDate(article.publishedAt)}</span>
                         <span><i class="fa-regular fa-clock"></i> ${escapeHtml(article.readTimeMinutes || 5)} phút</span>
-                        <span><i class="fa-regular fa-user"></i> ${escapeHtml(article.authorName || 'CareerViet')}</span>
+                        <span><i class="fa-regular fa-user"></i> ${escapeHtml(article.authorName || 'CoHoiViecLam')}</span>
                     </div>
                 </div>
             </article>
@@ -384,7 +384,7 @@
                 const root = document.getElementById('guideDetailRoot');
                 if (!root) return;
 
-                document.title = `${article.title || 'Cẩm nang'} | CareerViet`;
+                document.title = `${article.title || 'Cẩm nang'} | CoHoiViecLam`;
                 const metaDescription = document.querySelector('meta[name="description"]');
                 if (metaDescription && article.excerpt) {
                     metaDescription.setAttribute('content', article.excerpt);
@@ -405,7 +405,7 @@
                                 <span class="guide-card-badge">${escapeHtml(article.categoryName || 'Cẩm nang')}</span>
                             </a>
                             <div class="guide-card-body">
-                                <div class="guide-card-kicker">${escapeHtml(article.authorName || 'CareerViet')}</div>
+                                <div class="guide-card-kicker">${escapeHtml(article.authorName || 'CoHoiViecLam')}</div>
                                 <h3 class="guide-card-title"><a href="${articleHref(article.slug)}">${escapeHtml(article.title)}</a></h3>
                                 <p class="guide-card-excerpt">${escapeHtml(article.excerpt || '')}</p>
                                 <div class="guide-card-meta">
@@ -430,7 +430,7 @@
                             <span><i class="fa-regular fa-calendar"></i> ${formatDate(article.publishedAt)}</span>
                             <span><i class="fa-regular fa-clock"></i> ${escapeHtml(article.readTimeMinutes || 5)} phút đọc</span>
                             <span><i class="fa-regular fa-eye"></i> ${formatNumber(article.views)}</span>
-                            <span><i class="fa-solid fa-user"></i> ${escapeHtml(article.authorName || 'CareerViet')}</span>
+                            <span><i class="fa-solid fa-user"></i> ${escapeHtml(article.authorName || 'CoHoiViecLam')}</span>
                         </div>
                         <div class="guide-tag-list">${tags}</div>
                     </section>
@@ -455,7 +455,7 @@
                                     </div>
                                     <div class="guide-info-row">
                                         <span>Tác giả</span>
-                                        <strong>${escapeHtml(article.authorName || 'CareerViet')}</strong>
+                                        <strong>${escapeHtml(article.authorName || 'CoHoiViecLam')}</strong>
                                     </div>
                                     <div class="guide-info-row">
                                         <span>Đọc lúc</span>
