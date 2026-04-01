@@ -49,7 +49,55 @@
     transform: scale(1.02);
 }
 
-/* Icon */
+/* Icon Container */
+.contact-widget__main-btn .main-icon-container {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.4s var(--widget-easing);
+}
+
+.contact-widget__main-btn:hover .main-icon-container {
+    transform: scale(1.15) rotate(-5deg);
+}
+
+.contact-widget__main-btn.active .main-icon-container {
+    transform: rotate(90deg) scale(1.1);
+}
+
+/* SVG Icon styling - mặc định màu cam (chatbot) */
+.contact-widget__main-btn .main-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--widget-primary);
+}
+
+.contact-widget__main-btn .main-icon path {
+    fill: var(--widget-primary) !important;
+}
+
+/* Phone icon - màu xanh lá */
+.contact-widget__main-btn .main-icon.icon-phone path {
+    fill: var(--phone-color) !important;
+}
+
+/* Chatbot icon - màu cam */
+.contact-widget__main-btn .main-icon.icon-ai path {
+    fill: var(--widget-primary) !important;
+}
+
+/* Zalo icon - màu xanh dương */
+.contact-widget__main-btn .main-icon.icon-zalo rect {
+    fill: var(--zalo-color) !important;
+}
+
+.contact-widget__main-btn .main-icon.icon-zalo text {
+    fill: white !important;
+}
+
+/* Old emoji icon (deprecated, kept for compatibility) */
 .contact-widget__main-btn .icon-message {
     font-size: 30px;
     transition: transform 0.4s var(--widget-easing);

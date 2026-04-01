@@ -302,11 +302,15 @@
     .tools-copy h1 {
         font-size: 34px;
     }
+
+    .tools-grid {
+        gap: 16px;
+    }
 }
 
 @media (max-width: 768px) {
     .tools-hero {
-        padding-top: 24px;
+        padding: 28px 0 20px;
     }
 
     .tools-copy,
@@ -326,5 +330,146 @@
     .highlight-card h2,
     .tool-body h3 {
         font-size: 22px;
+    }
+
+    .tools-actions {
+        gap: 10px;
+    }
+
+    .tools-primary,
+    .tools-secondary {
+        padding: 0 16px;
+        font-size: 13px;
+    }
+
+    .roadmap-step {
+        font-size: 14px;
+        padding: 14px;
+    }
+
+    .roadmap-step strong {
+        font-size: 16px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .tools-hero {
+        padding: 20px 0 16px;
+    }
+
+    .tools-copy,
+    .highlight-card,
+    .tool-card,
+    .roadmap-box {
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .tools-copy h1 {
+        font-size: 24px;
+        margin: 14px 0 12px;
+    }
+
+    .tools-copy p {
+        font-size: 14px;
+    }
+
+    .tools-kicker,
+    .section-label,
+    .tool-badge,
+    .highlight-pill {
+        font-size: 10px;
+        padding: 0 8px;
+        min-height: 24px;
+    }
+
+    .tools-primary,
+    .tools-secondary,
+    .tool-link {
+        min-height: 44px;
+        padding: 0 16px;
+        font-size: 13px;
+        border-radius: 12px;
+    }
+
+    .highlight-card h2 {
+        font-size: 20px;
+    }
+
+    .highlight-card ul {
+        font-size: 13px;
+    }
+
+    .section-heading h2,
+    .roadmap-copy h2 {
+        font-size: 20px;
+    }
+
+    .tool-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
+
+    .tool-body h3 {
+        font-size: 18px;
+    }
+
+    .tool-body p {
+        font-size: 14px;
+    }
+
+    .tool-body ul {
+        font-size: 13px;
+    }
+
+    .roadmap-steps {
+        gap: 8px;
+    }
+
+    .roadmap-step {
+        min-height: 80px;
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .roadmap-step strong {
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+    .tools-copy h1 {
+        font-size: 20px;
+    }
+
+    .tools-primary,
+    .tools-secondary,
+    .tool-link {
+        min-height: 40px;
+        padding: 0 12px;
+        font-size: 12px;
+    }
+
+    .tool-icon {
+        width: 44px;
+        height: 44px;
+    }
+
+    .tool-body h3 {
+        font-size: 16px;
+    }
+
+    .roadmap-step {
+        min-height: 72px;
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .roadmap-step strong {
+        font-size: 14px;
     }
 }

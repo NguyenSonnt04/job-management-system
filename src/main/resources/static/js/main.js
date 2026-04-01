@@ -28,10 +28,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Load header and footer
     await loadHTML('header-placeholder', 'includes/header.html');
     await loadHTML('footer-placeholder', 'includes/footer.html');
-    
+
     // Setup login dropdown after header is loaded (with small delay to ensure DOM is ready)
     wireToolsNavigation();
-    wireCareerStartNavigation();
+    setActiveNavLink();
     setTimeout(setupLoginDropdown, 100);
     setTimeout(setupMobileNavigation, 100);
 });
@@ -46,12 +46,34 @@ function wireToolsNavigation() {
     });
 }
 
-function wireCareerStartNavigation() {
+// Set active nav-link based on current page
+function setActiveNavLink() {
+    const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.nav .nav-link');
+
     navLinks.forEach(link => {
-        const label = (link.textContent || '').trim();
-        if (label.includes('CareerStart')) {
-            link.setAttribute('href', 'career-start.html');
+        const href = link.getAttribute('href');
+        if (!href) return;
+
+        // Remove active class from all links first
+        link.classList.remove('active');
+
+        // Check if current path matches href
+        // Handle both absolute and relative paths
+        const linkPath = href.startsWith('/') ? href : '/' + href;
+
+        // Exact match or contains match for sub-pages
+        if (currentPath === linkPath ||
+            currentPath === href ||
+            (href !== 'index.html' && currentPath.includes(href.replace('.html', ''))) ||
+            (href === '/cam-nang' && currentPath.startsWith('/cam-nang'))) {
+            link.classList.add('active');
+        }
+
+        // Special case for index.html and root path
+        if ((href === 'index.html' || href === '/index.html') &&
+            (currentPath === '/' || currentPath === '/index.html' || currentPath.endsWith('/'))) {
+            link.classList.add('active');
         }
     });
 }

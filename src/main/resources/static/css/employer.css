@@ -229,7 +229,36 @@
 }
 
 /* Responsive */
+/* Laptop & Tablet */
+@media (max-width: 1024px) {
+    .hero-content-employer {
+        gap: 40px;
+    }
+
+    .hero-title-employer {
+        font-size: 40px;
+    }
+
+    .hero-subtitle {
+        font-size: 36px;
+    }
+
+    .section-title {
+        font-size: 32px;
+    }
+
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+}
+
+/* Tablet Small */
 @media (max-width: 768px) {
+    .employer-hero {
+        padding: 60px 0;
+    }
+
     .hero-content-employer {
         grid-template-columns: 1fr;
         gap: 40px;
@@ -260,8 +289,16 @@
         font-size: 36px;
     }
 
+    .cta-section {
+        padding: 80px 0;
+    }
+
     .cta-title {
         font-size: 32px;
+    }
+
+    .cta-description {
+        font-size: 16px;
     }
 
     .cta-buttons {
@@ -273,5 +310,111 @@
     .btn-cta-secondary {
         width: 100%;
         text-align: center;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .employer-hero {
+        padding: 40px 0;
+    }
+
+    .services-section {
+        padding: 60px 0;
+    }
+
+    .stats-section {
+        padding: 40px 0;
+    }
+
+    .cta-section {
+        padding: 60px 0;
+    }
+
+    .hero-title-employer {
+        font-size: 26px;
+    }
+
+    .hero-subtitle {
+        font-size: 22px;
+    }
+
+    .section-title {
+        font-size: 24px;
+    }
+
+    .section-description {
+        font-size: 14px;
+    }
+
+    .service-card {
+        padding: 30px 20px;
+    }
+
+    .service-icon {
+        width: 64px;
+        height: 64px;
+    }
+
+    .service-title {
+        font-size: 18px;
+    }
+
+    .service-desc {
+        font-size: 14px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .stat-number {
+        font-size: 32px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+    }
+
+    .cta-title {
+        font-size: 24px;
+    }
+
+    .cta-description {
+        font-size: 15px;
+    }
+
+    .btn-cta-primary,
+    .btn-cta-secondary {
+        padding: 14px 24px;
+        font-size: 14px;
+    }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+    .hero-title-employer {
+        font-size: 22px;
+    }
+
+    .hero-subtitle {
+        font-size: 20px;
+    }
+
+    .section-title {
+        font-size: 20px;
+    }
+
+    .service-card {
+        padding: 24px 16px;
+    }
+
+    .service-title {
+        font-size: 16px;
+    }
+
+    .cta-title {
+        font-size: 20px;
     }
 }
