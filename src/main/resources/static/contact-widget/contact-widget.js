@@ -729,13 +729,18 @@
 
     // ===== Format Message (support markdown-like syntax) =====
     function formatMessage(text) {
-        // Escape HTML first
+        // 1. Escape toàn bộ text trước
         let formatted = escapeHtml(text);
 
-        // Convert **bold**
+        // 2. Convert markdown links [text](url) thành HTML links
+        // Sau khi escape, cú pháp markdown vẫn giữ nguyên
+        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+        formatted = formatted.replace(linkRegex, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline; cursor: pointer;">$1</a>');
+
+        // 3. Convert **bold**
         formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-        // Convert line breaks
+        // 4. Convert line breaks
         formatted = formatted.replace(/\n/g, '<br>');
 
         return formatted;

@@ -1,13 +1,23 @@
 package Nhom08.Project.service;
 
-import Nhom08.Project.entity.*;
-import Nhom08.Project.repository.*;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import Nhom08.Project.entity.ChatMessage;
+import Nhom08.Project.entity.ChatSession;
+import Nhom08.Project.entity.Job;
+import Nhom08.Project.entity.User;
+import Nhom08.Project.repository.ChatMessageRepository;
+import Nhom08.Project.repository.ChatSessionRepository;
+import Nhom08.Project.repository.JobRepository;
 
 /**
  * Service xử lý chatbot với Gemini AI tích hợp
@@ -42,8 +52,9 @@ public class ContactChatbotService {
         - Trả lời ngắn gọn, thân thiện (dưới 120 từ)
         - Dùng ngôn ngữ tự nhiên, mình hỗ trợ như một người bạn
         - Nếu người dùng hỏi về việc làm -> Phân tích và gợi ý công việc phù hợp
-        - Nếu người dùng hỏi những gì ngoài phạm vi -> Hướng dẫn liên hệ CSKH
+        - Nếu người dùng hỏi những gì ngoài phạm vi -> Hướng dẫn liên hệ zalo, gọi điện số điện thoại
         - Không tiết lộ thông tin nội bộ của hệ thống
+        - QUAN TRỌNG: KHÔNG TỰ THÊM LINK VÀO CÂU TRẢ LỜI (không thêm link tạo CV, không thêm link chấm điểm CV). Chỉ trả lời hướng dẫn, không tự động chèn link.
         Hãy trả lời một cách hữu ích và thiện chí!
         """;
 
@@ -180,7 +191,7 @@ public class ContactChatbotService {
                 }
             }
 
-            // 4. Xác định xem có cần gợi ý jobs không
+            // 4. Xác định xem có cần gợi ý jobs hoặc CV không
             String response;
             if (shouldRecommendJobs(userMessage)) {
                 System.out.println("Triggering job recommendations...");
@@ -192,6 +203,17 @@ public class ContactChatbotService {
                     contextBuilder.toString() + "\n\nCÂU HỎI HIỆN TẠI: " + userMessage;
 
                 response = geminiService.callGeminiPlainText(fullPrompt);
+
+                // Nếu người dùng hỏi về chấm điểm CV, thêm link vào phản hồi (ưu tiên check trước)
+                if (isAskingAboutCVScoring(userMessage)) {
+                    response += "\n\n**Chấm điểm CV với AI:** [Chấm điểm CV ở đây!!!](http://localhost:8083/cham-diem-cv.html)";
+                }
+                // Nếu người dùng hỏi về CV (tạo CV, làm CV...), thêm link vào phản hồi
+                // Nhưng KHÔNG thêm nếu đã là câu hỏi về chấm điểm CV
+                else if (isAskingAboutCV(userMessage)) {
+                    response += "\n\n**Tạo CV với AI:** [Tạo CV ở đây!!!](http://localhost:8083/tao-cv-ai.html)";
+                }
+
                 System.out.println("✅ AI response received");
             }
 
@@ -228,6 +250,27 @@ public class ContactChatbotService {
     }
 
     /**
+     * Kiểm tra xem người dùng có hỏi về CV không
+     */
+    private boolean isAskingAboutCV(String message) {
+        String lowerMessage = message.toLowerCase();
+        return lowerMessage.contains("cv") || lowerMessage.contains("resume") ||
+               lowerMessage.contains("sơ yếu lý lịch") || lowerMessage.contains("tạo cv") ||
+               lowerMessage.contains("viết cv") || lowerMessage.contains("làm cv");
+    }
+
+    /**
+     * Kiểm tra xem người dùng có hỏi về chấm điểm CV không
+     */
+    private boolean isAskingAboutCVScoring(String message) {
+        String lowerMessage = message.toLowerCase();
+        return lowerMessage.contains("chấm điểm cv") || lowerMessage.contains("chấm cv") ||
+               lowerMessage.contains("review cv") || lowerMessage.contains("đánh giá cv") ||
+               lowerMessage.contains("kiểm tra cv") || lowerMessage.contains("scoring cv") ||
+               lowerMessage.contains("chấm điểm resume") || lowerMessage.contains("cv scoring");
+    }
+
+    /**
      * Gợi ý jobs phù hợp
      */
     private String recommendJobs(String userQuery) {
@@ -237,7 +280,7 @@ public class ContactChatbotService {
             List<Job> activeJobs = jobRepository.findByStatus("ACTIVE");
 
             if (activeJobs.isEmpty()) {
-                return "Hiện tại chưa có công việc nào đang tuyển dụng. Vui lòng quay lại sau!";
+                return "Hiện tại chưa có công việc nào đang tuyển dụng. Vui lòng quay lại sau!\n\n**Xem tất cả việc làm:** [Tìm việc làm ở đây!!!](http://localhost:8083/tim-viec-lam.html)";
             }
 
             System.out.println("✅ Found " + activeJobs.size() + " active jobs");
@@ -259,6 +302,7 @@ public class ContactChatbotService {
             }
 
             response.append("\n👆 Click vào link để xem chi tiết và ứng tuyển ngay!");
+            response.append("\n\n**Xem tất cả việc làm:** [Tìm việc ở đây!!!](http://localhost:8083/tim-viec-lam.html)");
 
             String result = response.toString();
             System.out.println("✅ Job recommendations generated: " + result.length() + " characters");
