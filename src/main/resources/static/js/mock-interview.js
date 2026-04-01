@@ -237,6 +237,8 @@ function initSetupEvents() {
             const mode = getSelectedMode();
             if (mode === 'ai') {
                 startChatInterview();
+            } else if (mode === 'voice') {
+                startVoiceInterview();
             } else {
                 startStaticInterview();
             }
@@ -722,6 +724,7 @@ function toggleReview(idx) {
 document.getElementById('retryBtn')?.addEventListener('click', () => {
     const mode = getSelectedMode();
     if (mode === 'ai') startChatInterview();
+    else if (mode === 'voice') startVoiceInterview();
     else startStaticInterview();
 });
 
@@ -762,6 +765,32 @@ const chatState = {
     recognition: null, isRecording: false, isSending: false,
     synth: window.speechSynthesis || null,
 };
+
+/* Vấn đáp = AI chat nhưng voice-first: TTS bật, STT bật tự động sau mỗi câu AI */
+async function startVoiceInterview() {
+    // Force-check toggles
+    const ttsEl = document.getElementById('ttsEnabled');
+    const sttEl = document.getElementById('sttEnabled');
+    if (ttsEl) ttsEl.checked = true;
+    if (sttEl) sttEl.checked = true;
+    await startChatInterview();
+    // Sau khi AI nói xong → tự bật mic
+    const origSpeak = speak;
+    window._voiceInterviewSpeak = function(text) {
+        origSpeak(text);
+        if (chatState.synth) {
+            chatState.synth.addEventListener('voiceschanged', () => {}, { once: true });
+            const check = setInterval(() => {
+                if (!chatState.synth.speaking) {
+                    clearInterval(check);
+                    if (getSelectedMode() === 'voice' && !chatState.isSending) {
+                        toggleVoiceInput();
+                    }
+                }
+            }, 300);
+        }
+    };
+}
 
 async function startChatInterview() {
     chatState.role      = session.role     || 'Vị trí chưa xác định';

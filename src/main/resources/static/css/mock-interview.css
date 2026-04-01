@@ -1724,15 +1724,12 @@
 }
 
 /* =====================================================
-   MODE SELECTOR (Chat vs Self-practice) — compact toggle
+   MODE SELECTOR — 3 cards đẹp
    ===================================================== */
 .mi-mode-toggle-wrap {
-    display: inline-flex;
-    gap: 0;
-    border: 1.5px solid #e4ecf5;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #f8faff;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
 }
 
 .mi-mode-opt {
@@ -1747,53 +1744,79 @@
 
 .mi-mode-opt-inner {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #6b7a99;
-    border-radius: 0;
-    transition: background 0.18s, color 0.18s;
-    white-space: nowrap;
+    gap: 6px;
+    padding: 14px 10px 12px;
+    border: 1.5px solid #e4ecf5;
+    border-radius: 14px;
+    background: #fff;
+    transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s, background 0.18s;
+    text-align: center;
+    user-select: none;
 }
 
 .mi-mode-opt-inner i {
-    font-size: 14px;
-}
-
-.mi-mode-opt:first-child .mi-mode-opt-inner {
-    border-right: 1.5px solid #e4ecf5;
-}
-
-.mi-mode-opt.selected .mi-mode-opt-inner {
-    background: #fff;
-    color: #0f1f3d;
-    box-shadow: inset 0 0 0 1.5px #00BFA5;
-    border-radius: 10px;
-}
-
-.mi-mode-opt:hover .mi-mode-opt-inner {
-    background: #fff;
-    color: #0f1f3d;
+    font-size: 20px;
+    color: #b0bac9;
+    transition: color 0.18s;
+    line-height: 1;
 }
 
 .mi-mode-opt-name {
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4a5578;
+    transition: color 0.18s;
 }
 
 .mi-mode-badge {
     display: inline-block;
     font-size: 9px;
     font-weight: 700;
-    padding: 2px 6px;
+    padding: 2px 7px;
     border-radius: 100px;
     letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
-.mi-mode-badge.ai     { background: rgba(0,191,165,0.12); color: #007d6d; }
-.mi-mode-badge.manual { background: rgba(26,36,86,0.08);  color: #1a2456; }
+.mi-mode-badge.ai     { background: rgba(0,191,165,0.12);   color: #007d6d; }
+.mi-mode-badge.voice  { background: rgba(124,58,237,0.10);  color: #6d28d9; }
+.mi-mode-badge.manual { background: rgba(26,36,86,0.08);    color: #1a2456; }
+
+/* Hover */
+.mi-mode-opt:hover .mi-mode-opt-inner {
+    border-color: #c8d4e8;
+    box-shadow: 0 2px 10px rgba(15,31,60,0.07);
+    transform: translateY(-1px);
+}
+
+/* Selected — teal cho AI */
+#modeCardAI.selected .mi-mode-opt-inner {
+    border-color: #00BFA5;
+    background: linear-gradient(145deg, #f0fdf9, #e6f7f5);
+    box-shadow: 0 4px 14px rgba(0,191,165,0.18);
+}
+#modeCardAI.selected .mi-mode-opt-inner i     { color: #00BFA5; }
+#modeCardAI.selected .mi-mode-opt-name        { color: #006b5e; }
+
+/* Selected — purple cho Voice */
+#modeCardVoice.selected .mi-mode-opt-inner {
+    border-color: #7c3aed;
+    background: linear-gradient(145deg, #faf7ff, #f0e8ff);
+    box-shadow: 0 4px 14px rgba(124,58,237,0.16);
+}
+#modeCardVoice.selected .mi-mode-opt-inner i  { color: #7c3aed; }
+#modeCardVoice.selected .mi-mode-opt-name     { color: #5b21b6; }
+
+/* Selected — navy cho Static */
+#modeCardStatic.selected .mi-mode-opt-inner {
+    border-color: #1a2456;
+    background: linear-gradient(145deg, #f4f6fb, #eaeefc);
+    box-shadow: 0 4px 14px rgba(26,36,86,0.13);
+}
+#modeCardStatic.selected .mi-mode-opt-inner i { color: #1a2456; }
+#modeCardStatic.selected .mi-mode-opt-name    { color: #0f1f3d; }
 
 /* Keep old .mi-mode-card for JS .selected class compatibility */
 .mi-mode-card { cursor: pointer; }
