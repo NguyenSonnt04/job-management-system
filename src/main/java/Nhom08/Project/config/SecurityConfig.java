@@ -42,6 +42,7 @@ public class SecurityConfig {
                 // Public static resources
                 .requestMatchers("/", "/index.html").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
+                .requestMatchers("/cv-files/**").permitAll()
                 .requestMatchers("/includes/**").permitAll() // Header, footer includes
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/chatbot-ai/**").permitAll() // Chatbot AI files

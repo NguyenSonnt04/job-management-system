@@ -8,11 +8,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * CRUD endpoints for a user's saved CVs.
@@ -236,5 +242,71 @@ public class UserCvController {
             result.put("message", "Không tìm thấy CV.");
             return ResponseEntity.status(404).body(result);
         });
+    }
+
+    // ── Upload PDF file ──────────────────────────────────────────────────────
+
+    /**
+     * POST /api/user-cv/upload-pdf
+     * Nhận file PDF, lưu vào uploads/cv/, tạo bản ghi UserCv với _pdfUrl trong cvContent.
+     */
+    @PostMapping("/upload-pdf")
+    public ResponseEntity<Map<String, Object>> uploadPdf(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "cvName", defaultValue = "CV tải lên") String cvName,
+            Authentication auth) {
+
+        Optional<User> userOpt = resolveUser(auth);
+        if (userOpt.isEmpty()) return unauthorized();
+        User user = userOpt.get();
+
+        Map<String, Object> result = new HashMap<>();
+        try {
+            String contentType = file.getContentType();
+            if (contentType == null || (!contentType.equals("application/pdf")
+                    && !contentType.equals("application/msword")
+                    && !contentType.contains("wordprocessingml"))) {
+                result.put("success", false);
+                result.put("message", "Chỉ hỗ trợ file PDF, DOC, DOCX");
+                return ResponseEntity.badRequest().body(result);
+            }
+            if (file.getSize() > 10 * 1024 * 1024) {
+                result.put("success", false);
+                result.put("message", "File vượt quá 10MB");
+                return ResponseEntity.badRequest().body(result);
+            }
+
+            // Lưu file vào uploads/cv/
+            Path uploadDir = Paths.get("uploads", "cv");
+            Files.createDirectories(uploadDir);
+            String ext      = file.getOriginalFilename() != null
+                    && file.getOriginalFilename().contains(".")
+                    ? file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'))
+                    : ".pdf";
+            String fileName = UUID.randomUUID() + ext;
+            Path   filePath = uploadDir.resolve(fileName);
+            Files.write(filePath, file.getBytes());
+
+            String pdfUrl = "/cv-files/" + fileName;
+
+            // Lưu vào user_cvs với cvContent chứa _pdfUrl
+            UserCv cv = new UserCv();
+            cv.setUser(user);
+            cv.setCvName(cvName);
+            cv.setTemplateName("CV tải lên");
+            cv.setCvContent(objectMapper.writeValueAsString(Map.of("_pdfUrl", pdfUrl)));
+            UserCv saved = userCvRepository.save(cv);
+
+            result.put("success", true);
+            result.put("id",     saved.getId());
+            result.put("pdfUrl", pdfUrl);
+            result.put("message", "Đã tải CV lên thành công!");
+            return ResponseEntity.ok(result);
+
+        } catch (IOException e) {
+            result.put("success", false);
+            result.put("message", "Lỗi khi lưu file: " + e.getMessage());
+            return ResponseEntity.status(500).body(result);
+        }
     }
 }

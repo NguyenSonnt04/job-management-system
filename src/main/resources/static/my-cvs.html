@@ -1318,11 +1318,13 @@
             if (!cvName) return toast('Vui lòng nhập tên CV.', 'error');
             if (!fileInput.files || !fileInput.files.length) return toast('Vui lòng chọn file CV.', 'error');
             try {
-                const res = await fetch('/api/user-cv/save', {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('cvName', cvName);
+                const res = await fetch('/api/user-cv/upload-pdf', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ cvName: cvName, templateName: 'CV tải lên', cvContent: '' })
+                    body: formData
                 });
                 const data = await parseJsonSafe(res);
                 if (!res.ok) throw new Error(data.message || 'Không thể tải CV lên.');
