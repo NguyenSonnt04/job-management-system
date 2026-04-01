@@ -1012,7 +1012,13 @@
                         <div class="empty-icon">CV</div>
                         <h3>Bạn chưa có CV nào</h3>
                         <p>Hãy tạo CV đầu tiên để bắt đầu lưu phiên bản, theo dõi cập nhật và tải PDF ngay khi cần nộp hồ sơ.</p>
-                        <a href="/cv-editor.html" class="btn btn-primary">Tạo CV đầu tiên</a>
+                        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+                            <a href="/cv-editor.html" class="btn btn-primary">Tạo CV đầu tiên</a>
+                            <button class="btn btn-outline" onclick="document.getElementById('uploadCvModal').classList.add('show')">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Tải CV lên
+                            </button>
+                        </div>
                     </div>
 
                     <div id="cvGrid"></div>
