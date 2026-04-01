@@ -5,7 +5,10 @@ body.career-guide-page {
         radial-gradient(circle at 85% 60%, rgba(251, 146, 60, 0.04), transparent 35%),
         linear-gradient(180deg, #fefefe 0%, #f8fafc 100%);
     color: #1e293b;
-    font-family: var(--font-primary, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+    font-family: var(--font-primary, 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+    font-size: 15px;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
 }
 
 body.career-guide-page .header {
@@ -80,9 +83,9 @@ body.career-guide-page .header {
 .guide-hero-title,
 .guide-detail-title {
     margin: 14px 0 0;
-    font-size: clamp(38px, 4vw, 64px);
-    line-height: 0.98;
-    letter-spacing: -0.06em;
+    font-size: clamp(32px, 3.5vw, 52px);
+    line-height: 1.1;
+    letter-spacing: -0.04em;
     font-weight: 800;
     color: #0b1b3a;
 }
@@ -99,8 +102,8 @@ body.career-guide-page .header {
 .guide-detail-lead {
     margin-top: 16px;
     max-width: 68ch;
-    font-size: 16px;
-    line-height: 1.8;
+    font-size: 14px;
+    line-height: 1.75;
     color: #55637a;
 }
 
@@ -116,6 +119,7 @@ body.career-guide-page .header {
     border-radius: 16px;
     border: 1px solid rgba(148, 163, 184, 0.12);
     background: rgba(255, 255, 255, 0.85);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -127,9 +131,9 @@ body.career-guide-page .header {
 
 .guide-stat strong {
     display: block;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 800;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.03em;
     color: #0b1b3a;
     line-height: 1;
 }
@@ -137,7 +141,7 @@ body.career-guide-page .header {
 .guide-stat span {
     display: block;
     margin-top: 6px;
-    font-size: 13px;
+    font-size: 12px;
     color: #64748b;
 }
 
@@ -174,6 +178,7 @@ body.career-guide-page .header {
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.15);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     transition: all 0.2s ease;
 }
@@ -498,6 +503,43 @@ body.career-guide-page .header {
     transition: transform 0.36s ease;
 }
 
+/* Apply category accent color using CSS filter */
+.guide-lead-card[style*="--article-accent:#1d4ed8"] .guide-lead-media img,
+.guide-rail-card[style*="--article-accent:#1d4ed8"] .guide-rail-media img,
+.guide-card[style*="--article-accent:#1d4ed8"] .guide-card-media img {
+    filter: none; /* Blue - no filter needed */
+}
+
+.guide-lead-card[style*="--article-accent:#0f766e"] .guide-lead-media img,
+.guide-rail-card[style*="--article-accent:#0f766e"] .guide-rail-media img,
+.guide-card[style*="--article-accent:#0f766e"] .guide-card-media img {
+    filter: hue-rotate(140deg) saturate(1.2); /* Teal/Green */
+}
+
+.guide-lead-card[style*="--article-accent:#1e3a8a"] .guide-lead-media img,
+.guide-rail-card[style*="--article-accent:#1e3a8a"] .guide-rail-media img,
+.guide-card[style*="--article-accent:#1e3a8a"] .guide-card-media img {
+    filter: hue-rotate(200deg) saturate(1.1); /* Dark Blue */
+}
+
+.guide-lead-card[style*="--article-accent:#0369a1"] .guide-lead-media img,
+.guide-rail-card[style*="--article-accent:#0369a1"] .guide-rail-media img,
+.guide-card[style*="--article-accent:#0369a1"] .guide-card-media img {
+    filter: hue-rotate(180deg) saturate(1.3); /* Light Blue */
+}
+
+.guide-lead-card[style*="--article-accent:#b45309"] .guide-lead-media img,
+.guide-rail-card[style*="--article-accent:#b45309"] .guide-rail-media img,
+.guide-card[style*="--article-accent:#b45309"] .guide-card-media img {
+    filter: hue-rotate(30deg) saturate(1.2) brightness(1.1); /* Orange */
+}
+
+.guide-lead-card[style*="--article-accent:#075985"] .guide-lead-media img,
+.guide-rail-card[style*="--article-accent:#075985"] .guide-rail-media img,
+.guide-card[style*="--article-accent:#075985"] .guide-card-media img {
+    filter: hue-rotate(170deg) saturate(0.8); /* Another Blue */
+}
+
 .guide-lead-card:hover img,
 .guide-rail-card:hover img,
 .guide-card:hover {
@@ -528,6 +570,7 @@ body.career-guide-page .header {
     letter-spacing: 0.05em;
     text-transform: uppercase;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     transition: all 0.2s ease;
 }
@@ -542,7 +585,7 @@ body.career-guide-page .header {
 }
 
 .guide-lead-body {
-    padding: 32px 32px 34px;
+    padding: 28px 28px 30px;
 }
 
 .guide-rail-body {
@@ -550,7 +593,7 @@ body.career-guide-page .header {
 }
 
 .guide-card-body {
-    padding: 24px;
+    padding: 20px;
 }
 
 .guide-lead-kicker,
@@ -777,27 +820,27 @@ body.career-guide-page .header {
 
 .guide-article-body {
     padding: 34px 34px 38px;
-    font-size: 16px;
-    line-height: 1.9;
+    font-size: 14px;
+    line-height: 1.75;
     color: #24324a;
     display: block;
 }
 
 .guide-article-body h2,
 .guide-article-body h3 {
-    margin: 28px 0 12px;
+    margin: 24px 0 12px;
     color: #0b1b3a;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.02em;
 }
 
 .guide-article-body h2 {
-    font-size: 28px;
-    line-height: 1.2;
+    font-size: 24px;
+    line-height: 1.3;
 }
 
 .guide-article-body h3 {
-    font-size: 22px;
-    line-height: 1.25;
+    font-size: 19px;
+    line-height: 1.35;
 }
 
 .guide-article-body p,
@@ -833,9 +876,9 @@ body.career-guide-page .header {
 .guide-sidebar-card {
     border-radius: 16px;
     padding: 28px;
-    position: sticky;
-    top: 92px;
+    position: static;
     background: rgba(255, 255, 255, 0.98);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
 }
 
@@ -1014,6 +1057,24 @@ body.career-guide-page .header {
         padding: 18px 16px 56px;
     }
 
+    /* Responsive search bar */
+    .guide-nav-search-form {
+        flex: 0 0 200px;
+    }
+
+    .guide-search-input-wrapper #guideSearchInput {
+        font-size: 12px;
+        padding: 4px 6px;
+    }
+
+    .guide-nav-search-btn {
+        padding: 6px 8px;
+    }
+
+    .guide-nav-search-btn i {
+        font-size: 11px;
+    }
+
     .guide-hero,
     .guide-detail-hero,
     .guide-article-body,
@@ -1057,6 +1118,8 @@ body.career-guide-page .header {
 /* --- New Navigation Header --- */
 .guide-top-nav {
     background: rgba(255, 255, 255, 0.95);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(148, 163, 184, 0.1);
     position: relative;
@@ -1135,34 +1198,82 @@ body.career-guide-page .header {
     align-items: center;
     gap: 16px;
     margin-left: 24px;
+    flex: 0 0 auto;
 }
 
-.guide-nav-search {
-    background: rgba(148, 163, 184, 0.08);
+/* Inline search form in navigation */
+.guide-nav-search-form {
+    margin: 0;
+    flex: 0 0 280px;
+}
+
+.guide-search-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.guide-search-input-wrapper:hover {
+    border-color: rgba(148, 163, 184, 0.4);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.guide-search-input-wrapper:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.guide-search-input-wrapper #guideSearchInput {
+    flex: 1;
     border: none;
-    color: #64748b;
-    font-size: 16px;
+    background: transparent;
+    padding: 4px 6px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #1e293b;
+    outline: none;
+    min-width: 0;
+}
+
+.guide-search-input-wrapper #guideSearchInput::placeholder {
+    color: #94a3b8;
+}
+
+.guide-nav-search-btn {
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
     cursor: pointer;
-    padding: 10px;
-    border-radius: 12px;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
-.guide-nav-search:hover {
-    background: rgba(148, 163, 184, 0.15);
-    color: #1e293b;
-    transform: translateY(-1px);
+.guide-nav-search-btn:hover {
+    background: #2563eb;
 }
 
-.guide-nav-brand {
-    font-weight: 700;
-    color: #1e40af;
-    font-size: 14px;
-    padding-left: 16px;
-    border-left: 1px solid rgba(148,163,184,0.3);
+.guide-nav-search-btn:active {
+    transform: scale(0.95);
+}
+
+.guide-nav-search-btn i {
+    font-size: 12px;
+}
+
+/* Hide old dropdown search */
+.guide-search-drop {
+    display: none !important;
 }
 
 .guide-search-drop {
@@ -1171,7 +1282,8 @@ body.career-guide-page .header {
     top: 100%;
     right: 24px;
     background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     padding: 20px;
     border-radius: 16px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(148, 163, 184, 0.1);
@@ -1179,8 +1291,10 @@ body.career-guide-page .header {
     border-top: none;
     width: 340px;
     max-width: calc(100vw - 48px);
+    z-index: 100;
 }
-.search-active .guide-search-drop {
+
+body.search-active .guide-search-drop {
     display: block;
     animation: dropDown 0.2s ease forwards;
 }
@@ -1224,7 +1338,7 @@ body.career-guide-page .header {
     border: none;
     border-radius: 8px;
     font-weight: 600;
-    padding: 0 20px;
+    padding: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -1253,7 +1367,7 @@ body.career-guide-page {
 
 .career-guide-page .career-guide-shell {
     max-width: 1400px;
-    padding: 24px 24px 72px;
+    padding: 70px 24px 72px;
 }
 
 .career-guide-page .guide-top-nav {
@@ -1482,5 +1596,449 @@ body.career-guide-page {
 
     .career-guide-page .guide-section-head h2 {
         font-size: 24px;
+    }
+}
+
+/* ============================================
+   IMPROVEMENTS: Smooth Scroll & Animations
+   ============================================ */
+
+/* Smooth Scrolling */
+body.career-guide-page {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Fix Overflow Issues */
+.career-guide-page * {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Improved Scrollbar */
+.career-guide-page ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.career-guide-page ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.career-guide-page ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.career-guide-page ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ============================================
+   IMPROVEMENTS: Enhanced Animations
+   ============================================ */
+
+/* Fade In Animation for Cards */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Apply Animation to Cards */
+.guide-lead-card,
+.guide-rail-card,
+.guide-card,
+.guide-article-card,
+.guide-sidebar-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.guide-lead-card { animation-delay: 0.1s; }
+.guide-rail-card { animation-delay: 0.2s; }
+.guide-card:nth-child(1) { animation-delay: 0.1s; }
+.guide-card:nth-child(2) { animation-delay: 0.2s; }
+.guide-card:nth-child(3) { animation-delay: 0.3s; }
+.guide-card:nth-child(4) { animation-delay: 0.4s; }
+.guide-card:nth-child(5) { animation-delay: 0.5s; }
+
+/* Enhanced Hover Effects */
+.guide-lead-card:hover,
+.guide-rail-card:hover,
+.guide-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.guide-card:hover .guide-card-title {
+    color: #3b82f6;
+    transition: color 0.2s ease;
+}
+
+/* Button Hover Effects */
+.guide-search-btn,
+.guide-copy-btn,
+.guide-reset-btn,
+.guide-share-link,
+.guide-tab {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.guide-search-btn:active,
+.guide-copy-btn:active,
+.guide-tab:active {
+    transform: scale(0.95);
+}
+
+/* ============================================
+   IMPROVEMENTS: Loading States
+   ============================================ */
+
+/* Enhanced Loading Animation */
+.guide-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.guide-loading::before {
+    content: '';
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Skeleton Loading */
+.guide-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ============================================
+   IMPROVEMENTS: Typography & Spacing
+   ============================================ */
+
+
+/* ============================================
+   IMPROVEMENTS: Mobile Experience
+   ============================================ */
+
+@media (max-width: 680px) {
+    /* Better Touch Targets */
+    .guide-search-btn,
+    .guide-copy-btn,
+    .guide-reset-btn,
+    .guide-share-link,
+    .guide-tab {
+        min-height: 48px;
+        min-width: 48px;
+        padding: 12px 20px;
+        font-size: 16px;
+    }
+    
+    /* Better Card Spacing */
+    .guide-grid {
+        gap: 16px;
+    }
+    
+    /* Improved Text Readability */
+    .guide-article-body {
+        font-size: 16px;
+        line-height: 1.75;
+    }
+    
+    /* Better Hero Section */
+    .guide-hero,
+    .guide-detail-hero {
+        padding: 24px 18px;
+        border-radius: 16px;
+    }
+    
+    .guide-hero-title,
+    .guide-detail-title {
+        font-size: 28px;
+        line-height: 1.1;
+    }
+}
+
+/* ============================================
+   IMPROVEMENTS: Focus States (Accessibility)
+   ============================================ */
+
+.guide-search-btn:focus,
+.guide-copy-btn:focus,
+.guide-reset-btn:focus,
+.guide-share-link:focus,
+.guide-tab:focus,
+.guide-card:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* ============================================
+   IMPROVEMENTS: Empty State
+   ============================================ */
+
+.guide-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+    min-height: 400px;
+}
+
+.guide-empty::before {
+    content: '📚';
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.guide-empty strong {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+.guide-empty div {
+    font-size: 15px;
+    color: #64748b;
+    max-width: 400px;
+}
+
+/* ============================================
+   IMPROVEMENTS: Tab Animations
+   ============================================ */
+
+.guide-tab {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.guide-tab:hover {
+    background: rgba(59, 130, 246, 0.08);
+    transform: translateY(-2px);
+}
+
+.guide-tab.active {
+    background: #3b82f6;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+
+/* ============================================
+   IMPROVEMENTS: Navigation Smoothness
+   ============================================ */
+
+.guide-nav-list {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.guide-nav-list::-webkit-scrollbar {
+    height: 4px;
+}
+
+.guide-nav-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.guide-nav-list::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.3);
+    border-radius: 2px;
+}
+
+.guide-nav-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.5);
+}
+
+/* ============================================
+   IMPROVEMENTS: Performance Optimizations
+   ============================================ */
+
+/* Reduce Motion for Users Who Prefer It */
+@media (prefers-reduced-motion: reduce) {
+    .guide-lead-card,
+    .guide-rail-card,
+    .guide-card,
+    .guide-article-card,
+    .guide-sidebar-card {
+        animation: none;
+    }
+    
+    .guide-lead-card:hover,
+    .guide-rail-card:hover,
+    .guide-card:hover {
+        transform: none;
+    }
+    
+    body.career-guide-page {
+        scroll-behavior: auto;
+    }
+}
+
+/* GPU Acceleration for Smooth Animations */
+.guide-hero::before,
+.guide-hero::after,
+.guide-lead-media img,
+.guide-rail-media img,
+.guide-card-media img {
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* ============================================
+   IMPROVEMENTS: Sticky Sidebar Fix
+   ============================================ */
+
+/* Enhanced Sticky Sidebar - Changed to static for scrollable sidebar */
+.guide-sidebar-card {
+    position: static !important;
+    z-index: 10;
+    align-self: start;
+    transition: all 0.3s ease;
+}
+
+/* Smooth scrollbar for sidebar */
+.guide-sidebar-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.guide-sidebar-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.guide-sidebar-card::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 3px;
+}
+
+.guide-sidebar-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.5);
+}
+
+/* Fix sidebar layout */
+.guide-detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 32px;
+    align-items: start;
+}
+
+/* First sidebar card stays sticky, others static - Changed to static */
+.guide-sidebar-card:first-child {
+    position: static !important;
+}
+
+.guide-sidebar-card:not(:first-child) {
+    position: static !important;
+}
+
+/* Mobile: disable sticky sidebar */
+@media (max-width: 1180px) {
+    .guide-sidebar-card {
+        position: static !important;
+        max-height: none;
+        overflow-y: visible;
+    }
+    
+    .guide-detail-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Smooth shadow when sidebar is sticky */
+.guide-sidebar-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 
+                0 8px 24px rgba(0, 0, 0, 0.03);
+}
+
+.guide-sidebar-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 
+                0 12px 32px rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================
+   FIX: Remove Sticky - Normal Scroll Behavior
+   ============================================ */
+
+/* Override sticky behavior - let sidebar scroll with page */
+.guide-sidebar-card {
+    position: static !important;
+    top: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    align-self: start;
+}
+
+/* Optional: If sidebar content is too long, enable internal scroll */
+.guide-sidebar {
+    display: grid;
+    gap: 18px;
+}
+
+/* Mobile: already static, keep as is */
+@media (max-width: 1180px) {
+    .guide-sidebar-card {
+        position: static !important;
+        max-height: none !important;
+        overflow-y: visible !important;
+    }
+}
+
+/* ============================================
+   MOBILE OPTIMIZATION: Smaller fonts for mobile
+   ============================================ */
+
+@media (max-width: 680px) {
+    body.career-guide-page {
+        font-size: 14px;
+    }
+
+    .guide-hero-title,
+    .guide-detail-title {
+        font-size: clamp(24px, 5vw, 32px);
+    }
+
+    .guide-article-body {
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .guide-article-body h2 {
+        font-size: 20px;
+    }
+
+    .guide-article-body h3 {
+        font-size: 16px;
     }
 }

@@ -5,7 +5,8 @@
       "Bash(mvn resources:resources)"
     ],
     "additionalDirectories": [
-      "d:\\DuongTanHuy\\QLCV\\job-management-system\\src\\main\\resources\\static\\chatbot-ai"
+      "d:\\DuongTanHuy\\QLCV\\job-management-system\\src\\main\\resources\\static\\chatbot-ai",
+      "d:\\DuongTanHuy\\QLCV\\job-management-system\\src\\main\\resources\\static\\css"
     ]
   }
 }

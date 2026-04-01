@@ -245,11 +245,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         links.forEach(href => {
             // Check if already injected
-            if (document.querySelector(`link[href="${href}"]`)) return;
+            if (document.querySelector(`link[href^="${href}"]`)) return;
 
             const link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = href;
+            // Add timestamp to bust cache
+            link.href = href + '?v=' + new Date().getTime();
             document.head.appendChild(link);
         });
     };
@@ -259,10 +260,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const src = '/contact-widget/contact-widget.js';
 
         // Check if already injected
-        if (document.querySelector(`script[src="${src}"]`)) return;
+        if (document.querySelector(`script[src^="${src}"]`)) return;
 
         const script = document.createElement('script');
-        script.src = src;
+        // Add timestamp to bust cache
+        script.src = src + '?v=' + new Date().getTime();
         script.async = true;
         document.body.appendChild(script);
     };
