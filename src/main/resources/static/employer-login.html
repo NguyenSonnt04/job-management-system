@@ -1,70 +1,106 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Nhập Nhà Tuyển Dụng - CareerViet</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/employer-login.css">
-</head>
-<body class="employer-login-page">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng Nhập Nhà Tuyển Dụng - CoHoiViecLam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/employer-login.css" />
+  </head>
+  <body class="employer-login-page">
     <!-- Announcement Bar -->
     <div class="announcement-bar">
-        <div class="container">
-            Từ ngày <strong>14/11/2024</strong>, CareerBuilder.vn chính thức đổi tên thành <strong>Careerviet.vn</strong>. Chi tiết xem tại đây.
-            <button class="btn-close-announcement">×</button>
-        </div>
+      <div class="container">
+        Từ ngày <strong>14/11/2024</strong>, CoHoiViecLam.io.vn chính thức đổi
+        tên thành <strong>CoHoiViecLam.io.vn</strong>. Chi tiết xem tại đây.
+        <button class="btn-close-announcement">×</button>
+      </div>
     </div>
 
     <!-- Header Placeholder -->
     <div id="header-employer-placeholder"></div>
 
     <main class="login-main">
-        <div class="container">
-            <div class="login-grid">
-                <!-- Left: Banner -->
-                <div class="login-banner">
-                    <img src="https://images.careerviet.vn/content/Banner_NhaTuyenDung_Careerviet.png" alt="CareerViet Employer">
-                </div>
+      <div class="container">
+        <div class="login-grid">
+          <!-- Left: Banner -->
+          <div class="login-banner">
+            <img
+              src="https://images.careerviet.vn/content/Banner_NhaTuyenDung_Careerviet.png"
+              alt="CareerViet Employer"
+            />
+          </div>
 
-                <!-- Right: Form -->
-                <div class="login-form-container">
-                    <h1>DÀNH CHO NHÀ TUYỂN DỤNG</h1>
-                    
-                    <div class="login-section-title">
-                        <h2>THÔNG TIN ĐĂNG NHẬP</h2>
-                        <a href="#" class="link-help">Hướng dẫn</a>
-                    </div>
+          <!-- Right: Form -->
+          <div class="login-form-container">
+            <h1>DÀNH CHO NHÀ TUYỂN DỤNG</h1>
 
-                    <!-- Error message -->
-                    <div id="loginError" style="display:none; background:#fee2e2; color:#dc2626; padding:12px 16px; border-radius:8px; font-size:14px; margin-bottom:16px; border-left: 4px solid #dc2626;"></div>
-
-                    <form id="loginForm" onsubmit="handleEmployerLogin(event)">
-                        <div class="form-box">
-                            <div class="form-label-blue">EMAIL/TÊN ĐĂNG NHẬP</div>
-                            <input type="email" id="loginEmail" class="form-input-field" placeholder="Vui lòng nhập email" required>
-                        </div>
-
-                        <div class="form-box">
-                            <div class="form-label-blue">MẬT KHẨU</div>
-                            <input type="password" id="loginPassword" class="form-input-field" placeholder="Vui lòng nhập mật khẩu" required>
-                        </div>
-
-                        <div class="form-footer">
-                            <a href="#" class="link-forgot">Quên Mật Khẩu?</a>
-                            <button type="submit" class="btn-submit-teal" id="submitBtn">ĐĂNG NHẬP</button>
-                        </div>
-                    </form>
-
-                    <div class="register-call">
-                        Quý khách chưa có tài khoản? <a href="employer-register.html">Đăng ký dễ dàng, hoàn toàn miễn phí</a>
-                    </div>
-                </div>
+            <div class="login-section-title">
+              <h2>THÔNG TIN ĐĂNG NHẬP</h2>
+              <a href="#" class="link-help">Hướng dẫn</a>
             </div>
+
+            <!-- Error message -->
+            <div
+              id="loginError"
+              style="
+                display: none;
+                background: #fee2e2;
+                color: #dc2626;
+                padding: 12px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                margin-bottom: 16px;
+                border-left: 4px solid #dc2626;
+              "
+            ></div>
+
+            <form id="loginForm" onsubmit="handleEmployerLogin(event)">
+              <div class="form-box">
+                <div class="form-label-blue">EMAIL/TÊN ĐĂNG NHẬP</div>
+                <input
+                  type="email"
+                  id="loginEmail"
+                  class="form-input-field"
+                  placeholder="Vui lòng nhập email"
+                  required
+                />
+              </div>
+
+              <div class="form-box">
+                <div class="form-label-blue">MẬT KHẨU</div>
+                <input
+                  type="password"
+                  id="loginPassword"
+                  class="form-input-field"
+                  placeholder="Vui lòng nhập mật khẩu"
+                  required
+                />
+              </div>
+
+              <div class="form-footer">
+                <a href="#" class="link-forgot">Quên Mật Khẩu?</a>
+                <button type="submit" class="btn-submit-teal" id="submitBtn">
+                  ĐĂNG NHẬP
+                </button>
+              </div>
+            </form>
+
+            <div class="register-call">
+              Quý khách chưa có tài khoản?
+              <a href="employer-register.html"
+                >Đăng ký dễ dàng, hoàn toàn miễn phí</a
+              >
+            </div>
+          </div>
         </div>
+      </div>
     </main>
 
     <!-- Footer Placeholder -->
@@ -72,55 +108,57 @@
 
     <!-- Zalo Chat -->
     <a href="#" class="zalo-chat">
-        <img src="images/zalo-icon.png" alt="Zalo">
+      <img src="images/zalo-icon.png" alt="Zalo" />
     </a>
 
     <script src="js/employer.js"></script>
     <script>
-    async function handleEmployerLogin(e) {
+      async function handleEmployerLogin(e) {
         e.preventDefault();
 
-        const email     = document.getElementById('loginEmail').value.trim();
-        const password  = document.getElementById('loginPassword').value;
-        const errorEl   = document.getElementById('loginError');
-        const submitBtn = document.getElementById('submitBtn');
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+        const errorEl = document.getElementById("loginError");
+        const submitBtn = document.getElementById("submitBtn");
 
-        errorEl.style.display = 'none';
-        submitBtn.disabled    = true;
-        submitBtn.textContent = 'Đang đăng nhập...';
+        errorEl.style.display = "none";
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Đang đăng nhập...";
 
         try {
-            const res  = await fetch('/api/auth/login', {
-                method:      'POST',
-                headers:     { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body:        JSON.stringify({ email, password })
-            });
-            const data = await res.json();
+          const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await res.json();
 
-            if (data.success) {
-                // Check role — only allow employers
-                if (data.role === 'ROLE_EMPLOYER' || data.role === 'ROLE_ADMIN') {
-                    window.location.href = data.redirectUrl || '/dashboard.html';
-                } else {
-                    errorEl.textContent   = 'Tài khoản này không phải tài khoản nhà tuyển dụng.';
-                    errorEl.style.display = 'block';
-                    submitBtn.disabled    = false;
-                    submitBtn.textContent = 'ĐĂNG NHẬP';
-                }
+          if (data.success) {
+            // Check role — only allow employers
+            if (data.role === "ROLE_EMPLOYER" || data.role === "ROLE_ADMIN") {
+              window.location.href = data.redirectUrl || "/dashboard.html";
             } else {
-                errorEl.textContent   = data.message || 'Email hoặc mật khẩu không chính xác.';
-                errorEl.style.display = 'block';
-                submitBtn.disabled    = false;
-                submitBtn.textContent = 'ĐĂNG NHẬP';
+              errorEl.textContent =
+                "Tài khoản này không phải tài khoản nhà tuyển dụng.";
+              errorEl.style.display = "block";
+              submitBtn.disabled = false;
+              submitBtn.textContent = "ĐĂNG NHẬP";
             }
+          } else {
+            errorEl.textContent =
+              data.message || "Email hoặc mật khẩu không chính xác.";
+            errorEl.style.display = "block";
+            submitBtn.disabled = false;
+            submitBtn.textContent = "ĐĂNG NHẬP";
+          }
         } catch (err) {
-            errorEl.textContent   = 'Lỗi kết nối. Vui lòng thử lại.';
-            errorEl.style.display = 'block';
-            submitBtn.disabled    = false;
-            submitBtn.textContent = 'ĐĂNG NHẬP';
+          errorEl.textContent = "Lỗi kết nối. Vui lòng thử lại.";
+          errorEl.style.display = "block";
+          submitBtn.disabled = false;
+          submitBtn.textContent = "ĐĂNG NHẬP";
         }
-    }
+      }
     </script>
-</body>
+  </body>
 </html>

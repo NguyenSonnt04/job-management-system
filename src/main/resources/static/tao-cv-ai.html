@@ -168,6 +168,18 @@
 
                 </div>
 
+                <div class="cv-method-existing-selector" id="cvExistingSelector">
+                    <label class="cv-existing-label" for="cvExistingSelect">Chọn CV đã lưu</label>
+                    <div class="cv-existing-select-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <select id="cvExistingSelect" class="cv-existing-select" disabled>
+                            <option value="">-- Chọn CV muốn áp dụng mẫu --</option>
+                        </select>
+                        <svg class="cv-existing-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                    <p class="cv-existing-hint" id="cvExistingHint">Chọn một CV đã lưu để áp dụng mẫu mới.</p>
+                </div>
+
                 <!-- Industry selector (shown only for option 2) -->
                 <div class="cv-method-industry-selector" id="cvIndustrySelector">
                     <label class="cv-industry-label" for="cvIndustrySelect">Chọn ngành nghề mục tiêu</label>
@@ -388,14 +400,103 @@
 
         // ========================= Modal Logic =========================
         let selectedTemplateId = null;
+        let existingCvLoaded = false;
+        let existingCvLoading = false;
+
+        function resetExistingCvPicker() {
+            const select = document.getElementById('cvExistingSelect');
+            const hint = document.getElementById('cvExistingHint');
+            if (select) select.value = '';
+            if (hint) hint.textContent = 'Chọn một CV đã lưu để áp dụng mẫu mới.';
+        }
+
+        function updateProceedState() {
+            const selectedMethod = document.querySelector('input[name="cvMethod"]:checked');
+            const proceedBtn = document.getElementById('cvMethodProceedBtn');
+            const industry = document.getElementById('cvIndustrySelect').value;
+            const existingCvId = document.getElementById('cvExistingSelect').value;
+
+            if (!selectedMethod) {
+                proceedBtn.disabled = true;
+                return;
+            }
+
+            if (selectedMethod.value === 'keep_template') {
+                proceedBtn.disabled = !industry;
+                return;
+            }
+
+            if (selectedMethod.value === 'existing_cv') {
+                proceedBtn.disabled = !existingCvId;
+                return;
+            }
+
+            proceedBtn.disabled = false;
+        }
+
+        async function loadExistingCvOptions() {
+            if (existingCvLoaded || existingCvLoading) return;
+
+            existingCvLoading = true;
+            const select = document.getElementById('cvExistingSelect');
+            const hint = document.getElementById('cvExistingHint');
+
+            select.innerHTML = '<option value="">Đang tải danh sách CV...</option>';
+            select.disabled = true;
+            hint.textContent = 'Đang tải danh sách CV đã lưu...';
+
+            try {
+                const res = await fetch('/api/user-cv');
+
+                if (res.status === 401) {
+                    select.innerHTML = '<option value="">Cần đăng nhập để dùng CV đã lưu</option>';
+                    hint.innerHTML = 'Bạn cần <a href="/login.html?redirect=/tao-cv-ai.html" style="color:#1D4ED8;font-weight:700;">đăng nhập</a> để áp dụng mẫu lên CV đã tạo trước đó.';
+                    return;
+                }
+
+                const data = await res.json();
+                const cvList = Array.isArray(data) ? data.slice() : [];
+                cvList.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+
+                if (!cvList.length) {
+                    select.innerHTML = '<option value="">Chưa có CV nào đã lưu</option>';
+                    hint.innerHTML = 'Bạn chưa có CV lưu trong hồ sơ. Hãy tạo mới từ profile hoặc vào <a href="/cv-editor.html" style="color:#1D4ED8;font-weight:700;">trình chỉnh CV</a> để tạo trước.';
+                    return;
+                }
+
+                select.innerHTML = '<option value="">-- Chọn CV muốn áp dụng mẫu --</option>'
+                    + cvList.map(cv => {
+                        const updatedAt = cv.updatedAt
+                            ? new Date(cv.updatedAt).toLocaleDateString('vi-VN')
+                            : 'không rõ ngày';
+                        return `<option value="${cv.id}">${escHtml(cv.cvName || 'CV chưa đặt tên')} • Cập nhật ${updatedAt}</option>`;
+                    }).join('');
+                select.disabled = false;
+                hint.textContent = 'Nội dung CV sẽ được giữ lại, chỉ đổi sang mẫu bạn vừa chọn.';
+                existingCvLoaded = true;
+
+                if (cvList.length === 1) {
+                    select.value = String(cvList[0].id);
+                }
+            } catch (e) {
+                select.innerHTML = '<option value="">Không tải được danh sách CV</option>';
+                hint.textContent = 'Không thể tải danh sách CV đã lưu. Vui lòng thử lại.';
+            } finally {
+                existingCvLoading = false;
+                updateProceedState();
+            }
+        }
 
         function openCvMethodModal(templateId) {
             selectedTemplateId = templateId;
             // Reset selection state
             document.querySelectorAll('input[name="cvMethod"]').forEach(r => r.checked = false);
-            document.getElementById('cvMethodProceedBtn').disabled = true;
             document.getElementById('cvIndustrySelector').classList.remove('visible');
+            document.getElementById('cvExistingSelector').classList.remove('visible');
             document.querySelectorAll('.cv-method-option').forEach(o => o.classList.remove('selected'));
+            document.getElementById('cvIndustrySelect').value = '';
+            resetExistingCvPicker();
+            updateProceedState();
 
             // Inject mini CV preview
             const tpl = allTemplates.find(t => String(t.id) === String(templateId));
@@ -409,6 +510,8 @@
             backdrop.classList.add('visible');
             backdrop.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
+
+            loadExistingCvOptions();
         }
 
         function closeCvMethodModal() {
@@ -438,27 +541,30 @@
                 this.closest('.cv-method-option').classList.add('selected');
 
                 const industrySelector = document.getElementById('cvIndustrySelector');
-                const proceedBtn = document.getElementById('cvMethodProceedBtn');
+                const existingSelector = document.getElementById('cvExistingSelector');
 
                 if (this.value === 'keep_template') {
                     industrySelector.classList.add('visible');
-                    // Enable only if industry also selected
-                    const industry = document.getElementById('cvIndustrySelect').value;
-                    proceedBtn.disabled = !industry;
+                    existingSelector.classList.remove('visible');
+                } else if (this.value === 'existing_cv') {
+                    industrySelector.classList.remove('visible');
+                    existingSelector.classList.add('visible');
+                    loadExistingCvOptions();
                 } else {
                     industrySelector.classList.remove('visible');
-                    proceedBtn.disabled = false;
+                    existingSelector.classList.remove('visible');
                 }
+
+                updateProceedState();
             });
         });
 
         // Industry select change
         document.getElementById('cvIndustrySelect').addEventListener('change', function() {
-            const selectedMethod = document.querySelector('input[name="cvMethod"]:checked');
-            if (selectedMethod && selectedMethod.value === 'keep_template') {
-                document.getElementById('cvMethodProceedBtn').disabled = !this.value;
-            }
+            updateProceedState();
         });
+
+        document.getElementById('cvExistingSelect').addEventListener('change', updateProceedState);
 
         // Proceed button
         document.getElementById('cvMethodProceedBtn').addEventListener('click', function() {
@@ -468,7 +574,11 @@
             const method = selectedMethod.value;
             let url = `cv-editor.html?template=${selectedTemplateId}&method=${method}`;
 
-            if (method === 'keep_template') {
+            if (method === 'existing_cv') {
+                const cvId = document.getElementById('cvExistingSelect').value;
+                if (!cvId) return;
+                url += `&cvId=${encodeURIComponent(cvId)}`;
+            } else if (method === 'keep_template') {
                 const industry = document.getElementById('cvIndustrySelect').value;
                 if (industry) url += `&industry=${encodeURIComponent(industry)}`;
             }

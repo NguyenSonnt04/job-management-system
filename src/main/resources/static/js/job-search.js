@@ -8,6 +8,39 @@ let currentFilteredJobs = [];
 let visibleJobsCount = 5;
 const JOBS_PER_PAGE = 5;
 
+// Map filter group code → select element id
+const FILTER_CODE_TO_ID = {
+    salary:          'filterSalary',
+    level:           'filterLevel',
+    posted_within:   'filterPosted',
+    employment_type: 'filterType',
+    experience:      'filterExp',
+    job_rank:        'filterRank'
+};
+
+async function loadFilterOptions() {
+    try {
+        const res = await fetch('/api/filters');
+        if (!res.ok) return;
+        const groups = await res.json();
+        groups.forEach(group => {
+            const selectId = FILTER_CODE_TO_ID[group.code];
+            if (!selectId) return;
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            // Keep "Tất cả" option, append the rest
+            group.options.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.label;
+                select.appendChild(option);
+            });
+        });
+    } catch (e) {
+        console.warn('Không thể tải filter options:', e);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
 
     // Read keyword from URL params (e.g. from homepage search)
@@ -21,8 +54,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (keywordInput  && initKeyword)  keywordInput.value  = initKeyword;
     if (locationInput && initLocation) locationInput.value = initLocation;
 
-    // Load initial list
-    loadJobs(initKeyword, initLocation);
+    // Load filter options from DB, then load jobs
+    loadFilterOptions().then(() => loadJobs(initKeyword, initLocation));
 
     // ── Search button + Enter ──────────────────────────
     const searchBtn = document.querySelector('.btn-search-main');
@@ -33,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ── Filters ──────────────────────────────────────
-    ['filterSalary', 'filterLevel', 'filterPosted', 'filterType', 'filterExp'].forEach(id => {
+    ['filterSalary', 'filterLevel', 'filterPosted', 'filterType', 'filterExp', 'filterRank'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', () => applyClientFilters());
     });
@@ -42,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const clearBtn = document.querySelector('.btn-clear-filters');
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
-            ['filterSalary', 'filterLevel', 'filterPosted', 'filterType', 'filterExp'].forEach(id => {
+            ['filterSalary', 'filterLevel', 'filterPosted', 'filterType', 'filterExp', 'filterRank'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.selectedIndex = 0;
             });
@@ -116,32 +149,32 @@ function applyClientFilters() {
     const today  = new Date();
 
     // Filter: Mức lương
-    const salary = document.getElementById('filterSalary')?.value || 'Tất cả';
-    if (salary !== 'Tất cả') {
+    const salary = document.getElementById('filterSalary')?.value || '';
+    if (salary) {
         filtered = filtered.filter(j => {
             const min = j.salaryMin || 0;
             const max = j.salaryMax || 0;
             const avg = (min + max) / 2 || min || max;
             const m   = avg / 1_000_000; // in triệu
             if (salary === 'Dưới 10 triệu')  return m > 0 && m < 10;
-            if (salary === '10 - 15 triệu')  return m >= 10 && m <= 15;
-            if (salary === '15 - 20 triệu')  return m > 15 && m <= 20;
-            if (salary === '20 - 30 triệu')  return m > 20 && m <= 30;
+            if (salary === '10-15 triệu')    return m >= 10 && m <= 15;
+            if (salary === '15-20 triệu')    return m > 15 && m <= 20;
+            if (salary === '20-30 triệu')    return m > 20 && m <= 30;
             if (salary === 'Trên 30 triệu')  return m > 30;
             return true;
         });
     }
 
     // Filter: Hình thức
-    const type = document.getElementById('filterType')?.value || 'Tất cả';
-    if (type !== 'Tất cả') {
+    const type = document.getElementById('filterType')?.value || '';
+    if (type) {
         const typeMap = { 'Toàn thời gian': 'FULL_TIME', 'Bán thời gian': 'PART_TIME', 'Remote': 'REMOTE' };
         filtered = filtered.filter(j => j.employmentType === typeMap[type] || (j.employmentType || '').includes(type));
     }
 
     // Filter: Kinh nghiệm
-    const exp = document.getElementById('filterExp')?.value || 'Tất cả';
-    if (exp !== 'Tất cả') {
+    const exp = document.getElementById('filterExp')?.value || '';
+    if (exp) {
         filtered = filtered.filter(j => {
             const e = (j.experience || '').toLowerCase();
             if (exp === 'Chưa có kinh nghiệm') return e.includes('chưa') || e.includes('không') || e === '';
@@ -154,8 +187,8 @@ function applyClientFilters() {
     }
 
     // Filter: Đăng trong vòng
-    const posted = document.getElementById('filterPosted')?.value || 'Tất cả';
-    if (posted !== 'Tất cả') {
+    const posted = document.getElementById('filterPosted')?.value || '';
+    if (posted) {
         const days = posted === '24 giờ qua' ? 1 : posted === '7 ngày qua' ? 7 : 30;
         const cutoff = new Date(today - days * 86400000);
         filtered = filtered.filter(j => j.createdAt && new Date(j.createdAt) >= cutoff);
@@ -440,15 +473,15 @@ function renderJobs(jobs, resetVisibleCount = false) {
             .badge-icon {
                 display: inline-flex;
                 align-items: center;
-                gap: 6px;
-                min-height: 28px;
+                gap: 4px;
                 font-size: 11px;
                 color: #4d5768;
                 background: #f8fafc;
-                padding: 0 10px;
+                padding: 2px 6px;
                 border-radius: 999px;
                 border: 1px solid #e6ebf2;
                 font-weight: 600;
+                line-height: 1.2;
             }
 
             .job-bottom-row {

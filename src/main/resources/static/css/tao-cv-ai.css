@@ -900,6 +900,83 @@ body {
     color: white;
 }
 
+.cv-method-existing-selector {
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 0.75rem;
+    animation: slideDown 0.2s ease;
+}
+
+.cv-method-existing-selector.visible {
+    display: flex;
+}
+
+.cv-existing-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1E3A8A;
+}
+
+.cv-existing-select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cv-existing-select-wrapper > svg:first-child {
+    position: absolute;
+    left: 0.75rem;
+    color: #2563EB;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.cv-existing-select {
+    width: 100%;
+    padding: 0.625rem 2.5rem 0.625rem 2.25rem;
+    border: 1.5px solid #93C5FD;
+    border-radius: 0.5rem;
+    background: #ffffff;
+    font-family: var(--font-family);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cv-existing-select:focus {
+    outline: none;
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.cv-existing-select:disabled {
+    cursor: not-allowed;
+    background: #F8FAFC;
+    color: #94A3B8;
+}
+
+.cv-existing-chevron {
+    position: absolute;
+    right: 0.75rem;
+    color: #2563EB;
+    pointer-events: none;
+}
+
+.cv-existing-hint {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: #475569;
+}
+
 /* Industry Selector (conditional) */
 .cv-method-industry-selector {
     display: none;

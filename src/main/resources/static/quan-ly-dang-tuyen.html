@@ -471,6 +471,10 @@
         .btn-edit:hover { border-color: #0d6efd; color: #0d6efd; background: #e7f1ff; }
         .btn-delete:hover { border-color: #dc3545; color: #dc3545; background: #fdecea; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .empty-state { padding: 60px 20px !important; text-align: center; }
+        .empty-content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #aaa; }
+        .empty-content svg { opacity: .6; }
+        .empty-content p { font-size: 14px; color: #888; margin: 0; }
     `;
     document.head.appendChild(style);
 
