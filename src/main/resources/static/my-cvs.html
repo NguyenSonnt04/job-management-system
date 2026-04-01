@@ -1220,7 +1220,7 @@
                     <div class="cv-row-actions">
                         <button class="btn-cv-action btn-cv-primary" onclick="openCvEditor(${cv.id})">Chỉnh sửa</button>
                         <button class="btn-cv-action" onclick='renameCV(${cv.id}, ${safeName})'>Đổi tên</button>
-                        <button class="btn-cv-action" onclick="downloadCV(${cv.id}, this)">Xuất PDF</button>
+                        <a class="btn-cv-action" href="/cv-view.html?cvId=${cv.id}">Xem CV</a>
                         <button class="btn-cv-action btn-cv-danger" onclick='deleteCV(${cv.id}, ${safeName})'>Xóa</button>
                     </div>
                 </div>
