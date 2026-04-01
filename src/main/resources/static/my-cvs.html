@@ -3,35 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard CV | CareerViet Studio</title>
-    <meta name="description" content="Quản lý danh lục CV chuyên nghiệp với giao diện Modern Airy Glass.">
+    <title>Quản lý CV | CoHoiViecLam Studio</title>
+    <meta name="description" content="Quản lý, cập nhật và xuất CV PDF nhanh chóng với giao diện chuyên nghiệp hơn.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1A2456;
-            --accent: #3B82F6;
-            --bg: #F8FAFC;
-            --surface: #FFFFFF;
-            --ink: #0F172A;
-            --muted: #64748B;
-            --line: #E2E8F0;
-            --line-soft: #F1F5F9;
-            --success: #10B981;
-            --danger: #EF4444;
-            
-            --radius-sm: 12px;
-            --radius-md: 18px;
-            --radius-lg: 24px;
-            --radius-xl: 40px;
-            
-            --shadow-soft: 0 10px 40px rgba(26, 36, 86, 0.05);
-            --shadow-float: 0 30px 60px rgba(26, 36, 86, 0.08);
-            --shadow-glass: 0 8px 32px rgba(31, 38, 135, 0.05);
-
-            --container-max: 1600px;
+            --bg: #f9fafb;
+            --surface: #ffffff;
+            --surface-soft: #f3f4f6;
+            --ink: #111827;
+            --muted: #6b7280;
+            --accent: #0f9f5f;
+            --accent-strong: #0c7d4a;
+            --accent-soft: #e8f8f0;
+            --accent-deep: #064e2c;
+            --line: #e5e7eb;
+            --danger: #dc2626;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.05);
+            --radius-xl: 20px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
         }
 
         * { box-sizing: border-box; outline: none; }
@@ -42,24 +39,24 @@
             color: var(--ink);
             font-family: "Be Vietnam Pro", sans-serif;
             background: var(--bg);
-            scroll-behavior: smooth;
         }
 
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: 
-                radial-gradient(circle at 5% 5%, rgba(59, 130, 246, 0.04) 0%, transparent 35%),
-                radial-gradient(circle at 95% 95%, rgba(26, 36, 86, 0.04) 0%, transparent 35%);
-            z-index: -1;
-            pointer-events: none;
+        a { color: inherit; text-decoration: none; }
+        button, input { font: inherit; }
+        button { border: none; background: none; cursor: pointer; }
+
+        #header-placeholder,
+        #footer-placeholder { position: relative; z-index: 2; }
+
+        /* ── Layout ── */
+        .page-shell {
+            max-width: 1360px;
+            margin: 28px auto 72px;
+            padding: 0 22px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 330px;
+            gap: 22px;
         }
-
-        a { color: inherit; text-decoration: none; transition: 0.2s; }
-        button { border: none; background: none; cursor: pointer; font: inherit; transition: 0.2s; }
-
-        #header-placeholder { position: sticky; top: 0; z-index: 1000; }
 
         .shell {
             max-width: var(--container-max);
@@ -67,144 +64,253 @@
             padding: 40px 24px 100px;
             display: flex;
             flex-direction: column;
-            gap: 40px;
-        }
-
-        /* --- HERO: AIRY GLASS --- */
-        .hero {
-            padding: 100px 60px;
-            background: var(--surface);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-float);
-            border: 1px solid var(--line-soft);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::after {
-            content: "";
-            position: absolute;
-            top: -150px;
-            right: -150px;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .eyebrow {
-            display: inline-block;
-            padding: 10px 24px;
-            background: rgba(26, 36, 86, 0.05);
-            color: var(--primary);
-            font-size: 14px;
-            font-weight: 800;
-            border-radius: 100px;
-            margin-bottom: 32px;
-            letter-spacing: 0.02em;
-        }
-
-        .hero-h1 {
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
-            font-weight: 900;
-            color: var(--primary);
-            line-height: 0.95;
-            letter-spacing: -0.06em;
-            margin: 0 0 32px;
-        }
-
-        .hero-p {
-            max-width: 760px;
-            margin: 0 auto 48px;
-            font-size: 19px;
-            line-height: 1.6;
-            color: var(--muted);
-        }
-
-        .hero-cta {
-            display: flex;
-            justify-content: center;
             gap: 20px;
+            min-width: 0;
         }
 
-        .btn {
-            height: 64px;
-            padding: 0 44px;
-            border-radius: 100px;
-            font-size: 16px;
+        /* ── Surface Card (white bordered card) ── */
+        .surface-card {
+            border: 1px solid var(--line);
+            border-radius: var(--radius-xl);
+            background: var(--surface);
+            box-shadow: var(--shadow-card);
+        }
+
+        /* ── Page Header ── */
+        .page-header {
+            padding: 22px 24px 18px;
+        }
+
+        .page-header-inner {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .page-header-left { flex: 1; min-width: 0; }
+
+        .eyebrow-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent-deep);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .eyebrow-badge::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .page-title {
+            margin: 0 0 5px;
+            font-size: clamp(1.5rem, 2.4vw, 2rem);
             font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: var(--ink);
+        }
+
+        .page-subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        .page-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            padding-top: 4px;
+        }
+
+        /* ── Stats row ── */
+        .stats-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 14px 24px 16px;
+            border-top: 1px solid var(--line);
+            margin-top: 0;
+        }
+
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: var(--bg);
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .stat-chip strong {
+            color: var(--ink);
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        /* ── Job search toggle strip ── */
+        .toggle-strip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            padding: 5px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: var(--bg);
+        }
+
+        .toggle-strip-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        /* ── Buttons ── */
+        .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            gap: 5px;
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 150ms ease, box-shadow 150ms ease, transform 120ms ease;
+            white-space: nowrap;
         }
 
-        .btn:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(26, 36, 86, 0.15); }
-        .btn-main { background: var(--primary); color: white; }
-        .btn-alt { background: white; border: 2px solid var(--primary); color: var(--primary); }
+        .btn:hover { transform: translateY(-1px); }
 
-        /* --- DASHBOARD QUICK CARDS --- */
-        .board-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 24px;
+        .btn-primary {
+            color: #ffffff;
+            background: var(--accent);
+            box-shadow: 0 1px 4px rgba(15,159,95,0.20);
         }
 
-        .stat-card {
-            background: var(--surface);
-            padding: 32px;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--line-soft);
-            box-shadow: var(--shadow-soft);
-            display: flex;
-            align-items: center;
-            gap: 24px;
+        .btn-primary:hover {
+            background: var(--accent-strong);
+            box-shadow: 0 3px 10px rgba(15,159,95,0.28);
         }
 
-        .icon-box {
-            width: 64px;
-            height: 64px;
-            border-radius: 20px;
+        .btn-outline {
+            color: var(--muted);
+            background: #ffffff;
+            border: 1px solid var(--line);
+        }
+
+        .btn-outline:hover {
+            color: var(--ink);
             background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: var(--primary);
+            border-color: #d1d5db;
         }
 
-        .stat-val span { display: block; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
-        .stat-val strong { font-size: 32px; font-weight: 900; color: var(--primary); }
-
-        /* Toggle Card Special */
-        .toggle-card { justify-content: space-between; }
-        .toggle-info h4 { margin: 0 0 4px; font-size: 18px; font-weight: 800; color: var(--primary); }
-        .toggle-info p { margin: 0; font-size: 13px; color: var(--muted); font-weight: 500; }
-
-        .switch { position: relative; width: 64px; height: 34px; flex-shrink: 0; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; inset: 0; background: var(--line); border-radius: 100px; transition: 0.3s; }
-        .slider::before { content: ""; position: absolute; height: 26px; width: 26px; left: 4px; bottom: 4px; background: white; border-radius: 50%; transition: 0.3s; }
-        input:checked + .slider { background: var(--primary); }
-        input:checked + .slider::before { transform: translateX(30px); }
+        /* ── Section (CV Library) ── */
+        .collection-card { padding: 22px 24px; text-align: left; }
 
         /* --- CV GALLERY --- */
         .gallery-header {
             display: flex;
+            align-items: flex-start;
+            text-align: left;
             justify-content: space-between;
-            align-items: flex-end;
-            padding: 0 8px;
+            gap: 16px;
+            margin-bottom: 16px;
         }
 
-        .gallery-title { font-size: 32px; font-weight: 900; color: var(--primary); margin: 0; letter-spacing: -0.02em; }
-        .gallery-summary { color: var(--muted); font-weight: 600; font-size: 14px; margin-top: 8px; }
+        .section-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent-deep);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
 
-        .cv-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 32px;
+        .section-title {
+            margin: 0 0 6px;
+            font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+            line-height: 1.2;
+            letter-spacing: -0.025em;
+            font-weight: 800;
+            color: var(--ink);
+        }
+
+        .section-subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.65;
+            max-width: 56ch;
+        }
+
+        /* ── Toolbar ── */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 11px 14px;
+            margin-bottom: 18px;
+            border-radius: var(--radius-lg);
+            background: var(--bg);
+            border: 1px solid var(--line);
+        }
+
+        .toolbar-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent-deep);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .pill.muted {
+            background: #f3f4f6;
+            color: var(--muted);
+        }
+
+        /* ── CV Grid ── */
+        #cvGrid,
+        .loading-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .cv-card {
@@ -212,79 +318,125 @@
             border-radius: var(--radius-xl);
             border: 1px solid var(--line-soft);
             overflow: hidden;
-            transition: all 500ms cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: var(--surface);
+            box-shadow: var(--shadow-card);
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
         }
 
-        .cv-card:hover { 
-            transform: translateY(-16px); 
-            box-shadow: 0 50px 100px rgba(26, 36, 86, 0.12);
-            border-color: var(--primary);
+        .cv-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            border-color: rgba(15,159,95,0.22);
         }
 
-        .cv-preview {
-            padding: 48px 48px 0;
-            background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
-            display: flex;
-            justify-content: center;
-            cursor: pointer;
-        }
+        .cv-card.is-featured { border-color: rgba(15,159,95,0.28); }
 
-        .cv-sheet {
-            width: 100%;
-            aspect-ratio: 1 / 1.35;
-            background: white;
-            border-radius: 12px 12px 0 0;
-            box-shadow: var(--shadow-glass);
-            border: 1px solid var(--line-soft);
-            padding: 24px;
-            transition: 0.4s ease;
-        }
-
-        .cv-card:hover .cv-sheet { transform: scale(1.04); }
-
-        /* Abstract CV content */
-        .sheet-line { height: 4px; background: var(--line-soft); border-radius: 4px; margin-bottom: 8px; }
-        .sheet-header { border-bottom: 2px solid var(--primary); padding-bottom: 12px; margin-bottom: 16px; opacity: 0.15; }
-        .sheet-box { height: 40px; background: var(--line-soft); margin-bottom: 12px; border-radius: 4px; }
-
-        .cv-body { padding: 32px; }
-        .cv-tag { font-size: 11px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.4; margin-bottom: 8px; display: block; }
-        .cv-name { font-size: 24px; font-weight: 900; color: var(--primary); margin: 0 0 12px; line-height: 1.2; }
-        .cv-meta { display: flex; gap: 16px; color: var(--muted); font-size: 13px; font-weight: 600; }
-
-        .cv-actions {
-            padding: 0 32px 32px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 48px 48px;
-            gap: 12px;
-        }
-
-        .btn-card {
-            border-radius: 14px;
-            font-size: 13px;
-            font-weight: 800;
-            background: var(--line-soft);
-            color: var(--primary);
+        /* Row layout */
+        .cv-card-row {
             display: flex;
             align-items: center;
-            justify-content: center;
-            text-transform: uppercase;
+            gap: 10px;
+            padding: 7px 12px;
         }
 
-        .btn-card:hover { background: var(--line); color: var(--ink); }
-        .btn-card.main { background: var(--primary); color: white; }
-        .btn-card.danger:hover { background: var(--danger); color: white; }
+        .cv-row-icon {
+            display: grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #374151;
+            flex-shrink: 0;
+        }
 
-        /* --- FEEDBACK SYSTEMS --- */
-        .toast-box { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 5000; display: flex; flex-direction: column; gap: 12px; }
-        .toast { padding: 18px 36px; background: var(--primary); color: white; border-radius: 100px; font-weight: 800; box-shadow: 0 20px 40px rgba(26, 36, 86, 0.2); animation: pop 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-        @keyframes pop { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .cv-row-info { flex: 1; min-width: 0; }
 
-        .modal-bg {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(16px); z-index: 4000;
-            display: none; align-items: center; justify-content: center; padding: 20px;
+        .cv-row-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0 0 3px;
+        }
+
+        .cv-row-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .cv-row-badge {
+            display: inline-flex;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: var(--card-soft);
+            color: var(--card-accent);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .cv-row-date { font-size: 11px; color: var(--muted); }
+
+        .cv-row-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        /* Keep legacy selectors used in buildCard for footer buttons */
+        .cv-card-footer { display: none; }
+        .cv-card-body   { display: none; }
+        .cv-thumb-container { display: none; }
+
+        .btn-cv-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 30px;
+            padding: 0 10px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: var(--bg);
+            color: var(--ink);
+            font-size: 11px;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background 140ms ease, box-shadow 140ms ease;
+            white-space: nowrap;
+        }
+
+        .btn-cv-action:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.07); background: #f3f4f6; }
+        .btn-cv-primary { color: #ffffff; background: var(--accent); border-color: transparent; }
+        .btn-cv-primary:hover { background: var(--accent-strong); box-shadow: 0 4px 12px rgba(15,159,95,0.22); }
+        .btn-cv-danger { color: var(--danger); background: #fff1f1; border-color: #fecaca; }
+        .btn-cv-danger:hover { background: #fee2e2; }
+        .btn-cv-loading { pointer-events: none; opacity: 0.72; }
+
+        /* ── Loading skeleton ── */
+        .loading-card,
+        .empty-state {
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--line);
+            background: var(--surface);
+            box-shadow: var(--shadow-card);
+        }
+
+        .loading-card { min-height: 380px; overflow: hidden; }
+
+        .loading-thumb,
+        .loading-line,
+        .loading-action {
+            position: relative;
+            overflow: hidden;
+            background: #f3f4f6;
         }
         .modal-bg.active { display: flex; }
         .modal-content {
@@ -296,87 +448,608 @@
         .field { width: 100%; height: 64px; border: 2px solid var(--line-soft); border-radius: 18px; padding: 0 24px; font-size: 16px; margin-bottom: 32px; transition: 0.2s; }
         .field:focus { border-color: var(--primary); background: var(--bg); }
 
-        .modal-btns { display: flex; gap: 12px; justify-content: center; }
-        .btn-modal { height: 56px; padding: 0 32px; border-radius: 16px; font-weight: 800; font-size: 14px; text-transform: uppercase; }
-        .btn-modal.primary { background: var(--primary); color: white; }
-        .btn-modal.cancel { background: var(--line-soft); color: var(--muted); }
+        .loading-thumb::after,
+        .loading-line::after,
+        .loading-action::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 1.4s infinite;
+        }
 
-        /* LOADING & EMPTY */
-        .empty-state { padding: 120px 48px; text-align: center; background: white; border-radius: var(--radius-xl); border: 2px dashed var(--line); color: var(--muted); }
-        .loader { display: none; text-align: center; padding: 100px; color: var(--primary); font-weight: 800; font-size: 24px; }
+        .loading-thumb { aspect-ratio: 1 / 1.08; }
+        .loading-body { padding: 16px; }
+        .loading-line { height: 12px; margin-bottom: 10px; border-radius: 999px; }
+        .loading-line.wide { width: 80%; }
+        .loading-line.med { width: 52%; }
+        .loading-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 0 16px 16px; }
+        .loading-action { height: 40px; border-radius: 10px; }
 
-        @media (max-width: 1024px) {
-            .hero { padding: 60px 30px; }
-            .hero-h1 { font-size: 3rem; }
+        /* ── Empty state ── */
+        .empty-state {
+            display: none;
+            padding: 48px 24px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 18px;
+            display: grid;
+            place-items: center;
+            border-radius: 22px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 30px;
+            font-weight: 800;
+            box-shadow: 0 8px 20px rgba(15,159,95,0.12);
+        }
+
+        .empty-state h3 { margin: 0 0 8px; font-size: 22px; font-weight: 800; letter-spacing: -0.025em; color: var(--ink); }
+        .empty-state p { max-width: 50ch; margin: 0 auto 20px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+
+        /* ── Sidebar ── */
+        .sidebar-card { padding: 20px; }
+
+        .profile-card { background: #ffffff; }
+
+        .profile-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            object-fit: cover;
+            border: 2px solid var(--line);
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        .user-badge {
+            display: inline-flex;
+            padding: 4px 9px;
+            margin-bottom: 6px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent-deep);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .profile-head h4,
+        .sidebar-title {
+            margin: 0;
+            font-size: 18px;
+            line-height: 1.25;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: var(--ink);
+        }
+
+        .profile-head p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .profile-stat {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background: var(--bg);
+            border: 1px solid var(--line);
+        }
+
+        .profile-stat span {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .profile-stat strong {
+            display: block;
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--ink);
+        }
+
+        .selected-cv {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background: var(--bg);
+            border: 1px solid var(--line);
+        }
+
+        .selected-cv-name {
+            margin: 6px 0 4px;
+            font-size: 14px;
+            line-height: 1.4;
+            font-weight: 800;
+            color: var(--ink);
+        }
+
+        .selected-cv-meta {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .settings-row strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .settings-copy,
+        .status-copy {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .sidebar-list {
+            list-style: none;
+            margin: 16px 0 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-list li {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.65;
+            padding-left: 14px;
+            position: relative;
+        }
+
+        .sidebar-list li::before {
+            content: "·";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 800;
+        }
+
+        /* ── Mobile QR card ── */
+        .mobile-card {
+            background: linear-gradient(160deg, #0f3826 0%, #0d5f3a 60%, #0d7a49 100%);
+            border-color: rgba(255,255,255,0.08);
+        }
+
+        .mobile-card .eyebrow-badge {
+            background: rgba(255,255,255,0.12);
+            color: rgba(242,251,246,0.9);
+        }
+
+        .mobile-card .eyebrow-badge::before { background: #9dffbf; }
+        .mobile-card .sidebar-title { color: #f2fbf6; margin: 14px 0 10px; }
+        .mobile-card p { color: rgba(242,251,246,0.82); font-size: 13px; line-height: 1.65; margin: 0 0 10px; }
+
+        .qr-box {
+            display: inline-flex;
+            width: 110px;
+            height: 110px;
+            margin: 10px 0 12px;
+            padding: 8px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.96);
+            box-shadow: 0 8px 24px rgba(4,19,11,0.18);
+        }
+
+        .qr-box img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* ── Toggle switch ── */
+        .toggle-switch {
+            position: relative;
+            display: inline-flex;
+            width: 46px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.large { width: 52px; height: 30px; }
+        .toggle-switch input { width: 0; height: 0; opacity: 0; }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: #d1d5db;
+            transition: background 180ms ease;
+        }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            left: 3px;
+            top: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+            transition: transform 180ms ease;
+        }
+
+        .toggle-switch.large .slider::before { width: 24px; height: 24px; }
+        .toggle-switch input:checked + .slider { background: var(--accent); }
+        .toggle-switch input:checked + .slider::before { transform: translateX(20px); }
+        .toggle-switch.large input:checked + .slider::before { transform: translateX(22px); }
+
+        /* ── Modals ── */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.36);
+            backdrop-filter: blur(6px);
+        }
+
+        .modal-backdrop.show { display: flex; }
+
+        .modal-content {
+            width: min(480px, 100%);
+            padding: 26px;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--line);
+            background: #ffffff;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.16);
+        }
+
+        .modal-content h4 {
+            margin: 0 0 8px;
+            font-size: 20px;
+            line-height: 1.25;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: var(--ink);
+        }
+
+        .modal-content p {
+            margin: 0 0 16px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        .modal-input {
+            width: 100%;
+            height: 46px;
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: var(--bg);
+            outline: none;
+            font-size: 14px;
+            color: var(--ink);
+            transition: border-color 150ms ease, box-shadow 150ms ease;
+        }
+
+        .modal-input:focus {
+            border-color: rgba(15,159,95,0.5);
+            box-shadow: 0 0 0 4px rgba(15,159,95,0.1);
+        }
+
+        .modal-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+
+        .modal-field { margin-bottom: 14px; }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .btn-modal {
+            height: 40px;
+            padding: 0 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .btn-modal.secondary {
+            color: var(--muted);
+            background: var(--bg);
+            border: 1px solid var(--line);
+        }
+
+        .btn-modal.secondary:hover { background: #f3f4f6; }
+
+        .btn-modal.primary {
+            color: #ffffff;
+            background: var(--accent);
+        }
+
+        .btn-modal.primary:hover { background: var(--accent-strong); }
+
+        .btn-modal.danger {
+            color: #ffffff;
+            background: var(--danger);
+        }
+
+        .btn-modal.danger:hover { background: #b91c1c; }
+
+        /* ── Toast ── */
+        .toast-wrap {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: min(340px, calc(100vw - 32px));
+        }
+
+        .toast {
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: #ffffff;
+            background: #1f2937;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .toast.success { background: var(--accent); }
+        .toast.error { background: var(--danger); }
+
+        /* ── Job search UI elements referenced by JS ── */
+        #jobSearchTitle { font-size: 14px; font-weight: 700; color: var(--ink); }
+        #jobSearchMessage { margin: 8px 0 0; font-size: 12px; color: var(--muted); line-height: 1.6; }
+        #jobSearchPill {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 10px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent-deep);
+            font-size: 11px;
+            font-weight: 700;
+        }
+        #jobSearchPill.is-off { background: #fef3c7; color: #92400e; }
+
+        /* ── Animations ── */
+        @keyframes shimmer { to { transform: translateX(100%); } }
+
+        /* ── Responsive ── */
+        @media (max-width: 1180px) {
+            .page-shell { grid-template-columns: 1fr; }
+            .sidebar-column { order: -1; }
+        }
+
+        @media (max-width: 860px) {
+            .page-header-inner { flex-direction: column; align-items: stretch; }
+            .page-header-actions { flex-wrap: wrap; }
+            .section-header { flex-direction: column; align-items: stretch; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+        }
+
+        @media (max-width: 640px) {
+            .page-shell { padding: 0 14px; margin-top: 18px; }
+            .page-header, .collection-card, .sidebar-card { border-radius: var(--radius-lg); }
+            #cvGrid, .loading-grid, .cv-card-footer, .loading-actions, .profile-stats { grid-template-columns: 1fr; }
+            .toast-wrap { left: 14px; right: 14px; bottom: 14px; max-width: none; }
+            .stats-row { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
     <div id="header-placeholder"></div>
 
-    <main class="shell">
-        <!-- 1. HERO -->
-        <section class="hero">
-            <span class="eyebrow">Professional Management</span>
-            <h1 class="hero-h1">Chào mừng quay trở lại.</h1>
-            <p class="hero-p">Hệ thống quản lý CV thông minh giúp bạn theo dõi lịch sử ứng tuyển, lưu trữ phiên bản và xuất PDF chuẩn ATS chỉ với một chạm.</p>
-            <div class="hero-cta">
-                <a href="/cv-editor.html" class="btn btn-main">Tạo CV Mới</a>
-                <a href="/cv-editor.html" class="btn btn-alt">Mẫu CV Hot</a>
+    <main class="page-shell">
+        <div class="main-column">
+
+            <!-- ── Page Header ── -->
+            <section class="surface-card page-header">
+                <div class="page-header-inner">
+                    <div class="page-header-left">
+                        <div class="eyebrow-badge">Quản lý CV</div>
+                        <h1 class="page-title">CV của tôi</h1>
+                        <p class="page-subtitle">Theo dõi phiên bản, cập nhật nhanh và xuất PDF chỉ với một lần nhấn.</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <a href="/cv-editor.html" class="btn btn-primary">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Tạo CV mới
+                        </a>
+                        <a href="/tao-cv-ai.html" class="btn btn-outline">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></svg>
+                            Tạo với AI
+                        </a>
+                        <button class="btn btn-outline" onclick="document.getElementById('uploadCvModal').classList.add('show')">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Tải CV lên
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats + toggle row -->
+                <div class="stats-row">
+                    <div class="stat-chip">
+                        <span>Tổng CV</span>
+                        <strong id="totalCvMetric">--</strong>
+                    </div>
+                    <div class="stat-chip">
+                        <span>Cập nhật 7 ngày</span>
+                        <strong id="recentCvMetric">--</strong>
+                    </div>
+                    <div class="stat-chip">
+                        <span>CV nổi bật</span>
+                        <strong id="selectedMetric">--</strong>
+                    </div>
+
+                    <div class="toggle-strip" style="margin-left: auto;">
+                        <div>
+                            <div id="jobSearchTitle">Đang bật tìm việc</div>
+                            <div id="jobSearchMessage" style="display:none;"></div>
+                            <div id="jobSearchPill" style="display:none;"></div>
+                        </div>
+                        <label class="toggle-switch" aria-label="Bật tìm việc">
+                            <input type="checkbox" id="jobSearchToggleMain" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── CV Library ── -->
+            <section class="surface-card collection-card">
+                <div class="section-header">
+                    <div>
+                        <div class="section-eyebrow">Thư viện CV</div>
+                        <p class="section-subtitle">Mỗi thẻ CV trình bày rõ mẫu, lần cập nhật gần nhất và các thao tác quan trọng ngay tại chỗ.</p>
+                    </div>
+                    <a href="/cv-editor.html" class="btn btn-primary" style="flex-shrink:0; margin-top:4px;">Tạo CV</a>
+                </div>
+
+                <div class="toolbar">
+                    <div class="toolbar-group">
+                        <span class="pill" id="collectionStatus">Đang tải danh sách CV</span>
+                        <span class="pill muted" id="cvSelectionStatus">Chưa chọn CV nổi bật</span>
+                    </div>
+                    <div class="toolbar-group">
+                        <span style="font-size:12px; color: var(--muted);" id="lastUpdateSummary">Lần cập nhật gần nhất sẽ hiển thị tại đây.</span>
+                    </div>
+                </div>
+
+                <div id="cvListContainer">
+                    <div id="loadingState" class="loading-grid">
+                        <div class="loading-card" style="min-height:0; padding:14px 16px; display:flex; align-items:center; gap:14px; border-radius:14px;">
+                            <div class="loading-action" style="width:40px;height:40px;border-radius:12px;flex-shrink:0;"></div>
+                            <div style="flex:1"><div class="loading-line wide" style="height:12px;margin-bottom:8px;border-radius:8px;"></div><div class="loading-line med" style="height:10px;border-radius:8px;"></div></div>
+                            <div style="display:flex;gap:6px"><span class="loading-action" style="width:72px;height:30px;border-radius:8px;"></span><span class="loading-action" style="width:60px;height:30px;border-radius:8px;"></span></div>
+                        </div>
+                        <div class="loading-card" style="min-height:0; padding:14px 16px; display:flex; align-items:center; gap:14px; border-radius:14px;">
+                            <div class="loading-action" style="width:40px;height:40px;border-radius:12px;flex-shrink:0;"></div>
+                            <div style="flex:1"><div class="loading-line wide" style="height:12px;margin-bottom:8px;border-radius:8px;"></div><div class="loading-line med" style="height:10px;border-radius:8px;"></div></div>
+                            <div style="display:flex;gap:6px"><span class="loading-action" style="width:72px;height:30px;border-radius:8px;"></span><span class="loading-action" style="width:60px;height:30px;border-radius:8px;"></span></div>
+                        </div>
+                    </div>
+
+                    <div id="emptyState" class="empty-state">
+                        <div class="empty-icon">CV</div>
+                        <h3>Bạn chưa có CV nào</h3>
+                        <p>Hãy tạo CV đầu tiên để bắt đầu lưu phiên bản, theo dõi cập nhật và tải PDF ngay khi cần nộp hồ sơ.</p>
+                        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+                            <a href="/cv-editor.html" class="btn btn-primary">Tạo CV đầu tiên</a>
+                            <button class="btn btn-outline" onclick="document.getElementById('uploadCvModal').classList.add('show')">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Tải CV lên
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="cvGrid"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ── Sidebar ── -->
+        <aside class="sidebar-column">
+
+            <!-- Profile card -->
+            <section class="surface-card sidebar-card profile-card">
+                <div class="profile-head">
+                    <img src="https://i.pravatar.cc/160?u=user" alt="Ảnh đại diện" class="user-avatar" id="sidebarAvatar">
+                    <div>
+                        <span class="user-badge">CoHoiViecLam Profile</span>
+                        <h4 id="sidebarUserName">Người dùng</h4>
+                        <p>Không gian CV của bạn đã sẵn sàng để cập nhật và ứng tuyển nhanh hơn.</p>
+                    </div>
+                </div>
             </div>
-        </section>
 
-        <!-- 2. QUICK STATS & TOGGLE -->
-        <section class="board-row">
-            <article class="stat-card">
-                <div class="icon-box">📄</div>
-                <div class="stat-val">
-                    <span>Tổng số hồ sơ</span>
-                    <strong id="totalCvCount">--</strong>
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <span>Tổng hồ sơ</span>
+                        <strong id="sidebarTotalCv">0</strong>
+                    </div>
+                    <div class="profile-stat">
+                        <span>PDF sẵn sàng</span>
+                        <strong id="sidebarReadyMetric">0</strong>
+                    </div>
                 </div>
-            </article>
-            <article class="stat-card">
-                <div class="icon-box">🔥</div>
-                <div class="stat-val">
-                    <span>Cập nhật gần đây</span>
-                    <strong id="recentCvCount">--</strong>
-                </div>
-            </article>
-            <article class="stat-card toggle-card">
-                <div class="toggle-info">
-                    <h4 id="jobSearchTitle">Đang tìm việc</h4>
-                    <p>Bật để nhà tuyển dụng tìm thấy bạn</p>
-                </div>
-                <label class="switch">
-                    <input type="checkbox" id="jobStatusToggle" checked>
-                    <span class="slider"></span>
-                </label>
-            </article>
-        </section>
 
-        <!-- 3. CV COLLECTION -->
-        <section class="collection-wrapper">
-            <div class="gallery-header">
-                <div>
-                    <h2 class="gallery-title">Bộ sưu tập hồ sơ</h2>
-                    <p class="gallery-summary" id="gallerySummary">Đang tải dữ liệu hồ sơ của bạn...</p>
+                <div class="selected-cv">
+                    <div class="pill muted" style="margin-bottom: 8px; font-size:11px;">CV nổi bật</div>
+                    <h5 class="selected-cv-name" id="selectedCvName">Đang tải dữ liệu...</h5>
+                    <div class="selected-cv-meta" id="selectedCvMeta">CV được cập nhật gần nhất sẽ xuất hiện ở đây.</div>
                 </div>
-            </div>
+            </section>
 
-            <div id="loader" class="loader">Đang đồng bộ dữ liệu...</div>
-            
-            <div id="emptyMsg" class="empty-state" style="display: none;">
-                <h3>Hành trình của bạn bắt đầu từ đây</h3>
-                <p>Bạn chưa có CV nào. Hãy tạo một bản CV chuyên nghiệp ngay bây giờ.</p>
-                <a href="/cv-editor.html" class="btn btn-main" style="margin-top: 24px;">Bắt đầu tạo CV</a>
-            </div>
+            <!-- Settings card -->
+            <section class="surface-card sidebar-card">
+                <h3 class="sidebar-title" style="margin-bottom: 14px;">Trạng thái hiển thị hồ sơ</h3>
+                <div class="settings-row">
+                    <div>
+                        <strong>Bật tìm việc</strong>
+                        <div class="settings-copy">Đồng bộ cùng trạng thái ở khu vực tổng quan bên trái.</div>
+                    </div>
+                    <label class="toggle-switch" aria-label="Bật tìm việc trong sidebar">
+                        <input type="checkbox" id="jobSearchToggleSidebar" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <p class="status-copy" id="sidebarStatusCopy">Trạng thái đang bật giúp CV của bạn sẵn sàng tiếp cận các nhà tuyển dụng uy tín trong vòng 14 ngày tới.</p>
 
-            <div id="cvGrid" class="cv-grid"></div>
-        </section>
+                <ul class="sidebar-list">
+                    <li>Giữ một CV nổi bật để truy cập nhanh khi cần gửi hồ sơ ngay.</li>
+                    <li>Tải PDF trực tiếp từ danh sách CV mà không phải thao tác lại trong trình chỉnh sửa.</li>
+                    <li>Đổi tên từng bản CV để quản lý theo vị trí ứng tuyển hoặc theo phiên bản.</li>
+                </ul>
+            </section>
+
+        </aside>
     </main>
 
-    <!-- RENAMING MODAL -->
-    <div class="modal-bg" id="renameModal">
+    <!-- ── Rename Modal ── -->
+    <div class="modal-backdrop" id="renameModal">
         <div class="modal-content">
             <h4 class="modal-title">Đổi tên CV</h4>
             <p class="modal-p">Đặt tên ngắn gọn, dễ nhận biết cho phiên bản CV này.</p>
@@ -388,8 +1061,8 @@
         </div>
     </div>
 
-    <!-- DELETE MODAL -->
-    <div class="modal-bg" id="deleteModal">
+    <!-- ── Delete Modal ── -->
+    <div class="modal-backdrop" id="deleteModal">
         <div class="modal-content">
             <h4 class="modal-title" style="color: var(--danger);">Xóa hồ sơ?</h4>
             <p class="modal-p" id="deleteMsg">Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa bản CV này?</p>
@@ -400,7 +1073,27 @@
         </div>
     </div>
 
-    <div id="toastContainer" class="toast-box"></div>
+    <!-- ── Upload CV Modal ── -->
+    <div class="modal-backdrop" id="uploadCvModal">
+        <div class="modal-content">
+            <h4>Tải CV lên</h4>
+            <p>Chọn file CV và đặt tên để lưu vào danh sách của bạn.</p>
+            <div class="modal-field">
+                <label class="modal-label" for="uploadCvFile">Chọn file CV</label>
+                <input type="file" id="uploadCvFile" class="modal-input" accept=".pdf,.doc,.docx" style="height:auto; padding: 10px 14px; cursor:pointer;">
+            </div>
+            <div class="modal-field">
+                <label class="modal-label" for="uploadCvName">Tên CV</label>
+                <input type="text" id="uploadCvName" class="modal-input" placeholder="Ví dụ: CV Fullstack Developer 2026" maxlength="100">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-modal secondary" onclick="document.getElementById('uploadCvModal').classList.remove('show')">Hủy</button>
+                <button class="btn-modal primary" onclick="handleUploadCv()">Tải lên</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-wrap" id="toastWrap"></div>
     <div id="footer-placeholder"></div>
 
     <script src="js/main.js"></script>
@@ -423,8 +1116,40 @@
             } catch (err) { console.error('Auth check failed', err); }
         }
 
-        function initDashboard() {
-            loadCvs();
+        function setupToggles() {
+            const heroToggle = document.getElementById('jobSearchToggleMain');
+            const sidebarToggle = document.getElementById('jobSearchToggleSidebar');
+            if (!heroToggle || !sidebarToggle) return;
+            const syncToggle = (checked) => {
+                heroToggle.checked = checked;
+                sidebarToggle.checked = checked;
+                syncJobSearchUi(checked);
+            };
+            heroToggle.addEventListener('change', (event) => syncToggle(event.target.checked));
+            sidebarToggle.addEventListener('change', (event) => syncToggle(event.target.checked));
+        }
+
+        function syncJobSearchUi(enabled) {
+            document.getElementById('jobSearchTitle').textContent = enabled ? 'Đang bật tìm việc' : 'Tạm ẩn khỏi tìm kiếm';
+            document.getElementById('jobSearchMessage').textContent = enabled
+                ? 'Khi trạng thái này đang bật, hồ sơ của bạn được ưu tiên hiển thị trong 14 ngày tới và sẵn sàng nhận lời mời phỏng vấn nhanh hơn.'
+                : 'CV vẫn được lưu đầy đủ, nhưng sẽ không được ưu tiên hiển thị cho nhà tuyển dụng cho đến khi bạn bật lại trạng thái tìm việc.';
+            const pill = document.getElementById('jobSearchPill');
+            pill.textContent = enabled ? 'Sẵn sàng nhận cơ hội mới' : 'Có thể bật lại bất cứ lúc nào';
+            pill.classList.toggle('is-off', !enabled);
+            document.getElementById('sidebarStatusCopy').textContent = enabled
+                ? 'Trạng thái đang bật giúp CV của bạn sẵn sàng tiếp cận các nhà tuyển dụng uy tín trong vòng 14 ngày tới.'
+                : 'Trạng thái đang tắt. Hãy bật lại khi bạn muốn hồ sơ quay trở lại tìm kiếm của nhà tuyển dụng.';
+        }
+
+        function setupModalBehaviors() {
+            ['renameModal', 'deleteModal', 'uploadCvModal'].forEach((id) => {
+                const modal = document.getElementById(id);
+                if (!modal) return;
+                modal.addEventListener('click', (event) => {
+                    if (event.target === modal) modal.classList.remove('show');
+                });
+            });
         }
 
         async function loadCvs() {
@@ -466,30 +1191,21 @@
             const card = document.createElement('div');
             card.className = 'cv-card';
             card.innerHTML = `
-                <div class="cv-preview" onclick="location.href='/xem-cv.html?cvId=${cv.id}'">
-                    <div class="cv-sheet">
-                        <div class="sheet-header"></div>
-                        <div class="sheet-box" style="width: 70%"></div>
-                        <div class="sheet-line" style="width: 100%"></div>
-                        <div class="sheet-line" style="width: 90%"></div>
-                        <div class="sheet-line" style="width: 40%"></div>
-                        <div class="sheet-box" style="width: 100%; margin-top: 20px; opacity: 0.05;"></div>
+                <div class="cv-card-row">
+                    <div class="cv-row-icon" onclick="openCvEditor(${cv.id})" style="cursor:pointer" title="Mở CV"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                    <div class="cv-row-info">
+                        <p class="cv-row-name" title="${esc(cv.cvName || 'CV của bạn')}">${esc(cv.cvName || 'CV của bạn')}</p>
+                        <div class="cv-row-meta">
+                            <span class="cv-row-badge">${esc(limitText(templateName, 20))}</span>
+                            <span class="cv-row-date">${fmtDate(cv.updatedAt)} · ${fmtRelativeDate(cv.updatedAt)}</span>
+                        </div>
                     </div>
-                </div>
-                <div class="cv-body">
-                    <span class="cv-tag">${cv.templateName || 'CV TIÊU CHUẨN'}</span>
-                    <h3 class="cv-name">${esc(cv.cvName || 'Bản nháp #' + cv.id)}</h3>
-                    <div class="cv-meta">
-                        <span>#${cv.id}</span>
-                        <span>•</span>
-                        <span>${fmtRelative(cv.updatedAt)}</span>
+                    <div class="cv-row-actions">
+                        <button class="btn-cv-action btn-cv-primary" onclick="openCvEditor(${cv.id})">Chỉnh sửa</button>
+                        <button class="btn-cv-action" onclick='renameCV(${cv.id}, ${safeName})'>Đổi tên</button>
+                        <button class="btn-cv-action" onclick="window.location.href='/cv-view.html?cvId=${cv.id}'">Xem CV</button>
+                        <button class="btn-cv-action btn-cv-danger" onclick='deleteCV(${cv.id}, ${safeName})'>Xóa</button>
                     </div>
-                </div>
-                <div class="cv-actions">
-                    <button class="btn-card main" onclick="location.href='/xem-cv.html?cvId=${cv.id}'">Xem bản xem trước</button>
-                    <button class="btn-card" onclick="location.href='/cv-editor.html?cvId=${cv.id}&edit=true'">Chỉnh sửa</button>
-                    <button class="btn-card" onclick="openRename(${cv.id}, '${esc(cv.cvName)}')">Đổi tên</button>
-                    <button class="btn-card danger" onclick="openDelete(${cv.id}, '${esc(cv.cvName)}')">Xóa bỏ</button>
                 </div>
             `;
             return card;
@@ -558,26 +1274,68 @@
 
         async function confirmDelete() {
             try {
-                const res = await fetch(`/api/user-cv/${activeId}`, { method: 'DELETE', credentials: 'include' });
-                if (res.ok) {
-                    showToast('Đã xóa hồ sơ thành công');
-                    closeModal('deleteModal');
-                    loadCvs();
-                }
-            } catch (err) { showToast('Lỗi khi xóa hồ sơ', 'error'); }
+                const res = await fetch(`/api/user-cv/${deleteTargetId}`, { method: 'DELETE', credentials: 'include' });
+                const data = await parseJsonSafe(res);
+                if (!res.ok) throw new Error(data.message || 'Không thể xóa CV.');
+                toast('Đã xóa CV thành công.', 'success');
+                closeDelete();
+                await loadCvList();
+            } catch (error) { toast(error.message || 'Không thể xóa CV.', 'error'); }
         }
 
-        function showToast(msg, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            if (type === 'error') toast.style.background = 'var(--danger)';
-            toast.textContent = msg;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        function downloadCV(id, button) {
+            const exportUrl = `/cv-editor.html?cvId=${id}&download=pdf&source=my-cvs`;
+            setButtonLoading(button, true);
+            toast('Đang mở CV để xuất PDF...', 'success');
+            const popup = window.open(exportUrl, '_blank', 'noopener');
+            setTimeout(() => setButtonLoading(button, false), 2200);
+            if (!popup) window.location.href = exportUrl;
         }
 
-        function esc(str) { return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m])); }
+        function setButtonLoading(button, loading) {
+            if (!button) return;
+            if (!button.dataset.originalLabel) button.dataset.originalLabel = button.textContent;
+            button.textContent = loading ? 'Đang xuất' : button.dataset.originalLabel;
+            button.classList.toggle('btn-cv-loading', loading);
+            button.disabled = loading;
+        }
+
+        async function handleUploadCv() {
+            const fileInput = document.getElementById('uploadCvFile');
+            const nameInput = document.getElementById('uploadCvName');
+            const cvName = nameInput.value.trim();
+            if (!cvName) return toast('Vui lòng nhập tên CV.', 'error');
+            if (!fileInput.files || !fileInput.files.length) return toast('Vui lòng chọn file CV.', 'error');
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('cvName', cvName);
+                const res = await fetch('/api/user-cv/upload-pdf', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+                const data = await parseJsonSafe(res);
+                if (!res.ok) throw new Error(data.message || 'Không thể tải CV lên.');
+                document.getElementById('uploadCvModal').classList.remove('show');
+                fileInput.value = '';
+                nameInput.value = '';
+                toast('Đã tải CV lên thành công.', 'success');
+                await loadCvList();
+            } catch (error) { toast(error.message || 'Không thể tải CV lên.', 'error'); }
+        }
+
+        async function parseJsonSafe(res) { try { return await res.json(); } catch { return {}; } }
+        function getInitials(text) { if (!text) return 'CV'; return String(text).trim().split(/\s+/).slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join('') || 'CV'; }
+        function limitText(text, max) { const value = String(text || ''); return value.length > max ? `${value.slice(0, max - 1)}…` : value; }
+        function isWithinDays(iso, days) { if (!iso) return false; const time = new Date(iso).getTime(); if (Number.isNaN(time)) return false; return Date.now() - time <= days * 86400000; }
+        function fmtDate(iso) { try { return new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch { return iso || '--'; } }
+        function fmtRelativeDate(iso) { if (!iso) return 'Mới cập nhật'; const time = new Date(iso).getTime(); if (Number.isNaN(time)) return 'Mới cập nhật'; const diff = time - Date.now(); const abs = Math.abs(diff); const rtf = new Intl.RelativeTimeFormat('vi', { numeric: 'auto' }); if (abs < 3600000) return rtf.format(Math.round(diff / 60000), 'minute'); if (abs < 86400000) return rtf.format(Math.round(diff / 3600000), 'hour'); return rtf.format(Math.round(diff / 86400000), 'day'); }
+        function show(id, display = '') { const el = document.getElementById(id); if (el) el.style.display = display || ''; }
+        function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+        function clear(id) { const el = document.getElementById(id); if (el) el.innerHTML = ''; }
+        function esc(text) { return String(text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+        function toast(message, type = '') { const wrap = document.getElementById('toastWrap'); const node = document.createElement('div'); node.className = `toast ${type}`.trim(); node.textContent = message; wrap.appendChild(node); setTimeout(() => node.remove(), 2600); }
     </script>
 </body>
 </html>

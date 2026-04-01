@@ -56,28 +56,37 @@
         const widgetHTML = `
             <div class="contact-widget">
                 <button class="contact-widget__main-btn" aria-label="Liên hệ">
-                    <div class="main-icon-container">
-                        <!-- Default icon: Chatbot -->
-                        <svg class="main-icon icon-ai current-icon" width="24" height="24" viewBox="0 0 24 24" data-icon="chatbot">
-                            <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    <span class="icon-message">
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                            <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/>
+                            <path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
                         </svg>
-                    </div>
+                    </span>
                     <div class="ring-indicator"></div>
                 </button>
 
                 <div class="contact-widget__sub-buttons">
                     <a href="tel:${CONFIG.phone}"
                        class="contact-widget__btn phone-btn"
-                       aria-label="Điện thoại">
-                        <svg class="icon-phone" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+                       aria-label="Gọi điện">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"
+                                  fill="currentColor"/>
                         </svg>
                     </a>
 
                     <button class="contact-widget__btn chatbot-btn"
-                            aria-label="Chatbot AI">
-                        <svg class="icon-ai" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            aria-label="Trợ lý AI">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M9.5 2A1.5 1.5 0 0 0 8 3.5V4a4 4 0 0 0-4 4v8a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V8a4 4 0 0 0-4-4v-.5A1.5 1.5 0 0 0 14.5 2h-5Z"
+                                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="9" cy="11" r="1.3" fill="currentColor"/>
+                            <circle cx="15" cy="11" r="1.3" fill="currentColor"/>
+                            <path d="M9.5 15c.83.83 2.17 1.2 3 .8.83.4 2.17.03 3-.8"
+                                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
                     </button>
 
@@ -86,10 +95,9 @@
                        rel="noopener"
                        class="contact-widget__btn zalo-btn"
                        aria-label="Zalo">
-                        <svg class="icon-zalo" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <rect x="1" y="4" width="22" height="16" rx="3" fill="#0068FF"/>
-                            <text x="12" y="15" text-anchor="middle" font-size="7" font-weight="bold" fill="currentColor">Zalo</text>
-                        </svg>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg"
+                             alt="Zalo" width="26" height="26"
+                             style="border-radius:4px;" />
                     </a>
                 </div>
             </div>

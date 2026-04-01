@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Interview AI - JCO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mock-interview.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <!-- ===== HERO ===== -->
+    <section class="mi-hero">
+        <div class="mi-hero-inner">
+            <div class="mi-hero-badge">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Powered by AI
+            </div>
+            <h1>Luyện phỏng vấn <span class="mi-accent">thực chiến</span> cùng AI</h1>
+            <p>Trả lời câu hỏi theo vị trí thực tế, nhận phản hồi chi tiết và cải thiện kỹ năng trước khi bước vào vòng phỏng vấn thật.</p>
+            <div class="mi-hero-stats">
+                <div class="mi-stat">
+                    <span class="mi-stat-num">50+</span>
+                    <span class="mi-stat-label">Vị trí công việc</span>
+                </div>
+                <div class="mi-stat-divider"></div>
+                <div class="mi-stat">
+                    <span class="mi-stat-num">200+</span>
+                    <span class="mi-stat-label">Câu hỏi thực tế</span>
+                </div>
+                <div class="mi-stat-divider"></div>
+                <div class="mi-stat">
+                    <span class="mi-stat-num">AI</span>
+                    <span class="mi-stat-label">Phản hồi tức thì</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="mi-page">
+        <div class="container">
+
+            <!-- STEP 1: SETUP -->
+            <div id="stepSetup" class="mi-step active">
+                <div class="mi-setup-grid">
+
+                    <!-- Left: Config -->
+                    <div class="mi-setup-left">
+                        <div class="mi-card">
+                            <div class="mi-card-header">
+                                <div class="mi-card-icon teal">
+                                    <i class="fa-solid fa-sliders"></i>
+                                </div>
+                                <div>
+                                    <h2>Thiết lập phiên phỏng vấn</h2>
+                                    <p>Tùy chỉnh để nhận câu hỏi phù hợp nhất với bạn</p>
+                                </div>
+                            </div>
+
+                            <div class="mi-form">
+
+                                <!-- CV Upload -->
+                                <div class="mi-field">
+                                    <label><i class="fa-solid fa-file-user"></i> CV của bạn <span class="mi-optional-tag">AI sẽ cá nhân hóa câu hỏi theo CV</span></label>
+                                    <div class="mi-cv-section">
+                                        <!-- Upload zone -->
+                                        <div class="mi-cv-upload-zone" id="cvUploadZone">
+                                            <input type="file" id="cvFileInput" accept=".pdf,.doc,.docx" hidden>
+                                            <div class="mi-cv-upload-inner" id="cvUploadInner">
+                                                <div class="mi-cv-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                                                <div class="mi-cv-upload-text">
+                                                    <strong>Kéo thả CV vào đây</strong>
+                                                    <span>hoặc <button type="button" class="mi-browse-btn" id="cvBrowseBtn">chọn file</button></span>
+                                                    <small>Hỗ trợ PDF, DOC, DOCX · Tối đa 5MB</small>
+                                                </div>
+                                            </div>
+                                            <div class="mi-cv-selected" id="cvSelectedState" style="display:none">
+                                                <div class="mi-cv-sel-icon"><i class="fa-solid fa-file-check"></i></div>
+                                                <div class="mi-cv-sel-info">
+                                                    <strong id="cvFileName">my-cv.pdf</strong>
+                                                    <span id="cvFileSize">245 KB · Đã sẵn sàng</span>
+                                                </div>
+                                                <button type="button" class="mi-cv-remove" id="cvRemoveBtn"><i class="fa-solid fa-xmark"></i></button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Or select from saved CVs -->
+                                        <div class="mi-cv-divider"><span>hoặc chọn từ CV đã lưu</span></div>
+                                        <div class="mi-saved-cvs" id="savedCvs">
+                                            <!-- Loaded dynamically from API -->
+                                            <div class="mi-no-saved-cv" id="noSavedCv">
+                                                <i class="fa-regular fa-folder-open"></i>
+                                                <span>Bạn chưa lưu CV nào. <a href="my-cvs.html">Quản lý CV</a></span>
+                                            </div>
+                                        </div>
+
+                                        <!-- CV AI note -->
+                                        <div class="mi-cv-ai-note" id="cvAiNote" style="display:none">
+                                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                            <span>AI đã đọc CV của bạn và sẽ tạo câu hỏi phù hợp với kinh nghiệm, kỹ năng và vị trí mong muốn.</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Job role -->
+                                <div class="mi-field">
+                                    <label><i class="fa-solid fa-briefcase"></i> Vị trí ứng tuyển</label>
+
+                                    <!-- Category filter tabs -->
+                                    <div class="mi-cat-tabs" id="catTabs">
+                                        <button class="mi-cat-tab active" data-cat="all">Tất cả</button>
+                                        <button class="mi-cat-tab" data-cat="tech">Công nghệ</button>
+                                        <button class="mi-cat-tab" data-cat="business">Kinh doanh</button>
+                                        <button class="mi-cat-tab" data-cat="finance">Tài chính</button>
+                                        <button class="mi-cat-tab" data-cat="hr">Nhân sự</button>
+                                        <button class="mi-cat-tab" data-cat="design">Thiết kế</button>
+                                        <button class="mi-cat-tab" data-cat="ops">Vận hành</button>
+                                        <button class="mi-cat-tab" data-cat="other">Khác</button>
+                                    </div>
+
+                                    <!-- Role search -->
+                                    <div class="mi-role-search">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                        <input type="text" id="roleSearch" placeholder="Tìm vị trí...">
+                                    </div>
+
+                                    <!-- Role grid -->
+                                    <div class="mi-role-grid" id="roleGrid">
+                                        <!-- Injected by JS -->
+                                    </div>
+
+                                    <!-- Custom role -->
+                                    <div class="mi-custom-role">
+                                        <input type="text" id="customRole" placeholder="Không thấy vị trí? Nhập tại đây...">
+                                    </div>
+                                </div>
+
+                                <!-- Level — rendered by JS from /api/interview/config -->
+                                <div class="mi-field">
+                                    <label><i class="fa-solid fa-signal"></i> Cấp độ kinh nghiệm</label>
+                                    <div class="mi-level-tabs" id="levelButtons">
+                                        <span style="color:#9ba8c0;font-size:13px">Đang tải...</span>
+                                    </div>
+                                </div>
+
+                                <!-- Interview type — rendered by JS from /api/interview/config -->
+                                <div class="mi-field">
+                                    <label><i class="fa-solid fa-comments"></i> Loại phỏng vấn</label>
+                                    <div class="mi-type-cards" id="typeCards">
+                                        <span style="color:#9ba8c0;font-size:13px">Đang tải...</span>
+                                    </div>
+                                </div>
+
+                                <!-- Interviewer Style -->
+                                <div class="mi-field" id="fieldStyle">
+                                    <label><i class="fa-solid fa-user-tie"></i> Phong cách người phỏng vấn</label>
+                                    <div class="mi-style-grid" id="styleGrid">
+                                        <button class="mi-style-btn active" data-style="standard">
+                                            <span class="mi-style-name">Chuyên nghiệp</span>
+                                            <span class="mi-style-desc">Phỏng vấn cân bằng, thân thiện</span>
+                                        </button>
+                                        <button class="mi-style-btn" data-style="techlead">
+                                            <span class="mi-style-name">Tech Lead</span>
+                                            <span class="mi-style-desc">Hỏi sâu kỹ thuật, phản biện gay gắt</span>
+                                        </button>
+                                        <button class="mi-style-btn" data-style="startup">
+                                            <span class="mi-style-name">Startup Founder</span>
+                                            <span class="mi-style-desc">Nhanh, thực tế, kiểm tra mindset</span>
+                                        </button>
+                                        <button class="mi-style-btn" data-style="strict">
+                                            <span class="mi-style-name">FAANG-style</span>
+                                            <span class="mi-style-desc">Nghiêm khắc, ít gợi ý, chuẩn quốc tế</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Mode selector -->
+                                <div class="mi-field">
+                                    <label><i class="fa-solid fa-wand-magic-sparkles"></i> Chế độ luyện tập</label>
+                                    <div class="mi-mode-toggle-wrap">
+                                        <label class="mi-mode-opt" id="modeCardAI">
+                                            <input type="radio" name="mode" value="ai" checked>
+                                            <div class="mi-mode-opt-inner">
+                                                <i class="fa-solid fa-brain"></i>
+                                                <span class="mi-mode-opt-name">Chat với AI</span>
+                                                <span class="mi-mode-badge ai">Claude</span>
+                                            </div>
+                                        </label>
+                                        <label class="mi-mode-opt" id="modeCardVoice">
+                                            <input type="radio" name="mode" value="voice">
+                                            <div class="mi-mode-opt-inner">
+                                                <i class="fa-solid fa-microphone-lines"></i>
+                                                <span class="mi-mode-opt-name">Vấn đáp</span>
+                                                <span class="mi-mode-badge voice">Voice</span>
+                                            </div>
+                                        </label>
+                                        <label class="mi-mode-opt" id="modeCardStatic">
+                                            <input type="radio" name="mode" value="static">
+                                            <div class="mi-mode-opt-inner">
+                                                <i class="fa-solid fa-list-check"></i>
+                                                <span class="mi-mode-opt-name">Tự luyện</span>
+                                                <span class="mi-mode-badge manual">Offline</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Question count (static mode only) -->
+                                <div class="mi-field" id="fieldQCount">
+                                    <label><i class="fa-solid fa-list-ol"></i> Số câu hỏi: <span id="qCountLabel">5</span></label>
+                                    <input type="range" id="qCount" min="3" max="10" value="5" class="mi-range">
+                                    <div class="mi-range-labels">
+                                        <span>3 câu (nhanh)</span>
+                                        <span>10 câu (đầy đủ)</span>
+                                    </div>
+                                </div>
+
+                                <button class="mi-start-btn" id="startBtn">
+                                    <i class="fa-solid fa-play"></i>
+                                    Bắt đầu phỏng vấn
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Info + Tips -->
+                    <div class="mi-setup-right">
+                        <!-- How it works -->
+                        <div class="mi-card mi-how-card">
+                            <h3><i class="fa-solid fa-circle-info"></i> Cách hoạt động</h3>
+                            <div class="mi-steps-list">
+                                <div class="mi-step-item">
+                                    <div class="mi-step-num">1</div>
+                                    <div>
+                                        <strong>Chọn vị trí & cấp độ</strong>
+                                        <span>AI tạo câu hỏi phù hợp với hồ sơ của bạn</span>
+                                    </div>
+                                </div>
+                                <div class="mi-step-item">
+                                    <div class="mi-step-num">2</div>
+                                    <div>
+                                        <strong>Trả lời từng câu hỏi</strong>
+                                        <span>Gõ câu trả lời như đang phỏng vấn thật</span>
+                                    </div>
+                                </div>
+                                <div class="mi-step-item">
+                                    <div class="mi-step-num">3</div>
+                                    <div>
+                                        <strong>Nhận phản hồi AI</strong>
+                                        <span>Điểm số, điểm mạnh, điểm cần cải thiện</span>
+                                    </div>
+                                </div>
+                                <div class="mi-step-item">
+                                    <div class="mi-step-num">4</div>
+                                    <div>
+                                        <strong>Xem tổng kết</strong>
+                                        <span>Báo cáo toàn phiên và gợi ý phát triển</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tips -->
+                        <div class="mi-card mi-tips-card">
+                            <h3><i class="fa-solid fa-lightbulb"></i> Mẹo trả lời tốt hơn</h3>
+                            <ul class="mi-tips-list">
+                                <li><i class="fa-solid fa-check-circle"></i> Dùng cấu trúc <strong>STAR</strong>: Situation → Task → Action → Result</li>
+                                <li><i class="fa-solid fa-check-circle"></i> Đưa <strong>số liệu cụ thể</strong> vào câu trả lời</li>
+                                <li><i class="fa-solid fa-check-circle"></i> Trả lời <strong>súc tích</strong>, không lan man</li>
+                                <li><i class="fa-solid fa-check-circle"></i> Liên kết kinh nghiệm với <strong>vị trí đang ứng tuyển</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: INTERVIEW IN PROGRESS -->
+            <div id="stepInterview" class="mi-step">
+                <div class="mi-interview-layout">
+
+                    <!-- Main: Question + Answer -->
+                    <div class="mi-interview-main">
+
+                        <!-- Progress bar -->
+                        <div class="mi-progress-bar-wrap">
+                            <div class="mi-progress-info">
+                                <span id="progressLabel">Câu 1 / 5</span>
+                                <span id="progressRole" class="mi-role-tag"></span>
+                            </div>
+                            <div class="mi-progress-bar">
+                                <div class="mi-progress-fill" id="progressFill" style="width:20%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Question card -->
+                        <div class="mi-card mi-question-card">
+                            <div class="mi-q-meta">
+                                <span class="mi-q-badge" id="qBadge">HR</span>
+                                <span class="mi-q-diff" id="qDiff">Cơ bản</span>
+                                <span class="mi-q-timer" id="qTimer"><i class="fa-regular fa-clock"></i> <span id="timerVal">03:00</span></span>
+                            </div>
+                            <div class="mi-q-number" id="qNumber">Câu hỏi 01</div>
+                            <h2 class="mi-question-text" id="questionText">Hãy giới thiệu về bản thân bạn và lý do bạn ứng tuyển vào vị trí này?</h2>
+                            <div class="mi-q-hint">
+                                <i class="fa-solid fa-circle-question"></i>
+                                <span id="qHint">Gợi ý: Tóm tắt kinh nghiệm, kỹ năng nổi bật và động lực của bạn.</span>
+                            </div>
+                        </div>
+
+                        <!-- Answer input -->
+                        <div class="mi-card mi-answer-card">
+                            <div class="mi-answer-header">
+                                <label><i class="fa-solid fa-pen-to-square"></i> Câu trả lời của bạn</label>
+                                <div class="mi-answer-tools">
+                                    <button class="mi-tool-btn" id="clearBtn" title="Xóa"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                            </div>
+                            <textarea id="answerInput" class="mi-textarea" placeholder="Nhập câu trả lời của bạn tại đây...&#10;&#10;Gợi ý dùng cấu trúc STAR: Mô tả tình huống → Nhiệm vụ của bạn → Hành động đã thực hiện → Kết quả đạt được." rows="7"></textarea>
+                            <div class="mi-answer-footer">
+                                <span class="mi-char-count"><span id="charCount">0</span> ký tự</span>
+                                <button class="mi-submit-btn" id="submitBtn">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                    Gửi câu trả lời
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- AI Feedback (hidden until submitted) -->
+                        <div class="mi-card mi-feedback-card" id="feedbackCard" style="display:none">
+                            <div class="mi-feedback-header">
+                                <div class="mi-feedback-icon">
+                                    <i class="fa-solid fa-brain"></i>
+                                </div>
+                                <div>
+                                    <h3>Phản hồi từ AI</h3>
+                                    <p>Phân tích câu trả lời của bạn</p>
+                                </div>
+                                <div class="mi-score-circle" id="scoreCircle">
+                                    <span id="scoreNum">8</span>
+                                    <small>/10</small>
+                                </div>
+                            </div>
+
+                            <div class="mi-feedback-body">
+                                <div class="mi-feedback-col good">
+                                    <div class="mi-fb-title"><i class="fa-solid fa-circle-check"></i> Điểm mạnh</div>
+                                    <ul id="feedbackGood"></ul>
+                                </div>
+                                <div class="mi-feedback-col improve">
+                                    <div class="mi-fb-title"><i class="fa-solid fa-circle-arrow-up"></i> Cần cải thiện</div>
+                                    <ul id="feedbackImprove"></ul>
+                                </div>
+                            </div>
+
+                            <div class="mi-model-answer">
+                                <div class="mi-ma-header">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    Câu trả lời tham khảo
+                                </div>
+                                <p id="modelAnswer"></p>
+                            </div>
+
+                            <div class="mi-feedback-actions">
+                                <button class="mi-next-btn" id="nextBtn">
+                                    Câu tiếp theo <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Loading skeleton -->
+                        <div class="mi-card mi-loading-card" id="loadingCard" style="display:none">
+                            <div class="mi-loading-content">
+                                <div class="mi-loading-spinner">
+                                    <i class="fa-solid fa-brain fa-beat-fade"></i>
+                                </div>
+                                <p>AI đang phân tích câu trả lời của bạn...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="mi-interview-sidebar">
+                        <!-- Session info -->
+                        <div class="mi-card mi-session-card">
+                            <h4><i class="fa-solid fa-circle-play"></i> Phiên phỏng vấn</h4>
+                            <div class="mi-session-info">
+                                <div class="mi-si-row">
+                                    <span><i class="fa-solid fa-briefcase"></i> Vị trí</span>
+                                    <strong id="sidebarRole">Frontend Developer</strong>
+                                </div>
+                                <div class="mi-si-row">
+                                    <span><i class="fa-solid fa-signal"></i> Cấp độ</span>
+                                    <strong id="sidebarLevel">Fresher</strong>
+                                </div>
+                                <div class="mi-si-row">
+                                    <span><i class="fa-solid fa-comments"></i> Loại</span>
+                                    <strong id="sidebarType">Tổng hợp</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Question map -->
+                        <div class="mi-card mi-qmap-card">
+                            <h4><i class="fa-solid fa-map"></i> Tiến trình</h4>
+                            <div class="mi-qmap" id="qMap"></div>
+                        </div>
+
+                        <!-- Live tip -->
+                        <div class="mi-card mi-livetip-card" id="liveTipCard">
+                            <div class="mi-livetip-icon"><i class="fa-solid fa-lightbulb"></i></div>
+                            <p id="liveTipText">Hãy trả lời bằng kinh nghiệm thực tế của bạn. AI sẽ đánh giá cao các câu trả lời có dẫn chứng cụ thể.</p>
+                        </div>
+
+                        <!-- Quit -->
+                        <button class="mi-quit-btn" id="quitBtn">
+                            <i class="fa-solid fa-stop-circle"></i> Kết thúc phiên
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: RESULTS -->
+            <div id="stepResults" class="mi-step">
+                <div class="mi-results-wrap">
+                    <!-- Score overview -->
+                    <div class="mi-card mi-results-hero">
+                        <div class="mi-rh-left">
+                            <div class="mi-overall-badge">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <div>
+                                <h2>Kết quả phiên phỏng vấn</h2>
+                                <p id="resultSubtitle">Frontend Developer · Fresher · Tổng hợp</p>
+                            </div>
+                        </div>
+                        <div class="mi-overall-score">
+                            <div class="mi-big-score" id="finalScore">7.4</div>
+                            <div class="mi-score-label">/ 10</div>
+                            <div class="mi-score-tag" id="scoreTag">Khá tốt</div>
+                        </div>
+                    </div>
+
+                    <div class="mi-results-grid">
+                        <!-- Category breakdown -->
+                        <div class="mi-card mi-breakdown-card">
+                            <h3><i class="fa-solid fa-chart-bar"></i> Phân tích theo danh mục</h3>
+                            <div class="mi-breakdown-list" id="breakdownList"></div>
+                        </div>
+
+                        <!-- Summary stats -->
+                        <div class="mi-card mi-summary-card">
+                            <h3><i class="fa-solid fa-chart-pie"></i> Tổng quan</h3>
+                            <div class="mi-summary-stats" id="summaryStats"></div>
+                            <div class="mi-recommendation" id="recommendation"></div>
+                        </div>
+                    </div>
+
+                    <!-- Full Q&A review -->
+                    <div class="mi-card mi-review-card">
+                        <h3><i class="fa-solid fa-clipboard-list"></i> Chi tiết từng câu hỏi</h3>
+                        <div class="mi-review-list" id="reviewList"></div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="mi-results-actions">
+                        <button class="mi-retry-btn" id="retryBtn">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            Luyện lại
+                        </button>
+                        <button class="mi-new-btn" id="newSetupBtn">
+                            <i class="fa-solid fa-sliders"></i>
+                            Thay đổi cài đặt
+                        </button>
+                        <button class="mi-save-btn" id="saveBtn">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            Lưu kết quả
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- STEP 4: AI CHAT MODE -->
+    <div id="stepChat" class="mi-step">
+        <div class="mi-chat-layout">
+
+            <!-- Chat sidebar -->
+            <div class="mi-chat-sidebar">
+                <div class="mi-card mi-chat-session-card">
+                    <div class="mi-chat-ai-avatar">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div class="mi-chat-ai-info">
+                        <strong>AI Interviewer</strong>
+                        <span id="chatSessionLabel">Frontend Developer · Fresher</span>
+                    </div>
+                    <div class="mi-chat-status" id="chatStatus">
+                        <span class="mi-dot-online"></span> Đang hoạt động
+                    </div>
+                </div>
+
+                <div class="mi-card mi-chat-tips-card">
+                    <h4><i class="fa-solid fa-lightbulb"></i> Mẹo phỏng vấn</h4>
+                    <ul class="mi-chat-tips">
+                        <li>Trả lời đầy đủ, có ví dụ cụ thể</li>
+                        <li>Dùng cấu trúc STAR cho behavioral questions</li>
+                        <li>Đưa số liệu, kết quả đo được</li>
+                        <li>Hỏi lại nếu chưa hiểu câu hỏi</li>
+                    </ul>
+                </div>
+
+                <div class="mi-card mi-chat-voice-settings">
+                    <h4><i class="fa-solid fa-sliders"></i> Cài đặt giọng nói</h4>
+                    <label class="mi-toggle-row">
+                        <span><i class="fa-solid fa-volume-high"></i> AI đọc câu trả lời</span>
+                        <div class="mi-toggle" id="ttsToggle">
+                            <input type="checkbox" id="ttsEnabled" checked>
+                            <span class="mi-toggle-slider"></span>
+                        </div>
+                    </label>
+                    <label class="mi-toggle-row">
+                        <span><i class="fa-solid fa-microphone"></i> Nhận diện giọng nói</span>
+                        <div class="mi-toggle" id="sttToggle">
+                            <input type="checkbox" id="sttEnabled">
+                            <span class="mi-toggle-slider"></span>
+                        </div>
+                    </label>
+                </div>
+
+                <button class="mi-quit-btn" id="chatEndBtn">
+                    <i class="fa-solid fa-flag-checkered"></i> Kết thúc & Xem kết quả
+                </button>
+            </div>
+
+            <!-- Chat main -->
+            <div class="mi-chat-main">
+                <!-- Messages -->
+                <div class="mi-chat-messages" id="chatMessages">
+                    <!-- Injected by JS -->
+                </div>
+
+                <!-- Typing indicator -->
+                <div class="mi-typing-indicator" id="typingIndicator" style="display:none">
+                    <div class="mi-typing-avatar"><i class="fa-solid fa-brain"></i></div>
+                    <div class="mi-typing-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="mi-typing-text">AI đang soạn câu trả lời...</span>
+                </div>
+
+                <!-- Input area -->
+                <div class="mi-chat-input-area">
+                    <div class="mi-chat-input-box">
+                        <textarea
+                            id="chatInput"
+                            class="mi-chat-textarea"
+                            placeholder="Nhập câu trả lời của bạn... (Enter để gửi, Shift+Enter xuống dòng)"
+                            rows="3"
+                        ></textarea>
+                        <div class="mi-chat-input-actions">
+                            <button class="mi-voice-btn" id="voiceBtn" title="Nhấn để nói">
+                                <i class="fa-solid fa-microphone" id="voiceIcon"></i>
+                            </button>
+                            <span class="mi-chat-char" id="chatCharCount">0</span>
+                            <button class="mi-chat-send-btn" id="chatSendBtn">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                Gửi
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mi-voice-status" id="voiceStatus" style="display:none">
+                        <span class="mi-voice-pulse"></span>
+                        <span id="voiceStatusText">Đang nghe... Hãy nói câu trả lời của bạn</span>
+                        <button class="mi-voice-stop" id="voiceStopBtn">Dừng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+    <script src="js/mock-interview.js"></script>
+</body>
+</html>

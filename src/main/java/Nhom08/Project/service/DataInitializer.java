@@ -24,6 +24,10 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired private JobBenefitRepository      jobBenefitRepository;
     @Autowired private ProvinceRepository        provinceRepository;
 
+    // Dynamic filter repositories
+    @Autowired private Nhom08.Project.repository.FilterGroupRepository  filterGroupRepository;
+    @Autowired private Nhom08.Project.repository.FilterOptionRepository filterOptionRepository;
+
     @Override
     public void run(String... args) throws Exception {
         seedRoles();
@@ -34,6 +38,7 @@ public class DataInitializer implements CommandLineRunner {
         seedDegreeLevels();
         seedJobBenefits();
         seedProvinces();
+        seedFilterGroups();
     }
 
     // ─── Roles & Admin ─────────────────────────────────────────────────────────
@@ -188,5 +193,57 @@ public class DataInitializer implements CommandLineRunner {
             new Province("Toàn quốc",          "Toàn quốc",          20)
         ));
         System.out.println("✅ Seeded provinces");
+    }
+
+    // ─── Dynamic Filter Groups & Options ─────────────────────────────────────────
+
+    private void seedFilterGroups() {
+        if (filterGroupRepository.count() > 0) return;
+
+        Nhom08.Project.entity.FilterGroup salary = filterGroupRepository.save(
+            new Nhom08.Project.entity.FilterGroup("salary", "Mức lương", 1));
+        Nhom08.Project.entity.FilterGroup level = filterGroupRepository.save(
+            new Nhom08.Project.entity.FilterGroup("level", "Cấp bậc", 2));
+        Nhom08.Project.entity.FilterGroup posted = filterGroupRepository.save(
+            new Nhom08.Project.entity.FilterGroup("posted_within", "Đăng trong vòng", 3));
+        Nhom08.Project.entity.FilterGroup empType = filterGroupRepository.save(
+            new Nhom08.Project.entity.FilterGroup("employment_type", "Hình thức việc làm", 4));
+        Nhom08.Project.entity.FilterGroup exp = filterGroupRepository.save(
+            new Nhom08.Project.entity.FilterGroup("experience", "Kinh nghiệm làm việc", 5));
+        Nhom08.Project.entity.FilterGroup rank = filterGroupRepository.save(
+            new Nhom08.Project.entity.FilterGroup("job_rank", "Công việc làm khiến cấp", 6));
+
+        filterOptionRepository.saveAll(List.of(
+            new Nhom08.Project.entity.FilterOption(salary,   "Dưới 10 triệu",  "Dưới 10 triệu",  1),
+            new Nhom08.Project.entity.FilterOption(salary,   "10-15 triệu",    "10 - 15 triệu",  2),
+            new Nhom08.Project.entity.FilterOption(salary,   "15-20 triệu",    "15 - 20 triệu",  3),
+            new Nhom08.Project.entity.FilterOption(salary,   "20-30 triệu",    "20 - 30 triệu",  4),
+            new Nhom08.Project.entity.FilterOption(salary,   "Trên 30 triệu",  "Trên 30 triệu",  5),
+
+            new Nhom08.Project.entity.FilterOption(level,    "Thực tập sinh",  "Thực tập sinh",  1),
+            new Nhom08.Project.entity.FilterOption(level,    "Nhân viên",      "Nhân viên",      2),
+            new Nhom08.Project.entity.FilterOption(level,    "Trưởng nhóm",    "Trưởng nhóm",    3),
+            new Nhom08.Project.entity.FilterOption(level,    "Quản lý",        "Quản lý",        4),
+
+            new Nhom08.Project.entity.FilterOption(posted,   "24 giờ qua",     "24 giờ qua",     1),
+            new Nhom08.Project.entity.FilterOption(posted,   "7 ngày qua",     "7 ngày qua",     2),
+            new Nhom08.Project.entity.FilterOption(posted,   "30 ngày qua",    "30 ngày qua",    3),
+
+            new Nhom08.Project.entity.FilterOption(empType,  "Toàn thời gian", "Toàn thời gian", 1),
+            new Nhom08.Project.entity.FilterOption(empType,  "Bán thời gian",  "Bán thời gian",  2),
+            new Nhom08.Project.entity.FilterOption(empType,  "Remote",         "Remote",         3),
+
+            new Nhom08.Project.entity.FilterOption(exp,      "Chưa có kinh nghiệm", "Chưa có kinh nghiệm", 1),
+            new Nhom08.Project.entity.FilterOption(exp,      "Dưới 1 năm",          "Dưới 1 năm",          2),
+            new Nhom08.Project.entity.FilterOption(exp,      "1-2 năm",             "1-2 năm",             3),
+            new Nhom08.Project.entity.FilterOption(exp,      "3-5 năm",             "3-5 năm",             4),
+            new Nhom08.Project.entity.FilterOption(exp,      "Trên 5 năm",          "Trên 5 năm",          5),
+
+            new Nhom08.Project.entity.FilterOption(rank,     "Thực tập",       "Thực tập",       1),
+            new Nhom08.Project.entity.FilterOption(rank,     "Mới đi làm",     "Mới đi làm",     2),
+            new Nhom08.Project.entity.FilterOption(rank,     "Có kinh nghiệm", "Có kinh nghiệm", 3),
+            new Nhom08.Project.entity.FilterOption(rank,     "Chuyên gia",     "Chuyên gia",     4)
+        ));
+        System.out.println("✅ Seeded filter groups & options");
     }
 }

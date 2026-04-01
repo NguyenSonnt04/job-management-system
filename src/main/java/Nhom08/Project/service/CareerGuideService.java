@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Service
 public class CareerGuideService {
 
-    private static final String DEFAULT_AUTHOR = "Ban biên tập CareerViet";
+    private static final String DEFAULT_AUTHOR = "Ban biên tập CoHoiViecLam";
     private static final int DEFAULT_HOME_LIMIT = 12;
     private static final Pattern DIACRITICS = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 

@@ -1,52 +1,56 @@
-/* ===== Contact Widget - Premium Radiating Design ===== */
+/* ===== Contact Widget - Soft Redesign ===== */
 :root {
-    --widget-primary: #FF6B00;
-    --widget-size: 70px;
-    --widget-sub-size: 54px;
-    --widget-transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    --widget-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --phone-color: #22c55e;
+    --widget-size: 58px;
+    --widget-sub-size: 48px;
+    --widget-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --widget-duration: 0.38s;
+    --widget-accent: #e84141;
+    --phone-color: #16a34a;
     --zalo-color: #0068FF;
+    --ai-color: #7c3aed;
 }
 
-/* ===== Main Widget Container ===== */
+/* ===== Container ===== */
 .contact-widget {
     position: fixed;
-    bottom: 40px;
-    right: 40px;
+    bottom: 36px;
+    right: 36px;
     z-index: 9999;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
 }
 
-/* ===== Main Button - Orange Border Only ===== */
+/* ===== Main Button ===== */
 .contact-widget__main-btn {
     width: var(--widget-size);
     height: var(--widget-size);
     border-radius: 50%;
-    background: white;
-    border: 3px solid var(--widget-primary);
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
     cursor: pointer;
     box-shadow:
-        0 8px 32px rgba(255, 107, 0, 0.25),
-        0 2px 8px rgba(255, 107, 0, 0.15);
+        0 4px 20px rgba(0, 0, 0, 0.10),
+        0 1px 4px rgba(0, 0, 0, 0.06);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: var(--widget-transition);
+    transition:
+        transform var(--widget-duration) var(--widget-ease),
+        box-shadow var(--widget-duration) var(--widget-ease),
+        border-color var(--widget-duration) ease;
     position: relative;
     z-index: 2;
 }
 
-/* Smooth scale on hover */
 .contact-widget__main-btn:hover {
-    transform: scale(1.08);
+    transform: scale(1.07);
     box-shadow:
-        0 12px 40px rgba(255, 107, 0, 0.35),
-        0 4px 12px rgba(255, 107, 0, 0.25);
+        0 8px 28px rgba(0, 0, 0, 0.13),
+        0 2px 8px rgba(0, 0, 0, 0.07);
+    border-color: #cbd5e1;
 }
 
 .contact-widget__main-btn:active {
-    transform: scale(1.02);
+    transform: scale(0.95);
 }
 
 /* Icon Container */
@@ -99,68 +103,61 @@
 
 /* Old emoji icon (deprecated, kept for compatibility) */
 .contact-widget__main-btn .icon-message {
-    font-size: 30px;
-    transition: transform 0.4s var(--widget-easing);
-}
-
-.contact-widget__main-btn:hover .icon-message {
-    transform: scale(1.15) rotate(-5deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--widget-accent);
+    transition: transform var(--widget-duration) var(--widget-ease), color 0.25s ease;
 }
 
 .contact-widget__main-btn.active .icon-message {
-    transform: rotate(90deg) scale(1.1);
+    transform: rotate(45deg) scale(0.88);
+    color: #94a3b8;
 }
 
-/* Pulse animation - orange rings */
-.contact-widget__main-btn::after {
+/* Soft pulse rings */
+.contact-widget__main-btn::after,
+.contact-widget__main-btn::before {
     content: '';
     position: absolute;
-    inset: -10px;
+    inset: -8px;
     border-radius: 50%;
-    border: 2px solid var(--widget-primary);
+    border: 2px solid rgba(232, 65, 65, 0.3);
     opacity: 0;
-    animation: pulseRing 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation: softPulse 2.6s ease-out infinite;
+    pointer-events: none;
     z-index: -1;
 }
 
-@keyframes pulseRing {
-    0% {
-        transform: scale(0.85);
-        opacity: 0.5;
-    }
-    50% {
-        opacity: 0.3;
-    }
-    100% {
-        transform: scale(1.5);
-        opacity: 0;
-    }
+.contact-widget__main-btn::before {
+    inset: -6px;
+    border-width: 1.5px;
+    animation-delay: 1.3s;
+}
+
+@keyframes softPulse {
+    0%   { transform: scale(0.9);  opacity: 0.55; }
+    50%  { opacity: 0.2; }
+    100% { transform: scale(1.85); opacity: 0; }
 }
 
 /* ===== Ring Indicator ===== */
 .ring-indicator {
     position: absolute;
-    top: -4px;
-    right: -4px;
-    width: 18px;
-    height: 18px;
-    background: #FF6B00;
-    border: 2.5px solid white;
+    top: -2px;
+    right: -2px;
+    width: 13px;
+    height: 13px;
+    background: var(--widget-accent);
+    border: 2px solid white;
     border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.4);
-    animation: ringPulse 2s ease-in-out infinite;
+    animation: dotPulse 2.5s ease-in-out infinite;
     z-index: 3;
 }
 
-@keyframes ringPulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 0.9;
-    }
-    50% {
-        transform: scale(1.15);
-        opacity: 1;
-    }
+@keyframes dotPulse {
+    0%, 100% { transform: scale(1);    opacity: 0.85; }
+    50%       { transform: scale(1.25); opacity: 1;    }
 }
 
 /* ===== Sub Buttons Container ===== */
@@ -178,235 +175,177 @@
     pointer-events: auto;
 }
 
-/* ===== Sub Buttons - Orange Border Style ===== */
+/* ===== Sub Buttons ===== */
 .contact-widget__btn {
     position: absolute;
     width: var(--widget-sub-size);
     height: var(--widget-sub-size);
     border-radius: 50%;
-    background: white;
-    border: 2.5px solid var(--widget-primary);
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
     cursor: pointer;
     box-shadow:
-        0 4px 20px rgba(255, 107, 0, 0.15),
-        0 2px 8px rgba(255, 107, 0, 0.1);
+        0 2px 10px rgba(0, 0, 0, 0.08),
+        0 1px 3px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
     opacity: 0;
-    transform: scale(0.6);
-    transition: var(--widget-transition);
     pointer-events: auto;
     z-index: 10;
+    transition:
+        opacity var(--widget-duration) var(--widget-ease),
+        transform var(--widget-duration) var(--widget-ease),
+        box-shadow var(--widget-duration) ease,
+        border-color var(--widget-duration) ease,
+        background var(--widget-duration) ease;
 }
 
-/* Individual button positions - Radiating pattern */
+/* ── Positions: arc layout (radius 110px, top→left) ──
+   Angles: 10°, 45°, 80°
+   x = r·sin(a), y = r·cos(a)
+   10°→(19,108)  45°→(78,78)  80°→(108,19)
+
+   Hidden: translate back to main-btn center + scale(0) → "burst out" effect
+*/
 .contact-widget__btn:nth-child(1) {
-    /* Phone - Top */
-    bottom: calc(100% + 20px);
-    right: 50%;
-    transform: translateX(50%) scale(0.6) translateY(10px);
+    bottom: calc(50% + 108px - var(--widget-sub-size) / 2);
+    right:  calc(50% + 19px  - var(--widget-sub-size) / 2);
+    transform: translate(19px, 108px) scale(0);
 }
 
 .contact-widget__btn:nth-child(2) {
-    /* AI Chatbot - Right */
-    bottom: 50%;
-    right: calc(100% + 20px);
-    transform: translateY(50%) scale(0.6) translateX(-10px);
+    bottom: calc(50% + 78px - var(--widget-sub-size) / 2);
+    right:  calc(50% + 78px - var(--widget-sub-size) / 2);
+    transform: translate(78px, 78px) scale(0);
 }
 
 .contact-widget__btn:nth-child(3) {
-    /* Zalo - Diagonal */
-    bottom: calc(100% + 14px);
-    right: calc(100% + 14px);
-    transform: scale(0.6) translate(-8px, 8px);
+    bottom: calc(50% + 19px  - var(--widget-sub-size) / 2);
+    right:  calc(50% + 108px - var(--widget-sub-size) / 2);
+    transform: translate(108px, 19px) scale(0);
 }
 
-/* Active state - show buttons with staggered animation */
+/* ── Active: fly out to arc positions ── */
 .contact-widget__sub-buttons.active .contact-widget__btn {
     opacity: 1;
+    transform: translate(0, 0) scale(1);
 }
 
 .contact-widget__sub-buttons.active .contact-widget__btn:nth-child(1) {
-    transform: translateX(50%) scale(1) translateY(0);
-    transition-delay: 0.06s;
+    transition-delay: 0.02s;
 }
 
 .contact-widget__sub-buttons.active .contact-widget__btn:nth-child(2) {
-    transform: translateY(50%) scale(1) translateX(0);
-    transition-delay: 0.1s;
+    transition-delay: 0.07s;
 }
 
 .contact-widget__sub-buttons.active .contact-widget__btn:nth-child(3) {
-    transform: scale(1) translate(0, 0);
-    transition-delay: 0.14s;
+    transition-delay: 0.12s;
 }
 
-/* Hover effects - individual button colors */
+/* ── Hover - phone ── */
 .contact-widget__btn:nth-child(1):hover {
-    background: var(--phone-color);
-    transform: translateX(50%) scale(1.12) translateY(-3px) !important;
-    box-shadow:
-        0 8px 28px rgba(34, 197, 94, 0.35),
-        0 4px 12px rgba(34, 197, 94, 0.25);
-    border-color: var(--phone-color);
+    background: #f0fdf4;
+    border-color: #86efac;
+    box-shadow: 0 4px 18px rgba(22, 163, 74, 0.14);
+    transform: scale(1.12) !important;
 }
 
+/* ── Hover - chatbot ── */
 .contact-widget__btn:nth-child(2):hover {
-    background: var(--widget-primary);
-    transform: translateY(50%) scale(1.12) translateX(-3px) !important;
-    box-shadow:
-        0 8px 28px rgba(255, 107, 0, 0.35),
-        0 4px 12px rgba(255, 107, 0, 0.25);
+    background: #faf5ff;
+    border-color: #c4b5fd;
+    box-shadow: 0 4px 18px rgba(124, 58, 237, 0.14);
+    transform: scale(1.12) !important;
 }
 
+/* ── Hover - zalo ── */
 .contact-widget__btn:nth-child(3):hover {
-    background: var(--zalo-color);
-    transform: scale(1.12) translate(-3px, -3px) !important;
-    box-shadow:
-        0 8px 28px rgba(0, 104, 255, 0.35),
-        0 4px 12px rgba(0, 104, 255, 0.25);
-    border-color: var(--zalo-color);
+    background: #eff6ff;
+    border-color: #93c5fd;
+    box-shadow: 0 4px 18px rgba(0, 104, 255, 0.14);
+    transform: scale(1.12) !important;
 }
 
-/* Hover - change icon color to white */
-.contact-widget__btn:hover span {
-    color: white !important;
-}
-
-/* Button icons */
-.contact-widget__btn span {
-    color: var(--widget-primary);
-    font-size: 22px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-/* SVG Icons */
+/* ── Icons ── */
 .contact-widget__btn svg {
-    width: 24px;
-    height: 24px;
-    transition: all 0.3s ease;
+    width: 22px;
+    height: 22px;
+    transition: transform 0.22s ease;
+    flex-shrink: 0;
 }
 
-/* Phone button - green */
-.contact-widget__btn:nth-child(1) svg {
-    color: var(--phone-color);
+.contact-widget__btn:hover svg {
+    transform: scale(1.12);
 }
 
-.contact-widget__btn:nth-child(1):hover svg {
-    color: white;
+.contact-widget__btn:nth-child(1) svg { color: var(--phone-color); }
+.contact-widget__btn:nth-child(2) svg { color: var(--ai-color); }
+.contact-widget__btn:nth-child(3) img { display: block; }
+
+/* ===== Tooltips (left of each button) ===== */
+.contact-widget__btn::before {
+    content: attr(aria-label);
+    position: absolute;
+    right: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%) translateX(4px);
+    background: #1e293b;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 9px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-/* Chatbot button - orange */
-.contact-widget__btn:nth-child(2) svg {
-    color: var(--widget-primary);
-}
-
-.contact-widget__btn:nth-child(2):hover svg {
-    color: white;
-}
-
-/* Zalo button - blue */
-.contact-widget__btn:nth-child(3) svg {
-    color: white;
-}
-
-.contact-widget__btn:nth-child(3):hover svg {
-    color: var(--zalo-color);
-}
-
-/* Zalo SVG background - change on hover */
-.contact-widget__btn:nth-child(3):hover svg rect {
-    fill: white;
-}
-
-/* Zalo text color - handled by currentColor */
-
-.contact-widget__btn .icon-phone {
-    font-size: 24px;
-}
-
-.contact-widget__btn .icon-ai {
-    font-size: 26px;
-}
-
-.contact-widget__btn .icon-zalo {
-    font-size: 20px;
-    font-family: -apple-system, sans-serif;
-    font-weight: 800;
+.contact-widget__btn:hover::before {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
 }
 
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
     .contact-widget {
-        bottom: 20px;
-        right: 20px;
+        bottom: 18px;
+        right: 18px;
     }
 
     .contact-widget__main-btn {
-        width: 62px;
-        height: 62px;
+        width: 52px;
+        height: 52px;
     }
 
     .contact-widget__btn {
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
     }
 
-    .contact-widget__btn:nth-child(1) {
-        bottom: calc(100% + 16px);
-    }
-
-    .contact-widget__btn:nth-child(2) {
-        right: calc(100% + 16px);
-    }
-
-    .contact-widget__btn:nth-child(3) {
-        bottom: calc(100% + 11px);
-        right: calc(100% + 11px);
-    }
+    /* Hide tooltips on mobile */
+    .contact-widget__btn::before { display: none; }
 }
 
 /* ===== Accessibility ===== */
-.contact-widget__main-btn:focus-visible {
-    outline: none;
-    box-shadow:
-        0 8px 32px rgba(255, 107, 0, 0.25),
-        0 0 0 5px rgba(255, 107, 0, 0.3);
-}
-
+.contact-widget__main-btn:focus-visible,
 .contact-widget__btn:focus-visible {
     outline: none;
-    box-shadow:
-        0 4px 20px rgba(255, 107, 0, 0.15),
-        0 0 0 4px rgba(255, 107, 0, 0.2);
+    box-shadow: 0 0 0 3px rgba(232, 65, 65, 0.2);
 }
 
 /* ===== Reduced Motion ===== */
 @media (prefers-reduced-motion: reduce) {
-    .contact-widget__main-btn,
     .contact-widget__main-btn::after,
-    .contact-widget__main-btn::before,
-    .contact-widget__btn,
-    .contact-widget__btn::before {
-        animation: none !important;
-        transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-
-    .contact-widget__main-btn:hover {
-        transform: scale(1.05);
-    }
-
-    .contact-widget__btn:hover {
-        transform: scale(1.08) !important;
-    }
-
     .ring-indicator {
-        animation: none;
+        animation: none !important;
+    }
+
+    .contact-widget__main-btn,
+    .contact-widget__btn {
+        transition: opacity 0.15s ease, transform 0.15s ease !important;
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tạo CV bằng AI | CareerViet</title>
+    <title>Tạo CV bằng AI | CoHoiViecLam</title>
     <meta name="description" content="Tạo CV chuyên nghiệp trong vài phút với trí tuệ nhân tạo.">
     <!-- Main Style -->
     <link rel="stylesheet" href="css/style.css">
@@ -460,6 +460,92 @@
 
         // ========================= Modal Logic =========================
         let selectedTemplateId = null;
+        let existingCvLoaded = false;
+        let existingCvLoading = false;
+
+        function resetExistingCvPicker() {
+            const select = document.getElementById('cvExistingSelect');
+            const hint = document.getElementById('cvExistingHint');
+            if (select) select.value = '';
+            if (hint) hint.textContent = 'Chọn một CV đã lưu để áp dụng mẫu mới.';
+        }
+
+        function updateProceedState() {
+            const selectedMethod = document.querySelector('input[name="cvMethod"]:checked');
+            const proceedBtn = document.getElementById('cvMethodProceedBtn');
+            const industry = document.getElementById('cvIndustrySelect').value;
+            const existingCvId = document.getElementById('cvExistingSelect').value;
+
+            if (!selectedMethod) {
+                proceedBtn.disabled = true;
+                return;
+            }
+
+            if (selectedMethod.value === 'keep_template') {
+                proceedBtn.disabled = !industry;
+                return;
+            }
+
+            if (selectedMethod.value === 'existing_cv') {
+                proceedBtn.disabled = !existingCvId;
+                return;
+            }
+
+            proceedBtn.disabled = false;
+        }
+
+        async function loadExistingCvOptions() {
+            if (existingCvLoaded || existingCvLoading) return;
+
+            existingCvLoading = true;
+            const select = document.getElementById('cvExistingSelect');
+            const hint = document.getElementById('cvExistingHint');
+
+            select.innerHTML = '<option value="">Đang tải danh sách CV...</option>';
+            select.disabled = true;
+            hint.textContent = 'Đang tải danh sách CV đã lưu...';
+
+            try {
+                const res = await fetch('/api/user-cv');
+
+                if (res.status === 401) {
+                    select.innerHTML = '<option value="">Cần đăng nhập để dùng CV đã lưu</option>';
+                    hint.innerHTML = 'Bạn cần <a href="/login.html?redirect=/tao-cv-ai.html" style="color:#1D4ED8;font-weight:700;">đăng nhập</a> để áp dụng mẫu lên CV đã tạo trước đó.';
+                    return;
+                }
+
+                const data = await res.json();
+                const cvList = Array.isArray(data) ? data.slice() : [];
+                cvList.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+
+                if (!cvList.length) {
+                    select.innerHTML = '<option value="">Chưa có CV nào đã lưu</option>';
+                    hint.innerHTML = 'Bạn chưa có CV lưu trong hồ sơ. Hãy tạo mới từ profile hoặc vào <a href="/cv-editor.html" style="color:#1D4ED8;font-weight:700;">trình chỉnh CV</a> để tạo trước.';
+                    return;
+                }
+
+                select.innerHTML = '<option value="">-- Chọn CV muốn áp dụng mẫu --</option>'
+                    + cvList.map(cv => {
+                        const updatedAt = cv.updatedAt
+                            ? new Date(cv.updatedAt).toLocaleDateString('vi-VN')
+                            : 'không rõ ngày';
+                        return `<option value="${cv.id}">${escHtml(cv.cvName || 'CV chưa đặt tên')} • Cập nhật ${updatedAt}</option>`;
+                    }).join('');
+                select.disabled = false;
+                hint.textContent = 'Nội dung CV sẽ được giữ lại, chỉ đổi sang mẫu bạn vừa chọn.';
+                existingCvLoaded = true;
+
+                if (cvList.length === 1) {
+                    select.value = String(cvList[0].id);
+                }
+            } catch (e) {
+                select.innerHTML = '<option value="">Không tải được danh sách CV</option>';
+                hint.textContent = 'Không thể tải danh sách CV đã lưu. Vui lòng thử lại.';
+            } finally {
+                existingCvLoading = false;
+                updateProceedState();
+            }
+        }
 
         function openCvMethodModal(templateId) {
             selectedTemplateId = templateId;
@@ -468,6 +554,9 @@
             document.getElementById('cvMethodProceedBtn').disabled = true;
             document.getElementById('cvExistingCvSelector').classList.remove('visible');
             document.querySelectorAll('.cv-method-option').forEach(o => o.classList.remove('selected'));
+            document.getElementById('cvIndustrySelect').value = '';
+            resetExistingCvPicker();
+            updateProceedState();
 
             // Inject mini CV preview
             const tpl = allTemplates.find(t => String(t.id) === String(templateId));
@@ -481,6 +570,8 @@
             backdrop.classList.add('visible');
             backdrop.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
+
+            loadExistingCvOptions();
         }
 
         function closeCvMethodModal() {
@@ -560,6 +651,8 @@
                     existingCvSelector.classList.remove('visible');
                     proceedBtn.disabled = false;
                 }
+
+                updateProceedState();
             });
         });
 
@@ -570,6 +663,8 @@
                 document.getElementById('cvMethodProceedBtn').disabled = !this.value;
             }
         });
+
+        document.getElementById('cvExistingSelect').addEventListener('change', updateProceedState);
 
         // Proceed button
         document.getElementById('cvMethodProceedBtn').addEventListener('click', function() {

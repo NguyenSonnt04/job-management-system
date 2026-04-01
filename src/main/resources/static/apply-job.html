@@ -1,212 +1,344 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Nộp hồ sơ ứng tuyển | CareerViet</title>
-    <meta name="description" content="Nộp hồ sơ ứng tuyển việc làm trực tuyến nhanh chóng và dễ dàng.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/apply-job.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-</head>
-<body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="pageTitle">Nộp hồ sơ ứng tuyển | CoHoiViecLam.io.vn</title>
+    <meta
+      name="description"
+      content="Nộp hồ sơ ứng tuyển việc làm trực tuyến nhanh chóng và dễ dàng."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/apply-job.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <!-- Header -->
     <div id="header-placeholder"></div>
 
     <!-- ===== MAIN ===== -->
     <div class="apply-page-wrapper">
-        <div class="apply-container">
+      <div class="apply-container">
+        <!-- Loading -->
+        <div id="applyLoading" class="apply-loading">
+          <div class="loading-spinner"></div>
+          <p>Đang tải thông tin...</p>
+        </div>
 
-            <!-- Loading -->
-            <div id="applyLoading" class="apply-loading">
-                <div class="loading-spinner"></div>
-                <p>Đang tải thông tin...</p>
+        <!-- Content -->
+        <div id="applyContent" style="display: none">
+          <h1 class="apply-page-title">Nộp hồ sơ ứng tuyển</h1>
+
+          <!-- Headline -->
+          <div class="apply-headline">
+            <span class="apply-headline-label">Nộp hồ sơ ứng tuyển:</span>
+            <span class="apply-headline-job" id="applyJobTitle">—</span>
+          </div>
+
+          <!-- Two-column layout -->
+          <div class="apply-grid">
+            <!-- LEFT column -->
+            <div class="apply-left">
+              <!-- 1. Chọn hồ sơ -->
+              <div class="apply-card">
+                <div class="apply-card-body">
+                  <div class="cv-select-grid">
+                    <!-- Option A: Chọn hồ sơ có sẵn -->
+                    <div
+                      class="cv-option-card selected"
+                      id="cvOptionExisting"
+                      onclick="selectCvOption('existing')"
+                    >
+                      <div class="cv-option-header">
+                        <div class="cv-option-icon">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.5"
+                          >
+                            <path
+                              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                            />
+                            <polyline points="14,2 14,8 20,8" />
+                          </svg>
+                        </div>
+                        <span class="cv-option-title">Chọn hồ sơ của bạn</span>
+                      </div>
+                      <div class="cv-option-desc">
+                        Bạn chưa có hồ sơ ?
+                        <a href="cv-editor.html">Tạo hồ sơ mới!</a>
+                      </div>
+                    </div>
+
+                    <!-- Option B: Tải lên -->
+                    <div
+                      class="cv-option-card upload-option"
+                      id="cvOptionUpload"
+                      onclick="document.getElementById('cvFileInput').click()"
+                    >
+                      <div class="upload-icon-wrap">
+                        <i
+                          class="fas fa-upload"
+                          style="color: #fff; font-size: 14px"
+                        ></i>
+                      </div>
+                      <div class="cv-option-title">Tải lên hồ sơ của bạn</div>
+                      <div class="cv-option-desc">
+                        Hỗ trợ định dạng *.doc, *.docx, *.pdf và không quá 5MB
+                      </div>
+                      <input
+                        type="file"
+                        id="cvFileInput"
+                        accept=".doc,.docx,.pdf"
+                        onchange="handleFileUpload(this)"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- File uploaded indicator -->
+                  <div
+                    id="fileUploaded"
+                    style="
+                      display: none;
+                      margin-top: 12px;
+                      padding: 10px 14px;
+                      background: #e8f5e9;
+                      border-radius: 6px;
+                      font-size: 13px;
+                      color: #2e7d32;
+                      display: flex;
+                      align-items: center;
+                      gap: 8px;
+                    "
+                  >
+                    <i class="fas fa-check-circle"></i>
+                    <span id="fileUploadedName"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Thông tin liên hệ -->
+              <div class="apply-card">
+                <div class="contact-card-header">
+                  <div class="cv-option-icon">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                  <span class="contact-card-title"
+                    >Thông tin liên hệ của bạn</span
+                  >
+                </div>
+                <div class="apply-card-body">
+                  <div class="form-field">
+                    <label class="form-label">Họ tên</label>
+                    <input
+                      type="text"
+                      id="applicantName"
+                      class="form-input"
+                      placeholder="Nhập họ và tên"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <label class="form-label">Email</label>
+                    <input
+                      type="email"
+                      id="applicantEmail"
+                      class="form-input"
+                      placeholder="Nhập địa chỉ email"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <label class="form-label">Số điện thoại</label>
+                    <input
+                      type="tel"
+                      id="applicantPhone"
+                      class="form-input"
+                      placeholder="Nhập số điện thoại"
+                    />
+                  </div>
+
+                  <!-- Privacy toggle -->
+                  <div style="margin-top: 18px">
+                    <div class="privacy-label">Chế độ tìm việc của hồ sơ</div>
+                    <div class="privacy-toggle">
+                      <button
+                        class="privacy-option active"
+                        id="privLock"
+                        onclick="setPrivacy('lock')"
+                      >
+                        <i class="fas fa-lock" style="font-size: 11px"></i> Khóa
+                      </button>
+                      <button
+                        class="privacy-option public"
+                        id="privPublic"
+                        onclick="setPrivacy('public')"
+                      >
+                        <i class="fas fa-globe" style="font-size: 11px"></i>
+                        Công khai
+                      </button>
+                      <button
+                        class="privacy-option urgent"
+                        id="privUrgent"
+                        onclick="setPrivacy('urgent')"
+                      >
+                        <i class="fas fa-bolt" style="font-size: 11px"></i> Khẩn
+                        cấp
+                      </button>
+                    </div>
+                    <div class="privacy-hint" id="privacyHint">
+                      Bạn đang vô hiệu hóa hồ sơ này. Nhà tuyển dụng sẽ không
+                      thấy được hồ sơ này của bạn.
+                    </div>
+                  </div>
+
+                  <!-- Cover letter -->
+                  <label class="cover-letter-check">
+                    <input type="checkbox" id="useCoverLetter" />
+                    <span>Sử dụng thư tự giới thiệu?</span>
+                  </label>
+
+                  <!-- Cover letter textarea (hidden by default) -->
+                  <div
+                    id="coverLetterBox"
+                    style="display: none; margin-top: 12px"
+                  >
+                    <textarea
+                      id="coverLetterText"
+                      style="
+                        width: 100%;
+                        height: 120px;
+                        padding: 10px 14px;
+                        border: 1.5px solid #e8ecef;
+                        border-radius: 6px;
+                        font-size: 13px;
+                        font-family: inherit;
+                        resize: vertical;
+                        outline: none;
+                        transition: border-color 0.2s;
+                      "
+                      placeholder="Viết thư giới thiệu bản thân..."
+                      onfocus="this.style.borderColor = '#2E3B8E'"
+                      onblur="this.style.borderColor = '#e8ecef'"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit button -->
+              <button
+                class="btn-submit-apply"
+                id="btnSubmitApply"
+                onclick="submitApplication()"
+              >
+                ỨNG TUYỂN VỊ TRÍ NÀY
+              </button>
             </div>
 
-            <!-- Content -->
-            <div id="applyContent" style="display:none;">
-                <h1 class="apply-page-title">Nộp hồ sơ ứng tuyển</h1>
-
-                <!-- Headline -->
-                <div class="apply-headline">
-                    <span class="apply-headline-label">Nộp hồ sơ ứng tuyển:</span>
-                    <span class="apply-headline-job" id="applyJobTitle">—</span>
+            <!-- RIGHT sidebar: Job Info -->
+            <div class="job-info-sidebar">
+              <div class="job-info-sidebar-header">
+                <div class="job-info-sidebar-title">Thông tin việc làm</div>
+              </div>
+              <div class="job-info-sidebar-body">
+                <div class="job-info-row">
+                  <span class="job-info-row-label">Vị trí / Chức danh</span>
+                  <span class="job-info-row-value" id="sideJobTitle">—</span>
                 </div>
-
-                <!-- Two-column layout -->
-                <div class="apply-grid">
-
-                    <!-- LEFT column -->
-                    <div class="apply-left">
-
-                        <!-- 1. Chọn hồ sơ -->
-                        <div class="apply-card">
-                            <div class="apply-card-body">
-                                <div class="cv-select-grid">
-                                    <!-- Option A: Chọn hồ sơ có sẵn -->
-                                    <div class="cv-option-card selected" id="cvOptionExisting" onclick="selectCvOption('existing')">
-                                        <div class="cv-option-header">
-                                            <div class="cv-option-icon">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                                    <polyline points="14,2 14,8 20,8"/>
-                                                </svg>
-                                            </div>
-                                            <span class="cv-option-title">Chọn hồ sơ của bạn</span>
-                                        </div>
-                                        <div class="cv-option-desc">
-                                            Bạn chưa có hồ sơ ? <a href="cv-editor.html">Tạo hồ sơ mới!</a>
-                                        </div>
-                                    </div>
-
-                                    <!-- Option B: Tải lên -->
-                                    <div class="cv-option-card upload-option" id="cvOptionUpload" onclick="document.getElementById('cvFileInput').click()">
-                                        <div class="upload-icon-wrap">
-                                            <i class="fas fa-upload" style="color:#fff;font-size:14px;"></i>
-                                        </div>
-                                        <div class="cv-option-title">Tải lên hồ sơ của bạn</div>
-                                        <div class="cv-option-desc">Hỗ trợ định dạng *.doc, *.docx, *.pdf và không quá 5MB</div>
-                                        <input type="file" id="cvFileInput" accept=".doc,.docx,.pdf" onchange="handleFileUpload(this)">
-                                    </div>
-                                </div>
-
-                                <!-- File uploaded indicator -->
-                                <div id="fileUploaded" style="display:none;margin-top:12px;padding:10px 14px;background:#e8f5e9;border-radius:6px;font-size:13px;color:#2e7d32;display:flex;align-items:center;gap:8px;">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span id="fileUploadedName"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 2. Thông tin liên hệ -->
-                        <div class="apply-card">
-                            <div class="contact-card-header">
-                                <div class="cv-option-icon">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                        <circle cx="12" cy="7" r="4"/>
-                                    </svg>
-                                </div>
-                                <span class="contact-card-title">Thông tin liên hệ của bạn</span>
-                            </div>
-                            <div class="apply-card-body">
-                                <div class="form-field">
-                                    <label class="form-label">Họ tên</label>
-                                    <input type="text" id="applicantName" class="form-input" placeholder="Nhập họ và tên">
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" id="applicantEmail" class="form-input" placeholder="Nhập địa chỉ email">
-                                </div>
-                                <div class="form-field">
-                                    <label class="form-label">Số điện thoại</label>
-                                    <input type="tel" id="applicantPhone" class="form-input" placeholder="Nhập số điện thoại">
-                                </div>
-
-                                <!-- Privacy toggle -->
-                                <div style="margin-top:18px;">
-                                    <div class="privacy-label">Chế độ tìm việc của hồ sơ</div>
-                                    <div class="privacy-toggle">
-                                        <button class="privacy-option active" id="privLock" onclick="setPrivacy('lock')">
-                                            <i class="fas fa-lock" style="font-size:11px;"></i> Khóa
-                                        </button>
-                                        <button class="privacy-option public" id="privPublic" onclick="setPrivacy('public')">
-                                            <i class="fas fa-globe" style="font-size:11px;"></i> Công khai
-                                        </button>
-                                        <button class="privacy-option urgent" id="privUrgent" onclick="setPrivacy('urgent')">
-                                            <i class="fas fa-bolt" style="font-size:11px;"></i> Khẩn cấp
-                                        </button>
-                                    </div>
-                                    <div class="privacy-hint" id="privacyHint">
-                                        Bạn đang vô hiệu hóa hồ sơ này. Nhà tuyển dụng sẽ không thấy được hồ sơ này của bạn.
-                                    </div>
-                                </div>
-
-                                <!-- Cover letter -->
-                                <label class="cover-letter-check">
-                                    <input type="checkbox" id="useCoverLetter">
-                                    <span>Sử dụng thư tự giới thiệu?</span>
-                                </label>
-
-                                <!-- Cover letter textarea (hidden by default) -->
-                                <div id="coverLetterBox" style="display:none;margin-top:12px;">
-                                    <textarea id="coverLetterText"
-                                        style="width:100%;height:120px;padding:10px 14px;border:1.5px solid #e8ecef;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;outline:none;transition:border-color 0.2s;"
-                                        placeholder="Viết thư giới thiệu bản thân..."
-                                        onfocus="this.style.borderColor='#2E3B8E'"
-                                        onblur="this.style.borderColor='#e8ecef'"></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Submit button -->
-                        <button class="btn-submit-apply" id="btnSubmitApply" onclick="submitApplication()">
-                            ỨNG TUYỂN VỊ TRÍ NÀY
-                        </button>
-
-                    </div>
-
-                    <!-- RIGHT sidebar: Job Info -->
-                    <div class="job-info-sidebar">
-                        <div class="job-info-sidebar-header">
-                            <div class="job-info-sidebar-title">Thông tin việc làm</div>
-                        </div>
-                        <div class="job-info-sidebar-body">
-                            <div class="job-info-row">
-                                <span class="job-info-row-label">Vị trí / Chức danh</span>
-                                <span class="job-info-row-value" id="sideJobTitle">—</span>
-                            </div>
-                            <div class="job-info-row">
-                                <span class="job-info-row-label">Công ty ứng tuyển</span>
-                                <span class="job-info-row-value company-link" id="sideCompanyName">—</span>
-                            </div>
-                            <div class="job-info-row">
-                                <span class="job-info-row-label">Nơi làm việc</span>
-                                <span class="job-info-row-value" id="sideLocation">—</span>
-                            </div>
-                            <div class="job-info-row">
-                                <span class="job-info-row-label">Người liên hệ</span>
-                                <span class="job-info-row-value" id="sideContact">—</span>
-                            </div>
-                            <div class="job-info-row">
-                                <span class="job-info-row-label">Hết hạn nộp</span>
-                                <span class="job-info-row-value" id="sideDeadline">—</span>
-                            </div>
-                        </div>
-                        <div class="job-apply-note">
-                            <div class="job-apply-method">Hình thức ứng tuyển: Hồ sơ trực tuyến</div>
-                            Nhà tuyển dụng sẽ nhận trực tiếp hồ sơ qua hệ thống ngay khi hoàn tất ứng tuyển. Ứng viên vui lòng không liên hệ qua email và số điện thoại.
-                        </div>
-                    </div>
-
-                </div><!-- end apply-grid -->
-            </div><!-- end applyContent -->
-
+                <div class="job-info-row">
+                  <span class="job-info-row-label">Công ty ứng tuyển</span>
+                  <span
+                    class="job-info-row-value company-link"
+                    id="sideCompanyName"
+                    >—</span
+                  >
+                </div>
+                <div class="job-info-row">
+                  <span class="job-info-row-label">Nơi làm việc</span>
+                  <span class="job-info-row-value" id="sideLocation">—</span>
+                </div>
+                <div class="job-info-row">
+                  <span class="job-info-row-label">Người liên hệ</span>
+                  <span class="job-info-row-value" id="sideContact">—</span>
+                </div>
+                <div class="job-info-row">
+                  <span class="job-info-row-label">Hết hạn nộp</span>
+                  <span class="job-info-row-value" id="sideDeadline">—</span>
+                </div>
+              </div>
+              <div class="job-apply-note">
+                <div class="job-apply-method">
+                  Hình thức ứng tuyển: Hồ sơ trực tuyến
+                </div>
+                Nhà tuyển dụng sẽ nhận trực tiếp hồ sơ qua hệ thống ngay khi
+                hoàn tất ứng tuyển. Ứng viên vui lòng không liên hệ qua email và
+                số điện thoại.
+              </div>
+            </div>
+          </div>
+          <!-- end apply-grid -->
         </div>
+        <!-- end applyContent -->
+      </div>
     </div>
 
     <!-- ===== SUCCESS MODAL ===== -->
     <div class="apply-success-overlay" id="successOverlay">
-        <div class="apply-success-modal">
-            <div class="success-icon">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12"/>
-                </svg>
-            </div>
-            <h3>Ứng tuyển thành công! 🎉</h3>
-            <p id="successMsg">Hồ sơ của bạn đã được gửi đến nhà tuyển dụng. Chúc bạn may mắn!</p>
-            <button class="btn-success-back" onclick="goBack()">Quay lại xem việc làm</button>
+      <div class="apply-success-modal">
+        <div class="success-icon">
+          <svg
+            width="30"
+            height="30"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
         </div>
+        <h3>Ứng tuyển thành công! 🎉</h3>
+        <p id="successMsg">
+          Hồ sơ của bạn đã được gửi đến nhà tuyển dụng. Chúc bạn may mắn!
+        </p>
+        <button class="btn-success-back" onclick="goBack()">
+          Quay lại xem việc làm
+        </button>
+      </div>
     </div>
 
     <!-- Zalo -->
     <a href="#" class="zalo-chat">
-        <img src="images/zalo-icon.png" alt="Zalo"
-             onerror="this.parentElement.style.background='#0068FF';this.style.display='none';this.parentElement.innerHTML='<span style=\'color:#fff;font-weight:700;font-size:12px;\'>Zalo</span>'">
+      <img
+        src="images/zalo-icon.png"
+        alt="Zalo"
+        onerror="
+          this.parentElement.style.background = '#0068FF';
+          this.style.display = 'none';
+          this.parentElement.innerHTML =
+            '<span style=\'color:#fff;font-weight:700;font-size:12px;\'>Zalo</span>';
+        "
+      />
     </a>
 
     <!-- Footer -->
@@ -215,221 +347,250 @@
     <!-- Scripts -->
     <script src="js/main.js"></script>
     <script>
-    // ===========================
-    // APPLY JOB PAGE LOGIC
-    // ===========================
+      // ===========================
+      // APPLY JOB PAGE LOGIC
+      // ===========================
 
-    let currentJob   = null;
-    let jobId        = null;
-    let selectedPrivacy = 'lock';
-    let selectedCvOption = 'existing';
+      let currentJob = null;
+      let jobId = null;
+      let selectedPrivacy = "lock";
+      let selectedCvOption = "existing";
 
-    const PRIVACY_HINTS = {
-        lock:   'Bạn đang vô hiệu hóa hồ sơ này. Nhà tuyển dụng sẽ không thấy được hồ sơ này của bạn.',
-        public: 'Hồ sơ của bạn công khai. Nhà tuyển dụng có thể tìm thấy và liên hệ bạn.',
-        urgent: 'Hồ sơ khẩn cấp. Bạn đang tích cực tìm việc và sẵn sàng nhận việc ngay.'
-    };
+      const PRIVACY_HINTS = {
+        lock: "Bạn đang vô hiệu hóa hồ sơ này. Nhà tuyển dụng sẽ không thấy được hồ sơ này của bạn.",
+        public:
+          "Hồ sơ của bạn công khai. Nhà tuyển dụng có thể tìm thấy và liên hệ bạn.",
+        urgent:
+          "Hồ sơ khẩn cấp. Bạn đang tích cực tìm việc và sẵn sàng nhận việc ngay.",
+      };
 
-    // ---- Get job ID from URL ----
-    function getJobIdFromUrl() {
-        return new URLSearchParams(window.location.search).get('id');
-    }
+      // ---- Get job ID from URL ----
+      function getJobIdFromUrl() {
+        return new URLSearchParams(window.location.search).get("id");
+      }
 
-    // ---- Format date ----
-    function formatDate(dateStr) {
-        if (!dateStr) return '—';
+      // ---- Format date ----
+      function formatDate(dateStr) {
+        if (!dateStr) return "—";
         try {
-            const d = new Date(dateStr);
-            return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        } catch { return dateStr; }
-    }
+          const d = new Date(dateStr);
+          return d.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          });
+        } catch {
+          return dateStr;
+        }
+      }
 
-    // ---- CV option selection ----
-    function selectCvOption(option) {
+      // ---- CV option selection ----
+      function selectCvOption(option) {
         selectedCvOption = option;
-        document.getElementById('cvOptionExisting').classList.toggle('selected', option === 'existing');
-    }
+        document
+          .getElementById("cvOptionExisting")
+          .classList.toggle("selected", option === "existing");
+      }
 
-    // ---- File upload handler ----
-    function handleFileUpload(input) {
+      // ---- File upload handler ----
+      function handleFileUpload(input) {
         if (!input.files || input.files.length === 0) return;
         const file = input.files[0];
         const maxSize = 5 * 1024 * 1024; // 5MB
         if (file.size > maxSize) {
-            alert('File quá lớn! Tối đa 5MB.');
-            input.value = '';
-            return;
+          alert("File quá lớn! Tối đa 5MB.");
+          input.value = "";
+          return;
         }
-        const allowed = ['.doc', '.docx', '.pdf'];
-        const ext = '.' + file.name.split('.').pop().toLowerCase();
+        const allowed = [".doc", ".docx", ".pdf"];
+        const ext = "." + file.name.split(".").pop().toLowerCase();
         if (!allowed.includes(ext)) {
-            alert('Định dạng không hỗ trợ. Vui lòng dùng .doc, .docx hoặc .pdf');
-            input.value = '';
-            return;
+          alert("Định dạng không hỗ trợ. Vui lòng dùng .doc, .docx hoặc .pdf");
+          input.value = "";
+          return;
         }
         // Show uploaded file
-        const indicator = document.getElementById('fileUploaded');
-        document.getElementById('fileUploadedName').textContent = `✓ ${file.name}`;
-        indicator.style.display = 'flex';
-        selectedCvOption = 'upload';
-    }
+        const indicator = document.getElementById("fileUploaded");
+        document.getElementById("fileUploadedName").textContent =
+          `✓ ${file.name}`;
+        indicator.style.display = "flex";
+        selectedCvOption = "upload";
+      }
 
-    // ---- Privacy toggle ----
-    function setPrivacy(mode) {
+      // ---- Privacy toggle ----
+      function setPrivacy(mode) {
         selectedPrivacy = mode;
-        document.querySelectorAll('.privacy-option').forEach(btn => btn.classList.remove('active'));
+        document
+          .querySelectorAll(".privacy-option")
+          .forEach((btn) => btn.classList.remove("active"));
 
-        const btnMap = { lock: 'privLock', public: 'privPublic', urgent: 'privUrgent' };
+        const btnMap = {
+          lock: "privLock",
+          public: "privPublic",
+          urgent: "privUrgent",
+        };
         const activeBtn = document.getElementById(btnMap[mode]);
-        activeBtn.classList.add('active');
+        activeBtn.classList.add("active");
 
-        document.getElementById('privacyHint').textContent = PRIVACY_HINTS[mode];
-    }
+        document.getElementById("privacyHint").textContent =
+          PRIVACY_HINTS[mode];
+      }
 
-    // ---- Cover letter toggle ----
-    document.addEventListener('DOMContentLoaded', () => {
-        const checkbox = document.getElementById('useCoverLetter');
+      // ---- Cover letter toggle ----
+      document.addEventListener("DOMContentLoaded", () => {
+        const checkbox = document.getElementById("useCoverLetter");
         if (checkbox) {
-            checkbox.addEventListener('change', function() {
-                document.getElementById('coverLetterBox').style.display =
-                    this.checked ? 'block' : 'none';
-            });
+          checkbox.addEventListener("change", function () {
+            document.getElementById("coverLetterBox").style.display = this
+              .checked
+              ? "block"
+              : "none";
+          });
         }
-    });
+      });
 
-    // ---- Load job info from API ----
-    async function loadJobInfo() {
+      // ---- Load job info from API ----
+      async function loadJobInfo() {
         jobId = getJobIdFromUrl();
         if (!jobId) {
-            window.location.href = 'tim-viec-lam.html';
-            return;
+          window.location.href = "tim-viec-lam.html";
+          return;
         }
 
         try {
-            const res = await fetch(`/api/jobs/${jobId}`, { credentials: 'include' });
-            if (!res.ok) throw new Error('Job not found');
+          const res = await fetch(`/api/jobs/${jobId}`, {
+            credentials: "include",
+          });
+          if (!res.ok) throw new Error("Job not found");
 
-            const job = await res.json();
-            currentJob = job;
-            populateJobInfo(job);
+          const job = await res.json();
+          currentJob = job;
+          populateJobInfo(job);
 
-            // Try to prefill user info from session
-            await prefillUserInfo();
+          // Try to prefill user info from session
+          await prefillUserInfo();
 
-            // Show content
-            document.getElementById('applyLoading').style.display = 'none';
-            document.getElementById('applyContent').style.display = 'block';
-
+          // Show content
+          document.getElementById("applyLoading").style.display = "none";
+          document.getElementById("applyContent").style.display = "block";
         } catch (err) {
-            console.error('Error:', err);
-            document.getElementById('applyLoading').innerHTML =
-                '<p style="color:#EE0033;font-size:15px;">❌ Không tìm thấy việc làm. <a href="tim-viec-lam.html" style="color:#0068FF;">Tìm việc khác</a></p>';
+          console.error("Error:", err);
+          document.getElementById("applyLoading").innerHTML =
+            '<p style="color:#EE0033;font-size:15px;">❌ Không tìm thấy việc làm. <a href="tim-viec-lam.html" style="color:#0068FF;">Tìm việc khác</a></p>';
         }
-    }
+      }
 
-    // ---- Populate job info into sidebar & headline ----
-    function populateJobInfo(job) {
+      // ---- Populate job info into sidebar & headline ----
+      function populateJobInfo(job) {
         const employer = job.employer || {};
 
         // Page title
-        document.getElementById('pageTitle').textContent =
-            `Ứng tuyển ${job.title} | ${employer.companyName || ''} | CareerViet`;
+        document.getElementById("pageTitle").textContent =
+          `Ứng tuyển ${job.title} | ${employer.companyName || ""} | CoHoiViecLam`;
 
         // Headline
-        document.getElementById('applyJobTitle').textContent = job.title || '—';
+        document.getElementById("applyJobTitle").textContent = job.title || "—";
 
         // Sidebar
-        document.getElementById('sideJobTitle').textContent    = job.title || '—';
-        document.getElementById('sideCompanyName').textContent = employer.companyName || '—';
-        document.getElementById('sideLocation').textContent    = job.location || '—';
-        document.getElementById('sideContact').textContent     =
-            employer.contactName || employer.companyName || '—';
-        document.getElementById('sideDeadline').textContent    = formatDate(job.deadline);
-    }
+        document.getElementById("sideJobTitle").textContent = job.title || "—";
+        document.getElementById("sideCompanyName").textContent =
+          employer.companyName || "—";
+        document.getElementById("sideLocation").textContent =
+          job.location || "—";
+        document.getElementById("sideContact").textContent =
+          employer.contactName || employer.companyName || "—";
+        document.getElementById("sideDeadline").textContent = formatDate(
+          job.deadline,
+        );
+      }
 
-    // ---- Prefill user info ----
-    async function prefillUserInfo() {
+      // ---- Prefill user info ----
+      async function prefillUserInfo() {
         try {
-            const res = await fetch('/api/auth/me', { credentials: 'include' });
-            if (!res.ok) return;
-            const user = await res.json();
-            if (user.fullName) document.getElementById('applicantName').value  = user.fullName;
-            if (user.email)    document.getElementById('applicantEmail').value = user.email;
-            if (user.phone)    document.getElementById('applicantPhone').value = user.phone;
+          const res = await fetch("/api/auth/me", { credentials: "include" });
+          if (!res.ok) return;
+          const user = await res.json();
+          if (user.fullName)
+            document.getElementById("applicantName").value = user.fullName;
+          if (user.email)
+            document.getElementById("applicantEmail").value = user.email;
+          if (user.phone)
+            document.getElementById("applicantPhone").value = user.phone;
         } catch {
-            // Not logged in — leave fields empty
+          // Not logged in — leave fields empty
         }
-    }
+      }
 
-    // ---- Submit application ----
-    async function submitApplication() {
-        const name  = document.getElementById('applicantName').value.trim();
-        const email = document.getElementById('applicantEmail').value.trim();
-        const phone = document.getElementById('applicantPhone').value.trim();
+      // ---- Submit application ----
+      async function submitApplication() {
+        const name = document.getElementById("applicantName").value.trim();
+        const email = document.getElementById("applicantEmail").value.trim();
+        const phone = document.getElementById("applicantPhone").value.trim();
 
         // Validate
         if (!name) {
-            alert('Vui lòng nhập họ tên của bạn.');
-            document.getElementById('applicantName').focus();
-            return;
+          alert("Vui lòng nhập họ tên của bạn.");
+          document.getElementById("applicantName").focus();
+          return;
         }
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            alert('Vui lòng nhập email hợp lệ.');
-            document.getElementById('applicantEmail').focus();
-            return;
+          alert("Vui lòng nhập email hợp lệ.");
+          document.getElementById("applicantEmail").focus();
+          return;
         }
 
-        const btn = document.getElementById('btnSubmitApply');
+        const btn = document.getElementById("btnSubmitApply");
         btn.disabled = true;
-        btn.textContent = 'Đang gửi...';
+        btn.textContent = "Đang gửi...";
 
         try {
-            const coverLetter = document.getElementById('useCoverLetter').checked
-                ? document.getElementById('coverLetterText').value
-                : '';
+          const coverLetter = document.getElementById("useCoverLetter").checked
+            ? document.getElementById("coverLetterText").value
+            : "";
 
-            const payload = {
-                jobId:       parseInt(jobId),
-                fullName:    name,
-                email:       email,
-                phone:       phone,
-                cvType:      selectedCvOption,
-                privacy:     selectedPrivacy,
-                coverLetter: coverLetter
-            };
+          const payload = {
+            jobId: parseInt(jobId),
+            fullName: name,
+            email: email,
+            phone: phone,
+            cvType: selectedCvOption,
+            privacy: selectedPrivacy,
+            coverLetter: coverLetter,
+          };
 
-            const res  = await fetch('/api/applications/apply', {
-                method:      'POST',
-                headers:     { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body:        JSON.stringify(payload)
-            });
+          const res = await fetch("/api/applications/apply", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(payload),
+          });
 
-            const data = await res.json();
+          const data = await res.json();
 
-            if (res.ok && data.success) {
-                document.getElementById('successMsg').textContent =
-                    `Hồ sơ của bạn đã được gửi đến ${currentJob?.employer?.companyName || 'nhà tuyển dụng'}. Chúc bạn may mắn!`;
-                document.getElementById('successOverlay').classList.add('active');
-            } else {
-                throw new Error(data.message || 'Gửi hồ sơ thất bại');
-            }
-
+          if (res.ok && data.success) {
+            document.getElementById("successMsg").textContent =
+              `Hồ sơ của bạn đã được gửi đến ${currentJob?.employer?.companyName || "nhà tuyển dụng"}. Chúc bạn may mắn!`;
+            document.getElementById("successOverlay").classList.add("active");
+          } else {
+            throw new Error(data.message || "Gửi hồ sơ thất bại");
+          }
         } catch (err) {
-            console.error('Submit error:', err);
-            alert(err.message || 'Có lỗi xảy ra khi gửi hồ sơ. Vui lòng thử lại!');
-            btn.disabled = false;
-            btn.textContent = 'ỨNG TUYỂN VỊ TRÍ NÀY';
+          console.error("Submit error:", err);
+          alert(
+            err.message || "Có lỗi xảy ra khi gửi hồ sơ. Vui lòng thử lại!",
+          );
+          btn.disabled = false;
+          btn.textContent = "ỨNG TUYỂN VỊ TRÍ NÀY";
         }
-    }
+      }
 
-    // ---- Go back to job detail ----
-    function goBack() {
+      // ---- Go back to job detail ----
+      function goBack() {
         window.location.href = `job-detail.html?id=${jobId}`;
-    }
+      }
 
-    // ---- Init ----
-    document.addEventListener('DOMContentLoaded', loadJobInfo);
+      // ---- Init ----
+      document.addEventListener("DOMContentLoaded", loadJobInfo);
     </script>
-</body>
+  </body>
 </html>
