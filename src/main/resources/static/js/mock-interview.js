@@ -63,6 +63,7 @@ async function initPage() {
     initSetupEvents();
     updateRangeStyle();
     updateModeCards();
+    loadSavedCvs();
 }
 
 function showConfigError() {
@@ -254,6 +255,89 @@ function updateRangeStyle() {
 }
 
 /* =====================================================
+   SAVED CVs — load từ API
+   ===================================================== */
+async function loadSavedCvs() {
+    const container = document.getElementById('savedCvs');
+    if (!container) return;
+
+    try {
+        const res  = await fetch('/api/interview/my-cvs');
+        const data = await res.json();
+        const cvs  = data.cvs || [];
+
+        const noSaved = document.getElementById('noSavedCv');
+
+        if (cvs.length === 0) {
+            if (noSaved) noSaved.style.display = 'flex';
+            return;
+        }
+
+        if (noSaved) noSaved.style.display = 'none';
+
+        cvs.forEach(cv => {
+            const updatedLabel = formatRelativeTime(cv.updatedAt);
+            const templateInfo = cv.templateName ? cv.templateName + ' · ' : '';
+
+            const item = document.createElement('div');
+            item.className = 'mi-saved-cv-item';
+            item.dataset.cvId = cv.id;
+            item.innerHTML = `
+                <div class="mi-scv-icon"><i class="fa-solid fa-file-lines"></i></div>
+                <div class="mi-scv-info">
+                    <strong>${escapeHtml(cv.cvName)}</strong>
+                    <span>${templateInfo}Cập nhật ${updatedLabel}</span>
+                </div>
+                <button type="button" class="mi-scv-select">Dùng CV này</button>
+            `;
+            container.insertBefore(item, noSaved);
+
+            item.querySelector('.mi-scv-select').addEventListener('click', () => {
+                selectSavedCv(item, cv.cvName, templateInfo + 'Cập nhật ' + updatedLabel);
+            });
+        });
+    } catch (e) {
+        // Không đăng nhập hoặc lỗi → hiện trạng thái trống bình thường
+        const noSaved = document.getElementById('noSavedCv');
+        if (noSaved) noSaved.style.display = 'flex';
+    }
+}
+
+function selectSavedCv(item, cvName, cvDesc) {
+    const cvUploadZone = document.getElementById('cvUploadZone');
+    cvState = { hasCV: true, cvName, cvSize: cvDesc, source: 'saved' };
+
+    document.getElementById('cvUploadInner').style.display   = 'none';
+    document.getElementById('cvSelectedState').style.display = 'flex';
+    cvUploadZone?.classList.add('has-file');
+    document.getElementById('cvFileName').textContent = cvName;
+    document.getElementById('cvFileSize').textContent = '✓ Đã chọn · ' + cvDesc;
+
+    document.querySelectorAll('.mi-saved-cv-item').forEach(i => i.classList.remove('selected'));
+    item.classList.add('selected');
+    const cvAiNote = document.getElementById('cvAiNote');
+    if (cvAiNote) cvAiNote.style.display = 'flex';
+}
+
+function formatRelativeTime(isoString) {
+    if (!isoString) return 'vừa rồi';
+    const diff = Date.now() - new Date(isoString).getTime();
+    const mins  = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days  = Math.floor(diff / 86400000);
+    if (mins  < 2)  return 'vừa rồi';
+    if (mins  < 60) return `${mins} phút trước`;
+    if (hours < 24) return `${hours} giờ trước`;
+    if (days  < 7)  return `${days} ngày trước`;
+    if (days  < 30) return `${Math.floor(days/7)} tuần trước`;
+    return `${Math.floor(days/30)} tháng trước`;
+}
+
+function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* =====================================================
    CV UPLOAD
    ===================================================== */
 function initCvUpload() {
@@ -290,37 +374,7 @@ function initCvUpload() {
         const cvAiNote = document.getElementById('cvAiNote');
         if (cvAiNote) cvAiNote.style.display = 'none';
         if (cvFileInput) cvFileInput.value = '';
-    });
-
-    // Saved CVs from DB
-    document.querySelectorAll('.mi-saved-cv-item').forEach(item => {
-        item.querySelector('.mi-scv-select')?.addEventListener('click', () => {
-            const cvName = item.querySelector('strong')?.textContent || '';
-            const cvDesc = item.querySelector('span')?.textContent  || '';
-            cvState = { hasCV: true, cvName, cvSize: cvDesc, source: 'saved' };
-
-            document.getElementById('cvUploadInner').style.display   = 'none';
-            document.getElementById('cvSelectedState').style.display = 'flex';
-            cvUploadZone.classList.add('has-file');
-            document.getElementById('cvFileName').textContent = cvName;
-            document.getElementById('cvFileSize').textContent = '✓ Đã chọn · ' + cvDesc;
-
-            document.querySelectorAll('.mi-saved-cv-item').forEach(i => i.classList.remove('selected'));
-            item.classList.add('selected');
-            const cvAiNote = document.getElementById('cvAiNote');
-            if (cvAiNote) cvAiNote.style.display = 'flex';
-
-            // Gợi ý role từ CV
-            const suggestedRoleKey = item.dataset.roleKey;
-            if (suggestedRoleKey) {
-                const match = refRoles.find(r => r.roleKey === suggestedRoleKey);
-                if (match) {
-                    session.role    = match.roleName;
-                    session.roleKey = match.roleKey;
-                    renderRoleGrid();
-                }
-            }
-        });
+        document.querySelectorAll('.mi-saved-cv-item').forEach(i => i.classList.remove('selected'));
     });
 }
 

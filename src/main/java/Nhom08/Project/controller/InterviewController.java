@@ -1,6 +1,7 @@
 package Nhom08.Project.controller;
 
 import Nhom08.Project.entity.*;
+import Nhom08.Project.repository.UserCvRepository;
 import Nhom08.Project.service.AuthService;
 import Nhom08.Project.service.InterviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/interview")
 public class InterviewController {
 
-    @Autowired private InterviewService interviewService;
-    @Autowired private AuthService      authService;
+    @Autowired private InterviewService  interviewService;
+    @Autowired private AuthService       authService;
+    @Autowired private UserCvRepository  userCvRepository;
 
     // ── Helper ───────────────────────────────────────────────────────
     private Optional<User> currentUser(Authentication auth) {
@@ -229,6 +231,32 @@ public class InterviewController {
                     return ResponseEntity.ok(resp);
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // ================================================================
+    // GET /api/interview/my-cvs
+    // Danh sách CV đã lưu của user (từ CV editor)
+    // ================================================================
+    @GetMapping("/my-cvs")
+    public ResponseEntity<?> getMyCvs(Authentication auth) {
+        Optional<User> userOpt = currentUser(auth);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.ok(Map.of("cvs", List.of()));
+        }
+
+        List<Map<String, Object>> cvs = userCvRepository
+                .findByUserIdOrderByUpdatedAtDesc(userOpt.get().getId())
+                .stream()
+                .map(cv -> {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("id",          cv.getId());
+                    m.put("cvName",      cv.getCvName() != null ? cv.getCvName() : "CV chưa đặt tên");
+                    m.put("templateName",cv.getTemplateName());
+                    m.put("updatedAt",   cv.getUpdatedAt());
+                    return m;
+                }).toList();
+
+        return ResponseEntity.ok(Map.of("cvs", cvs));
     }
 
     // ================================================================

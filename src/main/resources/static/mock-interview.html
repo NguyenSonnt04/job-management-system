@@ -93,23 +93,8 @@
                                         <!-- Or select from saved CVs -->
                                         <div class="mi-cv-divider"><span>hoặc chọn từ CV đã lưu</span></div>
                                         <div class="mi-saved-cvs" id="savedCvs">
-                                            <div class="mi-saved-cv-item" data-cv="cv-1" data-role="Frontend Developer">
-                                                <div class="mi-scv-icon"><i class="fa-solid fa-file-code"></i></div>
-                                                <div class="mi-scv-info">
-                                                    <strong>CV_Frontend_2024.pdf</strong>
-                                                    <span>Frontend Developer · Cập nhật 3 ngày trước</span>
-                                                </div>
-                                                <button type="button" class="mi-scv-select">Dùng CV này</button>
-                                            </div>
-                                            <div class="mi-saved-cv-item" data-cv="cv-2" data-role="Marketing">
-                                                <div class="mi-scv-icon"><i class="fa-solid fa-file-lines"></i></div>
-                                                <div class="mi-scv-info">
-                                                    <strong>CV_Marketing_2024.pdf</strong>
-                                                    <span>Marketing · Cập nhật 1 tuần trước</span>
-                                                </div>
-                                                <button type="button" class="mi-scv-select">Dùng CV này</button>
-                                            </div>
-                                            <div class="mi-no-saved-cv" id="noSavedCv" style="display:none">
+                                            <!-- Loaded dynamically from API -->
+                                            <div class="mi-no-saved-cv" id="noSavedCv">
                                                 <i class="fa-regular fa-folder-open"></i>
                                                 <span>Bạn chưa lưu CV nào. <a href="my-cvs.html">Quản lý CV</a></span>
                                             </div>
