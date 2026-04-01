@@ -27,11 +27,8 @@
             <h1 class="cv-hero-title">Chấm điểm CV <span class="gradient-text">thông minh</span></h1>
             <p class="cv-hero-subtitle">Upload CV của bạn và nhận ngay đánh giá chi tiết từ AI trong vài giây</p>
 
-            <div class="cv-criteria-pills">
-                <span class="criteria-pill"><i class="fas fa-chart-line"></i> Chỉ số Tác động</span>
-                <span class="criteria-pill"><i class="fas fa-code"></i> Độ sâu Kỹ thuật</span>
-                <span class="criteria-pill"><i class="fas fa-project-diagram"></i> Tư duy hệ thống</span>
-                <span class="criteria-pill"><i class="fas fa-robot"></i> Đọc hiểu của Máy</span>
+            <div class="cv-criteria-pills" id="heroCriteriaPills">
+                <span class="criteria-pill"><i class="fas fa-spinner fa-spin"></i> Đang tải tiêu chí...</span>
             </div>
         </div>
     </section>
@@ -225,7 +222,7 @@
                                 <div class="how-step-num">2</div>
                                 <div class="how-step-text">
                                     <strong>AI phân tích</strong>
-                                    <span>Gemini đọc và đánh giá CV theo 4 tiêu chí</span>
+                                    <span>Gemini đọc và đánh giá CV theo 7 tiêu chí toàn diện</span>
                                 </div>
                             </div>
                             <div class="how-step">
@@ -364,13 +361,24 @@
                 </div>
             `).join('');
 
-            // Also update hero pills dynamically
-            const pills = document.querySelector('.cv-criteria-pills');
+            // Also update hero pills dynamically with appropriate icons for each criteria
+            const pills = document.getElementById('heroCriteriaPills');
             if (pills && list.length > 0) {
-                const icons = ['fa-chart-line', 'fa-code', 'fa-project-diagram', 'fa-robot'];
-                pills.innerHTML = list.map((c, i) =>
-                    `<span class="criteria-pill"><i class="fas ${icons[i] || 'fa-check'}"></i> ${c.name}</span>`
-                ).join('');
+                // Map icon classes to criteria names
+                const iconMap = {
+                    'Thông tin cá nhân': 'fa-user',
+                    'Mục tiêu nghề nghiệp': 'fa-bullseye',
+                    'Kỹ năng chuyên môn': 'fa-tools',
+                    'Kinh nghiệm làm việc': 'fa-briefcase',
+                    'Học vấn / Chứng chỉ': 'fa-graduation-cap',
+                    'Bố cục / Trình bày': 'fa-layer-group',
+                    'Mức độ phù hợp với vị trí': 'fa-check-double'
+                };
+
+                pills.innerHTML = list.map((c, i) => {
+                    const icon = iconMap[c.name] || 'fa-star';
+                    return `<span class="criteria-pill"><i class="fas ${icon}"></i> ${c.name}</span>`;
+                }).join('');
             }
         } catch {
             // Silent fail — criteria will show empty
