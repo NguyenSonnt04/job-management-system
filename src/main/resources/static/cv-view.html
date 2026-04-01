@@ -250,18 +250,17 @@
                 document.getElementById('viewCvName').textContent = cvName;
                 document.title = `${cvName} | CareerViet`;
 
-                // CV tải lên (PDF/DOC) — kiểm tra _pdfUrl
-                if (!data.cvContent) {
-                    showUploadedCvNotice(cvName, cvId);
-                    return;
+                // Parse JSON — handle null, empty string, invalid JSON
+                let parsed = null;
+                if (data.cvContent && data.cvContent.trim()) {
+                    try { parsed = JSON.parse(data.cvContent); } catch { parsed = null; }
                 }
-                // Parse JSON để check _pdfUrl
-                let parsed;
-                try { parsed = JSON.parse(data.cvContent); } catch { parsed = null; }
+                // CV tải lên dạng PDF mới → có _pdfUrl
                 if (parsed && parsed._pdfUrl) {
                     showPdfEmbed(parsed._pdfUrl, cvName, cvId);
                     return;
                 }
+                // Không có content hoặc content rỗng/không hợp lệ
                 if (!parsed) {
                     showUploadedCvNotice(cvName, cvId);
                     return;
