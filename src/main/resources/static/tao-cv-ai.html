@@ -515,8 +515,16 @@
                         <div class="cv-miniature-wrapper">
                             ${buildCvMiniature(t)}
                         </div>
-                        <div class="preview-overlay">
-                            <span class="preview-overlay-text">Xem trước mẫu</span>
+                        <div class="preview-overlay" aria-hidden="true">
+                            <div class="preview-overlay-surface">
+                                <div class="preview-overlay-doc">
+                                    ${buildCvMiniature(t)}
+                                </div>
+                                <div class="preview-overlay-meta">
+                                    <span class="preview-overlay-pill">Xem nhanh</span>
+                                    <span class="preview-overlay-hint">Preview mẫu CV</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="template-info">

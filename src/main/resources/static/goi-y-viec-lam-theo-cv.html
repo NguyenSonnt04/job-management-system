@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gợi ý việc làm theo CV - JCO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/goi-y-viec-lam-theo-cv.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <main class="job-match-page">
+        <section class="job-match-hero">
+            <div class="container">
+                <div class="job-match-hero-shell">
+                    <div class="job-match-copy">
+                        <span class="job-match-kicker">CV MATCHING</span>
+                        <h1>Gợi ý việc làm theo CV</h1>
+                        <p>Hệ thống ưu tiên các công việc gần với kỹ năng, kinh nghiệm và nhóm ngành trong hồ sơ của bạn. Chọn một phiên CV đã chấm để xem danh sách việc làm phù hợp nhất.</p>
+                        <div class="job-match-actions">
+                            <a href="cham-diem-cv.html" class="job-match-primary">Chấm CV mới</a>
+                            <a href="#match-workspace" class="job-match-secondary">Xem gợi ý ngay</a>
+                        </div>
+                    </div>
+
+                    <aside class="hero-highlight">
+                        <div class="highlight-grid">
+                            <div class="highlight-stat">
+                                <strong id="heroSessionCount">0</strong>
+                                <span>phiên CV sẵn sàng</span>
+                            </div>
+                            <div class="highlight-stat">
+                                <strong id="heroMatchCount">0</strong>
+                                <span>job đang được đề xuất</span>
+                            </div>
+                            <div class="highlight-stat">
+                                <strong id="heroTopScore">0%</strong>
+                                <span>độ phù hợp cao nhất</span>
+                            </div>
+                        </div>
+
+                        <div class="highlight-note">
+                            <div class="highlight-note-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 12h4l3 8 4-16 3 8h4"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <strong>Gợi ý thông minh</strong>
+                                <p>AI xếp hạng job theo độ phù hợp và giữ lại phần giải thích ngắn để bạn biết nên apply trước việc nào.</p>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <section class="job-match-workspace" id="match-workspace">
+            <div class="container">
+                <div class="workspace-grid">
+                    <aside class="workspace-sidebar">
+                        <section class="panel-card">
+                            <div class="panel-head">
+                                <div class="panel-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M7 3h8l4 4v14H7z"></path>
+                                        <path d="M15 3v4h4"></path>
+                                        <path d="M10 13h6"></path>
+                                        <path d="M10 17h4"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2>Phiên CV đã chấm</h2>
+                                    <p>Chọn một hồ sơ để lấy làm nguồn gợi ý việc làm.</p>
+                                </div>
+                            </div>
+
+                            <div id="sessionSummary" class="session-summary session-summary-empty">
+                                <strong>Chưa có phiên CV nào</strong>
+                                <span>Bạn cần chấm CV trước để hệ thống tạo gợi ý.</span>
+                            </div>
+
+                            <div id="sessionList" class="session-list"></div>
+
+                            <div class="panel-footer">
+                                <a href="cham-diem-cv.html" class="sidebar-link">Mở trang chấm điểm CV</a>
+                            </div>
+                        </section>
+
+                        <section class="panel-card">
+                            <div class="panel-head compact">
+                                <div class="panel-icon tint-teal" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 6h16"></path>
+                                        <path d="M7 12h10"></path>
+                                        <path d="M10 18h4"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2>Lọc nhanh</h2>
+                                    <p>Ưu tiên việc phù hợp hơn với mục tiêu hiện tại.</p>
+                                </div>
+                            </div>
+
+                            <div class="filter-group">
+                                <label>Mức độ phù hợp tối thiểu</label>
+                                <div class="chip-row" id="scoreChips">
+                                    <button type="button" class="filter-chip active" data-score="0">Tất cả</button>
+                                    <button type="button" class="filter-chip" data-score="50">Từ 50%</button>
+                                    <button type="button" class="filter-chip" data-score="70">Từ 70%</button>
+                                    <button type="button" class="filter-chip" data-score="85">Từ 85%</button>
+                                </div>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="jobKeywordInput">Tìm trong danh sách gợi ý</label>
+                                <div class="search-shell">
+                                    <span class="search-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="11" cy="11" r="7"></circle>
+                                            <path d="m21 21-4.35-4.35"></path>
+                                        </svg>
+                                    </span>
+                                    <input id="jobKeywordInput" type="text" placeholder="Tên vị trí, công ty, địa điểm">
+                                </div>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="jobSortSelect">Sắp xếp</label>
+                                <select id="jobSortSelect" class="filter-select">
+                                    <option value="score-desc">Độ phù hợp cao nhất</option>
+                                    <option value="score-asc">Độ phù hợp thấp nhất</option>
+                                    <option value="title-asc">Tên vị trí A-Z</option>
+                                </select>
+                            </div>
+                        </section>
+                    </aside>
+
+                    <section class="workspace-main">
+                        <div class="results-toolbar panel-card">
+                            <div class="toolbar-copy">
+                                <span class="toolbar-label">Danh sách ưu tiên</span>
+                                <h2 id="resultsTitle">Chưa có gợi ý việc làm</h2>
+                                <p id="resultsSubtitle">Hãy chọn một phiên CV đã chấm để hệ thống phân tích danh sách job phù hợp.</p>
+                            </div>
+
+                            <div class="toolbar-actions">
+                                <button type="button" id="btnReloadMatches" class="toolbar-btn secondary" disabled>Làm mới gợi ý</button>
+                                <button type="button" id="btnViewAllMatches" class="toolbar-btn primary" disabled>Xem tất cả trên trang tìm việc</button>
+                            </div>
+                        </div>
+
+                        <div id="matchOverview" class="overview-grid" style="display:none;"></div>
+
+                        <div id="matchLoading" class="state-card" style="display:none;">
+                            <div class="spinner" aria-hidden="true"></div>
+                            <div>
+                                <strong>Đang phân tích CV với danh sách job hiện có</strong>
+                                <p>Hệ thống sẽ xếp hạng những công việc gần nhất với hồ sơ bạn đã chọn.</p>
+                            </div>
+                        </div>
+
+                        <div id="matchEmpty" class="state-card">
+                            <div class="state-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="7"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                    <path d="M11 8v6"></path>
+                                    <path d="M8 11h6"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <strong>Bắt đầu bằng một phiên CV đã chấm</strong>
+                                <p>Trang này dùng luôn dữ liệu từ khu chấm điểm CV, nên bạn chỉ cần chọn một phiên trong danh sách bên trái.</p>
+                            </div>
+                        </div>
+
+                        <div id="matchList" class="match-list"></div>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="footer-placeholder"></div>
+    <script src="js/main.js"></script>
+    <script>
+    let historySessions = [];
+    let selectedSessionId = null;
+    let selectedSession = null;
+    let allMatches = [];
+    let visibleMatches = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        bindJobMatchEvents();
+        loadJobMatchWorkspace();
+    });
+
+    function bindJobMatchEvents() {
+        document.getElementById('scoreChips').addEventListener('click', (event) => {
+            const chip = event.target.closest('.filter-chip');
+            if (!chip) return;
+
+            document.querySelectorAll('.filter-chip').forEach(btn => btn.classList.remove('active'));
+            chip.classList.add('active');
+            applyMatchFilters();
+        });
+
+        document.getElementById('jobKeywordInput').addEventListener('input', applyMatchFilters);
+        document.getElementById('jobSortSelect').addEventListener('change', applyMatchFilters);
+        document.getElementById('btnReloadMatches').addEventListener('click', reloadSelectedMatches);
+        document.getElementById('btnViewAllMatches').addEventListener('click', viewAllMatchedJobs);
+    }
+
+    async function loadJobMatchWorkspace() {
+        try {
+            const res = await fetch('/api/cv-scoring/history', { credentials: 'include' });
+
+            if (res.status === 401) {
+                showEmptyWorkspace(
+                    'Bạn cần đăng nhập để dùng gợi ý việc làm theo CV',
+                    'Hệ thống chỉ lấy được lịch sử chấm CV của tài khoản đang đăng nhập.'
+                );
+                return;
+            }
+
+            if (!res.ok) {
+                throw new Error('Không thể tải lịch sử chấm CV');
+            }
+
+            historySessions = await res.json();
+            renderSessionList();
+
+            const savedId = Number(sessionStorage.getItem('cvLastSessionId') || 0);
+            const preferred = historySessions.find(item => item.id === savedId) || historySessions[0];
+
+            if (!preferred) {
+                showEmptyWorkspace(
+                    'Chưa có phiên CV nào sẵn sàng',
+                    'Bạn hãy chấm CV trước, sau đó quay lại đây để nhận danh sách việc làm phù hợp.'
+                );
+                return;
+            }
+
+            await selectSession(preferred.id);
+        } catch (error) {
+            showEmptyWorkspace(
+                'Không thể tải gợi ý lúc này',
+                error.message || 'Đã có lỗi xảy ra trong quá trình tải dữ liệu.'
+            );
+        }
+    }
+
+    function showEmptyWorkspace(title, message) {
+        document.getElementById('resultsTitle').textContent = title;
+        document.getElementById('resultsSubtitle').textContent = message;
+        document.getElementById('matchEmpty').style.display = 'flex';
+        document.getElementById('matchLoading').style.display = 'none';
+        document.getElementById('matchList').innerHTML = '';
+        document.getElementById('matchOverview').style.display = 'none';
+        updateHeroStats();
+        renderSessionList();
+    }
+
+    function renderSessionList() {
+        const listEl = document.getElementById('sessionList');
+        const summaryEl = document.getElementById('sessionSummary');
+
+        if (!historySessions.length) {
+            listEl.innerHTML = '';
+            summaryEl.className = 'session-summary session-summary-empty';
+            summaryEl.innerHTML = '<strong>Chưa có phiên CV nào</strong><span>Bạn cần chấm CV trước để hệ thống tạo gợi ý.</span>';
+            updateHeroStats();
+            return;
+        }
+
+        const selected = historySessions.find(item => item.id === selectedSessionId) || historySessions[0];
+        const percent = Math.round((selected.totalScore / (selected.maxTotalScore || 100)) * 100);
+        summaryEl.className = 'session-summary';
+        summaryEl.innerHTML = `
+            <div class="session-score">${percent}%</div>
+            <div class="session-meta">
+                <strong>${escapeHtml(selected.fileName || 'CV đã chấm')}</strong>
+                <span>${formatDateTime(selected.createdAt)}</span>
+            </div>
+        `;
+
+        listEl.innerHTML = historySessions.map(item => {
+            const itemPercent = Math.round((item.totalScore / (item.maxTotalScore || 100)) * 100);
+            const isActive = item.id === selectedSessionId;
+
+            return `
+                <button type="button" class="session-item ${isActive ? 'active' : ''}" data-session-id="${item.id}">
+                    <div class="session-item-score">${itemPercent}%</div>
+                    <div class="session-item-body">
+                        <strong>${escapeHtml(item.fileName || 'Phiên CV')}</strong>
+                        <span>${formatDateTime(item.createdAt)}</span>
+                    </div>
+                </button>
+            `;
+        }).join('');
+
+        listEl.querySelectorAll('.session-item').forEach(button => {
+            button.addEventListener('click', () => selectSession(Number(button.dataset.sessionId)));
+        });
+
+        updateHeroStats();
+    }
+
+    async function selectSession(sessionId) {
+        if (!sessionId) return;
+        selectedSessionId = sessionId;
+        selectedSession = historySessions.find(item => item.id === sessionId) || null;
+        renderSessionList();
+
+        sessionStorage.setItem('cvLastSessionId', String(sessionId));
+        await loadMatchesForSession(sessionId);
+    }
+
+    async function loadMatchesForSession(sessionId) {
+        const loadingEl = document.getElementById('matchLoading');
+        const emptyEl = document.getElementById('matchEmpty');
+        const listEl = document.getElementById('matchList');
+        const overviewEl = document.getElementById('matchOverview');
+
+        loadingEl.style.display = 'flex';
+        emptyEl.style.display = 'none';
+        listEl.innerHTML = '';
+        overviewEl.style.display = 'none';
+        document.getElementById('btnReloadMatches').disabled = true;
+        document.getElementById('btnViewAllMatches').disabled = true;
+
+        try {
+            const res = await fetch('/api/cv-scoring/match-jobs', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId })
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !Array.isArray(data.matches)) {
+                throw new Error(data.message || 'Không tìm được việc làm phù hợp');
+            }
+
+            allMatches = data.matches;
+            applyMatchFilters();
+        } catch (error) {
+            allMatches = [];
+            visibleMatches = [];
+            loadingEl.style.display = 'none';
+            emptyEl.style.display = 'flex';
+            listEl.innerHTML = '';
+            document.getElementById('resultsTitle').textContent = 'Chưa có gợi ý việc làm';
+            document.getElementById('resultsSubtitle').textContent = error.message || 'Không thể tải gợi ý lúc này.';
+            updateHeroStats();
+            return;
+        }
+
+        loadingEl.style.display = 'none';
+        document.getElementById('btnReloadMatches').disabled = false;
+        document.getElementById('btnViewAllMatches').disabled = allMatches.length === 0;
+    }
+
+    function applyMatchFilters() {
+        const minScore = Number(document.querySelector('.filter-chip.active')?.dataset.score || 0);
+        const keyword = (document.getElementById('jobKeywordInput').value || '').trim().toLowerCase();
+        const sortValue = document.getElementById('jobSortSelect').value;
+
+        visibleMatches = allMatches.filter(item => {
+            const haystack = [item.title, item.company, item.location, item.reason, item.industry]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+            return Number(item.matchScore || 0) >= minScore && (!keyword || haystack.includes(keyword));
+        });
+
+        visibleMatches.sort((a, b) => {
+            if (sortValue === 'score-asc') return Number(a.matchScore || 0) - Number(b.matchScore || 0);
+            if (sortValue === 'title-asc') return String(a.title || '').localeCompare(String(b.title || ''), 'vi');
+            return Number(b.matchScore || 0) - Number(a.matchScore || 0);
+        });
+
+        renderMatchResults();
+        updateHeroStats();
+    }
+
+    function renderMatchResults() {
+        const emptyEl = document.getElementById('matchEmpty');
+        const listEl = document.getElementById('matchList');
+        const overviewEl = document.getElementById('matchOverview');
+        const titleEl = document.getElementById('resultsTitle');
+        const subtitleEl = document.getElementById('resultsSubtitle');
+
+        if (!selectedSession) {
+            emptyEl.style.display = 'flex';
+            listEl.innerHTML = '';
+            overviewEl.style.display = 'none';
+            titleEl.textContent = 'Chưa có gợi ý việc làm';
+            subtitleEl.textContent = 'Hãy chọn một phiên CV đã chấm để hệ thống phân tích danh sách job phù hợp.';
+            return;
+        }
+
+        if (!allMatches.length) {
+            emptyEl.style.display = 'flex';
+            listEl.innerHTML = '';
+            overviewEl.style.display = 'none';
+            titleEl.textContent = 'Chưa tìm thấy việc làm phù hợp';
+            subtitleEl.textContent = 'Bạn có thể chấm lại CV, cập nhật hồ sơ hoặc thử lại khi hệ thống có thêm job mới.';
+            emptyEl.querySelector('strong').textContent = 'Hiện chưa có job nào vượt ngưỡng gợi ý';
+            emptyEl.querySelector('p').textContent = 'Thử làm mới gợi ý hoặc quay lại chấm CV để cải thiện hồ sơ trước khi apply.';
+            return;
+        }
+
+        if (!visibleMatches.length) {
+            emptyEl.style.display = 'flex';
+            listEl.innerHTML = '';
+            overviewEl.style.display = 'none';
+            titleEl.textContent = 'Không còn job nào sau khi lọc';
+            subtitleEl.textContent = 'Hãy nới điều kiện lọc để xem thêm những vị trí gần phù hợp với CV của bạn.';
+            emptyEl.querySelector('strong').textContent = 'Bộ lọc hiện tại đang quá hẹp';
+            emptyEl.querySelector('p').textContent = 'Bạn có thể giảm ngưỡng phù hợp hoặc xóa từ khóa tìm kiếm để thấy thêm nhiều gợi ý hơn.';
+            return;
+        }
+
+        emptyEl.style.display = 'none';
+        titleEl.textContent = `${visibleMatches.length} việc làm phù hợp với ${escapeHtml(selectedSession.fileName || 'CV đã chọn')}`;
+        subtitleEl.textContent = 'Danh sách đã được xếp hạng theo độ phù hợp và có ghi chú ngắn để bạn biết nên apply vào đâu trước.';
+
+        renderOverviewCards();
+
+        listEl.innerHTML = visibleMatches.map((item, index) => {
+            const score = Number(item.matchScore || 0);
+            const tone = getScoreTone(score);
+            const reasonBullets = buildReasonBullets(item);
+
+            return `
+                <article class="match-card ${index === 0 ? 'match-card-featured' : ''}">
+                    <div class="match-score">
+                        <div class="match-score-ring" style="--ring-color:${tone.color}; --ring-bg:${tone.bg}; --score:${score}">
+                            <div>
+                                <strong>${score}%</strong>
+                                <span>${tone.label}</span>
+                            </div>
+                        </div>
+                        ${index === 0 ? '<div class="match-priority">Nên apply trước</div>' : ''}
+                    </div>
+
+                    <div class="match-card-body">
+                        <div class="match-card-top">
+                            <div>
+                                <div class="match-card-title">${escapeHtml(item.title || 'Vị trí tuyển dụng')}</div>
+                                <div class="match-card-company">${escapeHtml(item.company || 'Công ty chưa cập nhật')}</div>
+                            </div>
+                            <div class="match-tags">
+                                ${item.location ? `<span class="match-tag">${escapeHtml(item.location)}</span>` : ''}
+                                ${item.experience ? `<span class="match-tag">${escapeHtml(item.experience)}</span>` : ''}
+                                ${item.industry ? `<span class="match-tag">${escapeHtml(item.industry)}</span>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="match-reason-lead">${escapeHtml(item.reason || 'Hệ thống đánh giá đây là một vị trí gần với hồ sơ của bạn.')}</div>
+
+                        <div class="match-reason-grid">
+                            ${reasonBullets.map(block => `
+                                <div class="reason-pill">
+                                    <span class="reason-pill-icon">${block.icon}</span>
+                                    <div>
+                                        <strong>${block.title}</strong>
+                                        <p>${escapeHtml(block.text)}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="match-card-actions">
+                            <a class="action-link primary" href="tim-viec-lam.html?jobId=${item.jobId}" target="_blank" rel="noopener">Xem việc này</a>
+                            <a class="action-link secondary" href="so-sanh-cv-jd.html" target="_blank" rel="noopener">So sánh CV với JD</a>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    function renderOverviewCards() {
+        const overviewEl = document.getElementById('matchOverview');
+        const topMatch = visibleMatches[0];
+        const average = Math.round(visibleMatches.reduce((sum, item) => sum + Number(item.matchScore || 0), 0) / visibleMatches.length);
+        const strongCount = visibleMatches.filter(item => Number(item.matchScore || 0) >= 80).length;
+
+        overviewEl.style.display = 'grid';
+        overviewEl.innerHTML = `
+            <div class="overview-card">
+                <span>Top match</span>
+                <strong>${topMatch ? topMatch.matchScore : 0}%</strong>
+                <p>${escapeHtml(topMatch ? topMatch.title : 'Chưa có dữ liệu')}</p>
+            </div>
+            <div class="overview-card">
+                <span>Điểm trung bình</span>
+                <strong>${average}%</strong>
+                <p>Mức độ phù hợp của toàn bộ danh sách hiện tại.</p>
+            </div>
+            <div class="overview-card">
+                <span>Job nên ưu tiên</span>
+                <strong>${strongCount}</strong>
+                <p>Số việc có độ phù hợp từ 80% trở lên.</p>
+            </div>
+        `;
+    }
+
+    function buildReasonBullets(item) {
+        const score = Number(item.matchScore || 0);
+        const readinessText = score >= 85
+            ? 'Hồ sơ đã rất gần với yêu cầu, có thể ưu tiên nộp trước.'
+            : score >= 70
+                ? 'Phù hợp khá tốt, nên cân nhắc chỉnh nhẹ CV trước khi apply.'
+                : 'Có thể theo đuổi nếu bạn muốn mở rộng lựa chọn và tối ưu CV thêm.';
+
+        return [
+            { icon: '✓', title: 'Lý do gợi ý', text: item.reason || 'AI đánh giá công việc này có nhiều điểm gần với hồ sơ của bạn.' },
+            { icon: '↗', title: 'Mức ưu tiên apply', text: readinessText }
+        ];
+    }
+
+    async function reloadSelectedMatches() {
+        if (!selectedSessionId) return;
+        const button = document.getElementById('btnReloadMatches');
+        button.disabled = true;
+        button.textContent = 'Đang làm mới...';
+
+        try {
+            await fetch(`/api/cv-scoring/match-jobs/${selectedSessionId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+        } catch (_) {}
+
+        await loadMatchesForSession(selectedSessionId);
+        button.textContent = 'Làm mới gợi ý';
+        button.disabled = false;
+    }
+
+    function viewAllMatchedJobs() {
+        if (!visibleMatches.length) {
+            window.location.href = 'tim-viec-lam.html';
+            return;
+        }
+
+        const matchIds = visibleMatches.map(item => item.jobId).join(',');
+        window.location.href = `tim-viec-lam.html?matchIds=${matchIds}`;
+    }
+
+    function updateHeroStats() {
+        document.getElementById('heroSessionCount').textContent = String(historySessions.length);
+        document.getElementById('heroMatchCount').textContent = String(visibleMatches.length);
+        document.getElementById('heroTopScore').textContent = `${visibleMatches[0] ? visibleMatches[0].matchScore : 0}%`;
+    }
+
+    function getScoreTone(score) {
+        if (score >= 85) return { label: 'Rất hợp', color: '#00b894', bg: 'rgba(0, 184, 148, 0.14)' };
+        if (score >= 70) return { label: 'Nên apply', color: '#2e86ff', bg: 'rgba(46, 134, 255, 0.15)' };
+        if (score >= 50) return { label: 'Khá gần', color: '#ff8f1f', bg: 'rgba(255, 143, 31, 0.16)' };
+        return { label: 'Cần tối ưu', color: '#ff5f57', bg: 'rgba(255, 95, 87, 0.16)' };
+    }
+
+    function formatDateTime(value) {
+        if (!value) return 'Chưa có thời gian';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return date.toLocaleString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    </script>
+</body>
+</html>

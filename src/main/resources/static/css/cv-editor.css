@@ -3078,7 +3078,8 @@ input:checked + .slider:before {
         /* â”€â”€ Save Name Modal â”€â”€ */
         .cv-modal-backdrop {
             display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.45); z-index: 9000;
+            background: rgba(15, 23, 42, 0.76); z-index: 9000;
+            backdrop-filter: blur(10px);
             align-items: center; justify-content: center;
         }
         .cv-modal-backdrop.show { display: flex; }
@@ -3087,6 +3088,14 @@ input:checked + .slider:before {
             padding: 32px; width: 420px; max-width: 90vw;
             box-shadow: 0 20px 60px rgba(0,0,0,0.25);
             animation: modalIn 0.22s ease;
+        }
+        body.save-modal-open #header-placeholder,
+        body.save-modal-open #footer-placeholder,
+        body.save-modal-open .editor-workspace,
+        body.save-modal-open .edit-mode-badge {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            user-select: none !important;
         }
         @keyframes modalIn { from { opacity:0; transform:scale(0.94) translateY(-12px); } to { opacity:1; transform:none; } }
         .cv-modal h3 { font-size: 18px; font-weight: 800; color: #1e293b; margin: 0 0 6px; }

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lưu CV thành công | CareerViet</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg:#f4f8f6; --surface:#fff; --line:#d9e7de; --ink:#183126; --muted:#607267; --accent:#0f9f5f; --accent-soft:#e8f8ef; --navy:#1f3b66; --soft:#eef5fb; --shadow:0 20px 46px rgba(15,40,27,.08); --radius:24px; }
+        * { box-sizing:border-box; }
+        html,body { margin:0; min-height:100%; font-family:"Be Vietnam Pro",sans-serif; color:var(--ink); background:radial-gradient(circle at top left,rgba(15,159,95,.14),transparent 28%),linear-gradient(180deg,#fbfdfc 0%,var(--bg) 100%); }
+        #header-placeholder,#footer-placeholder { position:relative; z-index:2; }
+        .page { max-width:1320px; margin:30px auto 72px; padding:0 22px; display:grid; gap:24px; }
+        .card { background:rgba(255,255,255,.96); border:1px solid rgba(217,231,222,.9); border-radius:30px; box-shadow:var(--shadow); }
+        .hero { padding:28px; color:#f4fcf7; background:linear-gradient(135deg,#123727 0%,#105637 55%,#0e7a48 100%); }
+        .hero-grid,.content { display:grid; gap:24px; }
+        .hero-grid { grid-template-columns:minmax(0,1.08fr) minmax(280px,.92fr); align-items:center; }
+        .eyebrow,.pill { display:inline-flex; align-items:center; padding:8px 12px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+        .eyebrow { background:rgba(255,255,255,.14); }
+        .hero h1 { margin:16px 0 10px; font-size:clamp(2rem,4vw,3rem); line-height:1.05; letter-spacing:-.04em; }
+        .hero p,.hero-mini { margin:0; color:rgba(244,252,247,.84); font-size:14px; line-height:1.7; }
+        .actions,.hero-stats,.contact-pills,.section-pills,.state-actions { display:flex; flex-wrap:wrap; gap:12px; }
+        .actions,.hero-stats { margin-top:20px; }
+        .btn { display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 18px; border-radius:16px; text-decoration:none; font-size:14px; font-weight:700; }
+        .btn-primary { background:#f5fff7; color:#103021; }
+        .btn-secondary { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); color:#f4fcf7; }
+        .hero-stat,.contact-pill,.section-pill { border-radius:999px; font-size:12px; font-weight:700; }
+        .hero-stat { padding:10px 14px; background:rgba(255,255,255,.08); }
+        .hero-side { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .hero-box { padding:18px; border-radius:22px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); }
+        .hero-box strong { display:block; margin-bottom:8px; font-size:14px; }
+        .hero-box span { display:block; color:rgba(244,252,247,.8); font-size:13px; line-height:1.6; }
+        .content { grid-template-columns:minmax(360px,.92fr) minmax(420px,1.08fr); align-items:start; }
+        .panel { padding:24px; }
+        .panel h2 { margin:10px 0 8px; font-size:24px; font-weight:800; letter-spacing:-.03em; }
+        .panel p.lead { margin:0 0 18px; color:var(--muted); font-size:14px; line-height:1.7; }
+        .pill { background:var(--accent-soft); color:#0c7d4a; }
+        .saved-card { overflow:hidden; border-radius:28px; border:1px solid rgba(217,231,222,.92); background:#fff; box-shadow:0 18px 38px rgba(15,32,24,.08); }
+        .saved-head { padding:22px; color:#f5fbff; background:linear-gradient(135deg,#1d355c 0%,#294c7f 100%); }
+        .saved-top { display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:center; }
+        .avatar { width:56px; height:56px; border-radius:18px; display:grid; place-items:center; background:rgba(255,255,255,.18); font-size:18px; font-weight:800; }
+        .saved-name { margin:0; font-size:24px; line-height:1.1; font-weight:800; letter-spacing:-.03em; }
+        .saved-role { margin-top:6px; color:rgba(245,251,255,.84); font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
+        .contact-pill { display:inline-flex; align-items:center; padding:10px 12px; background:rgba(255,255,255,.1); color:rgba(245,251,255,.92); }
+        .saved-body,.score-shell { display:grid; gap:18px; }
+        .saved-body { padding:20px 22px 22px; }
+        .meta-grid,.criteria-grid,.sw-grid,.card-actions { display:grid; gap:12px; }
+        .meta-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        .meta,.box,.criteria,.sw { padding:16px; border-radius:20px; border:1px solid var(--line); background:#fff; }
+        .meta { background:#f7faf8; }
+        .meta span,.box h4,.sw h4,.score-breakdown h4 { display:block; margin:0 0 10px; font-size:12px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:.06em; }
+        .meta strong { font-size:15px; line-height:1.45; }
+        .box p,.criteria p,.state p,.sw li { margin:0; color:var(--muted); font-size:13px; line-height:1.7; }
+        .section-pill { padding:10px 12px; background:var(--soft); color:var(--navy); }
+        .card-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        .btn-soft { background:var(--accent-soft); color:#0c7d4a; }
+        .score-hero { display:grid; grid-template-columns:auto 1fr; gap:18px; align-items:center; padding:22px; border-radius:24px; border:1px solid var(--line); background:linear-gradient(180deg,#fff 0%,#f8fbf9 100%); }
+        .ring { position:relative; width:122px; height:122px; border-radius:50%; display:grid; place-items:center; background:conic-gradient(var(--score-color,var(--accent)) calc(var(--score-pct,0) * 1%), #e8f0eb 0); }
+        .ring::before { content:""; position:absolute; inset:12px; border-radius:50%; background:#fff; }
+        .ring-inner { position:relative; text-align:center; }
+        .ring-num { display:block; font-size:34px; line-height:1; font-weight:800; letter-spacing:-.04em; }
+        .ring-max { display:block; margin-top:6px; color:var(--muted); font-size:12px; font-weight:700; }
+        .grade { display:inline-flex; align-items:center; padding:8px 12px; border-radius:999px; font-size:12px; font-weight:700; }
+        .score-title { margin:10px 0 8px; font-size:26px; font-weight:800; letter-spacing:-.03em; }
+        .score-text { margin:0; color:var(--muted); font-size:14px; line-height:1.7; }
+        .score-breakdown { display:grid; gap:12px; }
+        .criteria-grid,.sw-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        .criteria-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px; }
+        .criteria-name { font-size:15px; font-weight:700; line-height:1.45; }
+        .criteria-score { font-size:18px; font-weight:800; color:var(--navy); white-space:nowrap; }
+        .criteria-score span { color:var(--muted); font-size:12px; font-weight:700; }
+        .bar { height:10px; border-radius:999px; background:#edf2ef; overflow:hidden; }
+        .fill { height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--criteria-color,var(--accent)),#63d79a); }
+        .sw ul { margin:0; padding:0; list-style:none; display:grid; gap:10px; }
+        .sw li { display:flex; gap:10px; }
+        .dot { flex:0 0 auto; width:10px; height:10px; margin-top:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 6px rgba(15,159,95,.12); }
+        .sw.is-weak .dot { background:#dba83d; box-shadow:0 0 0 6px rgba(219,168,61,.14); }
+        .state { padding:22px; text-align:center; border-radius:24px; border:1px dashed var(--line); background:#fbfdfc; }
+        .state h3 { margin:0 0 10px; font-size:20px; font-weight:800; }
+        .btn-score { background:linear-gradient(135deg,var(--accent),#18bc72); color:#fff; border:none; cursor:pointer; transition:transform 180ms ease,box-shadow 180ms ease; }
+        .btn-score:hover { transform:translateY(-2px); box-shadow:0 10px 22px rgba(15,159,95,.22); }
+        .btn-score:disabled { opacity:.6; cursor:not-allowed; transform:none; box-shadow:none; }
+        .scoring-loading { display:flex; flex-direction:column; align-items:center; gap:16px; padding:32px 20px; }
+        .scoring-spinner { width:44px; height:44px; border:4px solid var(--accent-soft,#e8f8ef); border-top-color:var(--accent,#0f9f5f); border-radius:50%; animation:spin 1s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .scoring-loading p { margin:0; color:var(--muted); font-size:14px; font-weight:600; text-align:center; }
+        .scoring-error { color:var(--danger,#c2413b); font-size:14px; margin-top:12px; text-align:center; }
+        @media (max-width:1100px) { .hero-grid,.content { grid-template-columns:1fr; } }
+        @media (max-width:760px) { .page { padding:0 16px; margin-top:22px; } .hero,.panel { padding:20px; border-radius:24px; } .hero-side,.meta-grid,.criteria-grid,.sw-grid,.card-actions { grid-template-columns:1fr; } .score-hero { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <main class="page">
+        <section class="card hero">
+            <div class="hero-grid">
+                <div>
+                    <div class="eyebrow">Lưu thành công</div>
+                    <h1>CV của bạn đã được lưu và sẵn sàng ứng tuyển</h1>
+                    <p>Trang này hiển thị CV vừa lưu ở bên trái và phần đánh giá AI ở bên phải để bạn biết hồ sơ đang ổn ở đâu và cần chỉnh gì thêm.</p>
+                    <div class="actions">
+                        <a class="btn btn-primary" id="heroEditBtn" href="/cv-editor.html">Tiếp tục chỉnh sửa</a>
+                        <a class="btn btn-secondary" href="/my-cvs.html">Xem thư viện CV</a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="hero-stat" id="heroCvName">Đang tải tên CV...</div>
+                        <div class="hero-stat" id="heroTemplateName">Đang tải mẫu...</div>
+                        <div class="hero-stat" id="heroUpdatedAt">Đang tải thời gian lưu...</div>
+                    </div>
+                </div>
+                <div class="hero-side">
+                    <div class="hero-box"><strong>CV vừa lưu</strong><span>Hệ thống lấy lại dữ liệu từ bản lưu mới nhất để bạn kiểm tra nhanh mà không cần quay lại editor ngay.</span></div>
+                    <div class="hero-box"><strong>Đánh giá AI</strong><span id="heroScoreHint">Đang lấy kết quả chấm điểm tự động...</span></div>
+                </div>
+            </div>
+        </section>
+        <section class="content">
+            <section class="card panel">
+                <div class="pill">CV vừa lưu</div>
+                <h2>Tóm tắt CV</h2>
+                <p class="lead">Thẻ bên dưới dùng để xem nhanh tên CV, mẫu đang dùng, các mục chính và mở lại bản này để tiếp tục chỉnh sửa.</p>
+                <div id="savedCvPanel" class="state"><h3>Đang tải CV</h3><p>Hệ thống đang lấy dữ liệu của bản CV bạn vừa lưu.</p></div>
+            </section>
+            <section class="card panel">
+                <div class="pill">Đánh giá AI</div>
+                <h2>Kết quả chấm điểm CV</h2>
+                <p class="lead">Phần này hiển thị điểm tổng, điểm theo tiêu chí, điểm mạnh và những chỗ bạn nên cải thiện trước khi gửi CV.</p>
+                <div id="scorePanel" class="state"><h3>Đang tải đánh giá</h3><p>Hệ thống đang tìm lại kết quả chấm điểm cho CV bạn vừa lưu.</p></div>
+            </section>
+        </section>
+    </main>
+    <div id="footer-placeholder"></div>
+    <script src="js/main.js"></script>
+    <script>
+        const CACHE_KEY = 'cvSaveSuccessPayload';
+        const GRADE_MAP = [{ min: 90, label: 'Xuất sắc', color: '#0ea86b' }, { min: 75, label: 'Tốt', color: '#1f6fe5' }, { min: 60, label: 'Khá', color: '#da9b25' }, { min: 40, label: 'Trung bình', color: '#e26d2b' }, { min: 0, label: 'Cần cải thiện', color: '#d14f45' }];
+        document.addEventListener('DOMContentLoaded', initPage);
+
+        async function initPage() {
+            const params = new URLSearchParams(window.location.search);
+            const cvId = params.get('cvId');
+            const sessionId = params.get('sessionId');
+            if (!cvId) {
+                renderMissingCv();
+                renderMissingScore('Không tìm thấy mã CV để hiển thị.');
+                return;
+            }
+            document.getElementById('heroEditBtn').href = `/cv-editor.html?cvId=${encodeURIComponent(cvId)}`;
+            const [cvData, scoreData] = await Promise.all([fetchSavedCv(cvId), resolveScore(cvId, sessionId)]);
+            if (cvData) renderCv(cvData); else renderMissingCv();
+            if (scoreData) renderScore(scoreData); else renderMissingScore(getCache()?.scoreError || 'Chưa lấy được kết quả chấm điểm tự động cho CV này.');
+        }
+
+        function getCache() {
+            try { const raw = sessionStorage.getItem(CACHE_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
+        }
+
+        function setCache(next) {
+            const current = getCache() || {};
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ...current, ...next })); } catch (error) { console.warn('setCache:', error); }
+        }
+
+        async function fetchSavedCv(cvId) {
+            try {
+                const res = await fetch(`/api/user-cv/${cvId}`, { credentials: 'include' });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || data.success === false) throw new Error(data.message || 'Không thể tải CV');
+                return data;
+            } catch (error) {
+                console.error('fetchSavedCv:', error);
+                return null;
+            }
+        }
+
+        async function resolveScore(cvId, sessionId) {
+            const cached = getCache();
+            if (cached && String(cached.cvId) === String(cvId) && cached.scoreData) {
+                if (!sessionId || String(cached.sessionId || '') === String(sessionId)) return cached.scoreData;
+            }
+            if (!sessionId) return null;
+            try {
+                const res = await fetch(`/api/cv-scoring/${sessionId}`, { credentials: 'include' });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || data.message) throw new Error(data.message || 'Không thể tải điểm số CV');
+                setCache({ cvId, sessionId, scoreData: data });
+                return data;
+            } catch (error) {
+                console.error('resolveScore:', error);
+                return null;
+            }
+        }
+
+        function renderCv(cvRecord) {
+            const cv = safeParse(cvRecord.cvContent);
+            const title = cv.name || cvRecord.cvName || 'CV của bạn';
+            const subtitle = cv.subtitle || 'Hồ sơ ứng tuyển';
+            const templateName = cvRecord.templateName || 'CV tiêu chuẩn';
+            const summary = cv.summary || 'CV đã được lưu thành công. Bạn có thể tiếp tục chỉnh sửa hoặc dùng bản này để ứng tuyển.';
+            document.getElementById('heroCvName').textContent = title;
+            document.getElementById('heroTemplateName').textContent = templateName;
+            document.getElementById('heroUpdatedAt').textContent = `Lưu lúc ${fmtDateTime(cvRecord.updatedAt)}`;
+            document.getElementById('savedCvPanel').className = '';
+            document.getElementById('savedCvPanel').innerHTML = `
+                <article class="saved-card">
+                    <div class="saved-head">
+                        <div class="saved-top">
+                            <div class="avatar">${esc(getInitials(title))}</div>
+                            <div><h3 class="saved-name">${esc(title)}</h3><div class="saved-role">${esc(subtitle)}</div></div>
+                        </div>
+                        <div class="contact-pills">${buildContacts(cv)}</div>
+                    </div>
+                    <div class="saved-body">
+                        <div class="meta-grid">
+                            <div class="meta"><span>Tên CV</span><strong>${esc(cvRecord.cvName || title)}</strong></div>
+                            <div class="meta"><span>Mẫu đang dùng</span><strong>${esc(templateName)}</strong></div>
+                            <div class="meta"><span>Lần cập nhật</span><strong>${esc(fmtDateTime(cvRecord.updatedAt))}</strong></div>
+                            <div class="meta"><span>Mã CV</span><strong>#${String(cvRecord.id || '').padStart(3, '0')}</strong></div>
+                        </div>
+                        <div class="box"><h4>Tóm tắt hồ sơ</h4><p>${esc(limit(summary, 260))}</p></div>
+                        <div class="box"><h4>Các mục đang có trong CV</h4><div class="section-pills">${buildSections(cv)}</div></div>
+                        <div class="card-actions">
+                            <a class="btn btn-soft" href="/cv-editor.html?cvId=${encodeURIComponent(cvRecord.id)}">Chỉnh sửa</a>
+                            <a class="btn btn-soft" href="/cv-editor.html?cvId=${encodeURIComponent(cvRecord.id)}&download=pdf&source=save-cv" target="_blank">Tải về</a>
+                        </div>
+                    </div>
+                </article>`;
+        }
+
+        function renderScore(data) {
+            const total = Number(data.totalScore || 0);
+            const max = Number(data.maxTotalScore || 100);
+            const pct = max > 0 ? Math.round((total / max) * 100) : 0;
+            const grade = getGrade(pct);
+            document.getElementById('heroScoreHint').textContent = `Kết quả hiện tại: ${total}/${max} điểm, mức ${grade.label.toLowerCase()}.`;
+            document.getElementById('scorePanel').className = 'score-shell';
+            document.getElementById('scorePanel').innerHTML = `
+                <section class="score-hero">
+                    <div class="ring" style="--score-pct:${pct};--score-color:${grade.color};"><div class="ring-inner"><span class="ring-num">${total}</span><span class="ring-max">/${max} điểm</span></div></div>
+                    <div><div class="grade" style="background:${soft(grade.color)};color:${grade.color};">${esc(grade.label)}</div><div class="score-title">CV đang ở mức ${esc(grade.label.toLowerCase())}</div><p class="score-text">${esc(data.overallFeedback || 'Chưa có nhận xét tổng quan.')}</p></div>
+                </section>
+                <section class="score-breakdown">
+                    <h4>Phân tích theo tiêu chí</h4>
+                    <div class="criteria-grid">${buildCriteria(data.results || [])}</div>
+                </section>
+                <section class="sw-grid">
+                    <article class="sw"><h4>Điểm mạnh</h4><ul>${buildPoints(data.strengths || [], false)}</ul></article>
+                    <article class="sw is-weak"><h4>Cần cải thiện</h4><ul>${buildPoints(data.weaknesses || [], true)}</ul></article>
+                </section>`;
+        }
+
+        function renderMissingCv() {
+            document.getElementById('savedCvPanel').className = 'state';
+            document.getElementById('savedCvPanel').innerHTML = `<h3>Không tải được CV</h3><p>Hệ thống chưa lấy được dữ liệu của bản CV vừa lưu. Bạn vẫn có thể quay lại editor hoặc mở thư viện CV để kiểm tra.</p><div class="state-actions"><a class="btn btn-soft" href="/my-cvs.html">Mở thư viện CV</a><a class="btn btn-soft" href="/cv-editor.html">Về editor</a></div>`;
+        }
+
+        function renderMissingScore(message) {
+            const params = new URLSearchParams(window.location.search);
+            const cvId = params.get('cvId');
+            document.getElementById('heroScoreHint').textContent = 'Chưa có kết quả chấm điểm tự động cho CV này.';
+            document.getElementById('scorePanel').className = 'state';
+            document.getElementById('scorePanel').innerHTML = `<h3>Chưa có đánh giá AI</h3><p>${esc(message || 'Hệ thống chưa trả về kết quả chấm điểm.')}</p><div class="state-actions">${cvId ? `<button class="btn btn-score" onclick="scoreCvInline('${esc(cvId)}')">Đánh giá CV ngay</button>` : ''}<a class="btn btn-soft" href="/cv-editor.html${cvId ? `?cvId=${encodeURIComponent(cvId)}` : ''}">Quay lại chỉnh sửa</a></div>`;
+        }
+
+        async function scoreCvInline(cvId) {
+            const panel = document.getElementById('scorePanel');
+            panel.className = 'state';
+            panel.innerHTML = `<div class="scoring-loading"><div class="scoring-spinner"></div><p>AI đang phân tích CV của bạn...<br>Quá trình này có thể mất 10–20 giây</p></div>`;
+            document.getElementById('heroScoreHint').textContent = 'Đang chấm điểm CV bằng AI...';
+
+            try {
+                const res = await fetch(`/api/cv-scoring/score-saved/${encodeURIComponent(cvId)}`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok || data.success === false) {
+                    throw new Error(data.message || 'Không thể chấm điểm CV');
+                }
+
+                setCache({ cvId, sessionId: data.sessionId, scoreData: data.data });
+                renderScore(data.data);
+            } catch (error) {
+                console.error('scoreCvInline:', error);
+                panel.className = 'state';
+                panel.innerHTML = `<h3>Lỗi đánh giá CV</h3><p class="scoring-error">${esc(error.message)}</p><div class="state-actions"><button class="btn btn-score" onclick="scoreCvInline('${esc(cvId)}')">Thử lại</button><a class="btn btn-soft" href="/cv-editor.html?cvId=${encodeURIComponent(cvId)}">Quay lại chỉnh sửa</a></div>`;
+                document.getElementById('heroScoreHint').textContent = 'Chấm điểm thất bại. Bạn có thể thử lại.';
+            }
+        }
+
+        function buildContacts(cv) {
+            const values = [cv.email, cv.phone, cv.address, cv.linkedin, cv.website, cv.github, cv.portfolio].filter(hasText);
+            if (!values.length) return '<span class="contact-pill">Sẵn sàng thêm thông tin liên hệ</span>';
+            return values.slice(0, 4).map(value => `<span class="contact-pill">${esc(limit(value, 34))}</span>`).join('');
+        }
+
+        function buildSections(cv) {
+            const sections = [];
+            if (hasText(cv.summary)) sections.push('Mục tiêu nghề nghiệp');
+            if (hasList(cv.experience, ['role', 'company', 'period', 'details'])) sections.push('Kinh nghiệm làm việc');
+            if (hasList(cv.education, ['degree', 'school', 'period', 'details'])) sections.push('Học vấn');
+            if (hasList(cv.skills, ['category', 'items'])) sections.push('Kỹ năng');
+            if (hasList(cv.projects, ['name', 'period', 'tech', 'details'])) sections.push('Dự án');
+            if (hasList(cv.certifications, ['name', 'issuer', 'year'])) sections.push('Chứng chỉ');
+            if (hasList(cv.awards, ['name', 'year', 'raw'])) sections.push('Giải thưởng');
+            if (hasList(cv.activities, ['name', 'role', 'period', 'details'])) sections.push('Hoạt động');
+            if (hasList(cv.references, ['name', 'role', 'company', 'contact'])) sections.push('Người tham chiếu');
+            if (hasList(cv.hobbies, ['name', 'description'])) sections.push('Sở thích');
+            const finalList = sections.length ? sections : ['Thông tin cá nhân', 'Nội dung đang được cập nhật'];
+            return finalList.map(item => `<span class="section-pill">${esc(item)}</span>`).join('');
+        }
+
+        function buildCriteria(items) {
+            if (!items.length) return `<div class="state"><p>Chưa có dữ liệu tiêu chí.</p></div>`;
+            return items.map(item => {
+                const score = Number(item.score || 0);
+                const max = Number(item.maxScore || 0);
+                const pct = max > 0 ? Math.round((score / max) * 100) : 0;
+                const grade = getGrade(pct);
+                return `<article class="criteria"><div class="criteria-head"><div class="criteria-name">${esc(item.criteriaName || 'Tiêu chí')}</div><div class="criteria-score">${score}<span>/${max}</span></div></div><div class="bar"><div class="fill" style="width:${Math.max(0, Math.min(pct, 100))}%;--criteria-color:${grade.color};"></div></div><p style="margin-top:12px;">${esc(item.feedback || 'Chưa có nhận xét chi tiết.')}</p></article>`;
+            }).join('');
+        }
+
+        function buildPoints(items, isWeak) {
+            if (!items.length) return `<li><span class="dot"></span><span>${isWeak ? 'Chưa có dữ liệu cần cải thiện.' : 'Chưa có dữ liệu điểm mạnh.'}</span></li>`;
+            return items.map(item => `<li><span class="dot"></span><span>${esc(item)}</span></li>`).join('');
+        }
+
+        function safeParse(raw) { try { return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
+        function hasText(value) { return String(value || '').trim().length > 0; }
+        function hasList(items, fields) { return Array.isArray(items) && items.some(item => item && fields.some(field => Array.isArray(item[field]) ? item[field].some(hasText) : hasText(item[field]))); }
+        function getInitials(name) { return String(name || 'CV').trim().split(/\s+/).slice(0, 2).map(part => part.charAt(0).toUpperCase()).join('') || 'CV'; }
+        function fmtDateTime(value) { const date = new Date(value); return Number.isNaN(date.getTime()) ? 'Chưa rõ' : date.toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); }
+        function limit(text, max) { const raw = String(text || ''); return raw.length > max ? `${raw.slice(0, max - 1)}…` : raw; }
+        function getGrade(pct) { return GRADE_MAP.find(item => pct >= item.min) || GRADE_MAP[GRADE_MAP.length - 1]; }
+        function soft(hex) { const clean = String(hex || '').replace('#', ''); if (clean.length !== 6) return 'rgba(15,159,95,.12)'; const r = parseInt(clean.slice(0, 2), 16), g = parseInt(clean.slice(2, 4), 16), b = parseInt(clean.slice(4, 6), 16); return `rgba(${r}, ${g}, ${b}, 0.12)`; }
+        function esc(value) { return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+    </script>
+</body>
+</html>

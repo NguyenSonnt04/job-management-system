@@ -30,14 +30,23 @@ function setSaveButtonState(state = 'default') {
 }
 
 // ── Save Modal ────────────────────────────────────────────────
+function mountSaveModalToBody() {
+    const modal = document.getElementById('saveModal');
+    if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+    }
+}
+
 function openSaveModal() {
     if (!currentCvJson) return;
+    mountSaveModalToBody();
     syncPreviewToCurrentCv();
     const modal   = document.getElementById('saveModal');
     const input   = document.getElementById('cvNameInput');
     const defaultName = currentCvJson.name ? `CV của ${currentCvJson.name}` : 'CV của tôi';
     if (input) input.value = savedCvId ? (currentCvJson._savedName || defaultName) : defaultName;
     if (modal) {
+        document.body.classList.add('save-modal-open');
         if (modal.classList.contains !== undefined) modal.classList.add('show');
         else modal.style.display = 'flex';
     }
@@ -46,6 +55,7 @@ function openSaveModal() {
 
 function closeSaveModal() {
     const modal = document.getElementById('saveModal');
+    document.body.classList.remove('save-modal-open');
     if (!modal) return;
     if (modal.classList.contains('show')) modal.classList.remove('show');
     else modal.style.display = 'none';
@@ -142,16 +152,32 @@ async function downloadPdf() {
 
     if (typeof html2pdf !== 'undefined') {
         try {
+            // Sanitize unsupported CSS color functions for html2canvas
+            const sanitized = [];
+            cvDoc.querySelectorAll('*').forEach(el => {
+                const cs = getComputedStyle(el);
+                ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor'].forEach(prop => {
+                    const val = cs[prop];
+                    if (val && /^color\(/.test(val)) {
+                        sanitized.push({ el, prop, original: el.style[prop] });
+                        el.style[prop] = '#000000';
+                    }
+                });
+            });
+
             await html2pdf()
                 .set({
                     margin:      0,
                     filename,
                     image:       { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true },
+                    html2canvas: { scale: 2, useCORS: true, removeContainer: true },
                     jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 })
                 .from(cvDoc)
                 .save();
+
+            // Restore original styles
+            sanitized.forEach(({ el, prop, original }) => { el.style[prop] = original; });
             return true;
         } catch (error) {
             console.error('downloadPdf:', error);
@@ -244,6 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveModal   = document.getElementById('saveModal');
     const cvNameInput = document.getElementById('cvNameInput');
 
+    mountSaveModalToBody();
+
     saveModal?.addEventListener('click', e => { if (e.target === saveModal) closeSaveModal(); });
     cvNameInput?.addEventListener('keydown', e => {
         if (e.key === 'Enter')  confirmSave();
@@ -259,6 +287,88 @@ function persistSavedCvIdToUrl(cvId) {
     url.searchParams.set('cvId', cvId);
     if (!url.searchParams.get('template')) url.searchParams.delete('template');
     window.history.replaceState({}, '', url.toString());
+}
+
+function cacheSaveSuccessPayload(payload) {
+    try {
+        sessionStorage.setItem('cvSaveSuccessPayload', JSON.stringify(payload));
+    } catch (error) {
+        console.warn('cacheSaveSuccessPayload:', error);
+    }
+}
+
+async function createCvPdfBlobForScoring() {
+    const wasEditMode = isEditMode;
+    if (wasEditMode) {
+        isEditMode = false;
+        refreshEditModeUI();
+    }
+
+    try {
+        const preview = document.getElementById('cvPreview');
+        const cvDoc = preview?.firstElementChild;
+        if (!cvDoc || typeof html2pdf === 'undefined') return null;
+
+        const worker = html2pdf()
+            .set({
+                margin: 0,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            })
+            .from(cvDoc)
+            .toPdf();
+
+        const pdf = await worker.get('pdf');
+        return pdf.output('blob');
+    } finally {
+        if (wasEditMode) {
+            isEditMode = true;
+            refreshEditModeUI();
+        }
+    }
+}
+
+async function scoreCurrentCvForSuccessPage(cvId, cvName) {
+    const pdfBlob = await createCvPdfBlobForScoring();
+    if (!pdfBlob) return null;
+
+    const safeName = String(cvName || currentCvJson?.name || 'CV')
+        .replace(/[^\w\s-]+/g, '')
+        .trim()
+        .replace(/\s+/g, '_') || 'CV';
+
+    const formData = new FormData();
+    formData.append('file', new File([pdfBlob], `${safeName}.pdf`, { type: 'application/pdf' }));
+
+    const res = await fetch('/api/cv-scoring/score', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Không thể chấm điểm CV vừa lưu');
+    }
+
+    cacheSaveSuccessPayload({
+        cvId,
+        sessionId: data.sessionId || data.data?.id || null,
+        cvName,
+        templateName: templateName || '',
+        scoreData: data.data || null,
+        savedAt: new Date().toISOString()
+    });
+
+    return data;
+}
+
+function redirectToSaveSuccessPage(cvId, sessionId = '') {
+    const url = new URL('/save-cv-success.html', window.location.origin);
+    if (cvId) url.searchParams.set('cvId', cvId);
+    if (sessionId) url.searchParams.set('sessionId', sessionId);
+    window.location.href = url.toString();
 }
 
 confirmSave = async function confirmSavePatched() {
@@ -312,8 +422,35 @@ confirmSave = async function confirmSavePatched() {
 
         loadedCvName = cvName;
         currentCvJson._savedName = cvName;
-        setSaveButtonState('saved');
         captureEditorHistorySnapshot(true);
+
+        let scoreSessionId = null;
+
+        try {
+            const btnSave = document.getElementById('btnSaveCv');
+            if (btnSave) {
+                btnSave.textContent = 'Đang chấm điểm...';
+                btnSave.disabled = true;
+                btnSave.classList.remove('saved');
+            }
+
+            const scoring = await scoreCurrentCvForSuccessPage(savedCvId, cvName);
+            scoreSessionId = scoring?.sessionId || scoring?.data?.id || null;
+        } catch (scoreError) {
+            console.error('scoreCurrentCvForSuccessPage:', scoreError);
+            cacheSaveSuccessPayload({
+                cvId: savedCvId,
+                sessionId: null,
+                cvName,
+                templateName: templateName || '',
+                scoreData: null,
+                scoreError: scoreError.message || 'Không thể chấm điểm CV',
+                savedAt: new Date().toISOString()
+            });
+        }
+
+        setSaveButtonState('saved');
+        redirectToSaveSuccessPage(savedCvId, scoreSessionId);
     } catch (error) {
         console.error('confirmSave:', error);
         setSaveButtonState('default');
