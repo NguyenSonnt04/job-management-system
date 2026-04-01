@@ -7,7 +7,7 @@
     <meta name="description" content="Cẩm nang tuyển dụng với bài viết thực chiến về CV, phỏng vấn, thị trường lao động và con đường sự nghiệp.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/cam-nang.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -21,24 +21,21 @@
                 <!-- Tabs will be rendered here by JS -->
             </ul>
             <div class="guide-nav-actions">
-                <button type="button" class="guide-nav-search" onclick="document.body.classList.toggle('search-active')">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
-                <div class="guide-nav-brand">Cẩm nang tuyển dụng</div>
+                <form id="guideSearchForm" class="guide-nav-search-form">
+                    <div class="guide-search-input-wrapper">
+                        <input id="guideSearchInput" type="search" placeholder="Từ khóa, kỹ năng, chủ đề...">
+                        <button type="submit" class="guide-nav-search-btn">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
-        </div>
-        <div class="guide-search-drop">
-            <form id="guideSearchForm">
-                <input id="guideSearchInput" type="search" placeholder="Từ khóa, kỹ năng, chủ đề...">
-                <button type="submit">Tìm</button>
-            </form>
         </div>
     </nav>
 
     <main class="career-guide-shell" id="guideListPage">
 
         <section class="guide-grid-section">
-            <div class="guide-loading" id="guideLoading" hidden>Đang tải cẩm nang...</div>
             <div id="guideFeatured" class="guide-featured-layout"></div>
         </section>
 
