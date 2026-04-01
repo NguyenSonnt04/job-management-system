@@ -487,7 +487,7 @@
                 </div>
                 <div class="cv-actions">
                     <button class="btn-card main" onclick="location.href='/xem-cv.html?cvId=${cv.id}'">Xem bản xem trước</button>
-                    <button class="btn-card" onclick="location.href='/cv-editor.html?cvId=${cv.id}'">Chỉnh sửa</button>
+                    <button class="btn-card" onclick="location.href='/cv-editor.html?cvId=${cv.id}&edit=true'">Chỉnh sửa</button>
                     <button class="btn-card" onclick="openRename(${cv.id}, '${esc(cv.cvName)}')">Đổi tên</button>
                     <button class="btn-card danger" onclick="openDelete(${cv.id}, '${esc(cv.cvName)}')">Xóa bỏ</button>
                 </div>

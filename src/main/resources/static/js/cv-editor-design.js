@@ -725,14 +725,20 @@ function getLayoutStudioColumns(style = getCurrentPreviewStyle()) {
             getDirectTaggedSections(document.querySelector('.cvc2-left')),
             getDirectTaggedSections(document.querySelector('.cvc2-right'))
         ];
+    } else if (style === 'impactful') {
+        columns = [
+            getDirectTaggedSections(document.querySelector('.cvi-sidebar')),
+            getDirectTaggedSections(document.querySelector('.cvi-main'))
+        ];
     } else if (style === 'classic') {
         const leftColumn  = getDirectTaggedSections(document.querySelector('.cvcl2-left'));
         const rightColumn = getDirectTaggedSections(document.querySelector('.cvcl2-right'));
         if (sectionEnabled('summary') && getTaggedPreviewSection('summary')) leftColumn.unshift('summary');
         columns = [leftColumn, rightColumn];
-    } else if (style === 'harvard') {
-        columns = [getDirectTaggedSections(document.querySelector('.cvh-body'))];
-    } else if (style === 'minimalist') {
+    } else if (style === 'harvard' || style === 'ats') {
+        const body = document.querySelector('.cvh-body') || document.querySelector('.cv-topcv-body');
+        columns = [getDirectTaggedSections(body)];
+    } else if (style === 'minimalist' || style === 'modern') {
         columns = [getDirectTaggedSections(document.querySelector('.cvm2-body'))];
     } else {
         columns = [
@@ -740,8 +746,9 @@ function getLayoutStudioColumns(style = getCurrentPreviewStyle()) {
             getDirectTaggedSections(document.querySelector('.cvm-right'))
         ];
     }
+    const isSingleCol = style === 'harvard' || style === 'ats' || style === 'minimalist' || style === 'modern';
     if (!columns.some(column => column.length)) {
-        return (style === 'harvard' || style === 'minimalist')
+        return isSingleCol
             ? [getOrderedUsedSections()]
             : [getOrderedUsedSections(), []];
     }
@@ -923,20 +930,6 @@ async function saveCvToServer(name) {
     }
 }
 
-// ── PDF Export ────────────────────────────────────────────────
-function downloadPdf() {
-    const el = document.getElementById('cvPreview');
-    if (!el || !window.html2pdf) return;
-    const name = currentCvJson?.name || 'CV';
-    const opt  = {
-        margin:      [10, 10],
-        filename:    `${name}.pdf`,
-        image:       { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(el).save();
-}
 
 // ── AI panel toggle ───────────────────────────────────────────
 function toggleAssistant() {

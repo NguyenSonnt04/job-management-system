@@ -25,6 +25,7 @@ function setSaveButtonState(state = 'default') {
     if (state === 'saved') {
         btnSave.textContent = 'Đã lưu';
         btnSave.classList.add('saved');
+        btnSave.disabled = true;
         return;
     }
 
@@ -280,7 +281,7 @@ async function downloadPdf() {
                     filename,
                     image:       { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2, useCORS: true, removeContainer: true },
-                    pagebreak:   { mode: ['css', 'legacy'] },
+                    pagebreak:   { mode: ['css'] },
                     jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 })
                 .from(cvDoc)
@@ -539,33 +540,21 @@ confirmSave = async function confirmSavePatched() {
         currentCvJson._savedName = cvName;
         captureEditorHistorySnapshot(true);
 
-        let scoreSessionId = null;
-
-        try {
-            const btnSave = document.getElementById('btnSaveCv');
-            if (btnSave) {
-                btnSave.textContent = 'Đang chấm điểm...';
-                btnSave.disabled = true;
-                btnSave.classList.remove('saved');
-            }
-
-            const scoring = await scoreCurrentCvForSuccessPage(savedCvId, cvName);
-            scoreSessionId = scoring?.sessionId || scoring?.data?.id || null;
-        } catch (scoreError) {
-            console.error('scoreCurrentCvForSuccessPage:', scoreError);
-            cacheSaveSuccessPayload({
-                cvId: savedCvId,
-                sessionId: null,
-                cvName,
-                templateName: templateName || '',
-                scoreData: null,
-                scoreError: scoreError.message || 'Không thể chấm điểm CV',
-                savedAt: new Date().toISOString()
-            });
-        }
+        // Cache basic info for the success page (scoring will happen there)
+        cacheSaveSuccessPayload({
+            cvId: savedCvId,
+            sessionId: null,
+            cvName,
+            templateName: templateName || '',
+            scoreData: null,
+            savedAt: new Date().toISOString()
+        });
 
         setSaveButtonState('saved');
-        redirectToSaveSuccessPage(savedCvId, scoreSessionId);
+        // Disable editing so browser back doesn't return to editable state
+        if (isEditMode) { isEditMode = false; window.isEditMode = false; refreshEditModeUI(); }
+        // Redirect immediately — success page will handle scoring
+        redirectToSaveSuccessPage(savedCvId, '');
     } catch (error) {
         console.error('confirmSave:', error);
         setSaveButtonState('default');

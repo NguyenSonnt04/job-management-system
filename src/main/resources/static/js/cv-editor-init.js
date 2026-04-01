@@ -147,6 +147,8 @@ async function initCvEditor() {
     }
 
     // ── Load existing saved CV ────────────────────────────────
+    const wantsEdit = params.get('edit') === 'true';
+
     if (loadCvId) {
         try {
             const res = await fetch(`/api/user-cv/${loadCvId}`);
@@ -170,8 +172,23 @@ async function initCvEditor() {
                     resetEditorHistory();
                     renderCvPreview(parsed);
                     captureEditorHistorySnapshot(true);
-                    enableEditorToolbar();
-                    if (typeof setSaveButtonState === 'function') setSaveButtonState('saved');
+
+                    if (wantsEdit) {
+                        // User explicitly clicked "Chỉnh sửa" → full editor
+                        enableEditorToolbar();
+                        if (typeof setSaveButtonState === 'function') setSaveButtonState('default');
+                    } else {
+                        // Readonly view (after save or direct link)
+                        const toolbar = document.getElementById('cvToolbar');
+                        if (toolbar) toolbar.classList.add('show');
+                        isEditMode = false;
+                        window.isEditMode = false;
+                        refreshEditModeUI();
+                        syncDesignControls();
+                        renderSectionManager();
+                        if (typeof setSaveButtonState === 'function') setSaveButtonState('saved');
+                    }
+
                     if (autoDownloadPdf) queueAutoPdfDownload();
                     return;
                 }

@@ -148,10 +148,17 @@
                 renderMissingScore('Không tìm thấy mã CV để hiển thị.');
                 return;
             }
-            document.getElementById('heroEditBtn').href = `/cv-editor.html?cvId=${encodeURIComponent(cvId)}`;
+            document.getElementById('heroEditBtn').href = `/cv-editor.html?cvId=${encodeURIComponent(cvId)}&edit=true`;
             const [cvData, scoreData] = await Promise.all([fetchSavedCv(cvId), resolveScore(cvId, sessionId)]);
             if (cvData) renderCv(cvData); else renderMissingCv();
-            if (scoreData) renderScore(scoreData); else renderMissingScore(getCache()?.scoreError || 'Chưa lấy được kết quả chấm điểm tự động cho CV này.');
+            if (scoreData) {
+                renderScore(scoreData);
+            } else if (cvId) {
+                // No score yet — auto-trigger scoring on this page
+                scoreCvInline(cvId);
+            } else {
+                renderMissingScore(getCache()?.scoreError || 'Chưa lấy được kết quả chấm điểm tự động cho CV này.');
+            }
         }
 
         function getCache() {
@@ -286,7 +293,7 @@
             } catch (error) {
                 console.error('scoreCvInline:', error);
                 panel.className = 'state';
-                panel.innerHTML = `<h3>Lỗi đánh giá CV</h3><p class="scoring-error">${esc(error.message)}</p><div class="state-actions"><button class="btn btn-score" onclick="scoreCvInline('${esc(cvId)}')">Thử lại</button><a class="btn btn-soft" href="/cv-editor.html?cvId=${encodeURIComponent(cvId)}">Quay lại chỉnh sửa</a></div>`;
+                panel.innerHTML = `<h3>Lỗi đánh giá CV</h3><p class="scoring-error">${esc(error.message)}</p><div class="state-actions"><button class="btn btn-score" onclick="scoreCvInline('${esc(cvId)}')">Thử lại</button><a class="btn btn-soft" href="/cv-editor.html?cvId=${encodeURIComponent(cvId)}&edit=true">Quay lại chỉnh sửa</a></div>`;
                 document.getElementById('heroScoreHint').textContent = 'Chấm điểm thất bại. Bạn có thể thử lại.';
             }
         }

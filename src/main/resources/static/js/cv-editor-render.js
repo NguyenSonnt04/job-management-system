@@ -303,9 +303,135 @@ function renderCreativeStyle(c, accent) {
     </div>`;
 }
 
-// Alias for impactful (same layout, different class)
+// ── STYLE 2b: Impactful (Bold Executive) ─────────────────────
 function renderImpactfulStyle(c, accent) {
-    return renderCreativeStyle(c, accent);
+    const darkBg = '#0f172a';
+
+    const skillsHtml = (c.skills||[]).map((sg,idx)=>`
+        <div class="cvi-skill-group cv-edit-shell">
+            ${getItemControls('skills',idx)}
+            <div class="cvi-skill-cat">${ed(sg.category||'','Nhóm kỹ năng')}</div>
+            <div class="cvi-skill-items">${(sg.items||[]).map(i=>`<span class="cvi-skill-pill" style="background:${accent}18;color:${accent};border:1px solid ${accent}30;">${ed(i,'Kỹ năng')}</span>`).join('')}</div>
+        </div>`).join('');
+
+    const eduHtml = (c.education||[]).map((e,idx)=>`
+        <div class="cvi-side-item cv-edit-shell">
+            ${getItemControls('education',idx)}
+            <div class="cvi-side-title">${ed(e.degree||'','Bằng cấp')}</div>
+            <div class="cvi-side-sub">${ed(e.school||e.location||'','Tên trường')}</div>
+            <div class="cvi-side-date">${ed(e.period||'','Thời gian')}</div>
+        </div>`).join('');
+
+    const certHtml = (c.certifications||[]).map((cert,idx)=>`
+        <div class="cvi-side-item cv-edit-shell">
+            ${getItemControls('certifications',idx)}
+            <div class="cvi-side-title">${ed(cert.name||cert.raw||'','Tên chứng chỉ')}</div>
+            <div class="cvi-side-sub">${ed(cert.issuer||'','Tổ chức cấp')}</div>
+            <div class="cvi-side-date">${ed(cert.year||'','Năm')}</div>
+        </div>`).join('');
+
+    const expHtml = (c.experience||[]).map((e,idx)=>`
+        <div class="cvi-timeline-item cv-edit-shell">
+            ${getItemControls('experience',idx)}
+            <div class="cvi-timeline-dot" style="background:${accent};"></div>
+            <div class="cvi-timeline-content">
+                <div class="cvi-timeline-role">${ed(e.role||'','Chức danh')}</div>
+                <div class="cvi-timeline-meta">
+                    <span class="cvi-timeline-company">${ed(e.company||'','Công ty')}</span>
+                    <span class="cvi-timeline-period" style="color:${accent};">${ed(e.period||'','Thời gian')}</span>
+                </div>
+                ${detailsBlock(e.details, 'cvi-timeline-detail', '• Mô tả công việc...')}
+            </div>
+        </div>`).join('');
+
+    const projHtml = (c.projects||[]).map((p,idx)=>`
+        <div class="cvi-timeline-item cv-edit-shell">
+            ${getItemControls('projects',idx)}
+            <div class="cvi-timeline-dot" style="background:${accent};"></div>
+            <div class="cvi-timeline-content">
+                <div class="cvi-timeline-role">${ed(p.name||'','Tên dự án')}</div>
+                <div class="cvi-timeline-meta">
+                    <span class="cvi-timeline-company">${ed(p.period||'','Thời gian')}</span>
+                    ${p.tech?`<span class="cvi-timeline-period">Tech: ${ed(p.tech)}</span>`:''}
+                </div>
+                ${detailsBlock(p.details, 'cvi-timeline-detail', '• Mô tả dự án...')}
+            </div>
+        </div>`).join('');
+
+    const actHtml = (c.activities||[]).map((a,idx)=>`
+        <div class="cvi-timeline-item cv-edit-shell">
+            ${getItemControls('activities',idx)}
+            <div class="cvi-timeline-dot" style="background:${accent};"></div>
+            <div class="cvi-timeline-content">
+                <div class="cvi-timeline-role">${ed(a.name||a.raw||'','Tên hoạt động')}</div>
+                <div class="cvi-timeline-meta"><span class="cvi-timeline-company">${ed(a.period||'','Thời gian')}</span></div>
+                ${detailsBlock(a.details, 'cvi-timeline-detail', '• Mô tả hoạt động...')}
+            </div>
+        </div>`).join('');
+
+    const awardsHtml = (c.awards||[]).map((aw,idx)=>`
+        <div class="cvi-side-item cv-edit-shell">
+            ${getItemControls('awards',idx)}
+            <div class="cvi-side-title">${libIcon('trophy',14,'vertical-align:-2px;margin-right:6px;color:'+accent)} ${ed(aw.name||aw.raw||'','Giải thưởng')}</div>
+            <div class="cvi-side-date">${ed(aw.year||'','Năm')}</div>
+        </div>`).join('');
+
+    const refHtml = (c.references||[]).map((ref,idx)=>`
+        <div class="cvi-side-item cv-edit-shell">
+            ${getItemControls('references',idx)}
+            <div class="cvi-side-title">${ed(ref.name||'','Người tham chiếu')}</div>
+            <div class="cvi-side-sub">${ed(ref.role||ref.company||'','Chức danh / Công ty')}</div>
+            <div class="cvi-side-date">${ed(ref.contact||'','Email / SĐT')}</div>
+        </div>`).join('');
+
+    const hobbyHtml = (c.hobbies||[]).map((hobby,idx)=>`
+        <div class="cvi-side-item cv-edit-shell">
+            ${getItemControls('hobbies',idx)}
+            <div class="cvi-side-title">${ed(hobby.name||'','Sở thích')}</div>
+            <div class="cvi-side-sub">${ed(hobby.description||'','Mô tả')}</div>
+        </div>`).join('');
+
+    const contactLine = CONTACT_TYPES
+        .filter(t => c[t.key] !== undefined && c[t.key] !== null)
+        .map(t => `<span class="cvi-contact-item">${libIcon(t.icon,13,'vertical-align:-2px;margin-right:5px;opacity:0.7;')} <span class="cv-editable" data-placeholder="${t.placeholder}">${esc(c[t.key]||'')}</span></span>`)
+        .join('');
+
+    return `<div class="cv-full cvi-root" style="--cv-accent:${accent};">
+        <div class="cvi-layout">
+            <aside class="cvi-sidebar" style="background:${darkBg};">
+                <div class="cvi-sidebar-header">
+                    ${getAvatarHtml(accent+'80', 100, 'square')}
+                    <h1 class="cvi-name cv-editable" data-placeholder="Họ và tên">${esc(c.name||'')}</h1>
+                    <div class="cvi-subtitle cv-editable" style="color:${accent};" data-placeholder="Vị trí công việc">${esc(c.subtitle||'')}</div>
+                </div>
+                <div class="cvi-sidebar-contacts" data-cv-section="contacts">${contactLine||`<button class="btn-item-ctrl btn-item-add cv-contact-add-btn cv-contact-add-standalone" type="button" onclick="openAddContactMenu(this)" contenteditable="false"><i data-lucide="plus"></i> Thêm liên hệ</button>`}</div>
+                ${skillsHtml?`<div class="cvi-sidebar-section" data-cv-section="skills"><div class="cvi-sidebar-title" style="color:${accent};">${getSectionTitleText('skills','KỸ NĂNG')}</div>${skillsHtml}</div>`:''}
+                ${eduHtml?`<div class="cvi-sidebar-section" data-cv-section="education"><div class="cvi-sidebar-title" style="color:${accent};">${getSectionTitleText('education','HỌC VẤN')}</div>${eduHtml}</div>`:''}
+                ${certHtml?`<div class="cvi-sidebar-section" data-cv-section="certifications"><div class="cvi-sidebar-title" style="color:${accent};">${getSectionTitleText('certifications','CHỨNG CHỈ')}</div>${certHtml}</div>`:''}
+                ${awardsHtml?`<div class="cvi-sidebar-section" data-cv-section="awards"><div class="cvi-sidebar-title" style="color:${accent};">${getSectionTitleText('awards','GIẢI THƯỞNG')}</div>${awardsHtml}</div>`:''}
+                ${refHtml?`<div class="cvi-sidebar-section" data-cv-section="references"><div class="cvi-sidebar-title" style="color:${accent};">${getSectionTitleText('references','NGƯỜI THAM CHIẾU')}</div>${refHtml}</div>`:''}
+                ${hobbyHtml?`<div class="cvi-sidebar-section" data-cv-section="hobbies"><div class="cvi-sidebar-title" style="color:${accent};">${getSectionTitleText('hobbies','SỞ THÍCH')}</div>${hobbyHtml}</div>`:''}
+            </aside>
+            <main class="cvi-main">
+                ${c.summary?`<section class="cvi-section" data-cv-section="summary">
+                    <div class="cvi-section-title" style="border-left:4px solid ${accent};"><span class="cv-editable cv-section-heading" data-section-title-key="summary" data-placeholder="Tiêu đề mục">${getSectionTitleText('summary','GIỚI THIỆU BẢN THÂN')}</span></div>
+                    <div class="cvi-summary cv-editable" data-placeholder="Giới thiệu bản thân...">${esc(c.summary).replace(/\n/g,'<br>')}</div>
+                </section>`:''}
+                ${expHtml?`<section class="cvi-section" data-cv-section="experience">
+                    <div class="cvi-section-title" style="border-left:4px solid ${accent};"><span class="cv-editable cv-section-heading" data-section-title-key="experience" data-placeholder="Tiêu đề mục">${getSectionTitleText('experience','KINH NGHIỆM LÀM VIỆC')}</span></div>
+                    <div class="cvi-timeline" style="border-left:2px solid ${accent}22;">${expHtml}</div>
+                </section>`:''}
+                ${projHtml?`<section class="cvi-section" data-cv-section="projects">
+                    <div class="cvi-section-title" style="border-left:4px solid ${accent};"><span class="cv-editable cv-section-heading" data-section-title-key="projects" data-placeholder="Tiêu đề mục">${getSectionTitleText('projects','DỰ ÁN NỔI BẬT')}</span></div>
+                    <div class="cvi-timeline" style="border-left:2px solid ${accent}22;">${projHtml}</div>
+                </section>`:''}
+                ${actHtml?`<section class="cvi-section" data-cv-section="activities">
+                    <div class="cvi-section-title" style="border-left:4px solid ${accent};"><span class="cv-editable cv-section-heading" data-section-title-key="activities" data-placeholder="Tiêu đề mục">${getSectionTitleText('activities','HOẠT ĐỘNG')}</span></div>
+                    <div class="cvi-timeline" style="border-left:2px solid ${accent}22;">${actHtml}</div>
+                </section>`:''}
+            </main>
+        </div>
+    </div>`;
 }
 
 // ── STYLE 3: Modern (Minimalist Typography) ───────────────────
@@ -469,41 +595,40 @@ function renderHarvardStyle(c, accent) {
                 <span class="cvh-item-date cv-editable">${esc(period)}</span>
             </div>
             ${sub?`<div class="cvh-item-sub cv-editable">${esc(sub)}</div>`:''}
-            ${item.tech?`<div class="cvh-item-sub cv-editable">Technologies: ${esc(item.tech)}</div>`:''}
+            ${item.tech?`<div class="cvh-item-tech cv-editable">${esc(item.tech)}</div>`:''}
             ${item.github?`<div class="cvh-bullet cvh-github-bullet cv-editable">${esc(item.github)}</div>`:''}
             ${detailsBlock(details, 'cvh-bullet')}
         </div>`;
     }).join('');
 
     const skillHtml = (c.skills||[]).map((sg,idx)=>`
-        <div class="cvh-skill-group cvh-edit-shell">
+        <div class="cvh-skill-row cvh-edit-shell">
             ${getItemControls('skills',idx)}
-            <span class="cvh-skill-cat cv-editable">${esc(sg.category)}</span>:
-            <span class="cvh-skill-items cv-editable">${esc((sg.items||[]).join(', '))}</span>
+            <div class="cvh-skill-cat cv-editable">${esc(sg.category||'')}</div>
+            <div class="cvh-skill-items cv-editable">${esc((sg.items||[]).join(', '))}</div>
         </div>`).join('');
 
-    const contactLine = [
-        { key: 'email', value: c.email || '' },
-        { key: 'phone', value: c.phone || '' },
-        { key: 'address', value: c.address || '' },
-        { key: 'linkedin', value: c.linkedin || '' }
-    ]
-        .filter(item => item.value)
-        .map((item, index) => `${index ? '<span class="cvh-contact-sep" aria-hidden="true"> | </span>' : ''}<span class="cv-editable cvh-contact-item" data-contact-key="${item.key}">${esc(item.value)}</span>`)
+    // Contact line with icons matching the PDF layout
+    const contactItems = CONTACT_TYPES
+        .filter(t => c[t.key] !== undefined && c[t.key] !== null && c[t.key] !== '')
+        .map(t => `<span class="cvh-contact-item" data-contact-key="${t.key}">${libIcon(t.icon, 13, 'vertical-align:-2px;margin-right:4px;')} <span class="cv-editable" data-placeholder="${t.placeholder}">${esc(c[t.key]||'')}</span></span>`)
         .join('');
 
     return `<div class="cv-full cvh-root">
         <div class="cvh-header">
-            <div class="cvh-name cv-editable">${esc(c.name||'YOUR NAME')}</div>
-            <div class="cvh-subtitle cv-editable">${esc(c.subtitle||'')}</div>
-            <div class="cvh-contact" data-cv-section="contacts">${contactLine}</div>
+            <div class="cvh-name cv-editable" data-placeholder="HỌ VÀ TÊN">${esc(c.name||'')}</div>
+            <div class="cvh-subtitle cv-editable" data-placeholder="VỊ TRÍ CÔNG VIỆC">${esc(c.subtitle||'')}</div>
+            <div class="cvh-contact" data-cv-section="contacts">${contactItems||`<button class="btn-item-ctrl btn-item-add cv-contact-add-btn cv-contact-add-standalone" type="button" onclick="openAddContactMenu(this)" contenteditable="false"><i data-lucide="plus"></i> Thêm liên hệ</button>`}</div>
         </div>
         <div class="cvh-body">
-            ${c.summary?section('summary', 'PROFESSIONAL SUMMARY', `<p class="cvh-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>`):''}
-            ${section('experience', 'EXPERIENCE', itemRow('experience',c.experience||[]))}
+            ${skillHtml?section('skills', 'SKILLS', `<div class="cvh-skill-table">${skillHtml}</div>`):''}
             ${section('education', 'EDUCATION', itemRow('education',c.education||[]))}
             ${section('projects', 'PROJECTS', itemRow('projects',c.projects||[]))}
-            ${section('skills', 'SKILLS & EXPERTISE', skillHtml)}
+            ${section('experience', 'EXPERIENCE', itemRow('experience',c.experience||[]))}
+            ${c.summary?section('summary', 'PROFESSIONAL SUMMARY', `<p class="cvh-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>`):''}
+            ${itemRow('certifications',c.certifications||[])?section('certifications', 'CERTIFICATIONS', itemRow('certifications',c.certifications||[])):''}
+            ${itemRow('awards',c.awards||[])?section('awards', 'AWARDS', itemRow('awards',c.awards||[])):''}
+            ${itemRow('activities',c.activities||[])?section('activities', 'ACTIVITIES', itemRow('activities',c.activities||[])):''}
         </div>
     </div>`;
 }
@@ -587,7 +712,7 @@ function renderCvPreview(c) {
 
     let html = '';
     if      (style === 'creative')   html = renderCreativeStyle(c, accent).replace('class="cv-full cvc2-root"','class="cv-full cvc2-root cv-creative-root"');
-    else if (style === 'impactful')  html = renderImpactfulStyle(c, accent);
+    else if (style === 'impactful')  html = renderImpactfulStyle(c, accent).replace('class="cv-full cvi-root"','class="cv-full cvi-root cv-impactful-root"');
     else if (style === 'modern')     html = renderModernStyle(c, accent);
     else if (style === 'classic')    html = renderClassicStyle(c, accent).replace('class="cv-full cvcl2-root"','class="cv-full cvcl2-root cv-classic-root"');
     else if (style === 'harvard')    html = renderHarvardStyle(c, accent).replace('class="cv-full cvh-root"','class="cv-full cvh-root cv-harvard-root"');

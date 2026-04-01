@@ -94,7 +94,34 @@ function refreshEditModeUI() {
 
 function applyPreviewEditableState(preview = document.getElementById('cvPreview')) {
     if (!preview || !isEditMode) return;
-    preview.querySelectorAll('.cv-editable').forEach(el => el.setAttribute('contenteditable', 'true'));
+    preview.querySelectorAll('.cv-editable').forEach(el => {
+        el.setAttribute('contenteditable', 'true');
+        togglePlaceholderClass(el);
+    });
+    // Listen for input to toggle placeholder visibility
+    if (!preview.dataset.placeholderBound) {
+        preview.addEventListener('input', e => {
+            const el = e.target.closest?.('.cv-editable[data-placeholder]');
+            if (el) togglePlaceholderClass(el);
+        });
+        preview.addEventListener('focus', e => {
+            const el = e.target.closest?.('.cv-editable[data-placeholder]');
+            if (el) togglePlaceholderClass(el);
+        }, true);
+        preview.addEventListener('blur', e => {
+            const el = e.target.closest?.('.cv-editable[data-placeholder]');
+            if (el) togglePlaceholderClass(el);
+        }, true);
+        preview.dataset.placeholderBound = 'true';
+    }
+}
+
+function togglePlaceholderClass(el) {
+    if (!el || !el.dataset.placeholder) return;
+    const text = (el.textContent || '').replace(/\u00A0/g, ' ').trim();
+    const isEmpty = text.length === 0;
+    el.classList.toggle('cv-placeholder-empty', isEmpty);
+    el.classList.toggle('cv-editable-empty', isEmpty);
 }
 
 // ── Link navigation prevention ────────────────────────────────
@@ -617,12 +644,14 @@ function tagPreviewSections(style = 'professional') {
         'KỸ NĂNG': 'skills', 'SKILLS': 'skills', 'SKILLS & EXPERTISE': 'skills',
         'DỰ ÁN NỔI BẬT': 'projects', 'DỰ ÁN': 'projects', 'PROJECTS': 'projects',
         'CHỨNG CHỈ': 'certifications', 'CERTIFICATIONS': 'certifications',
-        'GIẢI THƯỞNG': 'awards', 'AWARDS & HONORS': 'awards',
-        'HOẠT ĐỘNG': 'activities', 'LEADERSHIP & ACTIVITIES': 'activities'
+        'GIẢI THƯỞNG': 'awards', 'AWARDS & HONORS': 'awards', 'AWARDS': 'awards',
+        'HOẠT ĐỘNG': 'activities', 'LEADERSHIP & ACTIVITIES': 'activities', 'ACTIVITIES': 'activities',
+        'NGƯỜI THAM CHIẾU': 'references', 'SỞ THÍCH': 'hobbies',
+        'GIỚI THIỆU BẢN THÂN': 'summary', 'KINH NGHIỆM LÀM VIỆC': 'experience'
     };
 
-    preview.querySelectorAll('section, .cvh-section, .cvm2-block, .cvc2-zone, .cvcl2-section, .cv-topcv-section').forEach(section => {
-        const titleEl = section.querySelector('h1, h2, h3, h4, .cvm-section-title, .cvc2-zone-title, .cvm2-block-label, .cvh-title, .cvcl2-sec-title, .cvcl2-sec-title-r, .cv-topcv-title');
+    preview.querySelectorAll('section, .cvh-section, .cvm2-block, .cvc2-zone, .cvcl2-section, .cv-topcv-section, .cvi-section, .cvi-sidebar-section').forEach(section => {
+        const titleEl = section.querySelector('h1, h2, h3, h4, .cvm-section-title, .cvc2-zone-title, .cvm2-block-label, .cvh-title, .cvcl2-sec-title, .cvcl2-sec-title-r, .cv-topcv-title, .cvi-section-title, .cvi-sidebar-title');
         const text    = (titleEl?.textContent || '').trim();
         const key     = resolvePreviewSectionKey(section.dataset.cvSection || '', text) || HEADING_MAP[text.toUpperCase()];
         if (key) section.setAttribute('data-cv-section', key);
@@ -659,8 +688,8 @@ function applySectionOrderToPreview(style = getCurrentPreviewStyle()) {
 
     // Two-column: distribute visible sections row-by-row so drag order matches the layout grid.
     const columns = [
-        preview.querySelector('.cvm-left, .cvc2-left, .cvcl2-left'),
-        preview.querySelector('.cvm-right, .cvc2-right, .cvcl2-right')
+        preview.querySelector('.cvm-left, .cvc2-left, .cvcl2-left, .cvi-sidebar'),
+        preview.querySelector('.cvm-right, .cvc2-right, .cvcl2-right, .cvi-main')
     ].filter(Boolean);
     if (!columns.length) return;
 
@@ -668,7 +697,7 @@ function applySectionOrderToPreview(style = getCurrentPreviewStyle()) {
     columns.forEach(col => {
         [...col.children].forEach(child => {
             const rawKey = child?.dataset?.cvSection || '';
-            const titleText = child.querySelector('h1, h2, h3, h4, .cvm-section-title, .cvc2-zone-title, .cvm2-block-label, .cvh-title, .cvcl2-sec-title, .cvcl2-sec-title-r, .cv-topcv-title')?.textContent || '';
+            const titleText = child.querySelector('h1, h2, h3, h4, .cvm-section-title, .cvc2-zone-title, .cvm2-block-label, .cvh-title, .cvcl2-sec-title, .cvcl2-sec-title-r, .cv-topcv-title, .cvi-section-title, .cvi-sidebar-title')?.textContent || '';
             const key = resolvePreviewSectionKey(rawKey, titleText);
             if (!key) return;
             child.dataset.cvSection = key;
