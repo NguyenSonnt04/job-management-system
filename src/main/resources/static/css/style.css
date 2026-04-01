@@ -134,6 +134,14 @@ img {
     width: 100%;
 }
 
+.nav-link.active {
+    color: var(--primary-blue);
+}
+
+.nav-link.active::after {
+    width: 100%;
+}
+
 /* Dropdown Menu */
 .nav-dropdown {
     position: relative;
@@ -1555,6 +1563,12 @@ img {
 
     .nav-link:last-child {
         border-bottom: none;
+    }
+
+    .nav-link.active {
+        color: var(--primary-blue);
+        background: rgba(46, 59, 142, 0.05);
+        font-weight: 600;
     }
 
     .dropdown-menu {

@@ -490,7 +490,6 @@
                     <section class="guide-related-section">
                         <div class="guide-section-head">
                             <div>
-                                <div class="guide-overline">Đọc tiếp</div>
                                 <h2>Chủ đề liên quan</h2>
                             </div>
                         </div>
