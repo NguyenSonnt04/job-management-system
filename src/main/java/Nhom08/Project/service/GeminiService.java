@@ -183,34 +183,37 @@ public class GeminiService {
         }
 
         String cvSection = cvText != null
-            ? "CV Content (text extracted):\\n" + cvText
-            : "The CV file is provided as an attachment above. Read and analyze it.";
+            ? "NỘI dung CV sau (đã trích xuất):\n" + cvText
+            : "File CV được đính kèm bên dưới. Đây là file CV CÓ SẴN - PHÂN TÍCH NỘI DUNG, KHÔNG tạo mới.";
 
         return """
-            You are an expert HR consultant and CV evaluator. Analyze the following CV and return ONLY a JSON object with no markdown.
+            Bạn là chuyên gia đánh giá CV. Nhiệm vụ: PHÂN TÍCH file CV đã có, KHÔNG tạo CV mới.
 
             %s
 
-            Score this CV on EXACTLY these criteria (use the exact names as keys):
+            Đánh giá CV trên các tiêu chí (dùng đúng tên làm key):
             %s
 
-            Return JSON in this exact format:
+            Return JSON theo định dạng:
             {
-              "totalScore": <sum of all scores>,
-              "maxTotalScore": <sum of all maxScores>,
-              "overallFeedback": "<2-3 sentence overall summary>",
+              "totalScore": <tổng điểm>,
+              "maxTotalScore": <tổng điểm tối đa>,
+              "overallFeedback": "<tổng quan 2-3 câu>",
               "criteria": {
-                "<criteria_name>": {
-                  "score": <number>,
-                  "maxScore": <number>,
-                  "feedback": "<1-2 sentence specific feedback>"
+                "<tên_tiêu chí>": {
+                  "score": <số>,
+                  "maxScore": <số>,
+                  "feedback": "<nhận xét 1-2 câu>"
                 }
               },
-              "strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
-              "weaknesses": ["<weakness 1>", "<weakness 2>", "<weakness 3>"]
+              "strengths": ["<điểm mạnh 1>", "<điểm mạnh 2>", "<điểm mạnh 3>"],
+              "weaknesses": ["<điểm yếu 1>", "<điểm yếu 2>", "<điểm yếu 3>"]
             }
 
-            Be strict, analytical, and constructive. Use Vietnamese for all text fields.
+            LƯU Ý QUAN TRỌNG:
+            - Chỉ TRÍCH XUẤT, KHÔNG TẠO MỚI
+            - KHÔNG đưa ra link website, KHÔNG hướng dẫn tạo CV
+            - Dùng tiếng Việt cho tất cả text fields
             """.formatted(cvSection, criteriaBlock.toString());
     }
 }
