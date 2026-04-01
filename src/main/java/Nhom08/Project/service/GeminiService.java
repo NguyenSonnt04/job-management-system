@@ -68,10 +68,9 @@ public class GeminiService {
         return callGemini(body);
     }
 
-    /**
-     * Score CV file with custom prompt (for JD comparison, etc.)
-     */
+
     public String scoreCvWithPrompt(byte[] fileBytes, String mimeType, String prompt) {
+
         requireApiKey();
         String body = buildFileRequest(fileBytes, mimeType, prompt);
         return callGemini(body);
