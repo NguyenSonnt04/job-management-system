@@ -191,39 +191,37 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            height: 38px;
-            padding: 0 16px;
-            border-radius: var(--radius-md);
-            font-size: 13px;
-            font-weight: 700;
-            transition: background 160ms ease, box-shadow 160ms ease, transform 140ms ease;
+            gap: 5px;
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 150ms ease, box-shadow 150ms ease, transform 120ms ease;
             white-space: nowrap;
         }
 
         .btn:hover { transform: translateY(-1px); }
 
         .btn-primary {
-            height: 40px;
-            padding: 0 18px;
             color: #ffffff;
             background: var(--accent);
-            box-shadow: 0 2px 8px rgba(15,159,95,0.22);
+            box-shadow: 0 1px 4px rgba(15,159,95,0.20);
         }
 
         .btn-primary:hover {
             background: var(--accent-strong);
-            box-shadow: 0 4px 14px rgba(15,159,95,0.3);
+            box-shadow: 0 3px 10px rgba(15,159,95,0.28);
         }
 
         .btn-outline {
-            color: var(--ink);
-            background: var(--surface);
+            color: var(--muted);
+            background: #ffffff;
             border: 1px solid var(--line);
-            box-shadow: var(--shadow-sm);
         }
 
         .btn-outline:hover {
+            color: var(--ink);
             background: var(--bg);
             border-color: #d1d5db;
         }
@@ -914,15 +912,15 @@
                     </div>
                     <div class="page-header-actions">
                         <a href="/cv-editor.html" class="btn btn-primary">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                             Tạo CV mới
                         </a>
                         <a href="/tao-cv-ai.html" class="btn btn-outline">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></svg>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></svg>
                             Tạo với AI
                         </a>
                         <button class="btn btn-outline" onclick="document.getElementById('uploadCvModal').classList.add('show')">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             Tải CV lên
                         </button>
                     </div>
