@@ -86,7 +86,7 @@ function refreshEditModeUI() {
         preview.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
         preview.querySelectorAll('.cvh-editable-active').forEach(el => el.classList.remove('cvh-editable-active'));
         setActiveItemShell(null, preview);
-        if (btn)   { btn.classList.remove('active'); btn.innerHTML = '✏️ Chỉnh sửa'; }
+        if (btn)   { btn.classList.remove('active'); btn.innerHTML = 'Chỉnh sửa'; }
         if (badge)   badge.style.display = 'none';
     }
     initSortable();

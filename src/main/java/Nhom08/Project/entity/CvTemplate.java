@@ -53,6 +53,9 @@ public class CvTemplate {
     @Column(name = "sort_order")
     private Integer sortOrder = 0;
 
+    @Column(name = "latest_version_no")
+    private Integer latestVersionNo = 1;
+
     @Column(name = "active")
     private Boolean active = true;
 
@@ -108,6 +111,9 @@ public class CvTemplate {
 
     public Integer getSortOrder() { return sortOrder; }
     public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
+
+    public Integer getLatestVersionNo() { return latestVersionNo; }
+    public void setLatestVersionNo(Integer latestVersionNo) { this.latestVersionNo = latestVersionNo; }
 
     public Boolean getActive() { return active; }
     public void setActive(Boolean active) { this.active = active; }

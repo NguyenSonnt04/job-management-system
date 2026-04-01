@@ -223,7 +223,7 @@
                         <div class="box"><h4>Các mục đang có trong CV</h4><div class="section-pills">${buildSections(cv)}</div></div>
                         <div class="card-actions">
                             <a class="btn btn-soft" href="/cv-editor.html?cvId=${encodeURIComponent(cvRecord.id)}">Chỉnh sửa</a>
-                            <a class="btn btn-soft" href="/cv-editor.html?cvId=${encodeURIComponent(cvRecord.id)}&download=pdf&source=save-cv" target="_blank">Tải về</a>
+                            <button class="btn btn-soft" onclick="downloadCvPopup('${encodeURIComponent(cvRecord.id)}')">Tải về</button>
                         </div>
                     </div>
                 </article>`;
@@ -289,6 +289,12 @@
                 panel.innerHTML = `<h3>Lỗi đánh giá CV</h3><p class="scoring-error">${esc(error.message)}</p><div class="state-actions"><button class="btn btn-score" onclick="scoreCvInline('${esc(cvId)}')">Thử lại</button><a class="btn btn-soft" href="/cv-editor.html?cvId=${encodeURIComponent(cvId)}">Quay lại chỉnh sửa</a></div>`;
                 document.getElementById('heroScoreHint').textContent = 'Chấm điểm thất bại. Bạn có thể thử lại.';
             }
+        }
+
+        function downloadCvPopup(cvId) {
+            const url = `/cv-editor.html?cvId=${cvId}&download=pdf&source=save-cv`;
+            const popup = window.open(url, '_blank', 'noopener');
+            if (!popup) window.location.href = url;
         }
 
         function buildContacts(cv) {

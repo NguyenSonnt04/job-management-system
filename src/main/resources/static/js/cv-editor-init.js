@@ -2,6 +2,62 @@
 //  cv-editor-init.js  —  Bootstrap: DOM wiring & URL routing
 // ═══════════════════════════════════════════════════════════
 
+function cloneCvEditorData(value, fallback = {}) {
+    if (value == null) {
+        return Array.isArray(fallback) ? [...fallback] : { ...fallback };
+    }
+    try {
+        return JSON.parse(JSON.stringify(value));
+    } catch (error) {
+        console.warn('[cv-editor-init] clone data error:', error);
+        return Array.isArray(fallback) ? [...fallback] : { ...fallback };
+    }
+}
+
+function parseCvEditorJson(value, fallback = null) {
+    if (!value) return fallback;
+    if (typeof value === 'object') return cloneCvEditorData(value, fallback || {});
+    try {
+        return JSON.parse(value);
+    } catch (error) {
+        console.warn('[cv-editor-init] parse JSON error:', error);
+        return fallback;
+    }
+}
+
+function buildTemplateAppliedCv(sourceCv, templateRecord) {
+    const parsedSource = parseCvEditorJson(sourceCv?.cvContent, {});
+    if (!parsedSource || typeof parsedSource !== 'object') return null;
+
+    const accent = templateRecord?.previewColor
+        || parsedSource._accent
+        || parsedSource._designState?.color
+        || '#1f4b99';
+    const styleTag = normalizeCvStyle(templateRecord?.styleTag || parsedSource._styleTag || 'professional');
+    const sourceDesignState = parsedSource._designState || {};
+    const mergedDesignState = { color: accent };
+
+    if (sourceDesignState.sections && typeof sourceDesignState.sections === 'object') {
+        mergedDesignState.sections = cloneCvEditorData(sourceDesignState.sections, {});
+    }
+    if (Array.isArray(sourceDesignState.order)) {
+        mergedDesignState.order = [...sourceDesignState.order];
+    }
+    if (sourceDesignState.sectionIcons && typeof sourceDesignState.sectionIcons === 'object') {
+        mergedDesignState.sectionIcons = cloneCvEditorData(sourceDesignState.sectionIcons, {});
+    }
+    if (sourceDesignState.previewIcons && typeof sourceDesignState.previewIcons === 'object') {
+        mergedDesignState.previewIcons = cloneCvEditorData(sourceDesignState.previewIcons, {});
+    }
+
+    return {
+        ...parsedSource,
+        _styleTag: styleTag,
+        _accent: accent,
+        _designState: mergedDesignState
+    };
+}
+
 async function initCvEditor() {
     // Icons
     if (window.lucide) lucide.createIcons();
@@ -18,6 +74,19 @@ async function initCvEditor() {
     const templateId      = params.get('template');
     const loadCvId        = params.get('cvId');
     const autoDownloadPdf = params.get('download') === 'pdf';
+    const isPdfExportMode = autoDownloadPdf;
+    const creationMethod  = params.get('method') || '';
+    const sourceCvId      = params.get('sourceCvId');
+
+    if (isPdfExportMode) {
+        document.body.classList.add('pdf-export-mode');
+        document.title = 'CV Export';
+        const previewColumn = document.querySelector('.preview-column');
+        if (previewColumn) {
+            previewColumn.classList.remove('preview-column');
+            previewColumn.classList.add('pdf-export-column');
+        }
+    }
 
     // ── Load existing saved CV ────────────────────────────────
     if (loadCvId) {
@@ -55,6 +124,56 @@ async function initCvEditor() {
     }
 
     // ── Fetch template ────────────────────────────────────────
+    if (templateId && creationMethod === 'existing_cv') {
+        try {
+            const [templateRes, userCvListRes] = await Promise.all([
+                fetch(`/api/cv-templates/${templateId}`),
+                fetch('/api/user-cv')
+            ]);
+
+            if (templateRes.ok) {
+                const tpl = await templateRes.json();
+                templateName = tpl.name || '';
+                window.currentTemplate = {
+                    previewColor: tpl.previewColor || '#1f4b99',
+                    styleTag: normalizeCvStyle(tpl.styleTag || 'professional'),
+                    name: tpl.name || ''
+                };
+
+                if (userCvListRes.ok) {
+                    const userCvList = await userCvListRes.json();
+                    const selectedSourceCv = Array.isArray(userCvList)
+                        ? (userCvList.find(item => String(item.id) === String(sourceCvId)) || userCvList[0])
+                        : null;
+
+                    if (selectedSourceCv?.id) {
+                        const sourceCvRes = await fetch(`/api/user-cv/${selectedSourceCv.id}`);
+                        if (sourceCvRes.ok) {
+                            const sourceCv = await sourceCvRes.json();
+                            const parsed = buildTemplateAppliedCv(sourceCv, tpl);
+
+                            if (parsed) {
+                                savedCvId = null;
+                                loadedCvName = sourceCv.cvName || '';
+                                avatarDataUrl = parsed.avatarUrl || parsed.avatarDataUrl || null;
+                                window.avatarDataUrl = avatarDataUrl;
+                                hydrateDesignState(parsed._designState || { color: parsed._accent });
+                                resetEditorHistory();
+                                renderCvPreview(parsed);
+                                captureEditorHistorySnapshot(true);
+                                enableEditorToolbar();
+                                if (typeof setSaveButtonState === 'function') setSaveButtonState('default');
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('[cv-editor-init] apply existing CV template error:', e);
+        }
+    }
+
     if (templateId) {
         try {
             const res = await fetch(`/api/cv-templates/${templateId}`);
@@ -103,9 +222,14 @@ async function initCvEditor() {
 
 function enableEditorToolbar() {
     const toolbar = document.getElementById('cvToolbar');
-    if (toolbar) toolbar.classList.add('show');
+    if (toolbar && !document.body.classList.contains('pdf-export-mode')) {
+        toolbar.classList.add('show');
+    }
     // Auto-enable edit mode
-    if (!isEditMode) { isEditMode = true; window.isEditMode = true; }
+    if (!document.body.classList.contains('pdf-export-mode') && !isEditMode) {
+        isEditMode = true;
+        window.isEditMode = true;
+    }
     refreshEditModeUI();
     syncDesignControls();
     renderSectionManager();

@@ -22,6 +22,120 @@ body {
     overflow: hidden;
 }
 
+body.pdf-export-mode {
+    overflow: auto;
+    background: #ffffff;
+}
+
+body.pdf-export-mode #header-placeholder,
+body.pdf-export-mode #footer-placeholder,
+body.pdf-export-mode .design-column,
+body.pdf-export-mode .cv-floating-save-btn,
+body.pdf-export-mode .cv-action-toolbar,
+body.pdf-export-mode .edit-mode-badge,
+body.pdf-export-mode #avatarFileInput,
+body.pdf-export-mode .generating-overlay,
+body.pdf-export-mode .cv-modal-backdrop,
+body.pdf-export-mode .contact-widget,
+body.pdf-export-mode .chatbot-modal-backdrop {
+    display: none !important;
+}
+
+body.pdf-export-mode .editor-workspace {
+    display: block;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    background: #ffffff;
+}
+
+body.pdf-export-mode .preview-column,
+body.pdf-export-mode .pdf-export-column {
+    display: block;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding: 0;
+    background: #ffffff;
+}
+
+body.pdf-export-mode .cv-document {
+    max-width: none;
+    width: auto;
+    min-height: 0;
+    margin: 0 auto;
+    box-shadow: none;
+    background: transparent;
+}
+
+body.pdf-export-mode #cvPreview > :not(.cv-full) {
+    display: none !important;
+}
+
+body.pdf-export-mode #cvPreview > .cv-full {
+    margin: 0 auto !important;
+}
+
+body.pdf-export-mode .cv-document > * {
+    box-shadow: none !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-body {
+    display: grid !important;
+    grid-template-columns: 300px 1fr !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-left {
+    background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%) !important;
+    border-right: 1px solid #e2e8f0 !important;
+    border-bottom: 0 !important;
+    padding: 36px 28px !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-right {
+    padding: 36px 40px 44px !important;
+    gap: 26px !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-exp-item,
+body.pdf-export-mode .cv-professional-root .cvm-edu-item,
+body.pdf-export-mode .cv-professional-root .cvm-skill-group {
+    padding: 18px 20px !important;
+    border-radius: 18px !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    border: 1px solid rgba(203, 213, 225, 0.85) !important;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05) !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-skill-list {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin: 0 !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-skill-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 6px 12px !important;
+    border-radius: 999px !important;
+    background: #ffffff !important;
+    border: 1px solid #d9e2ec !important;
+    color: #102a43 !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-section {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+}
+
+body.pdf-export-mode .cv-professional-root .cvm-exp-item,
+body.pdf-export-mode .cv-professional-root .cvm-edu-item,
+body.pdf-export-mode .cv-professional-root .cvm-skill-group {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+}
+
 #footer-placeholder {
     display: none;
 }
@@ -765,6 +879,37 @@ input:checked + .slider:before {
 }
 
 @media print {
+    body,
+    body.pdf-export-mode {
+        overflow: visible !important;
+        background: #ffffff !important;
+    }
+
+    body.pdf-export-mode #header-placeholder,
+    body.pdf-export-mode #footer-placeholder,
+    body.pdf-export-mode .design-column,
+    body.pdf-export-mode .cv-floating-save-btn,
+    body.pdf-export-mode .cv-action-toolbar,
+    body.pdf-export-mode .edit-mode-badge,
+    body.pdf-export-mode #avatarFileInput,
+    body.pdf-export-mode .generating-overlay,
+    body.pdf-export-mode .cv-modal-backdrop,
+    body.pdf-export-mode .contact-widget,
+    body.pdf-export-mode .chatbot-modal-backdrop {
+        display: none !important;
+    }
+
+    body.pdf-export-mode .editor-workspace,
+    body.pdf-export-mode .preview-column,
+    body.pdf-export-mode .pdf-export-column {
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+    }
+
     .cv-document {
         max-width: none !important;
         margin: 0 !important;
@@ -773,6 +918,78 @@ input:checked + .slider:before {
         background: white !important;
         padding: 0 !important;
         box-shadow: none !important;
+    }
+
+    body.pdf-export-mode #cvPreview > :not(.cv-full) {
+        display: none !important;
+    }
+
+    body.pdf-export-mode .cv-document {
+        width: auto !important;
+        min-height: 0 !important;
+        margin: 0 auto !important;
+        background: transparent !important;
+    }
+
+    body.pdf-export-mode #cvPreview > .cv-full {
+        width: 210mm !important;
+        margin: 0 auto !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-body {
+        display: grid !important;
+        grid-template-columns: 300px 1fr !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-left {
+        background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%) !important;
+        border-right: 1px solid #e2e8f0 !important;
+        border-bottom: 0 !important;
+        padding: 36px 28px !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-right {
+        padding: 36px 40px 44px !important;
+        gap: 26px !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-exp-item,
+    body.pdf-export-mode .cv-professional-root .cvm-edu-item,
+    body.pdf-export-mode .cv-professional-root .cvm-skill-group {
+        padding: 18px 20px !important;
+        border-radius: 18px !important;
+        background: rgba(255, 255, 255, 0.92) !important;
+        border: 1px solid rgba(203, 213, 225, 0.85) !important;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05) !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-skill-list {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        margin: 0 !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-skill-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 6px 12px !important;
+        border-radius: 999px !important;
+        background: #ffffff !important;
+        border: 1px solid #d9e2ec !important;
+        color: #102a43 !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-section {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    body.pdf-export-mode .cv-professional-root .cvm-exp-item,
+    body.pdf-export-mode .cv-professional-root .cvm-edu-item,
+    body.pdf-export-mode .cv-professional-root .cvm-skill-group {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
     }
 }
 
@@ -3489,8 +3706,10 @@ input:checked + .slider:before {
             .cvm-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .cvm-left { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .cvm-bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .cvm-exp-item { page-break-inside: avoid; }
-            .cvm-section { page-break-inside: avoid; }
+            .cvm-section { break-inside: auto; page-break-inside: auto; }
+            .cvm-exp-item,
+            .cvm-edu-item,
+            .cvm-skill-group { break-inside: avoid; page-break-inside: avoid; }
         }
 
         /* â”€â”€ Sidebar redesign â”€â”€ */
