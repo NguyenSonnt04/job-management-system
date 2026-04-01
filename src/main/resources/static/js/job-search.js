@@ -206,7 +206,7 @@ function applyClientFilters() {
 }
 
 // ─────────────────────────────────────────────────────
-// RENDER JOB CARDS - CareerViet style
+// RENDER JOB CARDS - CoHoiViecLam style
 // ─────────────────────────────────────────────────────
 function renderJobs(jobs, resetVisibleCount = false) {
     const listEl  = document.getElementById('jobList');
@@ -227,14 +227,14 @@ function renderJobs(jobs, resetVisibleCount = false) {
     }
 
     document.title = kw
-        ? `${formattedCount} việc làm cho "${kw}" | CareerViet`
-        : `${formattedCount} việc làm theo ngày cập nhật mới nhất | CareerViet`;
+        ? `${formattedCount} việc làm cho "${kw}" | CoHoiViecLam`
+        : `${formattedCount} việc làm theo ngày cập nhật mới nhất | CoHoiViecLam`;
 
     if (descriptionMeta) {
         descriptionMeta.setAttribute(
             'content',
             kw
-                ? `Tìm thấy ${formattedCount} việc làm phù hợp với từ khóa "${kw}" trên CareerViet.`
+                ? `Tìm thấy ${formattedCount} việc làm phù hợp với từ khóa "${kw}" trên CoHoiViecLam.`
                 : `Tìm kiếm trong ${formattedCount} việc làm đang tuyển dụng. Cập nhật hàng ngày với mức lương hấp dẫn.`
         );
     }

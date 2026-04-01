@@ -151,7 +151,7 @@ function setupMobileNavigation() {
     });
 }
 
-// ===== Main JavaScript for CareerViet =====
+// ===== Main JavaScript for CoHoiViecLam =====
 
 // Open Login Modal
 function openLoginModal() {
