@@ -312,7 +312,7 @@
             const preview = document.getElementById('cvPreview');
             preview.style.display = '';
             preview.className = 'pdf-embed-wrap';
-            preview.innerHTML = `<embed src="${pdfUrl}" type="application/pdf"/>`;
+            preview.innerHTML = `<embed src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0" type="application/pdf"/>`;
         }
 
         function showUploadedCvNotice(name, id) {
