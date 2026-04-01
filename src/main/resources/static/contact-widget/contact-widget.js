@@ -694,14 +694,15 @@
                 console.error('Message has no content:', msg);
                 return;
             }
-            addMessageToUI(msg.role, msg.content);
+            // Pass timestamp from API if available
+            addMessageToUI(msg.role, msg.content, msg.createdAt || msg.timestamp || null);
         });
 
         scrollToBottom();
     }
 
     // ===== Add Message to UI =====
-    function addMessageToUI(role, content) {
+    function addMessageToUI(role, content, timestamp = null) {
         const messagesContainer = document.querySelector('.chatbot-modal__messages');
 
         // Validate role
@@ -717,6 +718,9 @@
             ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>'
             : '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
 
+        // Format timestamp - use provided timestamp or current time
+        const displayTime = timestamp ? formatTimestamp(timestamp) : getCurrentTime();
+
         // Check if system message with suggestions
         if (role === 'SYSTEM') {
             messageDiv.innerHTML = formatSystemMessage(content);
@@ -725,7 +729,7 @@
                 <div class="chatbot-modal__message-avatar">${avatar}</div>
                 <div class="chatbot-modal__message-content">
                     <div class="chatbot-modal__message-bubble">${formatMessage(content)}</div>
-                    <div class="chatbot-modal__message-time">${getCurrentTime()}</div>
+                    <div class="chatbot-modal__message-time">${displayTime}</div>
                 </div>
             `;
         }
@@ -901,6 +905,48 @@
                 }
             });
         });
+    }
+
+    // ===== Format Timestamp =====
+    function formatTimestamp(timestamp) {
+        try {
+            const date = new Date(timestamp);
+            // Check if date is valid
+            if (isNaN(date.getTime())) {
+                console.warn('Invalid timestamp:', timestamp);
+                return getCurrentTime();
+            }
+
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+            // Calculate difference in days
+            const diffTime = today - messageDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            // Format time part (HH:MM)
+            const timeStr = date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+            // Today: only show time
+            if (diffDays === 0) {
+                return timeStr;
+            }
+            // Yesterday: show "Hôm qua HH:MM"
+            else if (diffDays === 1) {
+                return `Hôm qua ${timeStr}`;
+            }
+            // Older: show date (dd/mm/yyyy)
+            else {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+        } catch (error) {
+            console.error('Error formatting timestamp:', error, timestamp);
+            return getCurrentTime();
+        }
     }
 
     // ===== Get Current Time =====

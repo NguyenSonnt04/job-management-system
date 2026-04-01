@@ -397,4 +397,116 @@ public class CvScoringController {
         m.put("createdAt",     s.getCreatedAt() != null ? s.getCreatedAt().toString() : null);
         return m;
     }
+
+    /**
+     * POST /api/cv-scoring/compare-jd
+     * Compare uploaded CV against a specific Job Description (JD).
+     * FormData: file (MultipartFile) + jdText (String)
+     */
+    @PostMapping("/compare-jd")
+    public ResponseEntity<?> compareWithJD(@RequestParam("file") MultipartFile file,
+                                          @RequestParam("jdText") String jdText,
+                                          Authentication auth) {
+        Optional<User> userOpt = currentUser(auth);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("success", false, "message", "Chưa đăng nhập"));
+        }
+
+        User user = userOpt.get();
+
+        // Validate file
+        String originalName = file.getOriginalFilename() != null ? file.getOriginalFilename() : "cv";
+        String ext = originalName.contains(".")
+            ? originalName.substring(originalName.lastIndexOf('.') + 1).toLowerCase()
+            : "pdf";
+
+        if (!ext.equals("pdf") && !ext.equals("docx") && !ext.equals("doc")) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("success", false, "message", "Chỉ hỗ trợ file PDF và DOCX"));
+        }
+
+        if (file.getSize() > 5 * 1024 * 1024) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("success", false, "message", "File quá lớn, tối đa 5MB"));
+        }
+
+        if (jdText == null || jdText.trim().isBlank()) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("success", false, "message", "Vui lòng nhập mô tả công việc (JD)"));
+        }
+
+        try {
+            // Prepare JD comparison prompt
+            String mimeType = ext.equals("pdf") ? "application/pdf"
+                : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+            String comparisonPrompt =
+                "You are an expert HR consultant. Compare this CV against the Job Description and provide a detailed analysis.\n\n" +
+                "JOB DESCRIPTION:\n" + jdText.trim() + "\n\n" +
+                "Analyze and return ONLY a JSON object (no markdown):\n" +
+                "{\n" +
+                "  \"matchScore\": <0-100 overall match percentage>,\n" +
+                "  \"summary\": \"<2-3 sentences summary in Vietnamese about overall fit>\",\n" +
+                "  \"matchedSkills\": [\"<skill1>\", \"<skill2>\"],\n" +
+                "  \"missingSkills\": [\"<missing skill1>\", \"<missing skill2>\"],\n" +
+                "  \"experienceMatch\": \"<comment on experience alignment>\",\n" +
+                "  \"educationMatch\": \"<comment on education alignment>\",\n" +
+                "  \"suggestions\": [\n" +
+                "    \"<suggestion1>\",\n" +
+                "    \"<suggestion2>\",\n" +
+                "    \"<suggestion3>\"\n" +
+                "  ],\n" +
+                "  \"keywordsToAdd\": [\"<keyword1>\", \"<keyword2>\", \"<keyword3>\"]\n" +
+                "}\n\n" +
+                "Be specific, constructive, and professional. Use Vietnamese for all text fields.";
+
+            // Call Gemini with CV file and comparison prompt
+            String geminiResponse = geminiService.scoreCvWithPrompt(
+                file.getBytes(),
+                mimeType,
+                comparisonPrompt
+            );
+
+            // Parse response
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            String cleanJson = geminiResponse.replaceAll("(?s)```json|```", "").trim();
+            com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(cleanJson);
+
+            // Build result map
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("success", true);
+            result.put("fileName", originalName);
+            result.put("jdText", jdText.trim());
+            result.put("matchScore", root.path("matchScore").asInt(0));
+            result.put("summary", root.path("summary").asText("Không có tóm tắt"));
+            result.put("matchedSkills", parseStringArray(root, "matchedSkills"));
+            result.put("missingSkills", parseStringArray(root, "missingSkills"));
+            result.put("experienceMatch", root.path("experienceMatch").asText(""));
+            result.put("educationMatch", root.path("educationMatch").asText(""));
+            result.put("suggestions", parseStringArray(root, "suggestions"));
+            result.put("keywordsToAdd", parseStringArray(root, "keywordsToAdd"));
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500)
+                .body(Map.of("success", false, "message", "Lỗi khi phân tích: " + e.getMessage()));
+        }
+    }
+
+    private List<String> parseStringArray(com.fasterxml.jackson.databind.JsonNode node, String fieldName) {
+        com.fasterxml.jackson.databind.JsonNode arr = node.path(fieldName);
+        if (arr.isArray()) {
+            List<String> list = new ArrayList<>();
+            for (com.fasterxml.jackson.databind.JsonNode item : arr) {
+                String val = item.asText();
+                if (val != null && !val.isBlank()) {
+                    list.add(val);
+                }
+            }
+            return list;
+        }
+        return List.of();
+    }
 }

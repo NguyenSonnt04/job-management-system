@@ -1,7 +1,7 @@
-<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg" style="--accent-color: #1d4ed8;">
   <defs>
     <linearGradient id="g4" x1="120" y1="110" x2="1480" y2="820" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#1D4ED8"/>
+      <stop stop-color="var(--accent-color, #1d4ed8)"/>
       <stop offset="1" stop-color="#334155"/>
     </linearGradient>
   </defs>

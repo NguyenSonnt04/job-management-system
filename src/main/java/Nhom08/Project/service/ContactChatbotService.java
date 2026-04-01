@@ -49,8 +49,9 @@ public class ContactChatbotService {
         - Cung cấp thông tin thị trường tuyển dụng, mức lương, xu hướng nghề nghiệp
 
         NGUYÊN TẮC TRẢU LỜI:
-        - Trả lời ngắn gọn, thân thiện (dưới 120 từ)
-        - Dùng ngôn ngữ tự nhiên, mình hỗ trợ như một người bạn
+        - Trả lời ngắn gọn, thân thiện (dưới 100 từ)
+        - LUÔN xưng là "mình" và gọi người dùng là "bạn"
+        - Dùng ngôn ngữ tự nhiên, thân thiện như người bạn
         - Nếu người dùng hỏi về việc làm -> Phân tích và gợi ý công việc phù hợp
         - Nếu người dùng hỏi những gì ngoài phạm vi -> Hướng dẫn liên hệ zalo, gọi điện số điện thoại
         - Không tiết lộ thông tin nội bộ của hệ thống
@@ -322,10 +323,10 @@ public class ContactChatbotService {
     private String getWelcomeMessage() {
         return "Xin chào! Mình là trợ lý AI của JCO.\n\n" +
             "Mình có thể giúp bạn:\n" +
+            "• Chấm điểm CV bằng AI\n" +
+            "• Tạo CV mới\n" +
             "• Tìm kiếm công việc phù hợp\n" +
-            "• Tư vấn viết CV chuyên nghiệp\n" +
-            "• Hướng dẫn ứng tuyển hiệu quả\n" +
-            "• Chuẩn bị cho phỏng vấn\n\n" +
+            "• Tư vấn viết CV chuyên nghiệp\n\n" +
             "Bạn cần hỗ trợ gì không?";
     }
 

@@ -30,9 +30,20 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadHTML('footer-placeholder', 'includes/footer.html');
     
     // Setup login dropdown after header is loaded (with small delay to ensure DOM is ready)
+    wireToolsNavigation();
     setTimeout(setupLoginDropdown, 100);
     setTimeout(setupMobileNavigation, 100);
 });
+
+function wireToolsNavigation() {
+    const navLinks = document.querySelectorAll('.nav .nav-link');
+    navLinks.forEach(link => {
+        const label = (link.textContent || '').trim();
+        if (label.includes('CÃ´ng Cá»¥') || label.includes('Công Cụ') || label.includes('Cong Cu')) {
+            link.setAttribute('href', 'cong-cu.html');
+        }
+    });
+}
 
 // Setup login dropdown toggle
 function setupLoginDropdown() {
@@ -245,11 +256,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         links.forEach(href => {
             // Check if already injected
-            if (document.querySelector(`link[href="${href}"]`)) return;
+            if (document.querySelector(`link[href^="${href}"]`)) return;
 
             const link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = href;
+            // Add timestamp to bust cache
+            link.href = href + '?v=' + new Date().getTime();
             document.head.appendChild(link);
         });
     };
@@ -259,10 +271,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const src = '/contact-widget/contact-widget.js';
 
         // Check if already injected
-        if (document.querySelector(`script[src="${src}"]`)) return;
+        if (document.querySelector(`script[src^="${src}"]`)) return;
 
         const script = document.createElement('script');
-        script.src = src;
+        // Add timestamp to bust cache
+        script.src = src + '?v=' + new Date().getTime();
         script.async = true;
         document.body.appendChild(script);
     };

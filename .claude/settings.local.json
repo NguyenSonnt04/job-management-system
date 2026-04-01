@@ -9,6 +9,10 @@
       "Bash(git commit:*)",
       "Bash(mvn clean:*)",
       "Bash(mvn compile:*)"
+    ],
+    "additionalDirectories": [
+      "d:\\DuongTanHuy\\QLCV\\job-management-system\\src\\main\\resources\\static\\css",
+      "D:\\DuongTanHuy\\QLCV\\job-management-system\\src\\main\\resources\\static\\css"
     ]
   }
 }

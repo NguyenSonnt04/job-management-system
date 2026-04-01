@@ -1,7 +1,6 @@
 package Nhom08.Project.repository;
 
 import Nhom08.Project.entity.ChatSession;
-import Nhom08.Project.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
