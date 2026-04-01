@@ -44,6 +44,7 @@ async function initCvEditor() {
                     renderCvPreview(parsed);
                     captureEditorHistorySnapshot(true);
                     enableEditorToolbar();
+                    if (typeof setSaveButtonState === 'function') setSaveButtonState('saved');
                     if (autoDownloadPdf) queueAutoPdfDownload();
                     return;
                 }
@@ -72,6 +73,7 @@ async function initCvEditor() {
                         renderCvPreview(parsed);
                         captureEditorHistorySnapshot(true);
                         enableEditorToolbar();
+                        if (typeof setSaveButtonState === 'function') setSaveButtonState('default');
                         return;
                     } catch {}
                 }
@@ -96,6 +98,7 @@ async function initCvEditor() {
     renderCvPreview(skeletonData);
     captureEditorHistorySnapshot(true);
     enableEditorToolbar();
+    if (typeof setSaveButtonState === 'function') setSaveButtonState('default');
 }
 
 function enableEditorToolbar() {

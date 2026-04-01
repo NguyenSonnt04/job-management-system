@@ -194,6 +194,21 @@ function renderProfessionalStyle(c, accent) {
             ${detailsBlock(a.details, 'cvm-exp-detail', '• Mô tả hoạt động và đóng góp...')}
         </div>`).join('');
 
+    const refHtml = (c.references||[]).map((ref,idx)=>`
+        <div class="cvm-edu-item cv-edit-shell cv-reference-item">
+            ${getItemControls('references',idx)}
+            <div class="cvm-edu-degree">${ed(ref.name||'','Nguoi tham chieu')}</div>
+            <div class="cvm-edu-school">${ed(ref.role||ref.company||'','Chuc danh / Cong ty')}</div>
+            <div class="cvm-edu-year">${ed(ref.contact||'','Email / So dien thoai')}</div>
+        </div>`).join('');
+
+    const hobbyHtml = (c.hobbies||[]).map((hobby,idx)=>`
+        <div class="cvm-edu-item cv-edit-shell cv-hobby-item">
+            ${getItemControls('hobbies',idx)}
+            <div class="cvm-edu-degree">${ed(hobby.name||'','So thich')}</div>
+            <div class="cvm-edu-school">${ed(hobby.description||'','Mo ta ngan')}</div>
+        </div>`).join('');
+
     const summaryHtml = `
         <section class="cvm-section cvm-summary-section" data-cv-section="summary">
             <h2 class="cvm-section-title" style="color:${accent};border-bottom:1.5px solid ${accent};">MỤC TIÊU NGHỀ NGHIỆP</h2>
@@ -214,6 +229,8 @@ function renderProfessionalStyle(c, accent) {
                 ${skillsHtml?`<section class="cvm-section" data-cv-section="skills"><h2 class="cvm-section-title" style="color:${accent};">KỸ NĂNG</h2>${skillsHtml}</section>`:''}
                 ${eduHtml?`<section class="cvm-section" data-cv-section="education"><h2 class="cvm-section-title" style="color:${accent};">HỌC VẤN</h2>${eduHtml}</section>`:''}
                 ${certHtml?`<section class="cvm-section" data-cv-section="certifications"><h2 class="cvm-section-title" style="color:${accent};">CHỨNG CHỈ</h2>${certHtml}</section>`:''}
+                ${refHtml?`<section class="cvm-section" data-cv-section="references"><h2 class="cvm-section-title" style="color:${accent};">NGUOI THAM CHIEU</h2>${refHtml}</section>`:''}
+                ${hobbyHtml?`<section class="cvm-section" data-cv-section="hobbies"><h2 class="cvm-section-title" style="color:${accent};">SO THICH</h2>${hobbyHtml}</section>`:''}
             </aside>
             <main class="cvm-right">
                 ${summaryHtml}
@@ -537,6 +554,7 @@ function renderCvPreview(c) {
     delete c.avatarDataUrl;
 
     hydrateDesignState(c._designState || {});
+    if (typeof syncSectionStateFromCv === 'function') syncSectionStateFromCv(c);
     const accent = c._accent || c._designState?.color || window.currentTemplate?.previewColor || designState.color || '#1f4b99';
     designState.color = accent;
     window.currentTemplate = window.currentTemplate || {};
@@ -624,7 +642,9 @@ function addItem(type, insertIndex = null) {
         projects:       { name: '', period: '', tech: '', github: '', details: [''] },
         certifications: { name: '', issuer: '', year: '' },
         awards:         { name: '', year: '' },
-        activities:     { name: '', role: '', period: '', details: [''] }
+        activities:     { name: '', role: '', period: '', details: [''] },
+        references:     { name: '', role: '', company: '', contact: '' },
+        hobbies:        { name: '', description: '' }
     };
     const newItem = defaults[type] || {};
     if (Number.isInteger(insertIndex) && insertIndex >= 0 && insertIndex <= currentCvJson[type].length) {

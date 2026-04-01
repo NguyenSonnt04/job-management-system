@@ -47,14 +47,6 @@
                         <i data-lucide="panel-left"></i>
                         <span>Bố cục</span>
                     </button>
-                    <button class="design-nav-item" type="button" data-panel="templates" onclick="switchDesignPanel('templates')">
-                        <i data-lucide="layout-template"></i>
-                        <span>Đổi mẫu CV</span>
-                    </button>
-                    <button class="design-nav-item" type="button" data-panel="library" onclick="switchDesignPanel('library')">
-                        <i data-lucide="book-open"></i>
-                        <span>Thư viện CV</span>
-                    </button>
                 </div>
 
                 <div class="design-panels">
@@ -173,47 +165,15 @@
                         </div>
                     </section>
 
-                    <section class="design-panel" data-panel="templates">
-                        <div class="tool-panel">
-                            <div class="design-panel-heading">
-                                <h3>Đổi mẫu CV</h3>
-                                <p>Quay lại thư viện mẫu để chọn một giao diện khác mà vẫn giữ luồng chỉnh sửa hiện tại.</p>
-                            </div>
-
-                            <div class="tool-card">
-                                <div class="tool-card-kicker">Template</div>
-                                <h4>Chuyển sang một phong cách CV khác</h4>
-                                <p>Bạn có thể đổi sang mẫu chuyên nghiệp, cổ điển, hiện đại, ấn tượng, sáng tạo, ATS hoặc Harvard rồi tiếp tục tinh chỉnh.</p>
-                                <button class="tool-action primary" type="button" onclick="branchChangeTemplate()">
-                                    Mở thư viện mẫu
-                                </button>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="design-panel" data-panel="library">
-                        <div class="tool-panel">
-                            <div class="design-panel-heading">
-                                <h3>Thư viện CV</h3>
-                                <p>Mở danh sách CV đã lưu để quay lại các bản cũ và tiếp tục chỉnh sửa.</p>
-                            </div>
-
-                            <div class="tool-card soft">
-                                <div class="tool-card-kicker">Saved CVs</div>
-                                <h4>Xem lại các bản CV bạn đã lưu</h4>
-                                <p>Trang này chứa toàn bộ CV đang có, kèm tùy chọn xem trước, đổi tên và tải PDF.</p>
-                                <button class="tool-action secondary" type="button" onclick="window.location.href='/my-cvs.html'">
-                                    Mở thư viện CV
-                                </button>
-                            </div>
-                        </div>
-                    </section>
                 </div>
             </div>
         </aside>
 
         <!-- ── Center: CV Preview ── -->
         <section class="preview-column" style="position:relative;">
+            <button class="cv-floating-save-btn" id="btnSaveCv" type="button" onclick="openSaveModal()">
+                Lưu CV
+            </button>
             <!-- Generating overlay -->
             <div class="generating-overlay" id="generatingOverlay">
                 <div class="spinner"></div>
@@ -223,7 +183,7 @@
 
             <div class="cv-document" id="cvPreview">
                 <div id="cvPlaceholder" style="text-align:center; padding:60px 20px; color:#94a3b8;">
-                    <div style="font-size:48px; margin-bottom:16px;">✨</div>
+                    <div style="font-size:48px; margin-bottom:16px;"></div>
                     <p style="font-size:16px; font-weight:700; color:#64748b; margin-bottom:8px;">CV của bạn sẽ hiện ra ở đây</p>
                     <p style="font-size:13px;">Chọn mẫu hoặc mở CV đã lưu<br>để bắt đầu chỉnh sửa</p>
                 </div>
@@ -245,7 +205,7 @@
                 <button class="btn-cv-action btn-edit-toggle" id="btnEditToggle" onclick="toggleEditMode()" title="Chỉnh sửa trực tiếp">
                     ✏️ Chỉnh sửa
                 </button>
-                <button class="btn-cv-action btn-save-cv" id="btnSaveCv" onclick="openSaveModal()">
+                <button class="btn-cv-action btn-save-cv" onclick="openSaveModal()">
                     💾 Lưu CV
                 </button>
                 <button class="btn-cv-action btn-pdf" onclick="downloadPdf()">

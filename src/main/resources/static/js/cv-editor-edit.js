@@ -225,6 +225,30 @@ function syncGenericPreviewToJson(preview, style) {
             };
         });
     }
+
+    const referenceShells = [...preview.querySelectorAll('[data-cv-section="references"] .cv-reference-item')];
+    if (referenceShells.length) {
+        currentCvJson.references = referenceShells.map(shell => {
+            const fields = [...shell.querySelectorAll('.cv-editable:not(.cv-item-controls *):not([data-bullet])')];
+            return {
+                name: cleanPreviewText(fields[0]?.innerText || ''),
+                role: cleanPreviewText(fields[1]?.innerText || ''),
+                company: '',
+                contact: cleanPreviewText(fields[2]?.innerText || '')
+            };
+        });
+    }
+
+    const hobbyShells = [...preview.querySelectorAll('[data-cv-section="hobbies"] .cv-hobby-item')];
+    if (hobbyShells.length) {
+        currentCvJson.hobbies = hobbyShells.map(shell => {
+            const fields = [...shell.querySelectorAll('.cv-editable:not(.cv-item-controls *):not([data-bullet])')];
+            return {
+                name: cleanPreviewText(fields[0]?.innerText || ''),
+                description: cleanPreviewText(fields[1]?.innerText || '')
+            };
+        });
+    }
 }
 
 function syncHarvardPreviewToJson(preview) {
@@ -450,6 +474,61 @@ function getTaggedPreviewSection(sectionName) {
     return document.querySelector(`#cvPreview [data-cv-section="${sectionName}"]`);
 }
 
+function normalizePreviewSectionToken(value = '') {
+    return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/&/g, ' and ')
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+}
+
+function resolvePreviewSectionKey(rawKey = '', headingText = '') {
+    const aliasMap = {
+        contacts: 'contacts',
+        thong_tin_lien_he: 'contacts',
+        thong_tin_ca_nhan: 'contacts',
+        contact: 'contacts',
+        summary: 'summary',
+        gioi_thieu: 'summary',
+        professional_summary: 'summary',
+        tom_tat: 'summary',
+        muc_tieu_nghe_nghiep: 'summary',
+        experience: 'experience',
+        kinh_nghiem: 'experience',
+        kinh_nghiem_lam_viec: 'experience',
+        education: 'education',
+        hoc_van: 'education',
+        skills: 'skills',
+        ky_nang: 'skills',
+        skills_expertise: 'skills',
+        projects: 'projects',
+        du_an: 'projects',
+        du_an_noi_bat: 'projects',
+        certifications: 'certifications',
+        chung_chi: 'certifications',
+        awards: 'awards',
+        awards_honors: 'awards',
+        giai_thuong: 'awards',
+        activities: 'activities',
+        leadership_activities: 'activities',
+        hoat_dong: 'activities',
+        references: 'references',
+        nguoi_tham_chieu: 'references',
+        hobbies: 'hobbies',
+        so_thich: 'hobbies'
+    };
+
+    const candidates = [rawKey, headingText]
+        .map(normalizePreviewSectionToken)
+        .filter(Boolean);
+    for (const candidate of candidates) {
+        if (aliasMap[candidate]) return aliasMap[candidate];
+    }
+    return '';
+}
+
 function tagPreviewSections(style = 'professional') {
     // Sections already have data-cv-section from renderers; this augments any missed ones.
     const preview = document.getElementById('cvPreview');
@@ -467,10 +546,9 @@ function tagPreviewSections(style = 'professional') {
     };
 
     preview.querySelectorAll('section, .cvh-section, .cvm2-block, .cvc2-zone, .cvcl2-section, .cv-topcv-section').forEach(section => {
-        if (section.dataset.cvSection) return;
         const titleEl = section.querySelector('h1, h2, h3, h4, .cvm-section-title, .cvc2-zone-title, .cvm2-block-label, .cvh-title, .cvcl2-sec-title, .cvcl2-sec-title-r, .cv-topcv-title');
-        const text    = (titleEl?.textContent || '').trim().toUpperCase();
-        const key     = HEADING_MAP[text];
+        const text    = (titleEl?.textContent || '').trim();
+        const key     = resolvePreviewSectionKey(section.dataset.cvSection || '', text) || HEADING_MAP[text.toUpperCase()];
         if (key) section.setAttribute('data-cv-section', key);
     });
 }
@@ -489,6 +567,7 @@ function applySectionVisibilityToPreview() {
 function applySectionOrderToPreview(style = getCurrentPreviewStyle()) {
     const preview = document.getElementById('cvPreview');
     if (!preview) return;
+    tagPreviewSections(style);
     const ordered = getOrderedUsedSections();
 
     // Single-column layout
@@ -496,20 +575,34 @@ function applySectionOrderToPreview(style = getCurrentPreviewStyle()) {
     if (singleBody) {
         const sections = [...singleBody.querySelectorAll('[data-cv-section]')];
         ordered.forEach(key => {
-            const sec = sections.find(s => s.dataset.cvSection === key);
+            const sec = sections.find(s => resolvePreviewSectionKey(s.dataset.cvSection || '') === key);
             if (sec) singleBody.appendChild(sec);
         });
         return;
     }
 
-    // Two-column: reorder by key across both columns
-    [preview.querySelector('.cvm-left, .cvc2-left, .cvcl2-left'), preview.querySelector('.cvm-right, .cvc2-right, .cvcl2-right')]
-        .filter(Boolean)
-        .forEach(col => {
-            const sections = [...col.querySelectorAll('[data-cv-section]')];
-            ordered.forEach(key => {
-                const sec = sections.find(s => s.dataset.cvSection === key);
-                if (sec) col.appendChild(sec);
-            });
+    // Two-column: distribute visible sections row-by-row so drag order matches the layout grid.
+    const columns = [
+        preview.querySelector('.cvm-left, .cvc2-left, .cvcl2-left'),
+        preview.querySelector('.cvm-right, .cvc2-right, .cvcl2-right')
+    ].filter(Boolean);
+    if (!columns.length) return;
+
+    const sectionMap = new Map();
+    columns.forEach(col => {
+        [...col.children].forEach(child => {
+            const rawKey = child?.dataset?.cvSection || '';
+            const titleText = child.querySelector('h1, h2, h3, h4, .cvm-section-title, .cvc2-zone-title, .cvm2-block-label, .cvh-title, .cvcl2-sec-title, .cvcl2-sec-title-r, .cv-topcv-title')?.textContent || '';
+            const key = resolvePreviewSectionKey(rawKey, titleText);
+            if (!key) return;
+            child.dataset.cvSection = key;
+            sectionMap.set(key, child);
+        });
+    });
+
+    ordered
+        .filter(key => sectionMap.has(key))
+        .forEach((key, index) => {
+            columns[index % columns.length].appendChild(sectionMap.get(key));
         });
 }
