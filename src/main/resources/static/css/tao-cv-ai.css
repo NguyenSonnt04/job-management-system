@@ -1,3 +1,7 @@
+/* Override cv-editor.css body overflow for this page */
+body {
+    overflow: auto !important;
+}
 
 :root {
     --color-primary: #2E3B8E; /* Website's primary blue */
@@ -375,6 +379,21 @@ body {
 
 .template-card:hover .cv-miniature {
     transform: scale(0.365);
+}
+
+/* Hide edit controls inside miniature preview */
+.cv-miniature .cv-item-controls,
+.cv-miniature .cv-contact-controls,
+.cv-miniature .avatar-upload-overlay,
+.cv-miniature .cv-contact-add-btn,
+.cv-miniature .cv-contact-del-btn {
+    display: none !important;
+}
+.cv-miniature {
+    pointer-events: none;
+}
+.cv-miniature [contenteditable] {
+    cursor: default;
 }
 
 /* CV Header */

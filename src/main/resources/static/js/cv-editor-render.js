@@ -88,7 +88,7 @@ const CONTACT_TYPES = [
 window.CONTACT_TYPES = CONTACT_TYPES;
 
 function renderContactItem(key, value, iconKey, iconName, label, placeholder) {
-    const iconHtml = renderPreviewIconTrigger
+    const iconHtml = typeof renderPreviewIconTrigger === 'function'
         ? renderPreviewIconTrigger(`contact-${key}`, iconName, 14, 'margin-right:4px;', label)
         : libIcon(iconName, 14, 'margin-right:4px;vertical-align:-2px;');
     return `<span class="cv-contact-item" data-contact-key="${key}" contenteditable="false">` +
