@@ -68,6 +68,16 @@ public class GeminiService {
         return callGemini(body);
     }
 
+    /**
+     * Send a file (PDF, image) to Gemini with a custom prompt.
+     * Returns the raw text from Gemini's response.
+     */
+    public String callGeminiFileWithPrompt(byte[] fileBytes, String mimeType, String prompt) {
+        requireApiKey();
+        String body = buildFileRequest(fileBytes, mimeType, prompt);
+        return callGemini(body);
+    }
+
     // ── Match CV file against job list ────────────────────────────────────────
     /**
      * Sends the CV file and a list of jobs to Gemini.

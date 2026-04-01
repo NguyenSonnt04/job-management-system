@@ -30,6 +30,27 @@ public class User {
     @Column(length = 20)
     private String phone;
 
+    @Column(name = "contact_email", length = 100)
+    private String contactEmail;
+
+    @Column(name = "dob", length = 20)
+    private String dob;
+
+    @Column(length = 120)
+    private String occupation;
+
+    @Column(columnDefinition = "TEXT")
+    private String skills;
+
+    @Column(columnDefinition = "TEXT")
+    private String education;
+
+    @Column(columnDefinition = "TEXT")
+    private String experience;
+
+    @Column(columnDefinition = "TEXT")
+    private String projects;
+
     @Column(nullable = false)
     private Boolean enabled = true;
 
@@ -106,6 +127,27 @@ public class User {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
+    public String getContactEmail() { return contactEmail; }
+    public void setContactEmail(String contactEmail) { this.contactEmail = contactEmail; }
+
+    public String getDob() { return dob; }
+    public void setDob(String dob) { this.dob = dob; }
+
+    public String getOccupation() { return occupation; }
+    public void setOccupation(String occupation) { this.occupation = occupation; }
+
+    public String getSkills() { return skills; }
+    public void setSkills(String skills) { this.skills = skills; }
+
+    public String getEducation() { return education; }
+    public void setEducation(String education) { this.education = education; }
+
+    public String getExperience() { return experience; }
+    public void setExperience(String experience) { this.experience = experience; }
+
+    public String getProjects() { return projects; }
+    public void setProjects(String projects) { this.projects = projects; }
 
     public Boolean getEnabled() {
         return enabled;

@@ -178,24 +178,90 @@ function toggleSectionByClass(selector, isVisible) {
     });
 }
 
+function ensureSectionSeedData(sectionName) {
+    if (!currentCvJson) return;
+
+    const seedMap = {
+        contacts() {
+            if (currentCvJson.email == null) currentCvJson.email = '';
+            if (currentCvJson.phone == null) currentCvJson.phone = '';
+            if (currentCvJson.address == null) currentCvJson.address = '';
+        },
+        summary() {
+            if (currentCvJson.summary == null) currentCvJson.summary = '';
+        },
+        experience() {
+            if (!Array.isArray(currentCvJson.experience) || !currentCvJson.experience.length) {
+                currentCvJson.experience = [{ role: '', company: '', period: '', details: [''] }];
+            }
+        },
+        education() {
+            if (!Array.isArray(currentCvJson.education) || !currentCvJson.education.length) {
+                currentCvJson.education = [{ degree: '', school: '', period: '', details: [''] }];
+            }
+        },
+        skills() {
+            if (!Array.isArray(currentCvJson.skills) || !currentCvJson.skills.length) {
+                currentCvJson.skills = [{ category: '', items: [''] }];
+            }
+        },
+        projects() {
+            if (!Array.isArray(currentCvJson.projects) || !currentCvJson.projects.length) {
+                currentCvJson.projects = [{ name: '', period: '', tech: '', github: '', details: [''] }];
+            }
+        },
+        awards() {
+            if (!Array.isArray(currentCvJson.awards) || !currentCvJson.awards.length) {
+                currentCvJson.awards = [{ name: '', year: '' }];
+            }
+        },
+        certifications() {
+            if (!Array.isArray(currentCvJson.certifications) || !currentCvJson.certifications.length) {
+                currentCvJson.certifications = [{ name: '', issuer: '', year: '' }];
+            }
+        },
+        activities() {
+            if (!Array.isArray(currentCvJson.activities) || !currentCvJson.activities.length) {
+                currentCvJson.activities = [{ name: '', role: '', period: '', details: [''] }];
+            }
+        },
+        references() {
+            if (!Array.isArray(currentCvJson.references) || !currentCvJson.references.length) {
+                currentCvJson.references = [{ name: '', role: '', company: '', contact: '' }];
+            }
+        },
+        hobbies() {
+            if (!Array.isArray(currentCvJson.hobbies) || !currentCvJson.hobbies.length) {
+                currentCvJson.hobbies = [{ name: '', description: '' }];
+            }
+        }
+    };
+
+    seedMap[sectionName]?.();
+}
+
 function addSection(sectionName) {
+    ensureSectionSeedData(sectionName);
     designState.sections[sectionName] = true;
+    syncDesignStateToCurrentCv();
     renderCvPreview(currentCvJson);
     renderSectionManager();
-    markCvDirty();
+    markCvDirty({ immediate: true });
 }
 
 function toggleSection(sectionName, isVisible) {
+    if (isVisible) ensureSectionSeedData(sectionName);
     designState.sections[sectionName] = isVisible;
+    syncDesignStateToCurrentCv();
     if (!isVisible) {
         applySectionVisibilityToPreview();
         renderSectionManager();
-        markCvDirty();
+        markCvDirty({ immediate: true });
         return;
     }
     renderCvPreview(currentCvJson);
     renderSectionManager();
-    markCvDirty();
+    markCvDirty({ immediate: true });
 }
 
 // ── Icon Choices ──────────────────────────────────────────────
@@ -281,8 +347,10 @@ function saveSectionIconSelection() {
         designState.sectionIcons = designState.sectionIcons || {};
         designState.sectionIcons[sectionKey] = selectedIcon;
     }
+    syncDesignStateToCurrentCv();
     closeSectionIconPickerModal();
     refreshSectionIconUI();
+    markCvDirty({ immediate: true });
 }
 
 function refreshSectionIconUI() {
@@ -364,9 +432,9 @@ function syncPreviewIconOptionState() {
 
 function openPreviewIconPickerModal(iconKey, fallbackIcon, label = 'này') {
     ensurePreviewIconPickerModal();
-    enhancePreviewIconTriggers(document.getElementById('cvPreview'));
     const modal = document.getElementById('previewIconPickerModal');
     if (!modal) return;
+
     previewIconPickerState.iconKey       = iconKey;
     previewIconPickerState.selectedIcon  = getPreviewIconName(iconKey, fallbackIcon);
     previewIconPickerState.label         = label;
@@ -374,7 +442,10 @@ function openPreviewIconPickerModal(iconKey, fallbackIcon, label = 'này') {
     if (subtitle) subtitle.textContent   = `Chọn icon mới cho ${label} trong bản xem trước CV.`;
     syncPreviewIconOptionState();
     modal.style.display = 'flex';
+    // Render Lucide icons inside the grid (needed every time modal opens)
+    if (window.lucide) lucide.createIcons({ el: modal });
 }
+
 
 function closePreviewIconPickerModal() {
     const modal = document.getElementById('previewIconPickerModal');
@@ -389,8 +460,10 @@ function savePreviewIconSelection() {
         designState.previewIcons = designState.previewIcons || {};
         designState.previewIcons[iconKey] = selectedIcon;
     }
+    syncDesignStateToCurrentCv();
     closePreviewIconPickerModal();
     rerenderCurrentPreview();
+    markCvDirty({ immediate: true });
 }
 
 function enhancePreviewIconTriggers(preview = document.getElementById('cvPreview')) {
@@ -571,16 +644,32 @@ function getDirectTaggedSections(container) {
 
 function createLayoutUsedCard(sectionName) {
     const meta        = sectionMeta[sectionName];
+    if (!meta) return '';
     const isFixedCard = sectionName === 'avatar' || sectionName === 'profileCard';
     const selected    = layoutSelectedSection === sectionName ? ' selected' : '';
+    const spanFull    = sectionName === 'contacts' ? ' layout-section-card-span-full' : '';
+    const iconHtml    = typeof libIcon === 'function'
+        ? libIcon(getSectionIconName(sectionName), 16, 'color:currentColor;')
+        : (meta.glyph || '');
     if (isFixedCard) {
-        return `<div class="layout-section-card layout-section-card-fixed${selected}" title="${meta.label}">
-            <span class="layout-section-title">${meta.layoutLabel || meta.label}</span>
+        return `<div class="layout-section-card layout-section-card-fixed layout-section-card-span-full${selected}" title="${meta.label}">
+            <span class="layout-section-icon" aria-hidden="true">${iconHtml}</span>
+            <span class="layout-section-body">
+                <span class="layout-section-kicker">Cố định</span>
+                <span class="layout-section-title">${meta.layoutLabel || meta.label}</span>
+                <span class="layout-section-meta">Khối này luôn xuất hiện ở phần đầu CV.</span>
+            </span>
+            <span class="layout-section-badge" aria-hidden="true">Khóa</span>
         </div>`;
     }
-    return `<button type="button" class="layout-section-card${selected}" data-layout-section="${sectionName}" draggable="true" onclick="selectLayoutSection('${sectionName}')" title="${meta.label}">
+    return `<button type="button" class="layout-section-card${spanFull}${selected}" data-layout-section="${sectionName}" draggable="true" onclick="selectLayoutSection('${sectionName}')" title="${meta.label}">
         <span class="layout-section-grip" aria-hidden="true"><i data-lucide="grip-vertical"></i></span>
-        <span class="layout-section-title">${meta.layoutLabel || meta.label}</span>
+        <span class="layout-section-icon" aria-hidden="true">${iconHtml}</span>
+        <span class="layout-section-body">
+            <span class="layout-section-kicker">Đang dùng</span>
+            <span class="layout-section-title">${meta.layoutLabel || meta.label}</span>
+            <span class="layout-section-meta">Kéo để đổi vị trí hiển thị trong CV.</span>
+        </span>
         <span class="layout-section-action" onclick="event.stopPropagation(); toggleSection('${sectionName}', false)" aria-label="Ẩn ${meta.label}">
             <i data-lucide="minus"></i>
         </span>
@@ -589,8 +678,17 @@ function createLayoutUsedCard(sectionName) {
 
 function createLayoutUnusedCard(sectionName) {
     const meta = sectionMeta[sectionName];
+    if (!meta) return '';
+    const iconHtml = typeof libIcon === 'function'
+        ? libIcon(getSectionIconName(sectionName), 16, 'color:currentColor;')
+        : (meta.glyph || '');
     return `<button type="button" class="layout-section-card layout-section-card-unused" onclick="addSection('${sectionName}')" title="Thêm ${meta.label}">
-        <span class="layout-section-title">${meta.layoutLabel || meta.label}</span>
+        <span class="layout-section-icon" aria-hidden="true">${iconHtml}</span>
+        <span class="layout-section-body">
+            <span class="layout-section-kicker">Chưa dùng</span>
+            <span class="layout-section-title">${meta.layoutLabel || meta.label}</span>
+            <span class="layout-section-meta">Bấm để thêm mục này vào CV.</span>
+        </span>
         <span class="layout-section-action" aria-label="Thêm ${meta.label}"><i data-lucide="plus"></i></span>
     </button>`;
 }
@@ -659,6 +757,19 @@ function flattenLayoutColumns(columns) {
     return ordered;
 }
 
+function getLayoutStudioUsedSections(style = getCurrentPreviewStyle()) {
+    const fixedSet = new Set(getLayoutStudioFixedCards(style));
+    const domOrdered = flattenLayoutColumns(getLayoutStudioColumns(style))
+        .filter(sectionName => sectionEnabled(sectionName) && !fixedSet.has(sectionName));
+    const stateOrdered = getOrderedUsedSections()
+        .filter(sectionName => !fixedSet.has(sectionName));
+    const merged = [...domOrdered];
+    stateOrdered.forEach(sectionName => {
+        if (!merged.includes(sectionName)) merged.push(sectionName);
+    });
+    return merged;
+}
+
 function syncLayoutOrderFromGrid() {
     const usedContainer = document.getElementById('layoutUsedGrid');
     if (!usedContainer) return;
@@ -686,7 +797,7 @@ function renderLayoutManager() {
     const style          = getCurrentPreviewStyle();
     const fixedCards     = getLayoutStudioFixedCards(style);
     const layoutColumns  = getLayoutStudioColumns(style);
-    const used           = flattenLayoutColumns(layoutColumns);
+    const used           = getLayoutStudioUsedSections(style);
     const unused         = getOrderedUnusedSections();
     const isSingleColumn = layoutColumns.filter(c => c.length).length <= 1;
     const boardScroll    = usedContainer.closest('.layout-board-scroll');
@@ -714,21 +825,36 @@ function initLayoutSortable() {
     if (usedContainer._sortable) usedContainer._sortable.destroy();
     usedContainer._sortable = Sortable.create(usedContainer, {
         animation: 150,
-        handle:    '.layout-section-grip',
-        ghostClass:'layout-sortable-ghost',
-        onEnd:     () => syncLayoutOrderFromGrid()
+        draggable: '[data-layout-section]',
+        filter: '.layout-section-action',
+        preventOnFilter: false,
+        ghostClass: 'layout-section-card-ghost',
+        chosenClass: 'layout-section-card-chosen',
+        dragClass: 'layout-section-card-dragging',
+        onStart: () => usedContainer.classList.add('layout-grid-dragging'),
+        onEnd: () => {
+            usedContainer.classList.remove('layout-grid-dragging');
+            syncLayoutOrderFromGrid();
+        }
     });
 }
 
 // ── Section Manager (panel) ───────────────────────────────────
-function createSectionCard(sectionName, isUsed) {
+function createSectionCard(sectionName, isUsed, options = {}) {
     const meta   = sectionMeta[sectionName];
-    const action = isUsed
+    if (!meta) return '';
+    const isFixed = options.fixed === true;
+    const action = isFixed
+        ? '<span class="section-card-action secondary" aria-hidden="true">Co dinh</span>'
+        : isUsed
         ? `<button type="button" class="section-card-action secondary" onclick="toggleSection('${sectionName}', false)">Ẩn</button>`
         : `<button type="button" class="section-card-action" onclick="addSection('${sectionName}')">Thêm</button>`;
-    return `<div class="section-card ${isUsed ? 'used' : ''}">
+    const iconHtml = typeof renderSectionMetaIcon === 'function'
+        ? renderSectionMetaIcon(sectionName, 15, 'color:currentColor;')
+        : (meta.glyph || '');
+    return `<div class="section-card ${isUsed ? 'used' : ''}${isFixed ? ' section-card-fixed' : ''}">
         <div class="section-card-main">
-            <span class="section-card-glyph">${meta.glyph}</span>
+            <span class="section-card-glyph">${iconHtml}</span>
             <div class="section-card-copy">
                 <div class="section-card-title">${meta.label}</div>
                 <div class="section-card-desc">${meta.desc}</div>
@@ -744,13 +870,13 @@ function renderSectionManager() {
     if (!unusedContainer || !usedContainer) return;
 
     const unused = getOrderedUnusedSections();
-    const used   = getOrderedUsedSections();
+    const used   = ['profileCard', ...getOrderedUsedSections()];
 
     unusedContainer.innerHTML = unused.length
         ? unused.map(key => createSectionCard(key, false)).join('')
         : '<div class="section-empty-state">Tất cả mục đang được dùng.</div>';
     usedContainer.innerHTML   = used.length
-        ? used.map(key => createSectionCard(key, true)).join('')
+        ? used.map(key => createSectionCard(key, true, { fixed: key === 'profileCard' })).join('')
         : '<div class="section-empty-state">Chưa có mục nào được bật.</div>';
 
     renderLayoutManager();
@@ -862,3 +988,74 @@ function initSortable() {
         });
     });
 }
+
+function normalizeInteractiveIconTriggers(root = document) {
+    if (!root?.querySelectorAll) return;
+    root.querySelectorAll('.preview-icon-trigger, .section-meta-icon-trigger').forEach(trigger => {
+        if (!(trigger instanceof HTMLElement)) return;
+        trigger.setAttribute('contenteditable', 'false');
+        if (trigger.tagName === 'BUTTON' && !trigger.hasAttribute('type')) {
+            trigger.setAttribute('type', 'button');
+        }
+    });
+}
+
+function openSectionIconModalFromTrigger(trigger) {
+    const sectionKey = trigger?.getAttribute?.('data-section-key');
+    if (sectionKey) openSectionIconPickerModal(sectionKey);
+}
+
+function openPreviewIconModalFromTrigger(trigger) {
+    const iconKey      = trigger?.getAttribute?.('data-preview-icon-key');
+    const fallbackIcon = trigger?.getAttribute?.('data-fallback-icon') || 'star';
+    const label        = trigger?.getAttribute?.('data-label') || 'mục này';
+    if (iconKey) openPreviewIconPickerModal(iconKey, fallbackIcon, label);
+}
+
+document.addEventListener('pointerdown', event => {
+    const sectionTrigger = resolveSectionIconTrigger(event.target);
+    if (sectionTrigger) {
+        event.preventDefault();
+        event.stopPropagation();
+        normalizeInteractiveIconTriggers(document);
+        openSectionIconModalFromTrigger(sectionTrigger);
+        return;
+    }
+
+    const previewTrigger = event.target instanceof Element ? event.target.closest('.preview-icon-trigger') : null;
+    if (!previewTrigger) return;
+    event.preventDefault();
+    event.stopPropagation();
+    normalizeInteractiveIconTriggers(document);
+    openPreviewIconModalFromTrigger(previewTrigger);
+}, true);
+
+if (!window.__cvIconTriggerPatchApplied) {
+    window.__cvIconTriggerPatchApplied = true;
+
+    const originalRenderCvPreview = window.renderCvPreview;
+    if (typeof originalRenderCvPreview === 'function') {
+        const wrappedRenderCvPreview = function(...args) {
+            const result = originalRenderCvPreview.apply(this, args);
+            normalizeInteractiveIconTriggers(document);
+            return result;
+        };
+        window.renderCvPreview = wrappedRenderCvPreview;
+        renderCvPreview = wrappedRenderCvPreview;
+    }
+
+    const originalRenderSectionManager = window.renderSectionManager || renderSectionManager;
+    if (typeof originalRenderSectionManager === 'function') {
+        const wrappedRenderSectionManager = function(...args) {
+            const result = originalRenderSectionManager.apply(this, args);
+            normalizeInteractiveIconTriggers(document);
+            return result;
+        };
+        window.renderSectionManager = wrappedRenderSectionManager;
+        renderSectionManager = wrappedRenderSectionManager;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    normalizeInteractiveIconTriggers(document);
+});

@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI CV Builder | CareerViet</title>
+    <title>CV Builder | CareerViet</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/cv-editor.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,18 +46,6 @@
                     <button class="design-nav-item" type="button" data-panel="layout" onclick="switchDesignPanel('layout')">
                         <i data-lucide="panel-left"></i>
                         <span>Bố cục</span>
-                    </button>
-                    <button class="design-nav-item" type="button" data-panel="templates" onclick="switchDesignPanel('templates')">
-                        <i data-lucide="layout-template"></i>
-                        <span>Đổi mẫu CV</span>
-                    </button>
-                    <button class="design-nav-item" type="button" data-panel="ai-writing" onclick="switchDesignPanel('ai-writing')">
-                        <i data-lucide="sparkles"></i>
-                        <span>Gợi ý viết CV</span>
-                    </button>
-                    <button class="design-nav-item" type="button" data-panel="library" onclick="switchDesignPanel('library')">
-                        <i data-lucide="book-open"></i>
-                        <span>Thư viện CV</span>
                     </button>
                 </div>
 
@@ -177,92 +165,27 @@
                         </div>
                     </section>
 
-                    <section class="design-panel" data-panel="templates">
-                        <div class="tool-panel">
-                            <div class="design-panel-heading">
-                                <h3>Đổi mẫu CV</h3>
-                                <p>Quay lại thư viện mẫu để chọn một giao diện khác mà vẫn giữ luồng chỉnh sửa hiện tại.</p>
-                            </div>
-
-                            <div class="tool-card">
-                                <div class="tool-card-kicker">Template</div>
-                                <h4>Chuyển sang một phong cách CV khác</h4>
-                                <p>Bạn có thể đổi sang mẫu chuyên nghiệp, cổ điển, hiện đại, ấn tượng, sáng tạo, ATS hoặc Harvard rồi tiếp tục tinh chỉnh.</p>
-                                <button class="tool-action primary" type="button" onclick="branchChangeTemplate()">
-                                    Mở thư viện mẫu
-                                </button>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="design-panel" data-panel="ai-writing">
-                        <div class="tool-panel">
-                            <div class="design-panel-heading">
-                                <h3>Gợi ý viết CV</h3>
-                                <p>Đẩy nhanh quá trình viết bằng vài prompt mẫu, sau đó để AI bên phải xử lý tiếp.</p>
-                            </div>
-
-                            <div class="tool-grid">
-                                <button class="tool-suggestion" type="button" onclick="primeAssistantSuggestion('Hãy viết lại mục tiêu nghề nghiệp ngắn gọn và chuyên nghiệp hơn cho CV của tôi.')">
-                                    <strong>Viết lại mục tiêu</strong>
-                                    <span>Tạo đoạn mở đầu súc tích, hợp vai trò ứng tuyển.</span>
-                                </button>
-                                <button class="tool-suggestion" type="button" onclick="primeAssistantSuggestion('Hãy nâng cấp phần kinh nghiệm làm việc bằng các câu nhấn mạnh kết quả và thành tựu.')">
-                                    <strong>Tối ưu kinh nghiệm</strong>
-                                    <span>Biến mô tả công việc thành bullet nhấn mạnh tác động.</span>
-                                </button>
-                                <button class="tool-suggestion" type="button" onclick="primeAssistantSuggestion('Hãy gợi ý thêm các kỹ năng cứng và kỹ năng mềm phù hợp với CV hiện tại của tôi.')">
-                                    <strong>Gợi ý kỹ năng</strong>
-                                    <span>Bổ sung kỹ năng còn thiếu theo ngành và vị trí mục tiêu.</span>
-                                </button>
-                                <button class="tool-suggestion" type="button" onclick="primeAssistantSuggestion('Hãy rà lại toàn bộ CV và đề xuất chỗ nào nên viết mạnh hơn để thuyết phục nhà tuyển dụng.')">
-                                    <strong>Rà soát toàn CV</strong>
-                                    <span>Nhờ AI soi lại tổng thể trước khi lưu hoặc tải PDF.</span>
-                                </button>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="design-panel" data-panel="library">
-                        <div class="tool-panel">
-                            <div class="design-panel-heading">
-                                <h3>Thư viện CV</h3>
-                                <p>Mở danh sách CV đã lưu để quay lại các bản cũ hoặc tiếp tục chỉnh sửa với AI.</p>
-                            </div>
-
-                            <div class="tool-card soft">
-                                <div class="tool-card-kicker">Saved CVs</div>
-                                <h4>Xem lại các bản CV bạn đã lưu</h4>
-                                <p>Trang này chứa toàn bộ CV đang có, kèm tùy chọn xem trước, đổi tên và tải PDF.</p>
-                                <button class="tool-action secondary" type="button" onclick="window.location.href='/my-cvs.html'">
-                                    Mở thư viện CV
-                                </button>
-                            </div>
-                        </div>
-                    </section>
                 </div>
             </div>
         </aside>
 
         <!-- ── Center: CV Preview ── -->
         <section class="preview-column" style="position:relative;">
-            
-            <button id="toggleAiBtn" onclick="toggleAssistant()" style="position: absolute; top: 16px; right: 16px; background: white; border: 1px solid #e8ecef; padding: 8px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 6px; z-index: 50; color: #2e3b8e;">
-                <i data-lucide="bot" style="width: 18px; height: 18px;"></i> <span id="toggleAiText">Đóng AI</span>
+            <button class="cv-floating-save-btn" id="btnSaveCv" type="button" onclick="openSaveModal()">
+                Lưu CV
             </button>
-
             <!-- Generating overlay -->
             <div class="generating-overlay" id="generatingOverlay">
                 <div class="spinner"></div>
-                <span>AI đang tạo CV của bạn...</span>
+                <span>Đang chuẩn bị CV của bạn...</span>
                 <small style="color:#64748b; font-weight:400;">Đây có thể mất 10–20 giây</small>
             </div>
 
             <div class="cv-document" id="cvPreview">
                 <div id="cvPlaceholder" style="text-align:center; padding:60px 20px; color:#94a3b8;">
-                    <div style="font-size:48px; margin-bottom:16px;">✨</div>
+                    <div style="font-size:48px; margin-bottom:16px;"></div>
                     <p style="font-size:16px; font-weight:700; color:#64748b; margin-bottom:8px;">CV của bạn sẽ hiện ra ở đây</p>
-                    <p style="font-size:13px;">Hoàn thành trò chuyện với AI bên phải<br>để tạo CV theo mẫu bạn đã chọn</p>
+                    <p style="font-size:13px;">Chọn mẫu hoặc mở CV đã lưu<br>để bắt đầu chỉnh sửa</p>
                 </div>
             </div>
 
@@ -282,7 +205,7 @@
                 <button class="btn-cv-action btn-edit-toggle" id="btnEditToggle" onclick="toggleEditMode()" title="Chỉnh sửa trực tiếp">
                     ✏️ Chỉnh sửa
                 </button>
-                <button class="btn-cv-action btn-save-cv" id="btnSaveCv" onclick="openSaveModal()">
+                <button class="btn-cv-action btn-save-cv" onclick="openSaveModal()">
                     💾 Lưu CV
                 </button>
                 <button class="btn-cv-action btn-pdf" onclick="downloadPdf()">
@@ -308,92 +231,9 @@
                 </div>
             </div>
         </section>
-
-        <!-- ── Right: AI Chat ── -->
-        <aside class="assistant-column">
-            <!-- Header -->
-            <header class="assistant-header">
-                <div class="assistant-info">
-                    <div class="ai-icon">
-                        <i data-lucide="bot"></i>
-                    </div>
-                    <div>
-                        <div class="ai-name">AI CV Assistant</div>
-                        <div class="ai-status" id="aiStatus">Đang trực tuyến &amp; sẵn sàng hỗ trợ</div>
-                    </div>
-                </div>
-                <button id="btnRestart" title="Bắt đầu lại"
-                    style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:20px;"
-                    onclick="restartChat()">↺</button>
-            </header>
-
-            <!-- Progress steps -->
-            <div class="cv-progress" id="progressBar"></div>
-
-            <!-- Chat history -->
-            <div class="chat-history" id="chatHistory"></div>
-
-            <!-- Quick reply chips -->
-            <div class="quick-replies" id="quickReplies"></div>
-
-            <!-- Post-gen branch cards (G1-G4) -->
-            <div class="postgen-branches" id="postgenBranches">
-                <div class="branch-label">✨ Bạn muốn tiếp tục như thế nào?</div>
-                <div class="branch-cards">
-                    <div class="branch-card" onclick="branchDeepInterview()">
-                        <span class="branch-card-icon">🎙️</span>
-                        <div class="branch-card-title">AI phỏng vấn thêm</div>
-                        <div class="branch-card-desc">Làm đầy các phần còn thiếu</div>
-                    </div>
-                    <div class="branch-card" onclick="branchBlockEdit()">
-                        <span class="branch-card-icon">✏️</span>
-                        <div class="branch-card-title">Sửa từng khối</div>
-                        <div class="branch-card-desc">Click vào CV để chỉnh trực tiếp</div>
-                    </div>
-                    <div class="branch-card" onclick="branchOptimizeJD()">
-                        <span class="branch-card-icon">🎯</span>
-                        <div class="branch-card-title">Tối ưu theo JD</div>
-                        <div class="branch-card-desc">Dán JD để AI căn chỉnh CV</div>
-                    </div>
-                    <div class="branch-card" onclick="branchChangeTemplate()">
-                        <span class="branch-card-icon">🎨</span>
-                        <div class="branch-card-title">Đổi mẫu CV</div>
-                        <div class="branch-card-desc">Thử phong cách khác</div>
-                    </div>
-                </div>
-                <!-- JD Optimize panel -->
-                <div class="jd-panel" id="jdPanel">
-                    <div class="jd-label">📋 Dán nội dung Job Description vào đây:</div>
-                    <textarea class="jd-textarea" id="jdTextarea" placeholder="Dán toàn bộ JD của công ty vào đây. AI sẽ phân tích và điều chỉnh CV của bạn cho phù hợp..."></textarea>
-                    <button class="btn-jd-optimize" onclick="runJdOptimize()">🎯 Tối ưu CV theo JD này</button>
-                </div>
-            </div>
-
-            <!-- Input -->
-            <div class="chat-actions">
-                <div class="input-container">
-                    <textarea class="chat-input" id="chatInput"
-                        placeholder="Nhập câu trả lời của bạn..." rows="3"></textarea>
-                    <div class="input-footer">
-                        <span class="input-hint" id="inputHint"></span>
-                        <div class="input-btns">
-                            <div class="btn-send" id="btnSend">
-                                <i data-lucide="send" style="width:16px;"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div style="text-align:right; margin-top:6px;">
-                    <span style="font-size:0.65rem; color:#10b981; font-weight:600;" id="aiReadyLabel">
-                        ● AI Sẵn sàng
-                    </span>
-                </div>
-            </div>
-        </aside>
     </div>
 
     <div id="footer-placeholder"></div>
-    <!-- Edit mode floating badge -->
     <div class="edit-mode-badge" id="editModeBadge">✏️ Đang chỉnh sửa trực tiếp</div>
     <script src="js/main.js"></script>
     <!-- CV logic moved to js/cv-editor-*.js modules -->

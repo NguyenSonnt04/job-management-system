@@ -7,6 +7,28 @@ let templateName      = '';
 let loadedCvName      = '';
 let autoDownloadStarted = false;
 
+function setSaveButtonState(state = 'default') {
+    const btnSave = document.getElementById('btnSaveCv');
+    if (!btnSave) return;
+
+    btnSave.classList.remove('saved');
+    btnSave.disabled = false;
+
+    if (state === 'saving') {
+        btnSave.textContent = 'Đang lưu...';
+        btnSave.disabled = true;
+        return;
+    }
+
+    if (state === 'saved') {
+        btnSave.textContent = 'Đã lưu';
+        btnSave.classList.add('saved');
+        return;
+    }
+
+    btnSave.textContent = 'Lưu CV';
+}
+
 // ── Save Modal ────────────────────────────────────────────────
 function openSaveModal() {
     if (!currentCvJson) return;
@@ -228,3 +250,75 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape') closeSaveModal();
     });
 });
+
+window.setSaveButtonState = setSaveButtonState;
+
+function persistSavedCvIdToUrl(cvId) {
+    if (!cvId) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('cvId', cvId);
+    if (!url.searchParams.get('template')) url.searchParams.delete('template');
+    window.history.replaceState({}, '', url.toString());
+}
+
+confirmSave = async function confirmSavePatched() {
+    const cvName = (document.getElementById('cvNameInput')?.value || '').trim()
+        || (currentCvJson?.name ? `CV của ${currentCvJson.name}` : 'CV của tôi');
+
+    if (!currentCvJson) return;
+
+    syncPreviewToCurrentCv();
+    closeSaveModal();
+    if (typeof syncDesignStateToCurrentCv === 'function') syncDesignStateToCurrentCv();
+    setSaveButtonState('saving');
+
+    const params = new URLSearchParams(window.location.search);
+
+    try {
+        const url = savedCvId ? `/api/user-cv/${savedCvId}` : '/api/user-cv/save';
+        const method = savedCvId ? 'PUT' : 'POST';
+
+        if (avatarDataUrl) currentCvJson.avatarUrl = avatarDataUrl;
+        else delete currentCvJson.avatarUrl;
+        delete currentCvJson.avatarDataUrl;
+
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                cvName,
+                templateId: params.get('template') || null,
+                templateName: templateName || '',
+                cvContent: JSON.stringify(currentCvJson)
+            })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (res.status === 401) {
+            setSaveButtonState('default');
+            alert('Bạn cần đăng nhập để lưu CV.');
+            return;
+        }
+
+        if (!res.ok || !data.success) {
+            throw new Error(data.message || 'Lỗi lưu CV');
+        }
+
+        if (data.id) {
+            savedCvId = data.id;
+            persistSavedCvIdToUrl(data.id);
+        }
+
+        loadedCvName = cvName;
+        currentCvJson._savedName = cvName;
+        setSaveButtonState('saved');
+        captureEditorHistorySnapshot(true);
+    } catch (error) {
+        console.error('confirmSave:', error);
+        setSaveButtonState('default');
+        alert('Lỗi khi lưu CV: ' + error.message);
+    }
+};
+
+window.confirmSave = confirmSave;
