@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem CV | CareerViet Studio</title>
+    <meta name="description" content="Xem chi tiết CV của bạn với giao diện chuyên nghiệp.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f3f7f2;
+            --surface: rgba(255, 255, 255, 0.94);
+            --surface-strong: #ffffff;
+            --surface-soft: #f5faf7;
+            --ink: #183126;
+            --muted: #607267;
+            --accent: #0f9f5f;
+            --accent-strong: #0c7d4a;
+            --accent-soft: #e3f6ed;
+            --accent-deep: #103624;
+            --line: #d9e4dc;
+            --danger: #c2413b;
+            --shadow-soft: 0 20px 48px rgba(13, 41, 28, 0.08);
+            --shadow-card: 0 16px 30px rgba(12, 35, 24, 0.1);
+            --radius-xl: 28px;
+            --radius-lg: 22px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            min-height: 100%;
+            margin: 0;
+            color: var(--ink);
+            font-family: "Be Vietnam Pro", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(15, 159, 95, 0.14), transparent 32%),
+                radial-gradient(circle at top right, rgba(16, 54, 36, 0.08), transparent 26%),
+                linear-gradient(180deg, #fbfcfa 0%, var(--bg) 100%);
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.14;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before { top: -180px; left: -120px; background: #7fd5a5; }
+        body::after { right: -150px; bottom: -170px; background: #bed7c7; }
+
+        a { color: inherit; text-decoration: none; }
+        button, input { font: inherit; }
+        button { border: none; background: none; cursor: pointer; }
+
+        #header-placeholder,
+        #footer-placeholder { position: relative; z-index: 2; }
+
+        .page-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 32px auto 72px;
+            padding: 0 22px;
+        }
+
+        .back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 180ms ease;
+        }
+
+        .back-nav:hover {
+            background: var(--accent-soft);
+            color: var(--accent-deep);
+            border-color: var(--accent);
+            transform: translateX(-4px);
+        }
+
+        .cv-viewer-card {
+            border: 1px solid rgba(217, 228, 220, 0.9);
+            border-radius: var(--radius-xl);
+            background: var(--surface);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(14px);
+            overflow: hidden;
+        }
+
+        .cv-header {
+            padding: 28px 32px;
+            background: linear-gradient(135deg, #123727 0%, #115a38 55%, #0e7a48 100%);
+            color: #f2fbf6;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cv-header-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .cv-title-section h1 {
+            margin: 0 0 8px;
+            font-size: clamp(1.8rem, 3vw, 2.4rem);
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            font-weight: 800;
+        }
+
+        .cv-meta-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            color: rgba(242, 251, 246, 0.82);
+            font-size: 14px;
+        }
+
+        .cv-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.14);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .cv-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 44px;
+            padding: 0 18px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 700;
+            transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+        
+        .btn-primary { 
+            color: #103021; 
+            background: #f5fff7; 
+            box-shadow: 0 8px 16px rgba(3, 22, 13, 0.16); 
+        }
+        
+        .btn-secondary { 
+            color: #f2fbf6; 
+            background: rgba(255, 255, 255, 0.08); 
+            border: 1px solid rgba(255, 255, 255, 0.16); 
+        }
+
+        .cv-body {
+            padding: 32px;
+        }
+
+        .cv-preview-container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 12px 28px rgba(12, 35, 24, 0.08);
+            min-height: 600px;
+        }
+
+        .cv-content {
+            padding: 48px;
+        }
+
+        .cv-section {
+            margin-bottom: 32px;
+        }
+
+        .cv-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .cv-section-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent-deep);
+            margin: 0 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--accent);
+            letter-spacing: -0.01em;
+        }
+
+        .cv-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .cv-info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .cv-info-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .cv-info-text {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--ink);
+        }
+
+        .cv-info-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--accent-soft);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .error-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .error-icon {
+            width: 72px;
+            height: 72px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(194, 65, 59, 0.1);
+            color: var(--danger);
+            font-size: 32px;
+        }
+
+        .error-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin: 0 0 10px;
+        }
+
+        .error-message {
+            font-size: 14px;
+            color: var(--muted);
+            margin: 0 0 24px;
+        }
+
+        .toast-wrap {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: min(360px, calc(100vw - 32px));
+        }
+
+        .toast {
+            padding: 14px 16px;
+            border-radius: 18px;
+            color: #ffffff;
+            background: rgba(19, 34, 25, 0.96);
+            box-shadow: 0 18px 38px rgba(14, 30, 20, 0.22);
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success { background: linear-gradient(135deg, var(--accent), #17b56f); }
+        .toast.error { background: linear-gradient(135deg, #df4f4a, #b7302b); }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .page-container { padding: 0 16px; }
+            .cv-header { padding: 20px; }
+            .cv-body { padding: 20px; }
+            .cv-content { padding: 24px; }
+            .cv-header-top { flex-direction: column; }
+            .cv-actions { width: 100%; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="page-container">
+        <a href="my-cvs.html" class="back-nav">
+            ← Quay lại danh sách CV
+        </a>
+
+        <div class="cv-viewer-card">
+            <div class="cv-header">
+                <div class="cv-header-top">
+                    <div class="cv-title-section">
+                        <h1 id="cvTitle">Đang tải CV...</h1>
+                        <div class="cv-meta-info">
+                            <span class="cv-badge" id="cvTemplate">—</span>
+                            <span id="cvUpdateTime">—</span>
+                            <span id="cvId">—</span>
+                        </div>
+                    </div>
+                    <div class="cv-actions">
+                        <button class="btn btn-primary" id="btnEdit" onclick="editCV()">
+                            ✏️ Chỉnh sửa
+                        </button>
+                        <button class="btn btn-secondary" id="btnDownload" onclick="downloadCV()">
+                            📥 Xuất PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cv-body">
+                <div id="loadingState" class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Đang tải thông tin CV...</div>
+                </div>
+
+                <div id="errorState" class="error-state">
+                    <div class="error-icon">⚠️</div>
+                    <h2 class="error-title">Không thể tải CV</h2>
+                    <p class="error-message" id="errorMessage">Đã xảy ra lỗi khi tải thông tin CV. Vui lòng thử lại.</p>
+                    <a href="my-cvs.html" class="btn btn-primary">Quay lại danh sách</a>
+                </div>
+
+                <div id="cvPreview" class="cv-preview-container" style="display:none;">
+                    <div class="cv-content">
+                        <div class="cv-section">
+                            <h2 class="cv-section-title">Thông tin cá nhân</h2>
+                            <div class="cv-info-grid" id="personalInfo"></div>
+                        </div>
+
+                        <div class="cv-section" id="summarySection" style="display:none;">
+                            <h2 class="cv-section-title">Mục tiêu nghề nghiệp</h2>
+                            <div id="summaryContent"></div>
+                        </div>
+
+                        <div class="cv-section" id="experienceSection" style="display:none;">
+                            <h2 class="cv-section-title">Kinh nghiệm làm việc</h2>
+                            <div id="experienceContent"></div>
+                        </div>
+
+                        <div class="cv-section" id="educationSection" style="display:none;">
+                            <h2 class="cv-section-title">Học vấn</h2>
+                            <div id="educationContent"></div>
+                        </div>
+
+                        <div class="cv-section" id="skillsSection" style="display:none;">
+                            <h2 class="cv-section-title">Kỹ năng</h2>
+                            <div id="skillsContent"></div>
+                        </div>
+
+                        <div class="cv-section" id="projectsSection" style="display:none;">
+                            <h2 class="cv-section-title">Dự án</h2>
+                            <div id="projectsContent"></div>
+                        </div>
+
+                        <div class="cv-section" id="certificatesSection" style="display:none;">
+                            <h2 class="cv-section-title">Chứng chỉ</h2>
+                            <div id="certificatesContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast-wrap" id="toastWrap"></div>
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let currentCvId = null;
+        let cvData = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            currentCvId = params.get('cvId');
+            
+            if (!currentCvId) {
+                showError('Không tìm thấy ID của CV. Vui lòng chọn CV từ danh sách.');
+                return;
+            }
+
+            loadCV(currentCvId);
+        });
+
+        async function loadCV(cvId) {
+            try {
+                const res = await fetch(`/api/user-cv/${cvId}`, { 
+                    credentials: 'include' 
+                });
+
+                if (res.status === 401) {
+                    window.location.href = '/login.html?redirect=/xem-cv.html?cvId=' + cvId;
+                    return;
+                }
+
+                if (!res.ok) {
+                    throw new Error('Không thể tải thông tin CV');
+                }
+
+                cvData = await res.json();
+                renderCV(cvData);
+                
+            } catch (error) {
+                console.error('Error loading CV:', error);
+                showError(error.message || 'Đã xảy ra lỗi khi tải CV');
+            }
+        }
+
+        function renderCV(cv) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('cvPreview').style.display = 'block';
+
+            document.getElementById('cvTitle').textContent = cv.cvName || 'CV của bạn';
+            document.getElementById('cvTemplate').textContent = cv.templateName || 'CV tiêu chuẩn';
+            document.getElementById('cvUpdateTime').textContent = 'Cập nhật: ' + formatDate(cv.updatedAt);
+            document.getElementById('cvId').textContent = '#' + String(cv.id).padStart(3, '0');
+
+            const data = typeof cv.cvData === 'string' ? JSON.parse(cv.cvData) : cv.cvData;
+
+            renderPersonalInfo(data);
+            renderSummary(data);
+            renderExperience(data);
+            renderEducation(data);
+            renderSkills(data);
+            renderProjects(data);
+            renderCertificates(data);
+        }
+
+        function renderPersonalInfo(data) {
+            const container = document.getElementById('personalInfo');
+            const info = [];
+
+            if (data.fullName) {
+                info.push({ icon: '👤', label: 'Họ và tên', value: data.fullName });
+            }
+            if (data.email) {
+                info.push({ icon: '📧', label: 'Email', value: data.email });
+            }
+            if (data.phone) {
+                info.push({ icon: '📞', label: 'Số điện thoại', value: data.phone });
+            }
+            if (data.address) {
+                info.push({ icon: '📍', label: 'Địa chỉ', value: data.address });
+            }
+            if (data.dateOfBirth) {
+                info.push({ icon: '🎂', label: 'Ngày sinh', value: formatDate(data.dateOfBirth) });
+            }
+            if (data.linkedin) {
+                info.push({ icon: '💼', label: 'LinkedIn', value: data.linkedin });
+            }
+            if (data.github) {
+                info.push({ icon: '💻', label: 'GitHub', value: data.github });
+            }
+
+            container.innerHTML = info.map(item => `
+                <div class="cv-info-item">
+                    <div class="cv-info-icon">${item.icon}</div>
+                    <div class="cv-info-text">
+                        <span class="cv-info-label">${item.label}</span>
+                        ${escapeHtml(item.value)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSummary(data) {
+            if (!data.summary) return;
+            
+            const section = document.getElementById('summarySection');
+            const content = document.getElementById('summaryContent');
+            
+            section.style.display = 'block';
+            content.innerHTML = `<p style="line-height:1.8;color:var(--ink);margin:0;">${escapeHtml(data.summary)}</p>`;
+        }
+
+        function renderExperience(data) {
+            if (!data.experience || data.experience.length === 0) return;
+            
+            const section = document.getElementById('experienceSection');
+            const content = document.getElementById('experienceContent');
+            
+            section.style.display = 'block';
+            content.innerHTML = data.experience.map(exp => `
+                <div style="margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--line);">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                        <h3 style="margin:0;font-size:18px;font-weight:700;color:var(--ink);">${escapeHtml(exp.position || '')}</h3>
+                        <span style="font-size:13px;color:var(--muted);font-weight:600;">${escapeHtml(exp.duration || '')}</span>
+                    </div>
+                    <div style="font-size:15px;color:var(--accent-deep);font-weight:600;margin-bottom:8px;">${escapeHtml(exp.company || '')}</div>
+                    ${exp.description ? `<p style="line-height:1.7;color:var(--muted);margin:0;">${escapeHtml(exp.description)}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderEducation(data) {
+            if (!data.education || data.education.length === 0) return;
+            
+            const section = document.getElementById('educationSection');
+            const content = document.getElementById('educationContent');
+            
+            section.style.display = 'block';
+            content.innerHTML = data.education.map(edu => `
+                <div style="margin-bottom:20px;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+                        <h3 style="margin:0;font-size:17px;font-weight:700;color:var(--ink);">${escapeHtml(edu.degree || '')}</h3>
+                        <span style="font-size:13px;color:var(--muted);font-weight:600;">${escapeHtml(edu.duration || '')}</span>
+                    </div>
+                    <div style="font-size:14px;color:var(--accent-deep);font-weight:600;">${escapeHtml(edu.school || '')}</div>
+                    ${edu.description ? `<p style="line-height:1.6;color:var(--muted);margin:8px 0 0;">${escapeHtml(edu.description)}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderSkills(data) {
+            if (!data.skills || data.skills.length === 0) return;
+            
+            const section = document.getElementById('skillsSection');
+            const content = document.getElementById('skillsContent');
+            
+            section.style.display = 'block';
+            content.innerHTML = `
+                <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                    ${data.skills.map(skill => `
+                        <span style="display:inline-flex;padding:8px 14px;border-radius:8px;background:var(--accent-soft);color:var(--accent-deep);font-size:14px;font-weight:600;">
+                            ${escapeHtml(skill)}
+                        </span>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderProjects(data) {
+            if (!data.projects || data.projects.length === 0) return;
+            
+            const section = document.getElementById('projectsSection');
+            const content = document.getElementById('projectsContent');
+            
+            section.style.display = 'block';
+            content.innerHTML = data.projects.map(proj => `
+                <div style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--line);">
+                    <h3 style="margin:0 0 8px;font-size:17px;font-weight:700;color:var(--ink);">${escapeHtml(proj.name || '')}</h3>
+                    ${proj.technologies ? `<div style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:8px;">${escapeHtml(proj.technologies)}</div>` : ''}
+                    ${proj.description ? `<p style="line-height:1.7;color:var(--muted);margin:0;">${escapeHtml(proj.description)}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderCertificates(data) {
+            if (!data.certificates || data.certificates.length === 0) return;
+            
+            const section = document.getElementById('certificatesSection');
+            const content = document.getElementById('certificatesContent');
+            
+            section.style.display = 'block';
+            content.innerHTML = data.certificates.map(cert => `
+                <div style="margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                        <h3 style="margin:0;font-size:16px;font-weight:700;color:var(--ink);">${escapeHtml(cert.name || '')}</h3>
+                        ${cert.year ? `<span style="font-size:13px;color:var(--muted);font-weight:600;">${escapeHtml(cert.year)}</span>` : ''}
+                    </div>
+                    ${cert.issuer ? `<div style="font-size:14px;color:var(--accent-deep);margin-top:4px;">${escapeHtml(cert.issuer)}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function editCV() {
+            if (!currentCvId) return;
+            window.location.href = `/cv-editor.html?cvId=${currentCvId}`;
+        }
+
+        function downloadCV() {
+            if (!currentCvId) return;
+            const btn = document.getElementById('btnDownload');
+            btn.textContent = '⏳ Đang xuất...';
+            btn.disabled = true;
+            
+            toast('Đang mở CV để xuất PDF...', 'success');
+            const exportUrl = `/cv-editor.html?cvId=${currentCvId}&download=pdf&source=xem-cv`;
+            const popup = window.open(exportUrl, '_blank', 'noopener');
+            
+            setTimeout(() => {
+                btn.textContent = '📥 Xuất PDF';
+                btn.disabled = false;
+            }, 2200);
+            
+            if (!popup) window.location.href = exportUrl;
+        }
+
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'flex';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '—';
+            try {
+                return new Date(dateString).toLocaleDateString('vi-VN', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            } catch {
+                return dateString;
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function toast(message, type = '') {
+            const wrap = document.getElementById('toastWrap');
+            const node = document.createElement('div');
+            node.className = `toast ${type}`.trim();
+            node.textContent = message;
+            wrap.appendChild(node);
+            setTimeout(() => node.remove(), 2600);
+        }
+    </script>
+</body>
+</html>

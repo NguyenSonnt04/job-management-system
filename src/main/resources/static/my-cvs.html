@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -96,19 +96,19 @@
 
         .hero-card {
             overflow: hidden;
-            padding: 28px;
+            padding: 20px 24px;
             color: #f2fbf6;
             background:
                 radial-gradient(circle at top right, rgba(155, 255, 195, 0.22), transparent 32%),
                 linear-gradient(135deg, #123727 0%, #115a38 55%, #0e7a48 100%);
             border-color: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 24px 56px rgba(17, 69, 45, 0.24);
+            box-shadow: 0 16px 40px rgba(17, 69, 45, 0.2);
         }
 
         .hero-grid {
             display: grid;
             grid-template-columns: minmax(0, 1.18fr) minmax(280px, 0.82fr);
-            gap: 20px;
+            gap: 16px;
         }
 
         .eyebrow {
@@ -140,11 +140,11 @@
         }
 
         .hero-title {
-            margin: 18px 0 12px;
-            max-width: 12ch;
-            font-size: clamp(2rem, 3.7vw, 3.2rem);
-            line-height: 1.05;
-            letter-spacing: -0.04em;
+            margin: 14px 0 10px;
+            max-width: 14ch;
+            font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+            line-height: 1.1;
+            letter-spacing: -0.03em;
             font-weight: 800;
         }
 
@@ -202,8 +202,8 @@
 
         .status-panel,
         .hero-metrics {
-            padding: 20px;
-            border-radius: var(--radius-lg);
+            padding: 16px;
+            border-radius: var(--radius-md);
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(12px);
@@ -242,8 +242,8 @@
         }
 
         .metric-card {
-            padding: 14px;
-            border-radius: 18px;
+            padding: 12px;
+            border-radius: 14px;
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
@@ -302,8 +302,8 @@
         #cvGrid,
         .loading-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-            gap: 18px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
         }
         .cv-card {
             --card-accent: #0f9f5f;
@@ -311,119 +311,145 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border-radius: 24px;
+            border-radius: 18px;
             border: 1px solid rgba(217, 228, 220, 0.95);
             background: var(--surface-strong);
-            box-shadow: var(--shadow-card);
+            box-shadow: 0 8px 16px rgba(12, 35, 24, 0.06);
             transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
         }
 
-        .cv-card:hover { transform: translateY(-5px); box-shadow: 0 22px 40px rgba(11, 37, 24, 0.14); border-color: rgba(15, 159, 95, 0.24); }
+        .cv-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(11, 37, 24, 0.1); border-color: rgba(15, 159, 95, 0.24); }
         .cv-card.is-featured { border-color: rgba(15, 159, 95, 0.32); }
 
         .cv-thumb-container {
             position: relative;
-            aspect-ratio: 1 / 1.08;
-            padding: 18px;
-            cursor: pointer;
-            background: linear-gradient(160deg, var(--card-soft), #ffffff 70%);
+            background: #f1f5f9;
+            padding: 16px 20px 0;
+            display: flex;
+            justify-content: center;
             border-bottom: 1px solid rgba(217, 228, 220, 0.8);
+            cursor: pointer;
         }
 
         .card-badge {
             position: absolute;
-            top: 18px;
-            left: 18px;
+            top: 14px;
+            left: 14px;
             z-index: 2;
-            padding: 8px 12px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.9);
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.95);
             color: var(--accent-deep);
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            box-shadow: 0 10px 18px rgba(18, 36, 24, 0.12);
-        }
-
-        .cv-thumb-paper {
-            position: relative;
-            height: 100%;
-            padding: 18px 16px;
-            overflow: hidden;
-            border-radius: 18px;
-            background: #ffffff;
-            border: 1px solid rgba(217, 228, 220, 0.95);
-            box-shadow: 0 16px 28px rgba(12, 35, 24, 0.11);
-        }
-
-        .cv-thumb-paper::before {
-            content: "";
-            position: absolute;
-            inset: 0 auto auto 0;
-            width: 100%;
-            height: 12px;
-            background: linear-gradient(90deg, var(--card-accent), rgba(255, 255, 255, 0));
-        }
-
-        .thumb-top { display: flex; gap: 12px; margin-bottom: 16px; }
-        .thumb-avatar {
-            display: grid;
-            place-items: center;
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, var(--card-accent), #1fc97b);
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 800;
-        }
-
-        .thumb-name { margin: 3px 0 6px; font-size: 13px; font-weight: 800; line-height: 1.3; }
-        .thumb-template {
-            display: inline-flex;
-            padding: 5px 9px;
-            border-radius: 999px;
-            background: var(--card-soft);
-            color: var(--card-accent);
             font-size: 10px;
             font-weight: 700;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
         }
 
-        .thumb-layout { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 12px; height: calc(100% - 58px); }
-        .thumb-col { display: flex; flex-direction: column; gap: 9px; }
-        .thumb-panel { padding: 10px; border-radius: 12px; background: #f9fbfa; border: 1px solid #edf3ef; }
-        .thumb-line { display: block; height: 6px; margin-top: 7px; border-radius: 999px; background: #e1ece4; }
-        .thumb-line:first-child { margin-top: 0; }
-        .thumb-line.dark { background: #224334; }
-        .thumb-line.accent { background: var(--card-accent); }
+        /* Tái tạo mẫu CV mini y như thật */
+        .cv-thumb-paper {
+            width: 100%;
+            aspect-ratio: 1 / 1.15;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+            transform-origin: top center;
+        }
 
-        .cv-card-body { display: flex; flex: 1; flex-direction: column; gap: 14px; padding: 18px 18px 16px; }
-        .cv-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-        .template-badge { display: inline-flex; padding: 7px 11px; border-radius: 999px; background: var(--card-soft); color: var(--card-accent); font-size: 12px; font-weight: 700; }
-        .cv-name { margin: 10px 0 0; font-size: 20px; line-height: 1.3; font-weight: 800; letter-spacing: -0.02em; }
-        .cv-id { padding: 10px 12px; border-radius: 14px; background: #f2f6f3; color: var(--muted); font-size: 12px; font-weight: 700; }
-        .cv-meta { display: flex; flex-wrap: wrap; gap: 10px; }
-        .meta-pill { display: inline-flex; align-items: center; padding: 9px 12px; border-radius: 999px; background: #f5f8f6; color: var(--muted); font-size: 12px; font-weight: 600; }
-        .cv-description { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+        .mini-header {
+            text-align: center;
+            border-bottom: 0.5px solid #cbd5e1;
+            padding-bottom: 6px;
+            margin-bottom: 4px;
+        }
+        .mini-name {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #1a202c;
+            margin-bottom: 2px;
+            letter-spacing: 0.05em;
+        }
+        .mini-title {
+            font-size: 6px;
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            letter-spacing: 0.05em;
+        }
+        .mini-contact {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            font-size: 4px;
+            color: #718096;
+        }
+        
+        .mini-body {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .mini-section-title {
+            font-size: 5px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            border-bottom: 0.5px solid #e2e8f0;
+            padding-bottom: 2px;
+            letter-spacing: 0.05em;
+        }
+        
+        .mini-line {
+            height: 3px;
+            background: #edf2f7;
+            border-radius: 1px;
+            margin-bottom: 3px;
+        }
+        .mini-line.bold { background: #cbd5e0; height: 3.5px; margin-bottom: 4px;}
+        .mini-line.w-90 { width: 90%; }
+        .mini-line.w-80 { width: 80%; }
+        .mini-line.w-60 { width: 60%; }
+        .mini-line.w-40 { width: 40%; }
+        .mini-line.mt-2 { margin-top: 6px; }
+
+        .cv-card-body { display: flex; flex: 1; flex-direction: column; gap: 10px; padding: 16px 16px 12px; }
+        .cv-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+        .template-badge { display: inline-flex; padding: 4px 8px; border-radius: 6px; background: var(--card-soft); color: var(--card-accent); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .cv-name { margin: 6px 0 0; font-size: 16px; line-height: 1.3; font-weight: 700; letter-spacing: -0.01em; }
+        .cv-id { font-size: 11px; color: #94a3b8; font-weight: 600; }
+        .cv-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+        .meta-pill { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 6px; background: #f1f5f9; color: #64748b; font-size: 11px; font-weight: 500; }
+        .cv-description { margin: 0; color: #64748b; font-size: 12px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
         .cv-card-footer {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-            padding: 0 18px 18px;
+            gap: 8px;
+            padding: 0 16px 16px;
         }
-
+        
         .btn-cv-action {
-            min-height: 44px;
-            padding: 0 14px;
-            border-radius: 14px;
+            min-height: 38px;
+            padding: 0 12px;
+            border-radius: 10px;
             border: 1px solid var(--line);
-            background: #f9fbfa;
+            background: #ffffff;
             color: var(--ink);
-            font-size: 13px;
-            font-weight: 700;
-            transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+            font-size: 12px;
+            font-weight: 600;
+            transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
         }
 
         .btn-cv-action:hover { transform: translateY(-2px); box-shadow: 0 10px 18px rgba(12, 35, 24, 0.08); }
@@ -833,24 +859,41 @@
             card.style.setProperty('--card-accent', tone.accent);
             card.style.setProperty('--card-soft', tone.soft);
             card.innerHTML = `
-                <div class="cv-thumb-container" onclick="openCvEditor(${cv.id})" role="button" tabindex="0">
+                <div class="cv-thumb-container" onclick="viewCV(${cv.id})" role="button" tabindex="0">
                     <span class="card-badge">${index === 0 ? 'Mới nhất' : 'Đã lưu'}</span>
                     <div class="cv-thumb-paper">
-                        <div class="thumb-top">
-                            <div class="thumb-avatar">${esc(getInitials(cv.cvName))}</div>
-                            <div>
-                                <div class="thumb-name">${esc(limitText(cv.cvName || 'CV của bạn', 32))}</div>
-                                <span class="thumb-template">${esc(limitText(templateName, 18))}</span>
+                        <div class="mini-header">
+                            <div class="mini-name">${esc(limitText(cv.cvName || 'TRẦN A QUYỀN', 25))}</div>
+                            <div class="mini-title">ỨNG VIÊN ${esc(limitText(templateName, 20))}</div>
+                            <div class="mini-contact">
+                                <span>📞 0987...</span>
+                                <span>📧 email@...</span>
+                                <span>📍 TP.HCM</span>
                             </div>
                         </div>
-                        <div class="thumb-layout">
-                            <div class="thumb-col">
-                                <div class="thumb-panel"><span class="thumb-line dark" style="width:72%"></span><span class="thumb-line accent" style="width:48%"></span><span class="thumb-line" style="width:82%"></span><span class="thumb-line" style="width:66%"></span></div>
-                                <div class="thumb-panel"><span class="thumb-line accent" style="width:52%"></span><span class="thumb-line" style="width:92%"></span><span class="thumb-line" style="width:74%"></span></div>
+                        <div class="mini-body">
+                            <div class="mini-col-left">
+                                <div class="mini-section-title">SKILLS</div>
+                                <div class="mini-line bold"></div>
+                                <div class="mini-line w-80"></div>
+                                <div class="mini-line w-60"></div>
+                                <div class="mini-line w-90"></div>
+                                <div class="mini-section-title mt-2">EDUCATION</div>
+                                <div class="mini-line bold"></div>
+                                <div class="mini-line w-90"></div>
                             </div>
-                            <div class="thumb-col">
-                                <div class="thumb-panel"><span class="thumb-line dark" style="width:44%"></span><span class="thumb-line" style="width:100%"></span><span class="thumb-line" style="width:92%"></span><span class="thumb-line" style="width:78%"></span></div>
-                                <div class="thumb-panel"><span class="thumb-line dark" style="width:54%"></span><span class="thumb-line" style="width:96%"></span><span class="thumb-line" style="width:82%"></span></div>
+                            <div class="mini-col-right">
+                                <div class="mini-section-title">EXPERIENCE</div>
+                                <div class="mini-line bold"></div>
+                                <div class="mini-line"></div>
+                                <div class="mini-line w-90"></div>
+                                <div class="mini-line w-80"></div>
+                                <div class="mini-section-title mt-2">PROJECTS</div>
+                                <div class="mini-line bold"></div>
+                                <div class="mini-line"></div>
+                                <div class="mini-line w-80"></div>
+                                <div class="mini-line"></div>
+                                <div class="mini-line w-60"></div>
                             </div>
                         </div>
                     </div>
@@ -859,7 +902,7 @@
                     <div class="cv-card-head">
                         <div>
                             <span class="template-badge">${esc(templateName)}</span>
-                            <h3 class="cv-name" title="${esc(cv.cvName || 'CV của bạn')}">${esc(cv.cvName || 'CV của bạn')}</h3>
+                            <h3 class="cv-name" title="${esc(cv.cvName || 'CV của bạn')}">${esc(limitText(cv.cvName || 'CV của bạn', 28))}</h3>
                         </div>
                         <div class="cv-id">#${String(cv.id).padStart(3, '0')}</div>
                     </div>
@@ -867,11 +910,10 @@
                         <span class="meta-pill">Cập nhật ${fmtDate(cv.updatedAt)}</span>
                         <span class="meta-pill">${fmtRelativeDate(cv.updatedAt)}</span>
                     </div>
-                    <p class="cv-description">Hồ sơ này đã sẵn sàng để chỉnh sửa hoặc xuất PDF ngay. Hãy dùng tên CV rõ ràng để quản lý theo từng vị trí ứng tuyển.</p>
                 </div>
                 <div class="cv-card-footer">
-                    <button class="btn-cv-action btn-cv-primary" onclick="openCvEditor(${cv.id})">Chỉnh sửa</button>
-                    <button class="btn-cv-action" onclick='renameCV(${cv.id}, ${safeName})'>Đổi tên</button>
+                    <button class="btn-cv-action btn-cv-primary" onclick="viewCV(${cv.id})">Xem CV</button>
+                    <button class="btn-cv-action" onclick="openCvEditor(${cv.id})">Chỉnh sửa</button>
                     <button class="btn-cv-action" onclick="downloadCV(${cv.id}, this)">Xuất PDF</button>
                     <button class="btn-cv-action btn-cv-danger" onclick='deleteCV(${cv.id}, ${safeName})'>Xóa</button>
                 </div>
@@ -879,7 +921,7 @@
             card.querySelector('.cv-thumb-container').addEventListener('keydown', (event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    openCvEditor(cv.id);
+                    viewCV(cv.id);
                 }
             });
             return card;
@@ -916,6 +958,7 @@
             document.getElementById('cvSelectionStatus').textContent = selectionText;
         }
 
+        function viewCV(id) { window.location.href = `/xem-cv.html?cvId=${id}`; }
         function openCvEditor(id) { window.location.href = `/cv-editor.html?cvId=${id}`; }
         function renameCV(id, name) { renameTargetId = id; document.getElementById('renameInput').value = name; document.getElementById('renameModal').classList.add('show'); setTimeout(() => document.getElementById('renameInput').focus(), 80); }
         function closeRename() { document.getElementById('renameModal').classList.remove('show'); }

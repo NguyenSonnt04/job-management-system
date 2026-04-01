@@ -464,9 +464,18 @@ function handleEditorShortcuts(event) {
     if (key === 'y') { event.preventDefault(); redoCvChange(); }
 }
 
-if (!document.body.dataset.cvEditorShortcutsBound) {
-    document.addEventListener('keydown', handleEditorShortcuts);
-    document.body.dataset.cvEditorShortcutsBound = 'true';
+if (document.body) {
+    if (!document.body.dataset.cvEditorShortcutsBound) {
+        document.addEventListener('keydown', handleEditorShortcuts);
+        document.body.dataset.cvEditorShortcutsBound = 'true';
+    }
+} else {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!document.body.dataset.cvEditorShortcutsBound) {
+            document.addEventListener('keydown', handleEditorShortcuts);
+            document.body.dataset.cvEditorShortcutsBound = 'true';
+        }
+    });
 }
 
 // ── Section tagging & ordering ────────────────────────────────
