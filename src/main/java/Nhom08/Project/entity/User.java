@@ -54,6 +54,12 @@ public class User {
     @Column(nullable = false)
     private Boolean enabled = true;
 
+    @Column(length = 20)
+    private String provider = "LOCAL"; // LOCAL hoặc GOOGLE
+
+    @Column(name = "provider_id", length = 100)
+    private String providerId; // Google sub ID
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -188,6 +194,12 @@ public class User {
     public void setEmployer(Employer employer) {
         this.employer = employer;
     }
+
+    public String getProvider() { return provider; }
+    public void setProvider(String provider) { this.provider = provider; }
+
+    public String getProviderId() { return providerId; }
+    public void setProviderId(String providerId) { this.providerId = providerId; }
 
     // Helper methods
     public boolean isAdmin() {

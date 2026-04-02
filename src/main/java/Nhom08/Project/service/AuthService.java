@@ -53,7 +53,7 @@ public class AuthService {
         user.setFullName(dto.getFullName());
         user.setPhone(dto.getPhone());
         user.setRole(candidateRole);
-        user.setEnabled(true);
+        user.setEnabled(false); // Chờ xác thực email
 
         return userRepository.save(user);
     }
@@ -147,5 +147,9 @@ public class AuthService {
      */
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    public String encodePassword(String rawPassword) {
+        return passwordEncoder.encode(rawPassword);
     }
 }

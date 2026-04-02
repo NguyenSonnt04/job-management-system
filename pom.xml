@@ -74,6 +74,18 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/x
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
+		<!-- OAuth2 Client (Google Login) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
+
+		<!-- Spring Mail (gửi OTP email) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
 		<!-- Thymeleaf -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

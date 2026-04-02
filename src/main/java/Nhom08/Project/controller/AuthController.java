@@ -6,7 +6,10 @@ import Nhom08.Project.dto.LoginDTO;
 import Nhom08.Project.dto.UserRegisterDTO;
 import Nhom08.Project.entity.Employer;
 import Nhom08.Project.entity.User;
+import Nhom08.Project.repository.UserRepository;
 import Nhom08.Project.service.AuthService;
+import Nhom08.Project.service.EmailService;
+import Nhom08.Project.service.OtpService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -33,6 +36,15 @@ public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private OtpService otpService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * GET /api/auth/me — returns current logged-in user info
@@ -85,9 +97,20 @@ public class AuthController {
             }
 
             User user = authService.registerUser(dto);
+
+            // Gửi OTP xác thực email
+            String otp = otpService.generateOtp(user.getEmail());
+            try {
+                emailService.sendOtpEmail(user.getEmail(), otp);
+                response.put("mailSent", true);
+            } catch (Exception e) {
+                response.put("mailSent", false);
+            }
+
             response.put("success", true);
-            response.put("message", "Đăng ký thành công");
-            response.put("userId", user.getId());
+            response.put("requireEmailVerification", true);
+            response.put("email", user.getEmail());
+            response.put("message", "Đăng ký thành công! Vui lòng kiểm tra email để lấy mã OTP.");
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             response.put("success", false);
@@ -219,6 +242,96 @@ public class AuthController {
             response.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    /**
+     * Bước 1: Gửi OTP về email để reset mật khẩu
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, Object>> forgotPassword(@RequestBody Map<String, String> body) {
+        Map<String, Object> response = new HashMap<>();
+        String email = body.get("email");
+        if (email == null || email.isBlank()) {
+            response.put("success", false);
+            response.put("message", "Vui lòng nhập email");
+            return ResponseEntity.badRequest().body(response);
+        }
+        User user = userRepository.findByEmail(email.trim().toLowerCase()).orElse(null);
+        if (user == null) {
+            response.put("success", false);
+            response.put("message", "Email không tồn tại trong hệ thống");
+            return ResponseEntity.badRequest().body(response);
+        }
+        String otp = otpService.generateOtp(email);
+        try {
+            emailService.sendOtpEmail(email, otp);
+            response.put("success", true);
+            response.put("mailSent", true);
+        } catch (Exception e) {
+            response.put("success", true);
+            response.put("mailSent", false);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Bước 2: Xác thực OTP → cấp quyền đặt lại mật khẩu
+     */
+    @PostMapping("/verify-reset-otp")
+    public ResponseEntity<Map<String, Object>> verifyResetOtp(
+            @RequestBody Map<String, String> body,
+            HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        String email = body.get("email");
+        String otp   = body.get("otp");
+        if (!otpService.verifyOtp(email, otp == null ? "" : otp.trim())) {
+            response.put("success", false);
+            response.put("message", "Mã OTP không đúng hoặc đã hết hạn");
+            return ResponseEntity.badRequest().body(response);
+        }
+        // Lưu vào session: email này được phép đặt lại mật khẩu
+        HttpSession session = request.getSession(true);
+        session.setAttribute("RESET_PASSWORD_EMAIL", email);
+        response.put("success", true);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Bước 3: Đặt lại mật khẩu mới
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(
+            @RequestBody Map<String, String> body,
+            HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("RESET_PASSWORD_EMAIL") == null) {
+            response.put("success", false);
+            response.put("message", "Phiên đã hết hạn, vui lòng thực hiện lại từ đầu");
+            return ResponseEntity.badRequest().body(response);
+        }
+        String sessionEmail  = (String) session.getAttribute("RESET_PASSWORD_EMAIL");
+        String newPassword   = body.get("newPassword");
+        String confirmPassword = body.get("confirmPassword");
+
+        if (newPassword == null || newPassword.length() < 6) {
+            response.put("success", false);
+            response.put("message", "Mật khẩu phải có ít nhất 6 ký tự");
+            return ResponseEntity.badRequest().body(response);
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            response.put("success", false);
+            response.put("message", "Mật khẩu xác nhận không khớp");
+            return ResponseEntity.badRequest().body(response);
+        }
+        User user = userRepository.findByEmail(sessionEmail)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+        user.setPassword(authService.encodePassword(newPassword));
+        userRepository.save(user);
+        session.removeAttribute("RESET_PASSWORD_EMAIL");
+        response.put("success", true);
+        response.put("message", "Đặt lại mật khẩu thành công");
+        return ResponseEntity.ok(response);
     }
 }
 

@@ -1,5 +1,7 @@
 package Nhom08.Project.config;
 
+import Nhom08.Project.handler.OAuth2LoginSuccessHandler;
+import Nhom08.Project.service.CustomOAuth2UserService;
 import Nhom08.Project.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -9,7 +11,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -21,15 +22,19 @@ public class SecurityConfig {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
+
+    @Autowired
+    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        authBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
         return authBuilder.build();
     }
 
@@ -54,6 +59,7 @@ public class SecurityConfig {
                 
                 // Authentication pages
                 .requestMatchers("/auth/**", "/login", "/register/**").permitAll()
+                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                 .requestMatchers("/employer-login.html", "/employer-register.html", "/employer-register-step-2.html").permitAll()
                 .requestMatchers("/candidate-login.html", "/candidate-register.html").permitAll()
                 
@@ -62,6 +68,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/user/**").permitAll()
                 .requestMatchers("/api/chatbot/**").permitAll() // Chatbot API
                 .requestMatchers("/api/contact-chat/**").permitAll() // Contact Widget Chatbot API
+                .requestMatchers("/api/2fa/**").permitAll() // 2FA OTP verification
 
                 // Admin pages and API - require ADMIN role
                 .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -109,6 +116,13 @@ public class SecurityConfig {
                 .defaultSuccessUrl("/", true)
                 .failureUrl("/login?error=true")
                 .permitAll()
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(customOAuth2UserService)
+                )
+                .successHandler(oAuth2LoginSuccessHandler)
+                .failureUrl("/candidate-register.html?error=google")
             )
             .logout(logout -> logout
                 .logoutUrl("/auth/logout")
