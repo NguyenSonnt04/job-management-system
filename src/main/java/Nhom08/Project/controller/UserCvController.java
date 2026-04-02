@@ -7,6 +7,7 @@ import Nhom08.Project.repository.UserCvRepository;
 import Nhom08.Project.repository.UserCvVersionRepository;
 import Nhom08.Project.service.AuthService;
 import Nhom08.Project.service.CvVersioningService;
+import Nhom08.Project.service.GeminiService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -39,17 +40,20 @@ public class UserCvController {
     private final UserCvVersionRepository userCvVersionRepository;
     private final AuthService authService;
     private final CvVersioningService cvVersioningService;
+    private final GeminiService geminiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public UserCvController(
             UserCvRepository userCvRepository,
             UserCvVersionRepository userCvVersionRepository,
             AuthService authService,
-            CvVersioningService cvVersioningService) {
+            CvVersioningService cvVersioningService,
+            GeminiService geminiService) {
         this.userCvRepository = userCvRepository;
         this.userCvVersionRepository = userCvVersionRepository;
         this.authService = authService;
         this.cvVersioningService = cvVersioningService;
+        this.geminiService = geminiService;
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -360,6 +364,45 @@ public class UserCvController {
         } catch (IOException e) {
             result.put("success", false);
             result.put("message", "Lỗi khi lưu file: " + e.getMessage());
+            return ResponseEntity.status(500).body(result);
+        }
+    }
+
+    // ── Translate CV content via Gemini ─────────────────────────────────────
+
+    @PostMapping("/translate")
+    public ResponseEntity<Map<String, Object>> translateCv(
+            @RequestBody Map<String, Object> body,
+            Authentication auth) {
+
+        Optional<User> userOpt = resolveUser(auth);
+        if (userOpt.isEmpty()) return unauthorized();
+
+        Map<String, Object> result = new HashMap<>();
+        try {
+            Object cvContentObj = body.get("cvContent");
+            String targetLang   = String.valueOf(body.getOrDefault("targetLang", "en"));
+
+            if (cvContentObj == null) {
+                result.put("success", false);
+                result.put("message", "Thiếu nội dung CV.");
+                return ResponseEntity.badRequest().body(result);
+            }
+
+            String cvJsonStr = cvContentObj instanceof String
+                    ? (String) cvContentObj
+                    : objectMapper.writeValueAsString(cvContentObj);
+
+            String translated = geminiService.translateCv(cvJsonStr, targetLang);
+            Object parsedCv   = objectMapper.readValue(translated, Object.class);
+
+            result.put("success", true);
+            result.put("data", parsedCv);
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "Lỗi dịch CV: " + e.getMessage());
             return ResponseEntity.status(500).body(result);
         }
     }

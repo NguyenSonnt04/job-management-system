@@ -346,21 +346,19 @@ function syncHarvardPreviewToJson(preview) {
     }));
     if (edu.length) currentCvJson.education = edu;
 
-    const projects = mapHarvardItems('projects', 'PROJECTS', (item, subLines, details) => {
-        const techLine = subLines.find(line => /^Technologies\s*:/i.test(line)) || '';
-        return {
-            name: cleanPreviewText(item.querySelector('.cvh-item-title')?.innerText || ''),
-            period: cleanPreviewText(item.querySelector('.cvh-item-date')?.innerText || ''),
-            tech: techLine.replace(/^Technologies\s*:\s*/i, '').trim(),
-            github: cleanPreviewText(item.querySelector('.cvh-github-bullet')?.innerText || ''),
-            details
-        };
-    });
+    const projects = mapHarvardItems('projects', 'PROJECTS', (item, subLines, details) => ({
+        name: cleanPreviewText(item.querySelector('.cvh-item-title')?.innerText || ''),
+        period: cleanPreviewText(item.querySelector('.cvh-item-date')?.innerText || ''),
+        tech: cleanPreviewText(item.querySelector('.cvh-item-tech')?.innerText || ''),
+        github: cleanPreviewText(item.querySelector('.cvh-github-bullet')?.innerText || ''),
+        details
+    }));
     if (projects.length) currentCvJson.projects = projects;
 
+    // Skills — selector matches .cvh-skill-row from render
     const skillsSection = getHarvardSection('skills', 'SKILLS');
     if (skillsSection) {
-        const skills = [...skillsSection.querySelectorAll('.cvh-skill-group')].map(group => ({
+        const skills = [...skillsSection.querySelectorAll('.cvh-skill-row')].map(group => ({
             category: cleanPreviewText(group.querySelector('.cvh-skill-cat')?.innerText || ''),
             items: cleanPreviewText(group.querySelector('.cvh-skill-items')?.innerText || '')
                 .split(',')
@@ -369,6 +367,32 @@ function syncHarvardPreviewToJson(preview) {
         }));
         if (skills.length) currentCvJson.skills = skills;
     }
+
+    // Certifications
+    const certs = mapHarvardItems('certifications', 'CERTIFICATIONS', (item, subLines, details) => ({
+        name: cleanPreviewText(item.querySelector('.cvh-item-title')?.innerText || ''),
+        issuer: subLines[0] || '',
+        year: cleanPreviewText(item.querySelector('.cvh-item-date')?.innerText || ''),
+        details
+    }));
+    if (certs.length) currentCvJson.certifications = certs;
+
+    // Awards
+    const awards = mapHarvardItems('awards', 'AWARDS', (item, subLines, details) => ({
+        name: cleanPreviewText(item.querySelector('.cvh-item-title')?.innerText || ''),
+        year: cleanPreviewText(item.querySelector('.cvh-item-date')?.innerText || ''),
+        details
+    }));
+    if (awards.length) currentCvJson.awards = awards;
+
+    // Activities
+    const activities = mapHarvardItems('activities', 'ACTIVITIES', (item, subLines, details) => ({
+        name: cleanPreviewText(item.querySelector('.cvh-item-title')?.innerText || ''),
+        role: subLines[0] || '',
+        period: cleanPreviewText(item.querySelector('.cvh-item-date')?.innerText || ''),
+        details
+    }));
+    if (activities.length) currentCvJson.activities = activities;
 }
 
 // ── Harvard editable input ────────────────────────────────────

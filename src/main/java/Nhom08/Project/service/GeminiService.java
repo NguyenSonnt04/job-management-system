@@ -127,6 +127,29 @@ public class GeminiService {
         return callGemini(body);
     }
 
+    // ── Translate CV content ────────────────────────────────────────────────
+    /**
+     * Translates all text values in a CV JSON to the target language.
+     * Preserves JSON structure and keys exactly.
+     */
+    public String translateCv(String cvJsonStr, String targetLang) {
+        requireApiKey();
+        String langLabel = "en".equals(targetLang) ? "English" : "Vietnamese (tiếng Việt)";
+        String prompt = "You are a professional CV translator. " +
+            "Translate ALL text values in the following CV JSON into " + langLabel + ".\n\n" +
+            "RULES:\n" +
+            "- Return ONLY a valid JSON object, no markdown, no explanation.\n" +
+            "- Preserve the JSON structure and all keys EXACTLY as-is.\n" +
+            "- Translate every text value: name, summary, role, company, degree, school, skill names, details, etc.\n" +
+            "- Keep proper nouns (company names, school names, certification names) recognizable — " +
+            "use their official English/Vietnamese name if well-known, otherwise transliterate.\n" +
+            "- Keep technical terms (programming languages, frameworks, tools) unchanged.\n" +
+            "- Preserve arrays, numbers, booleans, nulls, and any _designState or _styleTag fields unchanged.\n" +
+            "- Do NOT add or remove any fields.\n\n" +
+            "CV JSON:\n" + cvJsonStr;
+        return callGemini(buildTextRequest(prompt));
+    }
+
     // ── Private helpers ───────────────────────────────────────────────────────
     private void requireApiKey() {
         if (apiKey == null || apiKey.isBlank()) {
