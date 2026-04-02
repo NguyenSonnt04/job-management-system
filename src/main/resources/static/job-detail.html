@@ -220,95 +220,115 @@
                 <!-- ===== RIGHT SIDEBAR ===== -->
                 <aside class="job-detail-sidebar">
 
-                    <!-- Đánh giá mức độ tương thích -->
-                    <div class="compat-card">
-                        <div class="compat-title">Đánh giá mức độ tương thích</div>
-                        <div class="compat-radar-wrapper">
-                            <svg class="radar-chart" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                <!-- Grid polygons -->
-                                <polygon points="100,10 161,55 139,126 61,126 39,55" fill="none" stroke="#e8ecef" stroke-width="1"/>
-                                <polygon points="100,30 145,65 128,112 72,112 55,65" fill="none" stroke="#e8ecef" stroke-width="1"/>
-                                <polygon points="100,50 129,76 117,97 83,97 71,76" fill="none" stroke="#e8ecef" stroke-width="1"/>
-                                <!-- Axes -->
-                                <line x1="100" y1="100" x2="100" y2="10" stroke="#e8ecef" stroke-width="1"/>
-                                <line x1="100" y1="100" x2="161" y2="55" stroke="#e8ecef" stroke-width="1"/>
-                                <line x1="100" y1="100" x2="139" y2="126" stroke="#e8ecef" stroke-width="1"/>
-                                <line x1="100" y1="100" x2="61" y2="126" stroke="#e8ecef" stroke-width="1"/>
-                                <line x1="100" y1="100" x2="39" y2="55" stroke="#e8ecef" stroke-width="1"/>
-                                <!-- Data polygon -->
-                                <polygon id="radarData"
-                                    points="100,70 125,78 115,108 85,108 75,78"
-                                    fill="rgba(0,191,165,0.25)" stroke="#00BFA5" stroke-width="2"/>
-                                <!-- Axis labels -->
-                                <text x="100" y="6" text-anchor="middle" font-size="8" fill="#6c757d">Địa điểm làm việc</text>
-                                <text x="168" y="55" text-anchor="start" font-size="8" fill="#6c757d">Ngoại ngữ</text>
-                                <text x="142" y="138" text-anchor="middle" font-size="8" fill="#6c757d">Mức lương</text>
-                                <text x="58" y="138" text-anchor="middle" font-size="8" fill="#6c757d">Tiêu đề công việc</text>
-                                <text x="28" y="55" text-anchor="end" font-size="8" fill="#6c757d">Kỹ năng</text>
-                                <!-- Outer labels -->
-                                <text x="168" y="90" text-anchor="start" font-size="7" fill="#adb5bd">5 năm kinh nghiệm</text>
-                                <text x="30" y="90" text-anchor="end" font-size="7" fill="#adb5bd">Trình độ học vấn</text>
-                                <text x="100" y="155" text-anchor="middle" font-size="7" fill="#adb5bd">Kinh nghiệm liên quan</text>
-                            </svg>
-                            <div class="compat-percent" id="compatPercent">15%</div>
-                        </div>
-                        <button class="btn-compare" onclick="openProfileComparison()">
-                            GỬI HỒ SƠ ĐÁNH GIÁ TƯƠNG THÍCH
-                        </button>
-                    </div>
+                    <!-- Đánh giá mức độ tương thích CV -->
+                    <div class="compat-card" id="compatCard">
 
-                    <!-- Tiêu chí đánh giá -->
-                    <div class="criteria-card">
-                        <div class="criteria-title">Tiêu chí đánh giá</div>
-
-                        <div class="criteria-section">
-                            <div class="criteria-section-title">Tổng quan</div>
-                            <div id="criteriaGeneral">
-                                <div class="criteria-item">
-                                    <span class="criteria-dot"></span>
-                                    <span>Đang tải...</span>
+                        <!-- State 1: Upload prompt -->
+                        <div id="matchUploadState">
+                            <div class="compat-title">Đánh giá mức độ tương thích</div>
+                            <div class="match-upload-area">
+                                <div class="match-upload-icon">
+                                    <i class="fas fa-file-pdf"></i>
                                 </div>
+                                <p class="match-upload-text">Tải CV lên để AI đánh giá mức độ phù hợp với vị trí này</p>
+                                <button class="btn-compare" onclick="triggerCvUpload()">
+                                    <i class="fas fa-cloud-upload-alt"></i> TẢI CV LÊN ĐỂ ĐÁNH GIÁ
+                                </button>
+                                <input type="file" id="cvFileInput" accept=".pdf" style="display:none" onchange="handleCvFileSelect(this)">
+                                <p class="match-upload-note">Chỉ nhận file PDF &bull; Tối đa 5MB</p>
                             </div>
                         </div>
 
-                        <div class="criteria-section">
-                            <div class="criteria-section-title">Kinh nghiệm</div>
-                            <div id="criteriaExperience">
-                                <div class="criteria-item">
-                                    <span class="criteria-dot"></span>
-                                    <span id="criteriaExpText">—</span>
+                        <!-- State 2: Loading -->
+                        <div id="matchLoadingState" style="display:none;">
+                            <div class="compat-title">Đang phân tích CV...</div>
+                            <div class="match-loading">
+                                <div class="match-loading-spinner">
+                                    <svg viewBox="0 0 50 50">
+                                        <circle cx="25" cy="25" r="20" fill="none" stroke="#e8ecef" stroke-width="4"/>
+                                        <circle cx="25" cy="25" r="20" fill="none" stroke="#00BFA5" stroke-width="4"
+                                                stroke-dasharray="80 50" stroke-linecap="round">
+                                            <animateTransform attributeName="transform" type="rotate"
+                                                              values="0 25 25;360 25 25" dur="1s" repeatCount="indefinite"/>
+                                        </circle>
+                                    </svg>
                                 </div>
+                                <p class="match-loading-text">AI đang đánh giá CV của bạn với yêu cầu công việc...</p>
+                                <p class="match-loading-note">Quá trình này có thể mất 15-30 giây</p>
+                                <div class="match-file-name" id="matchFileName"></div>
                             </div>
                         </div>
 
-                        <div class="criteria-section">
-                            <div class="criteria-section-title">Bằng cấp</div>
-                            <div id="criteriaDegree">
-                                <div class="criteria-item">
-                                    <span class="criteria-dot"></span>
-                                    <span id="criteriaDegreeText">—</span>
+                        <!-- State 3: Results -->
+                        <div id="matchResultState" style="display:none;">
+                            <div class="compat-title">Kết quả đánh giá</div>
+
+                            <!-- Score circle -->
+                            <div class="match-score-wrapper">
+                                <div class="match-score-circle">
+                                    <svg viewBox="0 0 120 120">
+                                        <circle class="score-bg" cx="60" cy="60" r="52" />
+                                        <circle class="score-fill" id="scoreFill" cx="60" cy="60" r="52"
+                                                stroke-dasharray="326.73" stroke-dashoffset="326.73"/>
+                                    </svg>
+                                    <div class="match-score-value" id="matchScoreValue">0%</div>
+                                </div>
+                                <div class="match-score-label" id="matchScoreLabel"></div>
+                            </div>
+
+                            <!-- Summary -->
+                            <div class="match-summary" id="matchSummary"></div>
+
+                            <!-- Radar chart -->
+                            <div class="match-radar-section">
+                                <div class="match-section-title" style="margin-bottom:8px;"><i class="fas fa-chart-line" style="color:#0068FF"></i> Phân tích chi tiết</div>
+                                <div class="compat-radar-wrapper">
+                                    <svg class="radar-chart" viewBox="0 0 220 220" id="matchRadarSvg"></svg>
                                 </div>
                             </div>
+
+                            <!-- Matched Skills -->
+                            <div class="match-section" id="matchedSkillsSection" style="display:none;">
+                                <div class="match-section-title"><i class="fas fa-check-circle" style="color:#00BFA5"></i> Kỹ năng phù hợp</div>
+                                <div class="match-tags matched" id="matchedSkillsTags"></div>
+                            </div>
+
+                            <!-- Missing Skills -->
+                            <div class="match-section" id="missingSkillsSection" style="display:none;">
+                                <div class="match-section-title"><i class="fas fa-times-circle" style="color:#EE0033"></i> Kỹ năng còn thiếu</div>
+                                <div class="match-tags missing" id="missingSkillsTags"></div>
+                            </div>
+
+                            <!-- Experience & Education -->
+                            <div class="match-section" id="expEduSection" style="display:none;">
+                                <div class="match-detail-item">
+                                    <div class="match-detail-label"><i class="fas fa-briefcase"></i> Kinh nghiệm</div>
+                                    <div class="match-detail-text" id="experienceMatchText"></div>
+                                </div>
+                                <div class="match-detail-item">
+                                    <div class="match-detail-label"><i class="fas fa-graduation-cap"></i> Học vấn</div>
+                                    <div class="match-detail-text" id="educationMatchText"></div>
+                                </div>
+                            </div>
+
+                            <!-- Suggestions -->
+                            <div class="match-section" id="suggestionsSection" style="display:none;">
+                                <div class="match-section-title"><i class="fas fa-lightbulb" style="color:#FFA000"></i> Gợi ý cải thiện</div>
+                                <ul class="match-suggestions" id="suggestionsList"></ul>
+                            </div>
+
+                            <!-- Keywords to add -->
+                            <div class="match-section" id="keywordsSection" style="display:none;">
+                                <div class="match-section-title"><i class="fas fa-key" style="color:#6c757d"></i> Từ khóa nên bổ sung vào CV</div>
+                                <div class="match-tags keywords" id="keywordsTags"></div>
+                            </div>
+
+                            <!-- Re-upload -->
+                            <button class="btn-compare btn-reupload" onclick="triggerCvUpload()">
+                                <i class="fas fa-redo"></i> Đánh giá CV khác
+                            </button>
                         </div>
 
-                        <div class="criteria-section">
-                            <div class="criteria-section-title">Kỹ năng</div>
-                            <div id="criteriaSkills">
-                                <div class="criteria-item">
-                                    <span class="criteria-dot"></span>
-                                    <span>—</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="criteria-section">
-                            <div class="criteria-section-title">Kỹ năng bạn còn thiếu</div>
-                            <div id="criteriaLacking">
-                                <div class="criteria-item" style="color:#6c757d;font-size:12px;">
-                                    <span>Đăng nhập để xem phân tích chi tiết</span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                 </aside>
@@ -471,43 +491,290 @@
         }).join('');
     }
 
-    // ---- Render criteria sidebar ----
-    function renderCriteria(job) {
-        const employer = job.employer || {};
+    // ---- CV Matching Functions ----
 
-        // General criteria
-        const generalItems = [
-            { label: `Địa điểm làm việc: ${job.location || '—'}`, matched: false },
-            { label: 'Mức lương', matched: true },
-            { label: `Ngành nghề: ${job.industry || '—'}`, matched: false },
-            { label: `Chức danh: ${job.title || '—'}`, matched: false },
-        ];
+    function triggerCvUpload() {
+        document.getElementById('cvFileInput').click();
+    }
 
-        document.getElementById('criteriaGeneral').innerHTML = generalItems.map(item => `
-            <div class="criteria-item">
-                <span class="criteria-dot ${item.matched ? 'matched' : 'unmet'}"></span>
-                <span>${item.label}</span>
-            </div>
-        `).join('');
+    function handleCvFileSelect(input) {
+        const file = input.files[0];
+        if (!file) return;
 
-        // Experience
-        document.getElementById('criteriaExpText').textContent =
-            `Số năm kinh nghiệm: ${job.experience || '—'}`;
-
-        // Degree
-        document.getElementById('criteriaDegreeText').textContent =
-            `Trình độ học vấn: ${job.educationLevel || '—'}`;
-
-        // Skills (from title keywords)
-        const skills = job.title ? job.title.split(/[\s,]+/).filter(s => s.length > 2).slice(0, 3) : [];
-        if (skills.length > 0) {
-            document.getElementById('criteriaSkills').innerHTML = skills.map(s => `
-                <div class="criteria-item">
-                    <span class="criteria-dot unmet"></span>
-                    <span>${s}</span>
-                </div>
-            `).join('');
+        // Validate PDF
+        if (!file.name.toLowerCase().endsWith('.pdf')) {
+            alert('Chỉ chấp nhận file PDF. Vui lòng chọn lại.');
+            input.value = '';
+            return;
         }
+
+        // Validate size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File quá lớn. Tối đa 5MB.');
+            input.value = '';
+            return;
+        }
+
+        analyzeCvMatch(file);
+        input.value = '';
+    }
+
+    function buildJdText(job) {
+        let jd = '';
+        if (job.title) jd += `Vị trí tuyển dụng: ${job.title}\n`;
+        if (job.industry) jd += `Ngành nghề: ${job.industry}\n`;
+        if (job.experience) jd += `Kinh nghiệm yêu cầu: ${job.experience}\n`;
+        if (job.educationLevel) jd += `Trình độ học vấn: ${job.educationLevel}\n`;
+        if (job.employmentType) jd += `Hình thức làm việc: ${job.employmentType}\n`;
+        if (job.location) jd += `Địa điểm: ${job.location}\n`;
+        if (job.description) jd += `\nMô tả công việc:\n${job.description}\n`;
+        if (job.requirements) jd += `\nYêu cầu công việc:\n${job.requirements}\n`;
+        const benefits = parseBenefits(job.benefits);
+        if (benefits.length > 0) jd += `\nPhúc lợi: ${benefits.join(', ')}\n`;
+        return jd;
+    }
+
+    async function analyzeCvMatch(file) {
+        if (!currentJob) {
+            alert('Không tìm thấy thông tin việc làm.');
+            return;
+        }
+
+        // Show loading
+        document.getElementById('matchUploadState').style.display = 'none';
+        document.getElementById('matchResultState').style.display = 'none';
+        document.getElementById('matchLoadingState').style.display = 'block';
+        document.getElementById('matchFileName').textContent = file.name;
+
+        const jdText = buildJdText(currentJob);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('jdText', jdText);
+
+        try {
+            const res = await fetch('/api/cv-scoring/compare-jd', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || data.success === false) {
+                const msg = data.message || 'Đã xảy ra lỗi khi phân tích.';
+                if (res.status === 401) {
+                    showMatchError('Vui lòng đăng nhập để sử dụng tính năng này.');
+                } else {
+                    showMatchError(msg);
+                }
+                return;
+            }
+
+            renderMatchResults(data);
+
+        } catch (err) {
+            console.error('CV match error:', err);
+            showMatchError('Lỗi kết nối. Vui lòng thử lại.');
+        }
+    }
+
+    function showMatchError(message) {
+        document.getElementById('matchLoadingState').style.display = 'none';
+        document.getElementById('matchResultState').style.display = 'none';
+        document.getElementById('matchUploadState').style.display = 'block';
+
+        // Show temporary error message
+        const card = document.getElementById('compatCard');
+        const existing = card.querySelector('.match-error');
+        if (existing) existing.remove();
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'match-error';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i><p>${message}</p>`;
+        card.querySelector('#matchUploadState').prepend(errorDiv);
+
+        setTimeout(() => errorDiv.remove(), 5000);
+    }
+
+    function renderMatchResults(data) {
+        document.getElementById('matchLoadingState').style.display = 'none';
+        document.getElementById('matchUploadState').style.display = 'none';
+        document.getElementById('matchResultState').style.display = 'block';
+
+        const score = data.matchScore || 0;
+
+        // Animate score circle
+        animateScore(score);
+
+        // Score label
+        const labelEl = document.getElementById('matchScoreLabel');
+        if (score >= 80) {
+            labelEl.textContent = 'Rất phù hợp';
+            labelEl.className = 'match-score-label excellent';
+        } else if (score >= 60) {
+            labelEl.textContent = 'Phù hợp';
+            labelEl.className = 'match-score-label good';
+        } else if (score >= 40) {
+            labelEl.textContent = 'Cần cải thiện';
+            labelEl.className = 'match-score-label average';
+        } else {
+            labelEl.textContent = 'Chưa phù hợp';
+            labelEl.className = 'match-score-label poor';
+        }
+
+        // Summary
+        document.getElementById('matchSummary').textContent = data.summary || '';
+
+        // Radar chart
+        const radarScores = {
+            skill: data.skillScore || score,
+            experience: data.experienceScore || score,
+            education: data.educationScore || score,
+            language: data.languageScore || score,
+            overall: data.overallFitScore || score
+        };
+        drawRadarChart(radarScores);
+
+        // Matched skills
+        if (data.matchedSkills && data.matchedSkills.length > 0) {
+            document.getElementById('matchedSkillsSection').style.display = 'block';
+            document.getElementById('matchedSkillsTags').innerHTML =
+                data.matchedSkills.map(s => `<span class="tag">${s}</span>`).join('');
+        }
+
+        // Missing skills
+        if (data.missingSkills && data.missingSkills.length > 0) {
+            document.getElementById('missingSkillsSection').style.display = 'block';
+            document.getElementById('missingSkillsTags').innerHTML =
+                data.missingSkills.map(s => `<span class="tag">${s}</span>`).join('');
+        }
+
+        // Experience & Education
+        if (data.experienceMatch || data.educationMatch) {
+            document.getElementById('expEduSection').style.display = 'block';
+            document.getElementById('experienceMatchText').textContent = data.experienceMatch || '';
+            document.getElementById('educationMatchText').textContent = data.educationMatch || '';
+        }
+
+        // Suggestions
+        if (data.suggestions && data.suggestions.length > 0) {
+            document.getElementById('suggestionsSection').style.display = 'block';
+            document.getElementById('suggestionsList').innerHTML =
+                data.suggestions.map(s => `<li>${s}</li>`).join('');
+        }
+
+        // Keywords
+        if (data.keywordsToAdd && data.keywordsToAdd.length > 0) {
+            document.getElementById('keywordsSection').style.display = 'block';
+            document.getElementById('keywordsTags').innerHTML =
+                data.keywordsToAdd.map(k => `<span class="tag">${k}</span>`).join('');
+        }
+    }
+
+    function animateScore(target) {
+        const circumference = 2 * Math.PI * 52; // r=52
+        const fillEl = document.getElementById('scoreFill');
+        const valueEl = document.getElementById('matchScoreValue');
+
+        // Set stroke color based on score
+        let strokeColor = '#C62828';
+        if (target >= 80) strokeColor = '#00BFA5';
+        else if (target >= 60) strokeColor = '#2E7D32';
+        else if (target >= 40) strokeColor = '#F57F17';
+        fillEl.style.stroke = strokeColor;
+
+        // Animate the circle
+        const offset = circumference - (target / 100) * circumference;
+        requestAnimationFrame(() => {
+            fillEl.style.strokeDashoffset = offset;
+        });
+
+        // Animate the number
+        let current = 0;
+        const step = Math.max(1, Math.floor(target / 40));
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            valueEl.textContent = current + '%';
+        }, 30);
+    }
+
+    function drawRadarChart(scores) {
+        const svg = document.getElementById('matchRadarSvg');
+        const cx = 110, cy = 110, maxR = 80;
+        const labels = [
+            { key: 'skill', label: 'Kỹ năng' },
+            { key: 'experience', label: 'Kinh nghiệm' },
+            { key: 'education', label: 'Học vấn' },
+            { key: 'language', label: 'Ngôn ngữ' },
+            { key: 'overall', label: 'Tổng quan' }
+        ];
+        const n = labels.length;
+        const angleStep = (2 * Math.PI) / n;
+        const startAngle = -Math.PI / 2;
+
+        // Helper: get point on radar
+        function getPoint(i, r) {
+            const angle = startAngle + i * angleStep;
+            return {
+                x: cx + r * Math.cos(angle),
+                y: cy + r * Math.sin(angle)
+            };
+        }
+
+        // Helper: polygon points string
+        function polygonPoints(r) {
+            return labels.map((_, i) => {
+                const p = getPoint(i, r);
+                return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+            }).join(' ');
+        }
+
+        let html = '';
+
+        // Grid rings (3 levels)
+        [1, 0.66, 0.33].forEach(ratio => {
+            html += `<polygon points="${polygonPoints(maxR * ratio)}" fill="none" stroke="#e8ecef" stroke-width="1"/>`;
+        });
+
+        // Axes
+        labels.forEach((_, i) => {
+            const p = getPoint(i, maxR);
+            html += `<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="#e8ecef" stroke-width="1"/>`;
+        });
+
+        // Data polygon
+        const dataPoints = labels.map((l, i) => {
+            const val = Math.min(100, Math.max(0, scores[l.key] || 0));
+            const r = (val / 100) * maxR;
+            const p = getPoint(i, r);
+            return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+        }).join(' ');
+        html += `<polygon points="${dataPoints}" fill="rgba(0,191,165,0.2)" stroke="#00BFA5" stroke-width="2.5"/>`;
+
+        // Data dots
+        labels.forEach((l, i) => {
+            const val = Math.min(100, Math.max(0, scores[l.key] || 0));
+            const r = (val / 100) * maxR;
+            const p = getPoint(i, r);
+            html += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="#00BFA5" stroke="#fff" stroke-width="1.5"/>`;
+        });
+
+        // Labels
+        labels.forEach((l, i) => {
+            const p = getPoint(i, maxR + 18);
+            const val = Math.round(scores[l.key] || 0);
+            let anchor = 'middle';
+            if (p.x < cx - 10) anchor = 'end';
+            else if (p.x > cx + 10) anchor = 'start';
+            html += `<text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central" font-size="9" font-weight="600" fill="#2c3e50">${l.label}</text>`;
+            html += `<text x="${p.x.toFixed(1)}" y="${(p.y + 12).toFixed(1)}" text-anchor="${anchor}" dominant-baseline="central" font-size="8" font-weight="700" fill="#00BFA5">${val}%</text>`;
+        });
+
+        svg.innerHTML = html;
     }
 
     // ---- Render similar jobs ----
@@ -714,9 +981,6 @@
         document.getElementById('jobTagsList').innerHTML =
             tags.map(t => `<span class="job-tag">${t}</span>`).join('');
 
-        // Criteria sidebar
-        renderCriteria(job);
-
         // Company overview
         renderCompanyOverview(job);
 
@@ -848,9 +1112,7 @@
         }
     }
 
-    function openProfileComparison() {
-        alert('Tính năng so sánh hồ sơ sẽ sớm được cập nhật!');
-    }
+    // openProfileComparison removed — replaced by CV matching feature
 
     // ---- Init ----
     document.addEventListener('DOMContentLoaded', () => {

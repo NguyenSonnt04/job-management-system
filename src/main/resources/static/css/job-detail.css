@@ -649,6 +649,311 @@
     transform: translateY(-1px);
 }
 
+/* ---- CV Match Upload ---- */
+.match-upload-area {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.match-upload-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 14px;
+    background: linear-gradient(135deg, #fff0f0, #ffe8ec);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.match-upload-icon i {
+    font-size: 28px;
+    color: #EE0033;
+}
+
+.match-upload-text {
+    font-size: 13px;
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.match-upload-note {
+    font-size: 11px;
+    color: #adb5bd;
+    margin-top: 10px;
+}
+
+/* ---- CV Match Loading ---- */
+.match-loading {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.match-loading-spinner {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 16px;
+}
+
+.match-loading-spinner svg {
+    width: 100%;
+    height: 100%;
+}
+
+.match-loading-text {
+    font-size: 13px;
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.match-loading-note {
+    font-size: 11px;
+    color: #adb5bd;
+}
+
+.match-file-name {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 12px;
+    padding: 6px 12px;
+    background: #f5f7fa;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+/* ---- CV Match Score Circle ---- */
+.match-score-wrapper {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.match-score-circle {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 10px;
+    position: relative;
+}
+
+.match-score-circle svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.match-score-circle .score-bg {
+    fill: none;
+    stroke: #e8ecef;
+    stroke-width: 8;
+}
+
+.match-score-circle .score-fill {
+    fill: none;
+    stroke: #00BFA5;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.5s ease-out, stroke 0.3s;
+}
+
+.match-score-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a1a2e;
+}
+
+.match-score-label {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.match-score-label.excellent {
+    background: #e6f9f5;
+    color: #00897B;
+}
+
+.match-score-label.good {
+    background: #e8f5e9;
+    color: #2E7D32;
+}
+
+.match-score-label.average {
+    background: #fff8e1;
+    color: #F57F17;
+}
+
+.match-score-label.poor {
+    background: #fce4ec;
+    color: #C62828;
+}
+
+/* ---- CV Match Summary ---- */
+.match-summary {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #2c3e50;
+    padding: 12px 14px;
+    background: #f8f9fb;
+    border-radius: 8px;
+    border-left: 3px solid #00BFA5;
+    margin-bottom: 16px;
+}
+
+/* ---- CV Match Radar ---- */
+.match-radar-section {
+    margin-bottom: 16px;
+}
+
+/* ---- CV Match Sections ---- */
+.match-section {
+    margin-bottom: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #f0f2f5;
+}
+
+.match-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a1a2e;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ---- Match Tags ---- */
+.match-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.match-tags .tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.match-tags.matched .tag {
+    background: #e6f9f5;
+    color: #00897B;
+    border: 1px solid #b2dfdb;
+}
+
+.match-tags.missing .tag {
+    background: #fce4ec;
+    color: #C62828;
+    border: 1px solid #f8bbd0;
+}
+
+.match-tags.keywords .tag {
+    background: #e8eaf6;
+    color: #283593;
+    border: 1px solid #c5cae9;
+}
+
+/* ---- Match Detail Items ---- */
+.match-detail-item {
+    margin-bottom: 12px;
+}
+
+.match-detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.match-detail-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.match-detail-label i {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.match-detail-text {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #2c3e50;
+    padding-left: 20px;
+}
+
+/* ---- Match Suggestions ---- */
+.match-suggestions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.match-suggestions li {
+    font-size: 13px;
+    color: #2c3e50;
+    line-height: 1.6;
+    padding: 6px 0 6px 22px;
+    position: relative;
+}
+
+.match-suggestions li::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 13px;
+    width: 6px;
+    height: 6px;
+    background: #FFA000;
+    border-radius: 50%;
+}
+
+/* ---- Re-upload button ---- */
+.btn-reupload {
+    margin-top: 16px;
+    background: #f5f7fa;
+    color: #2c3e50;
+    border: 1px solid #e8ecef;
+}
+
+.btn-reupload:hover {
+    background: #e8ecef;
+    color: #1a1a2e;
+}
+
+/* ---- Match error ---- */
+.match-error {
+    text-align: center;
+    padding: 16px;
+    background: #fce4ec;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.match-error i {
+    font-size: 24px;
+    color: #C62828;
+    margin-bottom: 8px;
+}
+
+.match-error p {
+    font-size: 13px;
+    color: #C62828;
+    margin-bottom: 12px;
+}
+
 /* Criteria Card */
 .criteria-card {
     background: #fff;
