@@ -319,7 +319,7 @@ public class ContactChatbotService {
 
         // Check địa điểm
         boolean hasLocation = normalizedMessage.matches(".*(tp|thanh pho|tinh|tỉnh)\\s+\\w+.*") ||
-                             normalizedMessage.contains("hcm") || normalizedMessage.contains("ho chi minh") ||
+                             normalizedMessage.contains("hcm") || normalizedMessage.contains("ho chi minh") || normalizedMessage.contains("sai gon") || normalizedMessage.contains("sg") ||
                              normalizedMessage.contains("ha noi") || normalizedMessage.contains("hanoi") ||
                              normalizedMessage.contains("da nang") || normalizedMessage.contains("danang") ||
                              normalizedMessage.contains("hai phong") || normalizedMessage.contains("haiphong") ||
@@ -351,11 +351,11 @@ public class ContactChatbotService {
      * Kiểm tra xem người dùng có hỏi về chấm điểm CV không
      */
     private boolean isAskingAboutCVScoring(String message) {
-        String lowerMessage = message.toLowerCase();
-        return lowerMessage.contains("chấm điểm cv") || lowerMessage.contains("chấm cv") ||
-               lowerMessage.contains("review cv") || lowerMessage.contains("đánh giá cv") ||
-               lowerMessage.contains("kiểm tra cv") || lowerMessage.contains("scoring cv") ||
-               lowerMessage.contains("chấm điểm resume") || lowerMessage.contains("cv scoring");
+        String normalized = normalizeText(message);
+        return normalized.contains("cham diem cv") || normalized.contains("cham cv") ||
+               normalized.contains("review cv") || normalized.contains("danh gia cv") ||
+               normalized.contains("kiem tra cv") || normalized.contains("scoring cv") ||
+               normalized.contains("cham diem resume") || normalized.contains("cv scoring");
     }
 
     /**
@@ -410,80 +410,105 @@ public class ContactChatbotService {
             // Nếu không tìm thấy jobs phù hợp, gợi ý jobs tương tự
             if (filteredJobs.isEmpty()) {
                 StringBuilder noResultsMsg = new StringBuilder();
-                noResultsMsg.append("Xin lỗi, hiện tại không có công việc nào phù hợp với tìm kiếm của bạn");
 
-                java.util.List<String> criteria = new java.util.ArrayList<>();
-                if (location != null) criteria.add("tại " + location);
-                if (jobTitle != null) criteria.add("vị trí " + jobTitle);
-                if (industry != null) criteria.add("lĩnh vực " + industry);
-                if (salaryRange != null && salaryRange[1] != Long.MAX_VALUE) {
-                    criteria.add("lương " + formatSalary(java.math.BigDecimal.valueOf(salaryRange[0])) +
-                        " - " + formatSalary(java.math.BigDecimal.valueOf(salaryRange[1])));
-                } else if (salaryRange != null && salaryRange[1] == Long.MAX_VALUE) {
-                    criteria.add("lương từ " + formatSalary(java.math.BigDecimal.valueOf(salaryRange[0])));
-                }
+                // Phân tích nguyên nhân không có kết quả
+                List<Job> jobsAtLocation = location != null ? filterJobsByLocation(activeJobs, location) : null;
+                boolean locationHasNoJobs = location != null && jobsAtLocation.isEmpty();
+                boolean salaryMismatch = location != null && !jobsAtLocation.isEmpty() && salaryRange != null
+                        && filterJobsBySalary(jobsAtLocation, salaryRange[0], salaryRange[1]).isEmpty();
 
-                if (!criteria.isEmpty()) {
-                    noResultsMsg.append(" ").append(String.join(", ", criteria));
-                }
+                if (locationHasNoJobs) {
+                    // Trường hợp 1: Địa điểm không có job nào
+                    noResultsMsg.append(String.format("**Xin lỗi, hiện tại không có công việc nào tại %s**.\n\n", location));
 
-                noResultsMsg.append(".\n\n");
+                    // Gợi ý jobs ở các địa điểm khác (lấy ngẫu nhiên tối đa 3 job)
+                    List<Job> otherJobs = activeJobs;
+                    if (jobTitle != null) otherJobs = filterJobsByTitle(otherJobs, jobTitle);
+                    if (industry != null) otherJobs = filterJobsByIndustry(otherJobs, industry);
 
-                // Thử gợi ý jobs tương tự
-                List<Job> similarJobs = activeJobs;
-
-                // Nếu có location, gợi ý jobs tại location đó (bỏ qua tiêu chí khác)
-                if (location != null) {
-                    similarJobs = filterJobsByLocation(activeJobs, location);
-                    if (!similarJobs.isEmpty()) {
-                        noResultsMsg.append("**Tuy nhiên, mình tìm thấy ").append(similarJobs.size()).append(" công việc khác tại ").append(location).append(":**\n\n");
-
-                        int sampleSize = Math.min(3, similarJobs.size());
+                    if (!otherJobs.isEmpty()) {
+                        noResultsMsg.append("**Gợi ý một số công việc tương tự ở địa điểm khác:**\n\n");
+                        int sampleSize = Math.min(3, otherJobs.size());
                         for (int i = 0; i < sampleSize; i++) {
-                            Job job = similarJobs.get(i);
-                            noResultsMsg.append(String.format("**%d. %s**\n", (i + 1), job.getTitle()));
-                            noResultsMsg.append(String.format("Công ty: %s\n", job.getEmployer() != null ? job.getEmployer().getCompanyName() : "Công ty"));
-
-                            String salaryDisplay = "Thỏa thuận";
-                            if (job.getSalaryMin() != null && job.getSalaryMax() != null) {
-                                salaryDisplay = formatSalary(job.getSalaryMin()) + " - " + formatSalary(job.getSalaryMax());
-                            }
-                            noResultsMsg.append(String.format("Lương: %s\n", salaryDisplay));
-                            noResultsMsg.append(String.format("**Xem chi tiết: ** [Mô tả ở đây!!!](http://localhost:8083/job-detail.html?id=%d)\n\n", job.getId()));
-                        }
-
-                        if (similarJobs.size() > 3) {
-                            noResultsMsg.append(String.format("Và %d công việc khác...\n\n", similarJobs.size() - 3));
-                        }
-                    }
-                }
-                // Nếu không có location nhưng có salary, gợi ý jobs trong khoảng lương gần đó
-                else if (salaryRange != null) {
-                    // Mở rộng khoảng lương ±30%
-                    long expandedMin = (long) (salaryRange[0] * 0.7);
-                    long expandedMax = salaryRange[1] == Long.MAX_VALUE ? (long) (salaryRange[0] * 1.5) : (long) (salaryRange[1] * 1.3);
-                    similarJobs = filterJobsBySalary(activeJobs, expandedMin, expandedMax);
-
-                    if (!similarJobs.isEmpty()) {
-                        noResultsMsg.append("**Tuy nhiên, mình tìm thấy ").append(similarJobs.size()).append(" công việc với mức lương gần tương đương:**\n\n");
-
-                        int sampleSize = Math.min(3, similarJobs.size());
-                        for (int i = 0; i < sampleSize; i++) {
-                            Job job = similarJobs.get(i);
+                            Job job = otherJobs.get(i);
                             noResultsMsg.append(String.format("**%d. %s**\n", (i + 1), job.getTitle()));
                             noResultsMsg.append(String.format("Công ty: %s\n", job.getEmployer() != null ? job.getEmployer().getCompanyName() : "Công ty"));
                             noResultsMsg.append(String.format("Địa điểm: %s\n", job.getLocation() != null ? job.getLocation() : "Toàn quốc"));
-
                             String salaryDisplay = "Thỏa thuận";
                             if (job.getSalaryMin() != null && job.getSalaryMax() != null) {
                                 salaryDisplay = formatSalary(job.getSalaryMin()) + " - " + formatSalary(job.getSalaryMax());
                             }
                             noResultsMsg.append(String.format("Lương: %s\n", salaryDisplay));
-                            noResultsMsg.append(String.format("**Xem chi tiết: ** [Mô tả ở đây!!!](http://localhost:8083/job-detail.html?id=%d)\n\n", job.getId()));
+                            noResultsMsg.append(String.format("**Xem chi tiết:** [Mô tả ở đây!!!](http://localhost:8083/job-detail.html?id=%d)\n\n", job.getId()));
                         }
+                        if (otherJobs.size() > 3) {
+                            noResultsMsg.append(String.format("Và %d công việc khác...\n\n", otherJobs.size() - 3));
+                        }
+                    }
 
-                        if (similarJobs.size() > 3) {
-                            noResultsMsg.append(String.format("Và %d công việc khác...\n\n", similarJobs.size() - 3));
+                } else if (salaryMismatch) {
+                    // Trường hợp 2: Địa điểm có job nhưng không đúng mức lương
+                    String salaryDesc = salaryRange[1] == Long.MAX_VALUE
+                            ? "từ " + formatSalary(java.math.BigDecimal.valueOf(salaryRange[0]))
+                            : formatSalary(java.math.BigDecimal.valueOf(salaryRange[0])) + " - " + formatSalary(java.math.BigDecimal.valueOf(salaryRange[1]));
+                    noResultsMsg.append(String.format("**Xin lỗi, hiện tại không có công việc nào tại %s với mức lương %s**.\n\n", location, salaryDesc));
+
+                    // Gợi ý các job tại địa điểm đó (bỏ qua lương)
+                    noResultsMsg.append(String.format("**Tuy nhiên, mình tìm thấy %d công việc tại %s với mức lương khác:**\n\n", jobsAtLocation.size(), location));
+                    int sampleSize = Math.min(3, jobsAtLocation.size());
+                    for (int i = 0; i < sampleSize; i++) {
+                        Job job = jobsAtLocation.get(i);
+                        noResultsMsg.append(String.format("**%d. %s**\n", (i + 1), job.getTitle()));
+                        noResultsMsg.append(String.format("Công ty: %s\n", job.getEmployer() != null ? job.getEmployer().getCompanyName() : "Công ty"));
+                        String salaryDisplay = "Thỏa thuận";
+                        if (job.getSalaryMin() != null && job.getSalaryMax() != null) {
+                            salaryDisplay = formatSalary(job.getSalaryMin()) + " - " + formatSalary(job.getSalaryMax());
+                        }
+                        noResultsMsg.append(String.format("Lương: %s\n", salaryDisplay));
+                        noResultsMsg.append(String.format("**Xem chi tiết:** [Mô tả ở đây!!!](http://localhost:8083/job-detail.html?id=%d)\n\n", job.getId()));
+                    }
+                    if (jobsAtLocation.size() > 3) {
+                        noResultsMsg.append(String.format("Và %d công việc khác tại %s...\n\n", jobsAtLocation.size() - 3, location));
+                    }
+
+                } else {
+                    // Trường hợp 3: Các tiêu chí khác không khớp (ngành, chức danh...)
+                    noResultsMsg.append("Xin lỗi, hiện tại không có công việc nào phù hợp với tìm kiếm của bạn");
+                    java.util.List<String> criteria = new java.util.ArrayList<>();
+                    if (location != null) criteria.add("tại " + location);
+                    if (jobTitle != null) criteria.add("vị trí " + jobTitle);
+                    if (industry != null) criteria.add("lĩnh vực " + industry);
+                    if (salaryRange != null && salaryRange[1] != Long.MAX_VALUE) {
+                        criteria.add("lương " + formatSalary(java.math.BigDecimal.valueOf(salaryRange[0])) + " - " + formatSalary(java.math.BigDecimal.valueOf(salaryRange[1])));
+                    } else if (salaryRange != null) {
+                        criteria.add("lương từ " + formatSalary(java.math.BigDecimal.valueOf(salaryRange[0])));
+                    }
+                    if (!criteria.isEmpty()) noResultsMsg.append(" ").append(String.join(", ", criteria));
+                    noResultsMsg.append(".\n\n");
+
+                    // Gợi ý mở rộng lương ±30%
+                    if (salaryRange != null) {
+                        long expandedMin = (long) (salaryRange[0] * 0.7);
+                        long expandedMax = salaryRange[1] == Long.MAX_VALUE ? (long) (salaryRange[0] * 1.5) : (long) (salaryRange[1] * 1.3);
+                        List<Job> similarJobs = filterJobsBySalary(activeJobs, expandedMin, expandedMax);
+                        if (!similarJobs.isEmpty()) {
+                            noResultsMsg.append("**Gợi ý một số công việc với mức lương gần tương đương:**\n\n");
+                            int sampleSize = Math.min(3, similarJobs.size());
+                            for (int i = 0; i < sampleSize; i++) {
+                                Job job = similarJobs.get(i);
+                                noResultsMsg.append(String.format("**%d. %s**\n", (i + 1), job.getTitle()));
+                                noResultsMsg.append(String.format("Công ty: %s\n", job.getEmployer() != null ? job.getEmployer().getCompanyName() : "Công ty"));
+                                noResultsMsg.append(String.format("Địa điểm: %s\n", job.getLocation() != null ? job.getLocation() : "Toàn quốc"));
+                                String salaryDisplay = "Thỏa thuận";
+                                if (job.getSalaryMin() != null && job.getSalaryMax() != null) {
+                                    salaryDisplay = formatSalary(job.getSalaryMin()) + " - " + formatSalary(job.getSalaryMax());
+                                }
+                                noResultsMsg.append(String.format("Lương: %s\n", salaryDisplay));
+                                noResultsMsg.append(String.format("**Xem chi tiết:** [Mô tả ở đây!!!](http://localhost:8083/job-detail.html?id=%d)\n\n", job.getId()));
+                            }
+                            if (similarJobs.size() > 3) {
+                                noResultsMsg.append(String.format("Và %d công việc khác...\n\n", similarJobs.size() - 3));
+                            }
                         }
                     }
                 }
@@ -768,6 +793,9 @@ public class ContactChatbotService {
         locationKeywords.put("ho chi minh", "TP. Hồ Chí Minh");
         locationKeywords.put("hcm", "TP. Hồ Chí Minh");
         locationKeywords.put("tphcm", "TP. Hồ Chí Minh");
+        locationKeywords.put("sai gon", "TP. Hồ Chí Minh");
+        locationKeywords.put("saigon", "TP. Hồ Chí Minh");
+        locationKeywords.put("sg", "TP. Hồ Chí Minh");
 
         locationKeywords.put("ha noi", "Hà Nội");
         locationKeywords.put("hà nội", "Hà Nội");
@@ -790,8 +818,11 @@ public class ContactChatbotService {
 
         locationKeywords.put("long an", "Long An");
         locationKeywords.put("binh duong", "Bình Dương");
+        locationKeywords.put("bd", "Bình Dương");
+        locationKeywords.put("dn", "Đồng Nai");
         locationKeywords.put("dong nai", "Đồng Nai");
         locationKeywords.put("bac ninh", "Bắc Ninh");
+        locationKeywords.put("vt", "Vũng Tàu");
         locationKeywords.put("vung tau", "Vũng Tàu");
 
         // Tìm keyword trong query
