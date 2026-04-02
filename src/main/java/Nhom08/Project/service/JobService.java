@@ -60,7 +60,7 @@ public class JobService {
         job.setEducationLevel(dto.getEducationLevel());
         job.setAdditionalInfo(dto.getAdditionalInfo());
         job.setEmployer(employer);
-        job.setStatus("ACTIVE");
+        job.setStatus("PENDING");
 
         Job savedJob = jobRepository.save(job);
         jobStatisticsRepository.save(new Nhom08.Project.entity.JobStatistics(savedJob));

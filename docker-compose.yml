@@ -1,6 +1,3 @@
-# Docker Compose file for MySQL Database
-# Port: 8085 (external) -> 3306 (internal MySQL)
-
 version: '3.8'
 
 services:
@@ -14,7 +11,7 @@ services:
       MYSQL_USER: qltd_user
       MYSQL_PASSWORD: qltd_pass123
     ports:
-      - "8085:3306"
+      - "127.0.0.1:8085:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init-scripts:/docker-entrypoint-initdb.d
@@ -37,7 +34,26 @@ services:
       PMA_PASSWORD: root123
       UPLOAD_LIMIT: 50M
     ports:
-      - "8086:80"
+      - "127.0.0.1:8086:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # Spring Boot Application
+  app:
+    build: .
+    container_name: qltd_app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8083:8083"
+    environment:
+      # Override datasource to connect to MySQL container (not localhost)
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qltd_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: qltd_user
+      SPRING_DATASOURCE_PASSWORD: qltd_pass123
+    volumes:
+      - ./uploads:/app/uploads
+      - ./.secrets:/app/.secrets:ro
     depends_on:
       mysql:
         condition: service_healthy
@@ -45,4 +61,3 @@ services:
 volumes:
   mysql_data:
     driver: local
-

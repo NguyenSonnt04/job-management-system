@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý người dùng | CoHoiViecLam ADMIN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#f8fafc;--panel:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--brand:#2563eb;--brand-2:#1d4ed8;--danger:#dc2626;--sidebar:#0f172a;--sidebar-hover:#1e293b}
+        *{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);display:flex;font-size:13px}
+        .main{margin-left:260px;min-height:100vh;width:calc(100% - 260px)}.top{height:72px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}.top h1{font-size:20px}.content{padding:28px}
+        .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap}.search{padding:9px 14px;border:1px solid var(--line);border-radius:10px;font:inherit;width:320px;background:#fff}.search:focus{outline:none;border-color:var(--brand)}
+        .filter-select{padding:9px 14px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;cursor:pointer}
+        .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 24px rgba(15,23,42,.06);overflow:hidden}
+        .stats{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px;min-width:160px}.stat .num{font-size:28px;font-weight:800;line-height:1}.stat .label{color:var(--muted);margin-top:4px;font-size:12px}
+        table{width:100%;border-collapse:collapse}th{text-align:left;padding:12px 16px;background:#f8fafc;border-bottom:2px solid var(--line);font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap}td{padding:10px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+        tr:hover td{background:#f8fafc}
+        .user-cell{display:flex;flex-direction:column;gap:2px}.user-name{font-weight:600}.user-email{color:var(--muted);font-size:12px}
+        .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase}.badge.role_admin{background:#fef2f2;color:#dc2626}.badge.role_employer{background:#ecfdf5;color:#047857}.badge.role_candidate{background:#eff6ff;color:#2563eb}
+        .status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600}.status .dot{width:8px;height:8px;border-radius:50%}.status.on .dot{background:#10b981}.status.off .dot{background:#ef4444}.status.on{color:#047857}.status.off{color:#dc2626}
+        .btn{border:none;border-radius:8px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}.btn.primary{background:var(--brand);color:#fff}.btn.primary:hover{background:var(--brand-2)}.btn.secondary{background:#fff;border:1px solid var(--line)}.btn.secondary:hover{background:#f8fafc}.btn.danger{background:#fef2f2;color:var(--danger);border:1px solid #fecaca}.btn.danger:hover{background:#fee2e2}.btn.toggle-on{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}.btn.toggle-off{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+        .actions-cell{display:flex;gap:6px}
+        .empty{padding:40px 20px;text-align:center;color:var(--muted)}
+        .msg{display:none;padding:12px 14px;border-radius:12px;font-size:13px;font-weight:600;margin-bottom:14px}.msg.show{display:block}.msg.ok{background:#ecfdf3;color:#047857;border:1px solid #a7f3d0}.msg.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+        .check{width:16px;height:16px;cursor:pointer;accent-color:var(--brand)}
+        .count-info{color:var(--muted);font-size:12px;margin-left:auto}
+        @media(max-width:760px){.sidebar{display:none}.main{margin-left:0;width:100%}.search{width:100%}.stats{flex-direction:column}}
+    </style>
+    <script src="/admin/sidebar.js"></script>
+</head>
+<body>
+    <div class="main">
+        <div class="top"><h1>Quản lý người dùng</h1><a class="btn secondary" href="/auth/logout">Đăng xuất</a></div>
+        <div class="content">
+            <div id="msg" class="msg"></div>
+            <div class="stats" id="stats"></div>
+            <div class="toolbar">
+                <input class="search" id="search" type="text" placeholder="Tìm theo tên, email, SĐT...">
+                <select class="filter-select" id="roleFilter">
+                    <option value="">Tất cả vai trò</option>
+                    <option value="ROLE_ADMIN">Admin</option>
+                    <option value="ROLE_EMPLOYER">Employer</option>
+                    <option value="ROLE_CANDIDATE">Candidate</option>
+                </select>
+                <select class="filter-select" id="statusFilter">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="true">Đang hoạt động</option>
+                    <option value="false">Đã khóa</option>
+                </select>
+                <span class="count-info" id="countInfo"></span>
+            </div>
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:40px"><input type="checkbox" class="check" id="checkAll"></th>
+                            <th>Người dùng</th>
+                            <th>Số điện thoại</th>
+                            <th>Vai trò</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        <tr><td colspan="7" class="empty">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        let users=[], currentUserId=null;
+        const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        const fmt=v=>v?new Date(v).toLocaleDateString('vi-VN'):'—';
+        const $=id=>document.getElementById(id);
+
+        function setMsg(type,text){const m=$('msg');m.className=`msg show ${type}`;m.textContent=text;setTimeout(()=>m.className='msg',4000)}
+
+        async function loadCurrentUser(){
+            try{const r=await fetch('/api/auth/me',{credentials:'include'});const d=await r.json();if(d.loggedIn)currentUserId=d.id;}catch(e){}
+        }
+
+        function getFiltered(){
+            const q=$('search').value.toLowerCase().trim();
+            const role=$('roleFilter').value;
+            const status=$('statusFilter').value;
+            return users.filter(u=>{
+                if(q&&!(`${u.fullName} ${u.email} ${u.phone}`).toLowerCase().includes(q))return false;
+                if(role&&u.role!==role)return false;
+                if(status!==''&&String(u.enabled)!==status)return false;
+                return true;
+            });
+        }
+
+        function renderStats(){
+            const total=users.length;
+            const admins=users.filter(u=>u.role==='ROLE_ADMIN').length;
+            const employers=users.filter(u=>u.role==='ROLE_EMPLOYER').length;
+            const candidates=users.filter(u=>u.role==='ROLE_CANDIDATE').length;
+            const active=users.filter(u=>u.enabled).length;
+            $('stats').innerHTML=`
+                <div class="stat"><div class="num">${total}</div><div class="label">Tổng người dùng</div></div>
+                <div class="stat"><div class="num" style="color:#dc2626">${admins}</div><div class="label">Admin</div></div>
+                <div class="stat"><div class="num" style="color:#047857">${employers}</div><div class="label">Employer</div></div>
+                <div class="stat"><div class="num" style="color:#2563eb">${candidates}</div><div class="label">Candidate</div></div>
+                <div class="stat"><div class="num" style="color:#10b981">${active}</div><div class="label">Đang hoạt động</div></div>`;
+        }
+
+        function render(){
+            const filtered=getFiltered();
+            $('countInfo').textContent=`Hiển thị ${filtered.length} / ${users.length} người dùng`;
+            if(!filtered.length){$('tbody').innerHTML='<tr><td colspan="7" class="empty">Không tìm thấy người dùng nào.</td></tr>';return}
+            $('tbody').innerHTML=filtered.map(u=>`<tr>
+                <td><input type="checkbox" class="check row-check" data-id="${u.id}"></td>
+                <td><div class="user-cell"><span class="user-name">${esc(u.fullName||'Chưa cập nhật')}</span><span class="user-email">${esc(u.email)}</span></div></td>
+                <td>${esc(u.phone||'—')}</td>
+                <td>
+                    ${u.id===currentUserId
+                        ? `<span class="badge ${(u.role||'').toLowerCase()}">${esc(u.role)}</span>`
+                        : `<select class="role-select" onchange="changeRole(${u.id},this.value)" style="padding:4px 8px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:12px;cursor:pointer;background:#fff">
+                            <option value="ROLE_ADMIN"${u.role==='ROLE_ADMIN'?' selected':''}>ROLE_ADMIN</option>
+                            <option value="ROLE_EMPLOYER"${u.role==='ROLE_EMPLOYER'?' selected':''}>ROLE_EMPLOYER</option>
+                            <option value="ROLE_CANDIDATE"${u.role==='ROLE_CANDIDATE'?' selected':''}>ROLE_CANDIDATE</option>
+                           </select>`
+                    }
+                </td>
+                <td><span class="status ${u.enabled?'on':'off'}"><span class="dot"></span>${u.enabled?'Hoạt động':'Đã khóa'}</span></td>
+                <td>${fmt(u.createdAt)}</td>
+                <td>
+                    ${u.id===currentUserId
+                        ? `<span style="font-size:11px;color:var(--muted)">Tài khoản của bạn</span>`
+                        : `<button class="btn ${u.enabled?'toggle-off':'toggle-on'}" onclick="toggleUser(${u.id})">${u.enabled?'Khóa':'Mở khóa'}</button>`
+                    }
+                </td>
+            </tr>`).join('');
+        }
+
+        async function load(){
+            try{
+                const r=await fetch('/api/admin/users',{credentials:'include'});
+                if(!r.ok)throw new Error('Không thể tải danh sách');
+                users=await r.json();
+                renderStats();render();
+            }catch(e){$('tbody').innerHTML=`<tr><td colspan="7" class="empty">${esc(e.message)}</td></tr>`}
+        }
+
+        async function toggleUser(id){
+            try{
+                const r=await fetch(`/api/admin/users/${id}/toggle`,{method:'PATCH',credentials:'include'});
+                const d=await r.json();
+                if(!r.ok||!d.success)throw new Error(d.message||'Không thể thay đổi trạng thái');
+                const u=users.find(x=>x.id===id);
+                setMsg('ok',`Đã ${u&&u.enabled?'khóa':'mở khóa'} tài khoản.`);
+                await load();
+            }catch(e){setMsg('err',e.message)}
+        }
+
+        async function changeRole(id, newRole){
+            if(!confirm(`Đổi role thành ${newRole}?`)){await load();return;}
+            try{
+                const r=await fetch(`/api/admin/users/${id}/role`,{method:'PATCH',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:newRole})});
+                const d=await r.json();
+                if(!r.ok||!d.success)throw new Error(d.message||'Không thể đổi role');
+                setMsg('ok',`Đã đổi role thành ${newRole}.`);
+                await load();
+            }catch(e){setMsg('err',e.message);await load();}
+        }
+
+        $('search').addEventListener('input',render);
+        $('roleFilter').addEventListener('change',render);
+        $('statusFilter').addEventListener('change',render);
+        $('checkAll').addEventListener('change',e=>{document.querySelectorAll('.row-check').forEach(c=>c.checked=e.target.checked)});
+        loadCurrentUser().then(()=>load());
+    </script>
+</body>
+</html>

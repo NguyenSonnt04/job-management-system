@@ -11,24 +11,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; min-height: 100vh; }
 
-        /* ── Sidebar ── */
-        .sidebar {
-            position: fixed; left: 0; top: 0; bottom: 0; width: 260px;
-            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-            color: white; padding: 20px 0; z-index: 100; overflow-y: auto;
-        }
-        .sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        .sidebar-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: white; }
-        .sidebar-logo img { height: 36px; filter: brightness(0) invert(1); }
-        .sidebar-logo span { font-size: 18px; font-weight: 700; }
-        .admin-badge { background: #e53e3e; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
-        .sidebar-nav { padding: 0 12px; }
-        .nav-section { margin-bottom: 24px; }
-        .nav-section-title { font-size: 11px; text-transform: uppercase; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; letter-spacing: 1px; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; margin-bottom: 4px; transition: all 0.3s; }
-        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
-        .nav-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
 
         /* ── Main ── */
         .main-content { margin-left: 260px; padding: 24px; }
@@ -39,90 +21,76 @@
         .btn-primary svg { width: 16px; height: 16px; }
 
         /* Stats */
-        .stats-bar { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-mini { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; }
-        .stat-mini-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .stat-mini-icon.total { background: #ede9fe; }
-        .stat-mini-icon.act { background: #d1fae5; }
-        .stat-mini-icon.hid { background: #fef3c7; }
-        .stat-mini-value { font-size: 24px; font-weight: 700; color: #1a1a2e; }
-        .stat-mini-label { font-size: 13px; color: #666; }
+        .stats-bar { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+        .stat-mini { background: white; border-radius: 10px; padding: 16px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 12px; border-left: 3px solid #e2e8f0; }
+        .stat-mini.total { border-left-color: #6366f1; }
+        .stat-mini.act   { border-left-color: #10b981; }
+        .stat-mini.hid   { border-left-color: #f59e0b; }
+        .stat-mini-value { font-size: 22px; font-weight: 700; color: #1a1a2e; line-height: 1; }
+        .stat-mini-label { font-size: 13px; color: #64748b; margin-top: 3px; }
 
         /* Grid */
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .section-title { font-size: 18px; font-weight: 600; color: #1a1a2e; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .section-title { font-size: 15px; font-weight: 600; color: #1a1a2e; }
 
         /* Style Filters */
         .style-filters {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
-            margin-bottom: 20px;
-            padding: 16px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
         }
         .filter-btn {
+            padding: 7px 16px;
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.15s;
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #495057;
-            cursor: pointer;
-            transition: all 0.2s;
+            gap: 7px;
         }
-        .filter-btn:hover {
-            background: #e9ecef;
-            border-color: #dee2e6;
-        }
-        .filter-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
-            color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-        .filter-icon { font-size: 16px; }
+        .filter-btn:hover { background: #f8fafc; border-color: #94a3b8; color: #1e293b; }
+        .filter-btn.active { background: #2563eb; border-color: #2563eb; color: white; font-weight: 600; }
         .filter-count {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
+            background: rgba(255,255,255,0.25);
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 12px;
             font-weight: 700;
         }
         .filter-btn:not(.active) .filter-count {
-            background: #e9ecef;
-            color: #6c757d;
+            background: #f1f5f9;
+            color: #64748b;
         }
 
-        .templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 20px; }
+        .templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; }
 
-        .template-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent; }
-        .template-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); border-color: #667eea; }
-        .template-card.inactive { opacity: 0.6; }
+        .template-card { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden; transition: box-shadow 0.2s, border-color 0.2s; border: 1.5px solid #e2e8f0; }
+        .template-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); border-color: #2563eb; }
+        .template-card.inactive { opacity: 0.55; }
 
-        .template-preview { height: 120px; display: flex; align-items: center; justify-content: center; padding: 16px; position: relative; }
-        .preview-mockup { width: 80px; display: flex; flex-direction: column; gap: 6px; }
-        .preview-line { height: 8px; background: rgba(255,255,255,0.6); border-radius: 4px; }
-        .preview-line.t { height: 13px; }
+        .template-preview { height: 90px; display: flex; align-items: center; justify-content: center; padding: 14px; position: relative; }
+        .preview-mockup { width: 65px; display: flex; flex-direction: column; gap: 5px; }
+        .preview-line { height: 6px; background: rgba(255,255,255,0.55); border-radius: 3px; }
+        .preview-line.t { height: 11px; }
         .preview-line.s { width: 50%; }
-        .has-content-badge { position: absolute; top: 8px; left: 8px; background: rgba(16,185,129,0.9); color: white; font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
-        .inactive-badge-overlay { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.5); color: white; font-size: 10px; padding: 3px 8px; border-radius: 20px; }
+        .has-content-badge { position: absolute; top: 7px; left: 7px; background: rgba(16,185,129,0.9); color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+        .inactive-badge-overlay { position: absolute; top: 7px; right: 7px; background: rgba(0,0,0,0.45); color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
 
-        .template-body { padding: 16px; }
-        .template-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .template-name { font-size: 15px; font-weight: 600; color: #1a1a2e; }
-        .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
-        .template-desc { font-size: 13px; color: #666; margin-bottom: 14px; line-height: 1.5; }
-        .template-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-        .meta-tag { background: #f0f2f5; color: #555; font-size: 11px; padding: 3px 8px; border-radius: 6px; }
-        .template-actions { display: flex; gap: 8px; border-top: 1px solid #f0f2f5; padding-top: 14px; }
-        .btn-action { flex: 1; padding: 8px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .template-body { padding: 14px; }
+        .template-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+        .template-name { font-size: 14px; font-weight: 600; color: #1a1a2e; }
+        .badge { font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 20px; }
+        .template-desc { font-size: 12px; color: #64748b; margin-bottom: 10px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .template-meta { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+        .meta-tag { background: #f1f5f9; color: #475569; font-size: 11px; padding: 3px 8px; border-radius: 5px; }
+        .template-actions { display: flex; gap: 6px; border-top: 1px solid #f1f5f9; padding-top: 12px; }
+        .btn-action { flex: 1; padding: 7px 8px; border-radius: 7px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.15s; }
         .btn-edit { background: #ede9fe; color: #7c3aed; }
         .btn-edit:hover { background: #ddd6fe; }
         .btn-toggle { background: #fef3c7; color: #d97706; }
@@ -131,10 +99,8 @@
         .btn-toggle.on:hover { background: #a7f3d0; }
         .btn-delete { background: #fee2e2; color: #dc2626; }
         .btn-delete:hover { background: #fecaca; }
-        .btn-action svg { width: 14px; height: 14px; }
-        .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #999; }
-        .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.3; }
-        .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: #555; }
+        .empty-state { grid-column: 1/-1; text-align: center; padding: 40px 20px; color: #999; }
+        .empty-state h3 { font-size: 16px; margin-bottom: 6px; color: #555; }
 
         /* ── Modal ── */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1000; align-items: flex-start; justify-content: center; padding: 24px; overflow-y: auto; }
@@ -207,75 +173,20 @@
         .toast.success { background: #059669; }
         .toast.error { background: #dc2626; }
     </style>
+    <script src="/admin/sidebar.js"></script>
 </head>
 <body>
-
-<!-- Sidebar -->
-<aside class="sidebar">
-    <div class="sidebar-header">
-        <a href="/admin/dashboard.html" class="sidebar-logo">
-            <img src="../images/logo.png" alt="CoHoiViecLam">
-            <span>CoHoiViecLam<span class="admin-badge">ADMIN</span></span>
-        </a>
-    </div>
-    <nav class="sidebar-nav">
-        <div class="nav-section">
-            <div class="nav-section-title">Tổng quan</div>
-            <a href="/admin/dashboard.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
-                Dashboard
-            </a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-section-title">Quản lý</div>
-            <a href="/admin/users.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                Người dùng
-            </a>
-            <a href="/admin/employers.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                Nhà tuyển dụng
-            </a>
-            <a href="/admin/jobs.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                Việc làm
-            </a>
-            <a href="/admin/cv-templates.html" class="nav-item active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
-                Mẫu CV
-            </a>
-            <a href="/admin/hero-banners.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"></rect><path d="M7 15l3-3 3 2 4-5 2 3"></path><circle cx="8.5" cy="8.5" r="1.5"></circle></svg>
-                Hero Banner
-            </a>
-            <a href="/admin/top-employer-logos.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"></rect><path d="M7 12h10"></path><path d="M12 6v12"></path></svg>
-                Top Employers
-            </a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-section-title">Hệ thống</div>
-            <a href="/admin/settings.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                Cài đặt
-            </a>
-        </div>
-    </nav>
-</aside>
 
 <main class="main-content">
     <div class="top-bar">
         <h1 class="page-title">Quản lý Mẫu CV</h1>
-        <button class="btn-primary" onclick="openModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            Thêm mẫu CV
-        </button>
+        <button class="btn-primary" onclick="openModal()">+ Thêm mẫu CV</button>
     </div>
 
     <div class="stats-bar">
-        <div class="stat-mini"><div class="stat-mini-icon total">📄</div><div><div class="stat-mini-value" id="statTotal">0</div><div class="stat-mini-label">Tổng mẫu CV</div></div></div>
-        <div class="stat-mini"><div class="stat-mini-icon act">✅</div><div><div class="stat-mini-value" id="statActive">0</div><div class="stat-mini-label">Đang hiển thị</div></div></div>
-        <div class="stat-mini"><div class="stat-mini-icon hid">🙈</div><div><div class="stat-mini-value" id="statHidden">0</div><div class="stat-mini-label">Đang ẩn</div></div></div>
+        <div class="stat-mini total"><div><div class="stat-mini-value" id="statTotal">0</div><div class="stat-mini-label">Tổng mẫu CV</div></div></div>
+        <div class="stat-mini act"><div><div class="stat-mini-value" id="statActive">0</div><div class="stat-mini-label">Đang hiển thị</div></div></div>
+        <div class="stat-mini hid"><div><div class="stat-mini-value" id="statHidden">0</div><div class="stat-mini-label">Đang ẩn</div></div></div>
     </div>
 
     <div class="section-header">
@@ -285,36 +196,12 @@
 
     <!-- Style Filters -->
     <div class="style-filters" id="styleFilters">
-        <button class="filter-btn active" data-style="all" onclick="filterByStyle('all')">
-            <span class="filter-icon">📋</span>
-            <span>Tất cả</span>
-            <span class="filter-count" id="count-all">0</span>
-        </button>
-        <button class="filter-btn" data-style="professional" onclick="filterByStyle('professional')">
-            <span class="filter-icon">💼</span>
-            <span>Chuyên nghiệp</span>
-            <span class="filter-count" id="count-professional">0</span>
-        </button>
-        <button class="filter-btn" data-style="creative" onclick="filterByStyle('creative')">
-            <span class="filter-icon">🎨</span>
-            <span>Sáng tạo</span>
-            <span class="filter-count" id="count-creative">0</span>
-        </button>
-        <button class="filter-btn" data-style="minimalist" onclick="filterByStyle('minimalist')">
-            <span class="filter-icon"></span>
-            <span>Tối giản</span>
-            <span class="filter-count" id="count-minimalist">0</span>
-        </button>
-        <button class="filter-btn" data-style="classic" onclick="filterByStyle('classic')">
-            <span class="filter-icon">📜</span>
-            <span>Cổ điển</span>
-            <span class="filter-count" id="count-classic">0</span>
-        </button>
-        <button class="filter-btn" data-style="harvard" onclick="filterByStyle('harvard')">
-            <span class="filter-icon">🎓</span>
-            <span>Harvard</span>
-            <span class="filter-count" id="count-harvard">0</span>
-        </button>
+        <button class="filter-btn active" data-style="all" onclick="filterByStyle('all')">Tất cả <span class="filter-count" id="count-all">0</span></button>
+        <button class="filter-btn" data-style="professional" onclick="filterByStyle('professional')">Chuyên nghiệp <span class="filter-count" id="count-professional">0</span></button>
+        <button class="filter-btn" data-style="creative" onclick="filterByStyle('creative')">Sáng tạo <span class="filter-count" id="count-creative">0</span></button>
+        <button class="filter-btn" data-style="minimalist" onclick="filterByStyle('minimalist')">Tối giản <span class="filter-count" id="count-minimalist">0</span></button>
+        <button class="filter-btn" data-style="classic" onclick="filterByStyle('classic')">Cổ điển <span class="filter-count" id="count-classic">0</span></button>
+        <button class="filter-btn" data-style="harvard" onclick="filterByStyle('harvard')">Harvard <span class="filter-count" id="count-harvard">0</span></button>
     </div>
 
     <div class="templates-grid" id="templatesGrid">
@@ -334,12 +221,12 @@
 
     <!-- Tab Navigation -->
     <div class="tab-nav">
-        <button class="tab-btn active" onclick="switchTab('tab-meta',this)">⚙️ Thông tin chung</button>
-        <button class="tab-btn" onclick="switchTab('tab-personal',this)">👤 Cá nhân</button>
-        <button class="tab-btn" onclick="switchTab('tab-edu',this)">🎓 Học vấn</button>
-        <button class="tab-btn" onclick="switchTab('tab-exp',this)">💼 Kinh nghiệm</button>
-        <button class="tab-btn" onclick="switchTab('tab-proj',this)">🚀 Dự án</button>
-        <button class="tab-btn" onclick="switchTab('tab-skills',this)">🛠 Kỹ năng</button>
+        <button class="tab-btn active" onclick="switchTab('tab-meta',this)">Thông tin chung</button>
+        <button class="tab-btn" onclick="switchTab('tab-personal',this)">Cá nhân</button>
+        <button class="tab-btn" onclick="switchTab('tab-edu',this)">Học vấn</button>
+        <button class="tab-btn" onclick="switchTab('tab-exp',this)">Kinh nghiệm</button>
+        <button class="tab-btn" onclick="switchTab('tab-proj',this)">Dự án</button>
+        <button class="tab-btn" onclick="switchTab('tab-skills',this)">Kỹ năng</button>
     </div>
 
     <!-- ── TAB 1: Meta ── -->
@@ -596,20 +483,14 @@ function renderGrid() {
                 </div>
                 <p class="template-desc">${esc(t.description||'—')}</p>
                 <div class="template-meta">
-                    ${t.category ? `<span class="meta-tag">📂 ${esc(t.category)}</span>` : ''}
-                    ${t.styleTag ? `<span class="meta-tag">🎨 ${esc(getStyleName(t.styleTag))}</span>` : ''}
-                    ${hasContent ? `<span class="meta-tag" style="color:#059669;">⚡ ${getContentSummary(content)}</span>` : '<span class="meta-tag" style="color:#d97706;">⚠ Chưa có nội dung</span>'}
+                    ${t.category ? `<span class="meta-tag">${esc(t.category)}</span>` : ''}
+                    ${t.styleTag ? `<span class="meta-tag">${esc(getStyleName(t.styleTag))}</span>` : ''}
+                    ${hasContent ? `<span class="meta-tag" style="color:#059669;">${getContentSummary(content)}</span>` : '<span class="meta-tag" style="color:#d97706;">Chưa có nội dung</span>'}
                 </div>
                 <div class="template-actions">
-                    <button class="btn-action btn-edit" onclick="openEdit(${t.id})">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Sửa
-                    </button>
-                    <button class="btn-action btn-toggle ${t.active ? 'on' : ''}" onclick="toggleActive(${t.id})">
-                        ${t.active ? 'Ẩn' : 'Hiện'}
-                    </button>
-                    <button class="btn-action btn-delete" onclick="deleteTemplate(${t.id},'${esc(t.name)}')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path></svg>Xóa
-                    </button>
+                    <button class="btn-action btn-edit" onclick="openEdit(${t.id})">Sửa</button>
+                    <button class="btn-action btn-toggle ${t.active ? 'on' : ''}" onclick="toggleActive(${t.id})">${t.active ? 'Ẩn' : 'Hiện'}</button>
+                    <button class="btn-action btn-delete" onclick="deleteTemplate(${t.id},'${esc(t.name)}')">Xóa</button>
                 </div>
             </div>
         </div>`;

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Không tìm thấy trang - 404 | CoHoiViecLam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .not-found-section {
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            padding: 60px 20px;
+        }
+        .not-found-inner {
+            text-align: center;
+            max-width: 480px;
+        }
+        .not-found-code {
+            font-size: 96px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+            letter-spacing: -4px;
+        }
+        .not-found-code span {
+            color: #2563eb;
+        }
+        .not-found-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 16px 0 10px;
+        }
+        .not-found-desc {
+            font-size: 15px;
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+        .not-found-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-primary-404 {
+            display: inline-block;
+            padding: 11px 28px;
+            background: #2563eb;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+        .btn-primary-404:hover { background: #1d4ed8; }
+        .btn-secondary-404 {
+            display: inline-block;
+            padding: 11px 28px;
+            background: #fff;
+            color: #0f172a;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            border: 1px solid #e2e8f0;
+            transition: background 0.15s;
+        }
+        .btn-secondary-404:hover { background: #f8fafc; }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <section class="not-found-section">
+        <div class="not-found-inner">
+            <div class="not-found-code">4<span>0</span>4</div>
+            <h1 class="not-found-title">Trang không tồn tại</h1>
+            <p class="not-found-desc">
+                Trang bạn đang tìm kiếm có thể đã bị xóa, đổi tên hoặc tạm thời không khả dụng.
+            </p>
+            <div class="not-found-actions">
+                <a href="/" class="btn-primary-404">Về trang chủ</a>
+                <a href="/tim-viec-lam.html" class="btn-secondary-404">Tìm việc làm</a>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

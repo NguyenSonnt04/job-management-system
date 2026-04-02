@@ -60,6 +60,7 @@ public class SecurityConfig {
                 // API endpoints for registration and user info
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/user/**").permitAll()
+                .requestMatchers("/api/announcements/active").permitAll() // Public announcements
                 .requestMatchers("/api/chatbot/**").permitAll() // Chatbot API
                 .requestMatchers("/api/contact-chat/**").permitAll() // Contact Widget Chatbot API
 

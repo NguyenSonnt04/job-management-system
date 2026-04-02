@@ -335,6 +335,117 @@
     <script src="js/top-employer-logos.js"></script>
     <script src="js/main.js"></script>
 
+    <!-- Site Announcement Popup -->
+    <style>
+        #ann-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.5);z-index:9999;align-items:center;justify-content:center}
+        #ann-modal{display:none;position:fixed;top:50%;left:50%;z-index:10000;background:#fff;border-radius:20px;box-shadow:0 32px 80px rgba(15,23,42,0.2);width:calc(100% - 40px);max-width:680px;font-family:'Inter',sans-serif;overflow:hidden}
+        @keyframes annSlideIn{from{opacity:0;transform:translate(-50%,-58%)}to{opacity:1;transform:translate(-50%,-50%)}}
+        @keyframes annSlideOut{from{opacity:1;transform:translate(-50%,-50%)}to{opacity:0;transform:translate(-50%,-58%)}}
+        @keyframes annFadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes annFadeOut{from{opacity:1}to{opacity:0}}
+        #ann-modal.ann-in{animation:annSlideIn .3s cubic-bezier(.22,1,.36,1) forwards}
+        #ann-modal.ann-out{animation:annSlideOut .2s ease forwards}
+        #ann-overlay.ann-in{animation:annFadeIn .25s ease forwards}
+        #ann-overlay.ann-out{animation:annFadeOut .2s ease forwards}
+        #ann-stripe{display:none}
+        #ann-body{padding:22px 24px 18px}
+        #ann-label{display:none}
+        #ann-title{margin:0 0 6px;font-size:15px;font-weight:700;color:#0f172a;line-height:1.4}
+        #ann-message{margin:0;font-size:13px;color:#475569;line-height:1.65}
+        #ann-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-top:1px solid #f1f5f9;gap:12px}
+        #ann-counter{font-size:11px;color:#94a3b8;font-weight:500}
+        .ann-btn{border:none;border-radius:8px;padding:7px 16px;font:600 12px/1 'Inter',sans-serif;cursor:pointer}
+        .ann-btn.ghost{background:#f8fafc;color:#475569;border:1px solid #e2e8f0}
+        .ann-btn.ghost:hover{background:#f1f5f9}
+        .ann-btn.close-btn{color:#fff}
+        .ann-btn.close-btn:hover{opacity:.9}
+        #ann-close-x{position:absolute;top:16px;right:18px;border:none;background:none;cursor:pointer;color:#94a3b8;font-size:20px;line-height:1;padding:4px}
+        #ann-close-x:hover{color:#475569}
+    </style>
+    <div id="ann-overlay"></div>
+    <div id="ann-modal">
+        <div id="ann-stripe"></div>
+        <button id="ann-close-x" onclick="closeAnn()">&#x2715;</button>
+        <div id="ann-body">
+            <div id="ann-label"></div>
+            <h2 id="ann-title"></h2>
+            <p id="ann-message"></p>
+        </div>
+        <div id="ann-footer">
+            <span id="ann-counter"></span>
+            <div style="display:flex;gap:8px">
+                <button id="ann-prev" class="ann-btn ghost" onclick="annPrev()" style="display:none">← Trước</button>
+                <button id="ann-next" class="ann-btn ghost" onclick="annNext()" style="display:none">Tiếp →</button>
+                <button class="ann-btn ghost" onclick="suppressAnn()">Không nhắc lại 5 phút</button>
+                <button id="ann-close-btn" class="ann-btn close-btn" onclick="closeAnn()">Đã hiểu</button>
+            </div>
+        </div>
+    </div>
+    <script>
+    (function(){
+        const SUPPRESS_KEY = 'ann_hidden_until';
+        const SUPPRESS_MS = 5 * 60 * 1000;
+
+        const typeMap = {
+            INFO:    { btn: '#2563eb' },
+            WARNING: { btn: '#f59e0b' },
+            SUCCESS: { btn: '#10b981' }
+        };
+        let items = [], idx = 0;
+
+        function render() {
+            const a = items[idx];
+            const t = typeMap[a.type] || typeMap.INFO;
+            document.getElementById('ann-title').textContent = a.title;
+            document.getElementById('ann-message').innerHTML = (a.message||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+            document.getElementById('ann-close-btn').style.background = t.btn;
+            document.getElementById('ann-counter').textContent = items.length > 1 ? `${idx + 1} / ${items.length}` : '';
+            document.getElementById('ann-prev').style.display = items.length > 1 && idx > 0 ? '' : 'none';
+            document.getElementById('ann-next').style.display = items.length > 1 && idx < items.length - 1 ? '' : 'none';
+        }
+
+        function show() {
+            if (!items.length) return;
+            render();
+            const overlay = document.getElementById('ann-overlay');
+            const modal = document.getElementById('ann-modal');
+            overlay.style.display = 'flex';
+            modal.style.display = 'block';
+            overlay.className = 'ann-in';
+            modal.className = 'ann-in';
+        }
+
+        window.suppressAnn = function() {
+            localStorage.setItem(SUPPRESS_KEY, Date.now() + SUPPRESS_MS);
+            closeAnn();
+        };
+        window.closeAnn = function() {
+            const overlay = document.getElementById('ann-overlay');
+            const modal = document.getElementById('ann-modal');
+            overlay.className = 'ann-out';
+            modal.className = 'ann-out';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                modal.style.display = 'none';
+                overlay.className = '';
+                modal.className = '';
+            }, 220);
+        };
+        window.annPrev = function() { if (idx > 0) { idx--; render(); } };
+        window.annNext = function() { if (idx < items.length - 1) { idx++; render(); } };
+
+        document.getElementById('ann-overlay').addEventListener('click', closeAnn);
+
+        const suppressedUntil = parseInt(localStorage.getItem(SUPPRESS_KEY) || '0');
+        if (Date.now() < suppressedUntil) return;
+
+        fetch('/api/announcements/active')
+            .then(r => r.json())
+            .then(data => { if (data && data.length) { items = data; idx = 0; show(); } })
+            .catch(() => {});
+    })();
+    </script>
+
     <style>
         .hero-autocomplete {
             display: none;

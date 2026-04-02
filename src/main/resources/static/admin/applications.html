@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý đơn ứng tuyển | CoHoiViecLam ADMIN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#f8fafc;--panel:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--brand:#2563eb;--brand-2:#1d4ed8;--danger:#dc2626;--sidebar:#0f172a;--sidebar-hover:#1e293b}
+        *{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);display:flex;font-size:13px}
+        .main{margin-left:260px;min-height:100vh;width:calc(100% - 260px)}.top{height:72px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}.top h1{font-size:20px}.content{padding:28px}
+        .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap}.search{padding:9px 14px;border:1px solid var(--line);border-radius:10px;font:inherit;width:320px;background:#fff}.search:focus{outline:none;border-color:var(--brand)}
+        .filter-select{padding:9px 14px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;cursor:pointer}
+        .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 24px rgba(15,23,42,.06);overflow:hidden}
+        .stats{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px;min-width:160px}.stat .num{font-size:28px;font-weight:800;line-height:1}.stat .label{color:var(--muted);margin-top:4px;font-size:12px}
+        table{width:100%;border-collapse:collapse}th{text-align:left;padding:12px 16px;background:#f8fafc;border-bottom:2px solid var(--line);font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap}td{padding:10px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+        tr:hover td{background:#f8fafc}
+        .applicant-cell{display:flex;flex-direction:column;gap:2px}.applicant-name{font-weight:600}.applicant-email{color:var(--muted);font-size:12px}
+        .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;white-space:nowrap}
+        .badge.pending{background:#fef3c7;color:#b45309}
+        .badge.reviewing{background:#eff6ff;color:#2563eb}
+        .badge.accepted{background:#ecfdf5;color:#047857}
+        .badge.rejected{background:#fef2f2;color:#dc2626}
+        .score{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#f1f5f9;color:#334155}
+        .score.high{background:#ecfdf5;color:#047857}
+        .score.mid{background:#fef3c7;color:#b45309}
+        .score.low{background:#fef2f2;color:#dc2626}
+        .btn{border:none;border-radius:8px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}.btn.secondary{background:#fff;border:1px solid var(--line)}.btn.secondary:hover{background:#f8fafc}
+        .empty{padding:40px 20px;text-align:center;color:var(--muted)}
+        .count-info{color:var(--muted);font-size:12px;margin-left:auto}
+        .table-wrap{overflow-x:auto}
+        @media(max-width:760px){.sidebar{display:none}.main{margin-left:0;width:100%}.search{width:100%}.stats{flex-direction:column}}
+    </style>
+    <script src="/admin/sidebar.js"></script>
+</head>
+<body>
+    <div class="main">
+        <div class="top"><h1>Quản lý đơn ứng tuyển</h1><a class="btn secondary" href="/auth/logout">Đăng xuất</a></div>
+        <div class="content">
+            <div class="stats" id="stats"></div>
+            <div class="toolbar">
+                <input class="search" id="search" type="text" placeholder="Tìm theo tên, email, tiêu đề việc làm...">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="REVIEWING">Reviewing</option>
+                    <option value="ACCEPTED">Accepted</option>
+                    <option value="REJECTED">Rejected</option>
+                </select>
+                <span class="count-info" id="countInfo"></span>
+            </div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ứng viên</th>
+                                <th>Vị trí ứng tuyển</th>
+                                <th>Trạng thái</th>
+                                <th>AI Score</th>
+                                <th>AI Ranking</th>
+                                <th>Ngày nộp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody">
+                            <tr><td colspan="6" class="empty">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let apps=[];
+        const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        const fmt=v=>v?new Date(v).toLocaleDateString('vi-VN'):'—';
+        const $=id=>document.getElementById(id);
+
+        function getFiltered(){
+            const q=$('search').value.toLowerCase().trim();
+            const status=$('statusFilter').value;
+            return apps.filter(a=>{
+                if(q&&!(`${a.fullName} ${a.email} ${a.jobTitle}`).toLowerCase().includes(q))return false;
+                if(status&&a.status!==status)return false;
+                return true;
+            });
+        }
+
+        function renderStats(){
+            const total=apps.length;
+            const pending=apps.filter(a=>a.status==='PENDING').length;
+            const reviewing=apps.filter(a=>a.status==='REVIEWING').length;
+            const accepted=apps.filter(a=>a.status==='ACCEPTED').length;
+            const rejected=apps.filter(a=>a.status==='REJECTED').length;
+            $('stats').innerHTML=`
+                <div class="stat"><div class="num">${total}</div><div class="label">Tổng đơn ứng tuyển</div></div>
+                <div class="stat"><div class="num" style="color:#b45309">${pending}</div><div class="label">Chờ xử lý</div></div>
+                <div class="stat"><div class="num" style="color:#2563eb">${reviewing}</div><div class="label">Đang xem xét</div></div>
+                <div class="stat"><div class="num" style="color:#047857">${accepted}</div><div class="label">Đã chấp nhận</div></div>
+                <div class="stat"><div class="num" style="color:#dc2626">${rejected}</div><div class="label">Đã từ chối</div></div>`;
+        }
+
+        function scoreClass(s){
+            if(s==null)return '';
+            if(s>=70)return 'high';
+            if(s>=40)return 'mid';
+            return 'low';
+        }
+
+        function render(){
+            const filtered=getFiltered();
+            $('countInfo').textContent=`Hiển thị ${filtered.length} / ${apps.length} đơn`;
+            if(!filtered.length){$('tbody').innerHTML='<tr><td colspan="6" class="empty">Không tìm thấy đơn ứng tuyển nào.</td></tr>';return}
+            $('tbody').innerHTML=filtered.map(a=>`<tr>
+                <td><div class="applicant-cell"><span class="applicant-name">${esc(a.fullName||'—')}</span><span class="applicant-email">${esc(a.email||'')}</span></div></td>
+                <td>${esc(a.jobTitle||'—')}</td>
+                <td><span class="badge ${(a.status||'').toLowerCase()}">${esc(a.status||'—')}</span></td>
+                <td>${a.aiCompatScore!=null?`<span class="score ${scoreClass(a.aiCompatScore)}">${a.aiCompatScore}%</span>`:'—'}</td>
+                <td>${a.aiRanking!=null?`<span class="score">#${a.aiRanking}</span>`:'—'}</td>
+                <td style="white-space:nowrap">${fmt(a.createdAt)}</td>
+            </tr>`).join('');
+        }
+
+        async function load(){
+            try{
+                const r=await fetch('/api/admin/applications',{credentials:'include'});
+                if(!r.ok)throw new Error('Không thể tải danh sách');
+                apps=await r.json();
+                renderStats();render();
+            }catch(e){$('tbody').innerHTML=`<tr><td colspan="6" class="empty">${esc(e.message)}</td></tr>`}
+        }
+
+        $('search').addEventListener('input',render);
+        $('statusFilter').addEventListener('change',render);
+        load();
+    </script>
+</body>
+</html>
