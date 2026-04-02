@@ -108,18 +108,32 @@ function buildCvFromProfile(profile, templateRecord) {
         return [];
     }
 
+    // ── Default skeletons for each section type ───────────────
+    const defaultSkeletons = {
+        experience:     [{ role: '', company: '', period: '', details: [] }],
+        education:      [{ degree: '', school: '', period: '', details: [] }],
+        skills:         [{ category: '', items: [] }],
+        projects:       [{ name: '', period: '', details: [] }],
+        certifications: [{ name: '', issuer: '', year: '' }],
+        awards:         [{ name: '', year: '' }],
+        activities:     [{ name: '', role: '', period: '', details: [] }]
+    };
+
     // ── Helper: empty out array section entries ──────────────
     function emptySection(arr, type) {
-        if (!Array.isArray(arr) || arr.length === 0) return [];
-        // Keep one empty-shell entry so the section structure is visible
-        const sample = arr[0];
-        if (!sample || typeof sample !== 'object') return [];
-        const emptied = {};
-        for (const key of Object.keys(sample)) {
-            if (Array.isArray(sample[key])) emptied[key] = [];
-            else emptied[key] = '';
+        if (Array.isArray(arr) && arr.length > 0) {
+            const sample = arr[0];
+            if (sample && typeof sample === 'object') {
+                const emptied = {};
+                for (const key of Object.keys(sample)) {
+                    if (Array.isArray(sample[key])) emptied[key] = [];
+                    else emptied[key] = '';
+                }
+                return [emptied];
+            }
         }
-        return [emptied];
+        // Fallback: return default skeleton so the section structure is always visible
+        return defaultSkeletons[type] ? JSON.parse(JSON.stringify(defaultSkeletons[type])) : [];
     }
 
     // ── Build profile data for each section ──────────────────
@@ -134,6 +148,13 @@ function buildCvFromProfile(profile, templateRecord) {
         color: accent
     };
 
+    // ── Ensure core sections are explicitly visible ────────────
+    if (!mergedDesignState.sections) mergedDesignState.sections = {};
+    const coreSections = ['contacts', 'summary', 'experience', 'education', 'skills'];
+    coreSections.forEach(s => {
+        if (mergedDesignState.sections[s] == null) mergedDesignState.sections[s] = true;
+    });
+
     const result = {
         ...baseCv,
         // Personal info from profile (overwrite template placeholders)
@@ -143,7 +164,7 @@ function buildCvFromProfile(profile, templateRecord) {
         phone:    profile.phone || '',
         address:  baseCv.address != null ? '' : '',
         summary:  '',
-        // Sections: use profile data if available, else keep template structure but emptied
+        // Sections: use profile data if available, else keep template structure (with skeleton fallback)
         experience:     profileExperience.length > 0 ? profileExperience : emptySection(baseCv.experience, 'experience'),
         education:      profileEducation.length > 0  ? profileEducation  : emptySection(baseCv.education, 'education'),
         skills:         skillsArr.length > 0         ? skillsArr         : emptySection(baseCv.skills, 'skills'),
