@@ -24,4 +24,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     @Query("SELECT COUNT(u) FROM User u WHERE u.role.name = :roleName")
     long countByRoleName(@Param("roleName") String roleName);
+
+    @Query("SELECT CAST(u.createdAt AS date), COUNT(u) FROM User u WHERE u.createdAt >= :from GROUP BY CAST(u.createdAt AS date) ORDER BY CAST(u.createdAt AS date)")
+    List<Object[]> countByDay(@Param("from") java.time.LocalDateTime from);
 }

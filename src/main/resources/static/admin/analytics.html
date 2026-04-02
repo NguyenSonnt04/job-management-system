@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống kê | CoHoiViecLam ADMIN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root{--bg:#f8fafc;--panel:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--brand:#2563eb;--brand-2:#1d4ed8}
+        *{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);display:flex;font-size:13px}
+        .main{margin-left:260px;min-height:100vh;width:calc(100% - 260px)}
+        .top{height:72px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}.top h1{font-size:20px}
+        .content{padding:28px;display:flex;flex-direction:column;gap:24px}
+        .btn{border:none;border-radius:8px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}.btn.secondary{background:#fff;border:1px solid var(--line)}.btn.secondary:hover{background:#f8fafc}
+        .stats{display:flex;gap:16px;flex-wrap:wrap}
+        .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 22px;min-width:160px;flex:1}
+        .stat .num{font-size:30px;font-weight:800;line-height:1}
+        .stat .label{color:var(--muted);margin-top:5px;font-size:12px}
+        .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 24px rgba(15,23,42,.06);padding:24px}
+        .card h2{font-size:15px;font-weight:700;margin-bottom:4px}
+        .card .sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+        .charts{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+        @media(max-width:900px){.charts{grid-template-columns:1fr}}
+        @media(max-width:760px){.main{margin-left:0;width:100%}.stats{flex-direction:column}}
+    </style>
+    <script src="/admin/sidebar.js"></script>
+</head>
+<body>
+    <div class="main">
+        <div class="top"><h1>Thống kê</h1><a class="btn secondary" href="/auth/logout">Đăng xuất</a></div>
+        <div class="content">
+            <div class="stats" id="stats"></div>
+            <div class="charts">
+                <div class="card">
+                    <h2>Người dùng mới</h2>
+                    <div class="sub">30 ngày gần nhất</div>
+                    <canvas id="chartUsers"></canvas>
+                </div>
+                <div class="card">
+                    <h2>Đơn ứng tuyển mới</h2>
+                    <div class="sub">30 ngày gần nhất</div>
+                    <canvas id="chartApps"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        async function load() {
+            const r = await fetch('/api/admin/analytics', { credentials: 'include' });
+            const d = await r.json();
+
+            document.getElementById('stats').innerHTML = `
+                <div class="stat"><div class="num">${d.totalUsers}</div><div class="label">Tổng người dùng</div></div>
+                <div class="stat"><div class="num" style="color:#047857">${d.totalEmployers}</div><div class="label">Nhà tuyển dụng</div></div>
+                <div class="stat"><div class="num" style="color:#2563eb">${d.totalJobs}</div><div class="label">Việc làm</div></div>
+                <div class="stat"><div class="num" style="color:#7c3aed">${d.totalApplications}</div><div class="label">Đơn ứng tuyển</div></div>
+            `;
+
+            const labels = d.labels.map(l => {
+                const [, m, day] = l.split('-');
+                return `${day}/${m}`;
+            });
+
+            const commonOpts = {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 11 }, maxRotation: 45 } },
+                    y: { beginAtZero: true, ticks: { precision: 0, font: { size: 11 } }, grid: { color: '#f1f5f9' } }
+                }
+            };
+
+            new Chart(document.getElementById('chartUsers'), {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: d.newUsers,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37,99,235,0.08)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#2563eb'
+                    }]
+                },
+                options: commonOpts
+            });
+
+            new Chart(document.getElementById('chartApps'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: d.newApplications,
+                        backgroundColor: 'rgba(124,58,237,0.15)',
+                        borderColor: '#7c3aed',
+                        borderWidth: 2,
+                        borderRadius: 6
+                    }]
+                },
+                options: commonOpts
+            });
+        }
+
+        load();
+    </script>
+</body>
+</html>

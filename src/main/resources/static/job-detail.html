@@ -94,8 +94,8 @@
                                         <i class="fas fa-map-marker-alt"></i> Địa điểm
                                     </span>
                                     <span class="job-info-value highlight" id="infoLocation">—</span>
-                                    <div class="map-placeholder">
-                                        <span class="map-label"><i class="fas fa-map-marker-alt"></i> Địa chỉ chi tiết đã được bảo mật</span>
+                                    <div class="map-placeholder" id="mapContainer">
+                                        <span class="map-label" id="mapLabel"><i class="fas fa-map-marker-alt"></i> Đang tải bản đồ...</span>
                                     </div>
                                 </div>
                                 <div class="job-info-item">
@@ -389,6 +389,28 @@
         } catch { return dateStr; }
     }
 
+    // ---- Render Map ----
+    function renderMap(companyName, address, province, location) {
+        const container = document.getElementById('mapContainer');
+        if (!container) return;
+
+        // Ưu tiên: địa chỉ cụ thể > tỉnh/thành > location job
+        const parts = [address, province].filter(p => p && p !== '—');
+        let query = parts.join(', ');
+        if (!query) query = location;
+        if (!query || query === '—') {
+            document.getElementById('mapLabel').innerHTML = '<i class="fas fa-map-marker-alt"></i> Chưa có thông tin địa điểm';
+            return;
+        }
+
+        // Thêm tên công ty để Google Maps ghim đúng vị trí
+        if (companyName) query = companyName + ', ' + query;
+
+        const encoded = encodeURIComponent(query);
+        container.classList.add('has-map');
+        container.innerHTML = `<iframe src="https://maps.google.com/maps?q=${encoded}&output=embed&z=16" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
+    }
+
     // ---- Format salary ----
     function formatSalary(job) {
         if (!job.showSalary) return 'Thỏa thuận';
@@ -641,6 +663,7 @@
 
         // Info grid
         document.getElementById('infoLocation').textContent = job.location || '—';
+        renderMap(employer.companyName, employer.address, employer.province, job.location);
         document.getElementById('infoUpdatedAt').textContent =
             job.updatedAt ? formatDate(job.updatedAt) : formatDate(job.createdAt);
         document.getElementById('infoIndustry').textContent = job.industry || '—';

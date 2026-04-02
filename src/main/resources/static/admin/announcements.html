@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông báo hệ thống - Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#f8fafc;--panel:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--brand:#2563eb;--brand-2:#1d4ed8;--danger:#dc2626;--sidebar:#0f172a;--sidebar-hover:#1e293b}
+        *{box-sizing:border-box}body{margin:0;font-family:Inter,sans-serif;background:var(--bg);color:var(--text);display:flex}
+        .main{margin-left:260px;min-height:100vh;width:calc(100% - 260px)}
+        .top{height:72px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+        .top h1{font-size:20px;margin:0}
+        .content{padding:28px}
+        .top-badges{display:flex;gap:8px;align-items:center}
+        .top-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid var(--line);background:#f8fafc;color:var(--muted)}
+        .top-badge .num{font-weight:800;color:var(--text)}
+        .layout{display:grid;grid-template-columns:400px minmax(0,1fr);gap:20px}
+        .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 24px rgba(15,23,42,.06)}
+        .card h2{margin:0 0 6px;font-size:20px}
+        .card .head{padding:22px 22px 0}
+        .card .head p{margin:0;color:var(--muted);font-size:14px}
+        .card .body{padding:22px}
+        .msg{display:none;padding:12px 14px;border-radius:12px;font-size:14px;font-weight:600;margin-bottom:14px}
+        .msg.show{display:block}
+        .msg.ok{background:#ecfdf3;color:#047857;border:1px solid #a7f3d0}
+        .msg.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+        form{display:grid;gap:14px}
+        .group{display:grid;gap:8px}
+        .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+        label{font-size:13px;font-weight:700}
+        input[type=text],input[type=datetime-local],select,textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font:inherit;background:#fff;font-size:14px;resize:vertical}
+        textarea{min-height:100px}
+        .switch{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#f8fafc}
+        .switch small{display:block;color:var(--muted);margin-top:4px}
+        .actions{display:flex;gap:10px;flex-wrap:wrap}
+        .btn{border:none;border-radius:10px;padding:10px 16px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+        .btn.primary{background:var(--brand);color:#fff}
+        .btn.primary:hover{background:var(--brand-2)}
+        .btn.secondary{background:#fff;border:1px solid var(--line)}
+        .btn.secondary:hover{background:#f8fafc}
+        .btn.danger{background:var(--danger);color:#fff}
+        .btn.danger:hover{background:#b91c1c}
+        .btn:disabled{opacity:.55;cursor:not-allowed}
+        .list{display:grid;gap:12px}
+        .item{border:1px solid var(--line);border-radius:14px;padding:16px;transition:box-shadow .15s}
+        .item:hover{box-shadow:0 4px 14px rgba(15,23,42,.08)}
+        .item-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+        .item h3{margin:0 0 6px;font-size:15px;font-weight:700;flex:1}
+        .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+        .chip{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600}
+        .chip.on{background:#d1fae5;color:#047857}
+        .chip.off{background:#fef3c7;color:#b45309}
+        .chip.info{background:#dbeafe;color:#1d4ed8}
+        .chip.warning{background:#fef9c3;color:#a16207}
+        .chip.success{background:#dcfce7;color:#15803d}
+        .chip.neutral{background:#f1f5f9;color:#334155}
+        .item-msg{margin:8px 0 0;font-size:14px;color:var(--muted);line-height:1.5;word-break:break-word}
+        .item-dates{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+        .date-chip{font-size:11px;color:var(--muted);background:#f8fafc;border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+        .item-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+        .item-actions .btn{padding:5px 14px;font-size:13px;border-radius:7px}
+        .empty{padding:40px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+        @media (max-width:1180px){.layout{grid-template-columns:1fr}}
+        @media (max-width:760px){.main{margin-left:0;width:100%}.top,.content{padding-left:16px;padding-right:16px}.grid2,.stats{grid-template-columns:1fr}}
+    </style>
+    <script src="/admin/sidebar.js"></script>
+</head>
+<body>
+    <div class="main">
+        <div class="top">
+            <h1>Thông báo hệ thống</h1>
+            <div style="display:flex;align-items:center;gap:12px">
+                <div class="top-badges">
+                    <span class="top-badge">Tổng <span class="num" id="statTotal">0</span></span>
+                    <span class="top-badge">Đang bật <span class="num" id="statActive" style="color:#047857">0</span></span>
+                </div>
+                <a class="btn secondary" href="/auth/logout">Đăng xuất</a>
+            </div>
+        </div>
+        <div class="content">
+            <div class="layout">
+                <!-- Form -->
+                <section class="card">
+                    <div class="head"><h2 id="formTitle">Tạo thông báo mới</h2><p>Thông báo sẽ xuất hiện dạng popup khi người dùng vào trang chủ.</p></div>
+                    <div class="body">
+                        <div id="msg" class="msg"></div>
+                        <form id="annForm">
+                            <div class="group">
+                                <label for="title">Tiêu đề <span style="color:var(--danger)">*</span></label>
+                                <input id="title" type="text" maxlength="200" required placeholder="Ví dụ: Bảo trì hệ thống ngày 10/04">
+                            </div>
+                            <div class="group">
+                                <label for="message">Nội dung <span style="color:var(--danger)">*</span></label>
+                                <textarea id="message" required placeholder="Nội dung chi tiết của thông báo..."></textarea>
+                            </div>
+                            <div class="group">
+                                <label for="type">Loại thông báo</label>
+                                <select id="type">
+                                    <option value="INFO">INFO — Thông tin</option>
+                                    <option value="WARNING">WARNING — Cảnh báo</option>
+                                    <option value="SUCCESS">SUCCESS — Thành công</option>
+                                </select>
+                            </div>
+                            <div class="grid2">
+                                <div class="group">
+                                    <label for="startAt">Bắt đầu hiển thị</label>
+                                    <input id="startAt" type="datetime-local">
+                                </div>
+                                <div class="group">
+                                    <label for="endAt">Kết thúc hiển thị</label>
+                                    <input id="endAt" type="datetime-local">
+                                </div>
+                            </div>
+                            <label class="switch">
+                                <span>
+                                    <strong>Kích hoạt thông báo</strong>
+                                    <small>Thông báo chỉ hiện khi bật và trong thời hạn.</small>
+                                </span>
+                                <input id="active" type="checkbox" checked>
+                            </label>
+                            <div class="actions">
+                                <button class="btn primary" id="submitBtn" type="submit">Tạo thông báo</button>
+                                <button class="btn secondary" id="cancelBtn" type="button">Hủy</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- List -->
+                <section class="card">
+                    <div class="head"><h2>Danh sách thông báo</h2><p>Thông báo đang bật sẽ được hiển thị popup trên trang chủ cho người dùng.</p></div>
+                    <div class="body"><div id="annList" class="list"><div class="empty">Đang tải danh sách thông báo...</div></div></div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const state = { items: [], editingId: null };
+        const el = {
+            form:    document.getElementById('annForm'),
+            msg:     document.getElementById('msg'),
+            list:    document.getElementById('annList'),
+            title:   document.getElementById('formTitle'),
+            submit:  document.getElementById('submitBtn'),
+            cancel:  document.getElementById('cancelBtn'),
+            total:   document.getElementById('statTotal'),
+            active:  document.getElementById('statActive'),
+        };
+
+        function esc(v) {
+            return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+
+        function setMsg(type, text) {
+            el.msg.className = `msg show ${type}`;
+            el.msg.textContent = text;
+        }
+
+        function clearMsg() {
+            el.msg.className = 'msg';
+            el.msg.textContent = '';
+        }
+
+        function fmtDt(v) {
+            if (!v) return null;
+            return new Date(v).toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        }
+
+        function toInputDt(v) {
+            if (!v) return '';
+            // v is ISO string like "2025-04-10T14:00:00"
+            return v.slice(0, 16);
+        }
+
+        function typeBadge(type) {
+            const map = { INFO: ['info','INFO'], WARNING: ['warning','WARNING'], SUCCESS: ['success','SUCCESS'] };
+            const [cls, label] = map[type] || ['neutral', type || 'INFO'];
+            return `<span class="chip ${cls}">${esc(label)}</span>`;
+        }
+
+        function truncate(s, n) {
+            if (!s) return '';
+            return s.length > n ? s.slice(0, n) + '…' : s;
+        }
+
+        function resetForm() {
+            state.editingId = null;
+            el.form.reset();
+            document.getElementById('type').value = 'INFO';
+            document.getElementById('active').checked = true;
+            el.title.textContent = 'Tạo thông báo mới';
+            el.submit.textContent = 'Tạo thông báo';
+            clearMsg();
+        }
+
+        function updateStats() {
+            el.total.textContent = state.items.length;
+            el.active.textContent = state.items.filter(x => x.active).length;
+        }
+
+        function render() {
+            updateStats();
+            if (!state.items.length) {
+                el.list.innerHTML = '<div class="empty">Chưa có thông báo nào.</div>';
+                return;
+            }
+            el.list.innerHTML = state.items.map(item => {
+                const msg80 = esc(truncate(item.message, 80));
+                const startFmt = fmtDt(item.startAt);
+                const endFmt   = fmtDt(item.endAt);
+                return `
+                <article class="item">
+                    <div class="item-header">
+                        <h3>${esc(item.title)}</h3>
+                        <div class="meta">
+                            ${typeBadge(item.type)}
+                            <span class="chip ${item.active ? 'on' : 'off'}">${item.active ? 'Đang bật' : 'Đang tắt'}</span>
+                        </div>
+                    </div>
+                    <p class="item-msg">${msg80}</p>
+                    <div class="item-dates">
+                        <span class="date-chip">Tạo: ${esc(fmtDt(item.createdAt) || '—')}</span>
+                        ${startFmt ? `<span class="date-chip">Bắt đầu: ${esc(startFmt)}</span>` : ''}
+                        ${endFmt   ? `<span class="date-chip">Kết thúc: ${esc(endFmt)}</span>`   : ''}
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn secondary" type="button" onclick="editItem(${item.id})">Sửa</button>
+                        <button class="btn secondary" type="button" onclick="toggleItem(${item.id},${!item.active})">${item.active ? 'Tắt' : 'Bật'}</button>
+                        <button class="btn danger"    type="button" onclick="deleteItem(${item.id})">Xóa</button>
+                    </div>
+                </article>`;
+            }).join('');
+        }
+
+        async function load() {
+            try {
+                const r = await fetch('/api/admin/announcements', { credentials: 'include' });
+                if (!r.ok) throw new Error('Không thể tải danh sách');
+                state.items = await r.json();
+                render();
+            } catch (e) {
+                el.list.innerHTML = `<div class="empty">${esc(e.message || 'Không tải được danh sách.')}</div>`;
+            }
+        }
+
+        function editItem(id) {
+            const item = state.items.find(x => x.id === id);
+            if (!item) return;
+            state.editingId = id;
+            el.title.textContent = 'Chỉnh sửa thông báo';
+            el.submit.textContent = 'Cập nhật';
+            document.getElementById('title').value   = item.title   || '';
+            document.getElementById('message').value = item.message || '';
+            document.getElementById('type').value    = item.type    || 'INFO';
+            document.getElementById('active').checked = !!item.active;
+            document.getElementById('startAt').value = toInputDt(item.startAt);
+            document.getElementById('endAt').value   = toInputDt(item.endAt);
+            clearMsg();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function toggleItem(id, active) {
+            try {
+                const r = await fetch(`/api/admin/announcements/${id}/active`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ active })
+                });
+                const d = await r.json();
+                if (!r.ok || !d.success) throw new Error(d.message || 'Không thể đổi trạng thái');
+                setMsg('ok', active ? 'Đã bật thông báo.' : 'Đã tắt thông báo.');
+                await load();
+            } catch (e) {
+                setMsg('err', e.message || 'Có lỗi xảy ra.');
+            }
+        }
+
+        async function deleteItem(id) {
+            const item = state.items.find(x => x.id === id);
+            if (!item || !confirm(`Xóa thông báo "${item.title}"?`)) return;
+            try {
+                const r = await fetch(`/api/admin/announcements/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                const d = await r.json();
+                if (!r.ok || !d.success) throw new Error(d.message || 'Không thể xóa');
+                if (state.editingId === id) resetForm();
+                setMsg('ok', 'Đã xóa thông báo.');
+                await load();
+            } catch (e) {
+                setMsg('err', e.message || 'Có lỗi xảy ra.');
+            }
+        }
+
+        el.cancel.addEventListener('click', resetForm);
+
+        el.form.addEventListener('submit', async e => {
+            e.preventDefault();
+            clearMsg();
+
+            const title   = document.getElementById('title').value.trim();
+            const message = document.getElementById('message').value.trim();
+            const type    = document.getElementById('type').value;
+            const active  = document.getElementById('active').checked;
+            const startAt = document.getElementById('startAt').value;
+            const endAt   = document.getElementById('endAt').value;
+
+            if (!title)   { setMsg('err', 'Vui lòng nhập tiêu đề.'); return; }
+            if (!message) { setMsg('err', 'Vui lòng nhập nội dung.'); return; }
+
+            const payload = {
+                title, message, type, active,
+                startAt: startAt ? startAt + ':00' : null,
+                endAt:   endAt   ? endAt   + ':00' : null,
+            };
+
+            const updating = !!state.editingId;
+            const url    = updating ? `/api/admin/announcements/${state.editingId}` : '/api/admin/announcements';
+            const method = updating ? 'PUT' : 'POST';
+
+            el.submit.disabled = true;
+            el.submit.textContent = updating ? 'Đang cập nhật...' : 'Đang tạo...';
+
+            try {
+                const r = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+                const d = await r.json();
+                if (!r.ok || !d.success) throw new Error(d.message || 'Không thể lưu thông báo');
+                resetForm();
+                setMsg('ok', updating ? 'Cập nhật thành công.' : 'Tạo thông báo thành công.');
+                await load();
+            } catch (err) {
+                setMsg('err', err.message || 'Có lỗi xảy ra khi lưu.');
+            } finally {
+                el.submit.disabled = false;
+                el.submit.textContent = state.editingId ? 'Cập nhật' : 'Tạo thông báo';
+            }
+        });
+
+        window.editItem   = editItem;
+        window.toggleItem = toggleItem;
+        window.deleteItem = deleteItem;
+
+        resetForm();
+        load();
+    </script>
+</body>
+</html>

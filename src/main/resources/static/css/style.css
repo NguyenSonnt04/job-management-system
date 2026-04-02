@@ -409,13 +409,13 @@ img {
 }
 
 .hero-banner-arrow {
-    width: min(17%, 180px);
+    width: 48px;
     height: 100%;
     border: none;
     display: inline-flex;
     align-items: center;
-    justify-content: flex-start;
-    padding: 0 18px;
+    justify-content: center;
+    padding: 0;
     background: transparent;
     color: #ffffff;
     box-shadow: none;
