@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài đặt | CoHoiViecLam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { background: #f9fafb; }
+        .settings-shell { max-width: 720px; margin: 24px auto 60px; padding: 0 20px; }
+        .settings-title { font-size: 22px; font-weight: 700; color: #1e293b; margin: 0 0 20px; }
+
+        .settings-card {
+            background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+            padding: 20px 24px; margin-bottom: 16px;
+        }
+        .settings-card h3 { font-size: 15px; font-weight: 700; color: #1e293b; margin: 0 0 14px; }
+
+        .setting-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 0; border-bottom: 1px solid #f3f4f6; gap: 16px;
+        }
+        .setting-row:last-child { border-bottom: none; }
+        .setting-label { font-size: 13px; font-weight: 600; color: #374151; }
+        .setting-desc { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+
+        .toggle-switch {
+            position: relative; display: inline-flex; width: 40px; height: 22px; flex-shrink: 0;
+        }
+        .toggle-switch input { width: 0; height: 0; opacity: 0; }
+        .toggle-slider {
+            position: absolute; inset: 0; border-radius: 999px; background: #d1d5db;
+            transition: background 180ms;
+        }
+        .toggle-slider::before {
+            content: ""; position: absolute; left: 2px; top: 2px;
+            width: 18px; height: 18px; border-radius: 50%; background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15); transition: transform 180ms;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: #0f9f5f; }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+        .form-row { margin-bottom: 14px; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 4px; }
+        .form-input {
+            width: 100%; padding: 7px 12px; border: 1px solid #cbd5e1; border-radius: 6px;
+            font-size: 13px; color: #333; outline: none; font-family: inherit;
+        }
+        .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+
+        .btn-save {
+            padding: 7px 20px; background: #1e293b; color: #fff; border: none;
+            border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .btn-save:hover { background: #334155; }
+
+        .btn-danger {
+            padding: 7px 20px; background: #fff; color: #dc2626; border: 1px solid #fecaca;
+            border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .btn-danger:hover { background: #fef2f2; }
+
+        .save-msg { font-size: 12px; color: #16a34a; margin-left: 8px; display: none; }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="settings-shell">
+        <h1 class="settings-title">Cai dat</h1>
+
+        <!-- Thong bao -->
+        <div class="settings-card">
+            <h3>Thong bao</h3>
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label">Email thong bao viec lam moi</div>
+                    <div class="setting-desc">Nhan email khi co viec lam phu hop voi ho so cua ban.</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="notifNewJobs" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label">Thong bao ung tuyen</div>
+                    <div class="setting-desc">Nhan thong bao khi nha tuyen dung xem ho so hoac moi phong van.</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="notifApplications" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label">Email marketing</div>
+                    <div class="setting-desc">Nhan tin tuc, cam nang nghe nghiep va khuyen mai tu CoHoiViecLam.</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="notifMarketing">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Quyen rieng tu -->
+        <div class="settings-card">
+            <h3>Quyen rieng tu</h3>
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label">Hien thi ho so cho nha tuyen dung</div>
+                    <div class="setting-desc">Cho phep nha tuyen dung tim thay ho so cua ban trong co so du lieu.</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="privacyVisible" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label">An thong tin lien he</div>
+                    <div class="setting-desc">Chi hien thi email va SDT khi ban dong y ung tuyen.</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="privacyHideContact">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Doi mat khau -->
+        <div class="settings-card">
+            <h3>Doi mat khau</h3>
+            <form id="passwordForm">
+                <div class="form-row">
+                    <label class="form-label">Mat khau hien tai</label>
+                    <input type="password" class="form-input" id="currentPw" required>
+                </div>
+                <div class="form-row">
+                    <label class="form-label">Mat khau moi</label>
+                    <input type="password" class="form-input" id="newPw" required minlength="6">
+                </div>
+                <div class="form-row">
+                    <label class="form-label">Xac nhan mat khau moi</label>
+                    <input type="password" class="form-input" id="confirmPw" required>
+                </div>
+                <button type="submit" class="btn-save">Doi mat khau</button>
+                <span class="save-msg" id="pwMsg">Da doi mat khau thanh cong</span>
+            </form>
+        </div>
+
+        <!-- Xoa tai khoan -->
+        <div class="settings-card">
+            <h3>Xoa tai khoan</h3>
+            <p style="font-size:13px;color:#6b7280;margin:0 0 12px;">Khi xoa tai khoan, tat ca du lieu CV, ho so ung tuyen va thong bao se bi xoa vinh vien. Hanh dong nay khong the hoan tac.</p>
+            <button class="btn-danger" id="btnDeleteAccount">Xoa tai khoan cua toi</button>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <script src="js/main.js"></script>
+    <script>
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPw = document.getElementById('newPw').value;
+            if (newPw !== document.getElementById('confirmPw').value) {
+                alert('Mat khau xac nhan khong khop'); return;
+            }
+            try {
+                const res = await fetch('/api/auth/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        currentPassword: document.getElementById('currentPw').value,
+                        newPassword: newPw,
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    const msg = document.getElementById('pwMsg');
+                    msg.style.display = 'inline';
+                    setTimeout(() => msg.style.display = 'none', 3000);
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    alert(data.message || 'Doi mat khau that bai');
+                }
+            } catch (err) { alert('Loi ket noi'); }
+        });
+
+        document.getElementById('btnDeleteAccount').addEventListener('click', () => {
+            if (confirm('Ban co chac chan muon xoa tai khoan? Hanh dong nay khong the hoan tac!')) {
+                alert('Tinh nang dang phat trien. Vui long lien he ho tro.');
+            }
+        });
+    </script>
+</body>
+</html>

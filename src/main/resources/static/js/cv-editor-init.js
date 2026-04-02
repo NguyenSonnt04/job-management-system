@@ -65,7 +65,19 @@ function buildCvFromProfile(profile, templateRecord) {
     const accent = templateRecord?.previewColor || '#1f4b99';
     const styleTag = normalizeCvStyle(templateRecord?.styleTag || 'professional');
 
-    // Parse skills JSON: {"BACKEND": ["Java","Spring"], ...} → [{category, items}]
+    // ── Parse template content as base structure ─────────────
+    let baseCv = {};
+    if (templateRecord?.templateContent) {
+        try {
+            baseCv = typeof templateRecord.templateContent === 'string'
+                ? JSON.parse(templateRecord.templateContent)
+                : cloneCvEditorData(templateRecord.templateContent, {});
+        } catch (e) {
+            console.warn('[cv-editor-init] parse templateContent error:', e);
+        }
+    }
+
+    // ── Parse profile skills ─────────────────────────────────
     let skillsArr = [];
     if (profile.skills) {
         try {
@@ -80,7 +92,7 @@ function buildCvFromProfile(profile, templateRecord) {
         }
     }
 
-    // Parse multiline text fields into structured arrays
+    // ── Parse multiline text fields ──────────────────────────
     function parseTextBlock(text, type) {
         if (!text || typeof text !== 'string' || !text.trim()) return [];
         const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
@@ -96,24 +108,56 @@ function buildCvFromProfile(profile, templateRecord) {
         return [];
     }
 
-    return {
-        name: profile.fullName || '',
-        subtitle: profile.occupation || '',
-        email: profile.contactEmail || profile.email || '',
-        phone: profile.phone || '',
-        address: '',
-        summary: '',
-        experience: parseTextBlock(profile.experience, 'experience'),
-        education: parseTextBlock(profile.education, 'education'),
-        skills: skillsArr,
-        projects: parseTextBlock(profile.projects, 'projects'),
-        certifications: [],
-        awards: [],
-        activities: [],
-        _styleTag: styleTag,
-        _accent: accent,
-        _designState: { color: accent }
+    // ── Helper: empty out array section entries ──────────────
+    function emptySection(arr, type) {
+        if (!Array.isArray(arr) || arr.length === 0) return [];
+        // Keep one empty-shell entry so the section structure is visible
+        const sample = arr[0];
+        if (!sample || typeof sample !== 'object') return [];
+        const emptied = {};
+        for (const key of Object.keys(sample)) {
+            if (Array.isArray(sample[key])) emptied[key] = [];
+            else emptied[key] = '';
+        }
+        return [emptied];
+    }
+
+    // ── Build profile data for each section ──────────────────
+    const profileExperience = parseTextBlock(profile.experience, 'experience');
+    const profileEducation  = parseTextBlock(profile.education, 'education');
+    const profileProjects   = parseTextBlock(profile.projects, 'projects');
+
+    // ── Merge: template structure + profile data overlay ─────
+    const baseDesign = baseCv._designState || {};
+    const mergedDesignState = {
+        ...cloneCvEditorData(baseDesign, {}),
+        color: accent
     };
+
+    const result = {
+        ...baseCv,
+        // Personal info from profile (overwrite template placeholders)
+        name:     profile.fullName || '',
+        subtitle: profile.occupation || '',
+        email:    profile.contactEmail || profile.email || '',
+        phone:    profile.phone || '',
+        address:  baseCv.address != null ? '' : '',
+        summary:  '',
+        // Sections: use profile data if available, else keep template structure but emptied
+        experience:     profileExperience.length > 0 ? profileExperience : emptySection(baseCv.experience, 'experience'),
+        education:      profileEducation.length > 0  ? profileEducation  : emptySection(baseCv.education, 'education'),
+        skills:         skillsArr.length > 0         ? skillsArr         : emptySection(baseCv.skills, 'skills'),
+        projects:       profileProjects.length > 0   ? profileProjects   : emptySection(baseCv.projects, 'projects'),
+        certifications: emptySection(baseCv.certifications, 'certifications'),
+        awards:         emptySection(baseCv.awards, 'awards'),
+        activities:     emptySection(baseCv.activities, 'activities'),
+        // Style & design from template
+        _styleTag:    styleTag,
+        _accent:      accent,
+        _designState: mergedDesignState
+    };
+
+    return result;
 }
 
 async function initCvEditor() {

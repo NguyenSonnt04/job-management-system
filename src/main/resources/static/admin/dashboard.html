@@ -45,104 +45,6 @@
             display: flex;
         }
 
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            background: var(--bg-sidebar);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            height: 100vh;
-            left: 0;
-            top: 0;
-            z-index: 100;
-        }
-
-        .sidebar-header {
-            padding: 24px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: white;
-        }
-
-        .sidebar-logo img {
-            height: 32px;
-            filter: brightness(0) invert(1);
-        }
-
-        .sidebar-logo span {
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .admin-badge {
-            background: var(--primary);
-            color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 8px;
-            font-weight: 600;
-        }
-
-        .sidebar-nav {
-            padding: 20px 12px;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .nav-section {
-            margin-bottom: 24px;
-        }
-
-        .nav-section-title {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--text-sidebar);
-            padding: 0 12px;
-            margin-bottom: 12px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            color: var(--text-sidebar);
-            text-decoration: none;
-            border-radius: 6px;
-            margin-bottom: 4px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .nav-item:hover {
-            background: var(--bg-sidebar-hover);
-            color: var(--text-sidebar-hover);
-        }
-
-        .nav-item.active {
-            background: var(--bg-sidebar-active);
-            color: white;
-        }
-
-        .nav-item svg {
-            width: 20px;
-            height: 20px;
-            stroke-width: 2;
-        }
-
         /* Main Content */
         .main-wrapper {
             flex-grow: 1;
@@ -603,101 +505,9 @@
             height: 16px;
         }
     </style>
+    <script src="/admin/sidebar.js"></script>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a href="/admin/dashboard.html" class="sidebar-logo">
-                <img src="../images/logo.png" alt="CoHoiViecLam" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xMiAyTDExIDEybTEtMTBMMTMgMTIiLz48L3N2Zz4='">
-                <span>CoHoiViecLam <span class="admin-badge">ADMIN</span></span>
-            </a>
-        </div>
-
-        <nav class="sidebar-nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Tổng quan</div>
-                <a href="/admin/dashboard.html" class="nav-item active">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <rect x="3" y="3" width="7" height="9" rx="1"></rect>
-                        <rect x="14" y="3" width="7" height="5" rx="1"></rect>
-                        <rect x="14" y="12" width="7" height="9" rx="1"></rect>
-                        <rect x="3" y="16" width="7" height="5" rx="1"></rect>
-                    </svg>
-                    Dashboard
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Quản lý</div>
-                <a href="/admin/users.html" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                    Người dùng
-                </a>
-                <a href="/admin/employers.html" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                    </svg>
-                    Nhà tuyển dụng
-                </a>
-                <a href="/admin/jobs.html" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                        <polyline points="7.5 4.21 12 6.81 16.5 4.21"></polyline>
-                        <polyline points="7.5 19.79 7.5 14.6 3 12"></polyline>
-                        <polyline points="21 12 16.5 14.6 16.5 19.79"></polyline>
-                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                    </svg>
-                    Việc làm
-                </a>
-                <a href="/admin/cv-templates.html" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10 9 9 9 8 9"></polyline>
-                    </svg>
-                    Mẫu CV
-                </a>
-                <a href="/admin/hero-banners.html" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <rect x="3" y="4" width="18" height="14" rx="2"></rect>
-                        <path d="M7 15l3-3 3 2 4-5 2 3"></path>
-                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                    </svg>
-                    Hero Banner
-                </a>
-                <a href="/admin/top-employer-logos.html" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <rect x="3" y="6" width="18" height="12" rx="2"></rect>
-                        <path d="M7 12h10"></path>
-                        <path d="M12 6v12"></path>
-                    </svg>
-                    Top Employers
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Hệ thống</div>
-                <a href="/admin/settings.html" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                    </svg>
-                    Cài đặt
-                </a>
-            </div>
-        </nav>
-    </aside>
-
     <!-- Main Wrapper -->
     <div class="main-wrapper">
         <header class="top-bar">
@@ -776,7 +586,7 @@
                             24%
                         </span>
                     </div>
-                    <div class="stat-number">0</div>
+                    <div class="stat-number" id="totalJobs">0</div>
                     <div class="stat-label">Việc làm đang đăng</div>
                 </div>
 
@@ -799,7 +609,7 @@
                             18%
                         </span>
                     </div>
-                    <div class="stat-number">0</div>
+                    <div class="stat-number" id="totalApplications">0</div>
                     <div class="stat-label">Đơn ứng tuyển</div>
                 </div>
             </div>
@@ -931,25 +741,51 @@
             })
             .catch(error => console.error('Error fetching user info:', error));
 
-        // Load stats (placeholder - would fetch from API)
-        fetch('/api/admin/stats')
-            .then(response => {
-                if(!response.ok) throw new Error('Not found');
-                return response.json();
-            })
+        // Load stats
+        fetch('/api/admin/stats', { credentials: 'include' })
+            .then(r => r.json())
             .then(data => {
-                if (data.totalUsers) document.getElementById('totalUsers').textContent = data.totalUsers;
-                if (data.totalEmployers) document.getElementById('totalEmployers').textContent = data.totalEmployers;
+                document.getElementById('totalUsers').textContent = data.totalUsers || 0;
+                document.getElementById('totalEmployers').textContent = data.totalEmployers || 0;
+                document.getElementById('totalJobs').textContent = data.activeJobs || 0;
+                document.getElementById('totalApplications').textContent = data.totalApplications || 0;
             })
-            .catch(() => {
-                // If API fails, default to mock values
-                document.getElementById('totalUsers').textContent = '2,845';
-                document.getElementById('totalEmployers').textContent = '142';
-            });
-            
-        // Assuming we have fetch recent users logic here:
-        // fetch('/api/admin/users/recent').... 
-        // For now, keep demo data if server doesn't respond
+            .catch(e => console.error('Stats error:', e));
+
+        // Load recent users
+        fetch('/api/admin/users', { credentials: 'include' })
+            .then(r => r.json())
+            .then(users => {
+                const tbody = document.getElementById('recentUsersTable');
+                if (!tbody) return;
+                const recent = users.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 5);
+                if (!recent.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:20px;">Chưa có người dùng</td></tr>'; return; }
+                tbody.innerHTML = recent.map(u => {
+                    const initials = (u.fullName || u.email || 'U').charAt(0).toUpperCase();
+                    const roleLabel = u.role === 'ADMIN' ? 'Quản trị' : u.role === 'EMPLOYER' ? 'Nhà tuyển dụng' : 'Ứng viên';
+                    const roleClass = u.role === 'ADMIN' ? 'admin' : u.role === 'EMPLOYER' ? 'employer' : 'candidate';
+                    const timeAgo = u.createdAt ? fmtTimeAgo(u.createdAt) : '—';
+                    return `<tr>
+                        <td><div style="display:flex;align-items:center;gap:10px;">
+                            <div style="width:32px;height:32px;border-radius:50%;background:${roleClass==='admin'?'#fee2e2':roleClass==='employer'?'#dcfce7':'#dbeafe'};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:${roleClass==='admin'?'#991b1b':roleClass==='employer'?'#166534':'#1e40af'}">${initials}</div>
+                            <div><div style="font-weight:600;font-size:13px;">${esc(u.fullName || 'Chưa đặt tên')}</div><div style="font-size:11px;color:#999;">${esc(u.email)}</div></div>
+                        </div></td>
+                        <td><span class="role-badge role-${roleClass}">${roleLabel}</span></td>
+                        <td><span class="status-badge status-${u.enabled ? 'active' : 'inactive'}">${u.enabled ? 'Hoạt động' : 'Vô hiệu'}</span></td>
+                        <td>${timeAgo}</td>
+                    </tr>`;
+                }).join('');
+            })
+            .catch(e => console.error('Users error:', e));
+
+        function fmtTimeAgo(iso) {
+            const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+            if (s < 60) return 'Vừa xong';
+            if (s < 3600) return Math.floor(s/60) + ' phút trước';
+            if (s < 86400) return Math.floor(s/3600) + ' giờ trước';
+            return Math.floor(s/86400) + ' ngày trước';
+        }
+        function esc(t) { const d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
     </script>
 </body>
 </html>

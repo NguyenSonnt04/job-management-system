@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý nhà tuyển dụng | CoHoiViecLam ADMIN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#f8fafc;--panel:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--brand:#2563eb;--brand-2:#1d4ed8;--danger:#dc2626;--sidebar:#0f172a;--sidebar-hover:#1e293b}
+        *{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);display:flex;font-size:13px}
+        .main{margin-left:260px;min-height:100vh;width:calc(100% - 260px)}.top{height:72px;background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}.top h1{font-size:20px}.content{padding:28px}
+        .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap}.search{padding:9px 14px;border:1px solid var(--line);border-radius:10px;font:inherit;width:320px;background:#fff}.search:focus{outline:none;border-color:var(--brand)}
+        .filter-select{padding:9px 14px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;cursor:pointer}
+        .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 24px rgba(15,23,42,.06);overflow:hidden}
+        .stats{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px;min-width:160px}.stat .num{font-size:28px;font-weight:800;line-height:1}.stat .label{color:var(--muted);margin-top:4px;font-size:12px}
+        table{width:100%;border-collapse:collapse}th{text-align:left;padding:12px 16px;background:#f8fafc;border-bottom:2px solid var(--line);font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap}td{padding:10px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+        tr:hover td{background:#f8fafc}
+        .company-cell{display:flex;flex-direction:column;gap:2px}.company-name{font-weight:600}.company-email{color:var(--muted);font-size:12px}
+        .contact-cell{display:flex;flex-direction:column;gap:2px}.contact-name{font-weight:500}.contact-phone{color:var(--muted);font-size:12px}
+        .chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#f1f5f9;color:#334155}
+        .status-on{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#d1fae5;color:#047857;white-space:nowrap}
+        .status-off{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#fee2e2;color:#dc2626;white-space:nowrap}
+        .btn{border:none;border-radius:8px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}.btn.secondary{background:#fff;border:1px solid var(--line)}.btn.secondary:hover{background:#f8fafc}
+        .btn.lock{background:#fff;border:1px solid #fca5a5;color:#dc2626}.btn.lock:hover{background:#fee2e2}
+        .btn.unlock{background:#fff;border:1px solid #6ee7b7;color:#047857}.btn.unlock:hover{background:#d1fae5}
+        .empty{padding:40px 20px;text-align:center;color:var(--muted)}
+        .count-info{color:var(--muted);font-size:12px;margin-left:auto}
+        .link{color:var(--brand);text-decoration:none;font-size:12px}.link:hover{text-decoration:underline}
+        .table-wrap{overflow-x:auto}
+        @media(max-width:760px){.sidebar{display:none}.main{margin-left:0;width:100%}.search{width:100%}.stats{flex-direction:column}}
+    </style>
+    <script src="/admin/sidebar.js"></script>
+</head>
+<body>
+    <div class="main">
+        <div class="top"><h1>Quản lý nhà tuyển dụng</h1><a class="btn secondary" href="/auth/logout">Đăng xuất</a></div>
+        <div class="content">
+            <div class="stats" id="stats"></div>
+            <div class="toolbar">
+                <input class="search" id="search" type="text" placeholder="Tìm theo công ty, mã số thuế, liên hệ...">
+                <select class="filter-select" id="provinceFilter">
+                    <option value="">Tất cả tỉnh/thành</option>
+                </select>
+                <span class="count-info" id="countInfo"></span>
+            </div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Công ty</th>
+                                <th>Loại hình</th>
+                                <th>Quy mô</th>
+                                <th>Tỉnh/Thành</th>
+                                <th>Liên hệ</th>
+                                <th>Mã số thuế</th>
+                                <th>Website</th>
+                                <th>Ngày tạo</th>
+                                <th>Trạng thái</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody">
+                            <tr><td colspan="8" class="empty">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let employers=[];
+        const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        const fmt=v=>v?new Date(v).toLocaleDateString('vi-VN'):'—';
+        const $=id=>document.getElementById(id);
+
+        function getFiltered(){
+            const q=$('search').value.toLowerCase().trim();
+            const prov=$('provinceFilter').value;
+            return employers.filter(e=>{
+                if(q&&!(`${e.companyName} ${e.taxCode} ${e.contactName} ${e.contactPhone}`).toLowerCase().includes(q))return false;
+                if(prov&&e.province!==prov)return false;
+                return true;
+            });
+        }
+
+        function renderStats(){
+            const total=employers.length;
+            const locked=employers.filter(e=>e.userId!=null&&e.userEnabled===false).length;
+            const provinces=new Set(employers.map(e=>e.province).filter(Boolean));
+            $('stats').innerHTML=`
+                <div class="stat"><div class="num">${total}</div><div class="label">Tổng nhà tuyển dụng</div></div>
+                <div class="stat"><div class="num" style="color:#2563eb">${provinces.size}</div><div class="label">Tỉnh/Thành phố</div></div>
+                <div class="stat"><div class="num" style="color:#dc2626">${locked}</div><div class="label">Tài khoản bị khóa</div></div>`;
+            const sel=$('provinceFilter');
+            const current=sel.value;
+            const opts=[...provinces].sort();
+            sel.innerHTML='<option value="">Tất cả tỉnh/thành</option>'+opts.map(p=>`<option value="${esc(p)}"${p===current?' selected':''}>${esc(p)}</option>`).join('');
+        }
+
+        async function toggleLock(userId, currentlyEnabled){
+            const action=currentlyEnabled?'khóa':'mở khóa';
+            if(!confirm(`Bạn có chắc muốn ${action} tài khoản này?`))return;
+            try{
+                const r=await fetch(`/api/admin/users/${userId}/toggle`,{method:'PATCH',credentials:'include'});
+                const d=await r.json();
+                if(!r.ok||!d.success)throw new Error('Thao tác thất bại');
+                const emp=employers.find(e=>e.userId===userId);
+                if(emp)emp.userEnabled=d.enabled;
+                renderStats();render();
+            }catch(e){alert(e.message||'Có lỗi xảy ra.')}
+        }
+
+        function render(){
+            const filtered=getFiltered();
+            $('countInfo').textContent=`Hiển thị ${filtered.length} / ${employers.length} nhà tuyển dụng`;
+            if(!filtered.length){$('tbody').innerHTML='<tr><td colspan="10" class="empty">Không tìm thấy nhà tuyển dụng nào.</td></tr>';return}
+            $('tbody').innerHTML=filtered.map(e=>`<tr>
+                <td><div class="company-cell"><span class="company-name">${esc(e.companyName)}</span><span class="company-email">${esc(e.userEmail||'')}</span></div></td>
+                <td><span class="chip">${esc(e.businessType||'—')}</span></td>
+                <td>${esc(e.employeeCount||'—')}</td>
+                <td>${esc(e.province||'—')}</td>
+                <td><div class="contact-cell"><span class="contact-name">${esc(e.contactName||'—')}</span><span class="contact-phone">${esc(e.contactPhone||'')}</span></div></td>
+                <td style="font-family:monospace;font-size:12px">${esc(e.taxCode||'—')}</td>
+                <td>${e.website?`<a class="link" href="${esc(e.website)}" target="_blank" rel="noopener">${esc(e.website.replace(/^https?:\/\//,'').slice(0,30))}</a>`:'—'}</td>
+                <td style="white-space:nowrap">${fmt(e.createdAt)}</td>
+                <td>${e.userId!=null?(e.userEnabled!==false?'<span class="status-on">Hoạt động</span>':'<span class="status-off">Đã khóa</span>'):'—'}</td>
+                <td>${e.userId!=null?`<button class="btn ${e.userEnabled!==false?'lock':'unlock'}" onclick="toggleLock(${e.userId},${e.userEnabled!==false})">${e.userEnabled!==false?'Khóa':'Mở khóa'}</button>`:'—'}</td>
+            </tr>`).join('');
+        }
+
+        async function load(){
+            try{
+                const r=await fetch('/api/admin/employers',{credentials:'include'});
+                if(!r.ok)throw new Error('Không thể tải danh sách');
+                employers=await r.json();
+                renderStats();render();
+            }catch(e){$('tbody').innerHTML=`<tr><td colspan="8" class="empty">${esc(e.message)}</td></tr>`}
+        }
+
+        window.toggleLock=toggleLock;
+        $('search').addEventListener('input',render);
+        $('provinceFilter').addEventListener('change',render);
+        load();
+    </script>
+</body>
+</html>

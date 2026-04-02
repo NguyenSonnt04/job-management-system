@@ -1103,16 +1103,22 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchUser();
-            initDashboard();
+            loadCvs();
+            setupModalBehaviors();
             setupStatusToggle();
         });
 
         async function fetchUser() {
             try {
-                const res = await fetch('/api/user/me', { credentials: 'include' });
+                const res = await fetch('/api/auth/me', { credentials: 'include' });
                 if (res.status === 401) {
                     window.location.href = '/login.html?redirect=/my-cvs.html';
+                    return;
                 }
+                const data = await res.json();
+                if (!data.loggedIn) { window.location.href = '/login.html?redirect=/my-cvs.html'; return; }
+                const nameEl = document.getElementById('sidebarUserName');
+                if (nameEl) nameEl.textContent = data.displayName || data.fullName || 'Người dùng';
             } catch (err) { console.error('Auth check failed', err); }
         }
 
@@ -1154,12 +1160,12 @@
 
         async function loadCvs() {
             const grid = document.getElementById('cvGrid');
-            const loader = document.getElementById('loader');
+            const loader = document.getElementById('loadingState');
             const empty = document.getElementById('emptyMsg');
 
-            loader.style.display = 'block';
-            grid.innerHTML = '';
-            empty.style.display = 'none';
+            if (loader) loader.style.display = '';
+            if (grid) grid.innerHTML = '';
+            if (empty) empty.style.display = 'none';
 
             try {
                 const res = await fetch('/api/user-cv', { credentials: 'include' });
@@ -1170,13 +1176,37 @@
                 showToast('Lỗi kết nối cơ sở dữ liệu', 'error');
             }
 
-            loader.style.display = 'none';
+            if (loader) loader.style.display = 'none';
             if (cvRecords.length === 0) {
-                empty.style.display = 'block';
+                const emptyState = document.getElementById('emptyState');
+                if (emptyState) emptyState.style.display = '';
                 updateStats(0, 0, 'Chưa có hồ sơ nào');
             } else {
+                const emptyState = document.getElementById('emptyState');
+                if (emptyState) emptyState.style.display = 'none';
                 updateStats(cvRecords.length, getRecentCount(cvRecords), `Cập nhật lần cuối: ${fmtLast(cvRecords[0].updatedAt)}`);
                 renderGallery();
+            }
+            updateSidebar();
+        }
+
+        function updateSidebar() {
+            const total = cvRecords.length;
+            const el = document.getElementById('sidebarTotalCv');
+            if (el) el.textContent = total;
+
+            const readyEl = document.getElementById('sidebarReadyMetric');
+            if (readyEl) readyEl.textContent = total;
+
+            const nameEl = document.getElementById('selectedCvName');
+            const metaEl = document.getElementById('selectedCvMeta');
+            if (total > 0) {
+                const latest = cvRecords[0];
+                if (nameEl) nameEl.textContent = latest.cvName || 'CV của bạn';
+                if (metaEl) metaEl.textContent = `Cập nhật: ${fmtDate(latest.updatedAt)} · ${latest.templateName || 'CV'}`;
+            } else {
+                if (nameEl) nameEl.textContent = 'Chưa có CV';
+                if (metaEl) metaEl.textContent = 'Tạo CV đầu tiên để bắt đầu.';
             }
         }
 
@@ -1190,6 +1220,8 @@
         function createCvCard(cv, idx) {
             const card = document.createElement('div');
             card.className = 'cv-card';
+            const templateName = cv.templateName || 'CV';
+            const safeName = JSON.stringify(cv.cvName || 'CV của bạn');
             card.innerHTML = `
                 <div class="cv-card-row">
                     <div class="cv-row-icon" onclick="openCvEditor(${cv.id})" style="cursor:pointer" title="Mở CV"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
@@ -1202,19 +1234,26 @@
                     </div>
                     <div class="cv-row-actions">
                         <button class="btn-cv-action btn-cv-primary" onclick="openCvEditor(${cv.id})">Chỉnh sửa</button>
-                        <button class="btn-cv-action" onclick='renameCV(${cv.id}, ${safeName})'>Đổi tên</button>
+                        <button class="btn-cv-action" onclick='openRename(${cv.id}, ${safeName})'>Đổi tên</button>
                         <button class="btn-cv-action" onclick="window.location.href='/cv-view.html?cvId=${cv.id}'">Xem CV</button>
-                        <button class="btn-cv-action btn-cv-danger" onclick='deleteCV(${cv.id}, ${safeName})'>Xóa</button>
+                        <button class="btn-cv-action btn-cv-danger" onclick='openDelete(${cv.id}, ${safeName})'>Xóa</button>
                     </div>
                 </div>
             `;
             return card;
         }
 
+        function openCvEditor(id) {
+            window.location.href = `/cv-editor.html?cvId=${id}`;
+        }
+
         function updateStats(total, recent, summary) {
-            document.getElementById('totalCvCount').textContent = String(total).padStart(2, '0');
-            document.getElementById('recentCvCount').textContent = String(recent).padStart(2, '0');
-            document.getElementById('gallerySummary').textContent = summary;
+            const el1 = document.getElementById('totalCvMetric');
+            const el2 = document.getElementById('recentCvMetric');
+            const el3 = document.getElementById('collectionStatus');
+            if (el1) el1.textContent = String(total).padStart(2, '0');
+            if (el2) el2.textContent = String(recent).padStart(2, '0');
+            if (el3) el3.textContent = summary;
         }
 
         function getRecentCount(list) {
@@ -1232,12 +1271,20 @@
         }
 
         function setupStatusToggle() {
-            const toggle = document.getElementById('jobStatusToggle');
+            const toggle = document.getElementById('jobSearchToggleMain');
+            const toggleSidebar = document.getElementById('jobSearchToggleSidebar');
             const title = document.getElementById('jobSearchTitle');
+            if (!toggle) return;
             toggle.addEventListener('change', () => {
-                title.textContent = toggle.checked ? 'Đang tìm việc' : 'Tạm ẩn hồ sơ';
-                showToast(toggle.checked ? 'Đã bật chế độ tìm việc' : 'Đã tạm ẩn hồ sơ khỏi tìm kiếm', 'success');
+                title.textContent = toggle.checked ? 'Đang bật tìm việc' : 'Tạm ẩn hồ sơ';
+                if (toggleSidebar) toggleSidebar.checked = toggle.checked;
             });
+            if (toggleSidebar) {
+                toggleSidebar.addEventListener('change', () => {
+                    toggle.checked = toggleSidebar.checked;
+                    title.textContent = toggleSidebar.checked ? 'Đang bật tìm việc' : 'Tạm ẩn hồ sơ';
+                });
+            }
         }
 
         // Modals
@@ -1279,7 +1326,7 @@
                 if (!res.ok) throw new Error(data.message || 'Không thể xóa CV.');
                 toast('Đã xóa CV thành công.', 'success');
                 closeDelete();
-                await loadCvList();
+                await loadCvs();
             } catch (error) { toast(error.message || 'Không thể xóa CV.', 'error'); }
         }
 
@@ -1321,7 +1368,7 @@
                 fileInput.value = '';
                 nameInput.value = '';
                 toast('Đã tải CV lên thành công.', 'success');
-                await loadCvList();
+                await loadCvs();
             } catch (error) { toast(error.message || 'Không thể tải CV lên.', 'error'); }
         }
 

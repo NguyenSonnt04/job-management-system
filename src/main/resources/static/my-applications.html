@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn ứng tuyển của tôi | CoHoiViecLam</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; font-size: 13px; color: #1e293b; background: #f8fafc; margin: 0; }
+
+        .ma-shell { max-width: 960px; margin: 24px auto 60px; padding: 0 24px; }
+
+        .ma-hero { margin-bottom: 24px; }
+        .ma-hero h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
+        .ma-hero p { color: #64748b; margin: 0; font-size: 13px; }
+
+        .ma-stats { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .ma-stat { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; min-width: 100px; }
+        .ma-stat-value { font-size: 20px; font-weight: 700; color: #0f172a; }
+        .ma-stat-label { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+        .ma-table-wrap { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
+        .ma-table { width: 100%; border-collapse: collapse; }
+        .ma-table th { background: #f1f5f9; text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid #cbd5e1; }
+        .ma-table td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+        .ma-table tr:last-child td { border-bottom: none; }
+        .ma-table tr:hover td { background: #f8fafc; }
+
+        .ma-job-title { font-weight: 600; color: #0f172a; font-size: 13px; }
+        .ma-job-title a { color: #0f172a; text-decoration: none; }
+        .ma-job-title a:hover { color: #2563eb; text-decoration: underline; }
+        .ma-company { color: #64748b; font-size: 12px; margin-top: 1px; }
+
+        .ma-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
+        .ma-badge--pending { background: #fef9c3; color: #854d0e; }
+        .ma-badge--viewed { background: #dbeafe; color: #1e40af; }
+        .ma-badge--interview { background: #dcfce7; color: #166534; }
+        .ma-badge--rejected { background: #fee2e2; color: #991b1b; }
+        .ma-badge--saved { background: #f1f5f9; color: #475569; }
+
+        .ma-date { color: #64748b; font-size: 12px; white-space: nowrap; }
+
+        .ma-actions a { font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 500; }
+        .ma-actions a:hover { text-decoration: underline; }
+
+        .ma-empty { text-align: center; padding: 48px 16px; }
+        .ma-empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+        .ma-empty h2 { font-size: 15px; font-weight: 600; margin: 0 0 6px; color: #475569; }
+        .ma-empty p { font-size: 13px; color: #94a3b8; margin: 0 0 16px; }
+        .ma-empty a { display: inline-block; padding: 8px 20px; background: #2563eb; color: #fff; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none; }
+        .ma-empty a:hover { background: #1d4ed8; }
+
+        .ma-loading { text-align: center; padding: 48px 16px; color: #64748b; }
+
+        @media (max-width: 640px) {
+            .ma-table th:nth-child(4), .ma-table td:nth-child(4) { display: none; }
+            .ma-stats { gap: 6px; }
+            .ma-stat { min-width: 80px; padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="ma-shell">
+        <div class="ma-hero">
+            <h1>Đơn ứng tuyển của tôi</h1>
+            <p>Theo dõi trạng thái tất cả các đơn ứng tuyển bạn đã gửi</p>
+        </div>
+
+        <div class="ma-stats" id="statsRow" style="display:none;">
+            <div class="ma-stat">
+                <div class="ma-stat-value" id="statTotal">0</div>
+                <div class="ma-stat-label">Tổng đơn</div>
+            </div>
+            <div class="ma-stat">
+                <div class="ma-stat-value" id="statPending">0</div>
+                <div class="ma-stat-label">Chờ xử lý</div>
+            </div>
+            <div class="ma-stat">
+                <div class="ma-stat-value" id="statInterview">0</div>
+                <div class="ma-stat-label">Phỏng vấn</div>
+            </div>
+            <div class="ma-stat">
+                <div class="ma-stat-value" id="statRejected">0</div>
+                <div class="ma-stat-label">Từ chối</div>
+            </div>
+        </div>
+
+        <div id="content">
+            <div class="ma-loading">Đang tải dữ liệu...</div>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script>
+    (function() {
+        const statusMap = {
+            'PENDING':   { label: 'Chờ xử lý',  cls: 'ma-badge--pending' },
+            'VIEWED':    { label: 'Đã xem',      cls: 'ma-badge--viewed' },
+            'SAVED':     { label: 'Đã lưu',      cls: 'ma-badge--saved' },
+            'INTERVIEW': { label: 'Phỏng vấn',   cls: 'ma-badge--interview' },
+            'REJECTED':  { label: 'Từ chối',      cls: 'ma-badge--rejected' }
+        };
+
+        function formatDate(iso) {
+            if (!iso) return '-';
+            const d = new Date(iso);
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            return dd + '/' + mm + '/' + yyyy;
+        }
+
+        function renderEmpty() {
+            document.getElementById('content').innerHTML =
+                '<div class="ma-empty">' +
+                    '<div class="ma-empty-icon">&#128203;</div>' +
+                    '<h2>Bạn chưa ứng tuyển công việc nào</h2>' +
+                    '<p>Hãy tìm kiếm và ứng tuyển những công việc phù hợp với bạn</p>' +
+                    '<a href="tim-viec-lam.html">Tìm việc ngay</a>' +
+                '</div>';
+        }
+
+        function renderTable(apps) {
+            var counts = { total: apps.length, PENDING: 0, INTERVIEW: 0, REJECTED: 0 };
+            apps.forEach(function(a) { if (counts[a.status] !== undefined) counts[a.status]++; });
+            document.getElementById('statTotal').textContent = counts.total;
+            document.getElementById('statPending').textContent = counts.PENDING;
+            document.getElementById('statInterview').textContent = counts.INTERVIEW;
+            document.getElementById('statRejected').textContent = counts.REJECTED;
+            document.getElementById('statsRow').style.display = 'flex';
+
+            var rows = apps.map(function(app) {
+                var s = statusMap[app.status] || { label: app.status, cls: 'ma-badge--saved' };
+                return '<tr>' +
+                    '<td>' +
+                        '<div class="ma-job-title"><a href="job-detail.html?id=' + (app.jobId || '') + '">' + (app.jobTitle || 'N/A') + '</a></div>' +
+                        '<div class="ma-company">' + (app.companyName || '') + '</div>' +
+                    '</td>' +
+                    '<td><span class="ma-badge ' + s.cls + '">' + s.label + '</span></td>' +
+                    '<td class="ma-date">' + formatDate(app.createdAt) + '</td>' +
+                    '<td class="ma-actions"><a href="job-detail.html?id=' + (app.jobId || '') + '">Xem tin</a></td>' +
+                '</tr>';
+            }).join('');
+
+            document.getElementById('content').innerHTML =
+                '<div class="ma-table-wrap"><table class="ma-table">' +
+                    '<thead><tr><th>Vị trí ứng tuyển</th><th>Trạng thái</th><th>Ngày nộp</th><th></th></tr></thead>' +
+                    '<tbody>' + rows + '</tbody>' +
+                '</table></div>';
+        }
+
+        fetch('/api/applications/my', { credentials: 'include' })
+            .then(function(r) {
+                if (r.status === 401) {
+                    document.getElementById('content').innerHTML =
+                        '<div class="ma-empty">' +
+                            '<div class="ma-empty-icon">&#128274;</div>' +
+                            '<h2>Vui lòng đăng nhập</h2>' +
+                            '<p>Bạn cần đăng nhập để xem đơn ứng tuyển của mình</p>' +
+                            '<a href="candidate-register.html">Đăng nhập / Đăng ký</a>' +
+                        '</div>';
+                    throw new Error('unauthorized');
+                }
+                return r.json();
+            })
+            .then(function(data) {
+                var apps = data.applications || [];
+                if (apps.length === 0) {
+                    renderEmpty();
+                } else {
+                    renderTable(apps);
+                }
+            })
+            .catch(function(err) {
+                if (err.message !== 'unauthorized') {
+                    document.getElementById('content').innerHTML =
+                        '<div class="ma-empty"><h2>Lỗi tải dữ liệu</h2><p>Vui lòng thử lại sau</p></div>';
+                }
+            });
+    })();
+    </script>
+    <div id="footer-placeholder"></div>
+</body>
+</html>

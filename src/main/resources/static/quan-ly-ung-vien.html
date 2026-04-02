@@ -165,18 +165,16 @@
                                 Tải tất cả hồ sơ
                             </button>
                         </div>
-                        <div class="btn-smart-eval">
+                        <button class="btn-smart-eval" id="btnAnalyzeAll" onclick="analyzeAllApplications()" title="AI phân tích tất cả ứng viên chưa được đánh giá">
                             <div class="robot-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="11" width="18" height="10" rx="2"></rect>
                                     <circle cx="12" cy="5" r="2"></circle>
                                     <path d="M12 7v4"></path>
-                                    <line x1="8" y1="16" x2="8" y2="16"></line>
-                                    <line x1="16" y1="16" x2="16" y2="16"></line>
                                 </svg>
                             </div>
-                            <span class="eval-text">ĐIỀU CHỈNH TIÊU CHÍ ĐÁNH GIÁ</span>
-                        </div>
+                            <span class="eval-text">AI PHÂN TÍCH TẤT CẢ</span>
+                        </button>
                     </div>
 
                     <div class="batch-actions">
@@ -275,9 +273,9 @@
                 <td>${formatDate(app.createdAt)}</td>
                 <td>${formatDate(app.createdAt)}</td>
                 <td>${statusBadge(app.status)}</td>
-                <td>—</td>
-                <td>—</td>
-                <td>—</td>
+                <td id="compat-${app.id}" style="text-align:center">${app.aiCompatScore != null ? `<span class="compat-score ${compatClass(app.aiCompatScore)}">${app.aiCompatScore}%</span>` : `<button class="btn-ai-analyze" onclick="analyzeOne(${app.id})" title="AI phân tích">Phân tích</button>`}</td>
+                <td id="ranking-${app.id}" style="text-align:center">${app.aiRanking || '—'}</td>
+                <td id="exp-${app.id}">${app.aiExperience || '—'}</td>
                 <td>—</td>
                 <td>
                     <div class="action-btns">
@@ -373,10 +371,21 @@
 
             updateTabCounts();
             const filtered = getFilteredApps(currentTab);
-            console.log('Filtered for tab', currentTab, ':', filtered.length);
             renderTable(filtered);
+
+            // Tự động phân tích AI cho ứng viên chưa có score
+            autoAnalyzeUnscored();
         } catch (err) {
             console.error('Lỗi tải dữ liệu ứng viên:', err);
+        }
+    }
+
+    async function autoAnalyzeUnscored() {
+        const unscored = allApplications.filter(a => a.aiCompatScore == null);
+        if (unscored.length === 0) return;
+
+        for (const app of unscored) {
+            await analyzeOne(app.id);
         }
     }
 
@@ -390,6 +399,59 @@
         renderTable(getFilteredApps(currentTab));
     };
 
+    // ── AI Analysis ─────────────────────────────────────────
+    function compatClass(score) {
+        if (score >= 80) return 'compat-high';
+        if (score >= 50) return 'compat-mid';
+        return 'compat-low';
+    }
+
+    async function analyzeOne(id) {
+        const btn = document.querySelector(`#compat-${id} .btn-ai-analyze`);
+        if (btn) { btn.disabled = true; btn.textContent = 'Đang...'; }
+        try {
+            const res = await fetch(`/api/applications/${id}/analyze`, {
+                method: 'POST', credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Cập nhật UI
+                document.getElementById(`compat-${id}`).innerHTML = `<span class="compat-score ${compatClass(data.aiCompatScore)}">${data.aiCompatScore}%</span>`;
+                document.getElementById(`ranking-${id}`).textContent = data.aiRanking || '—';
+                document.getElementById(`exp-${id}`).textContent = data.aiExperience || '—';
+                // Cập nhật data local
+                const app = allApplications.find(a => a.id === id);
+                if (app) { app.aiCompatScore = data.aiCompatScore; app.aiRanking = data.aiRanking; app.aiExperience = data.aiExperience; }
+            } else {
+                if (btn) { btn.disabled = false; btn.textContent = 'Thử lại'; }
+            }
+        } catch (e) {
+            console.error('AI analyze error:', e);
+            if (btn) { btn.disabled = false; btn.textContent = 'Lỗi'; }
+        }
+    }
+
+    async function analyzeAllApplications() {
+        const btn = document.getElementById('btnAnalyzeAll');
+        btn.disabled = true;
+        btn.querySelector('.eval-text').textContent = 'ĐANG PHÂN TÍCH...';
+        try {
+            const res = await fetch('/api/applications/analyze-all', {
+                method: 'POST', credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.success) {
+                btn.querySelector('.eval-text').textContent = `ĐÃ PHÂN TÍCH ${data.analyzed}/${data.total}`;
+                setTimeout(() => { btn.querySelector('.eval-text').textContent = 'AI PHÂN TÍCH TẤT CẢ'; btn.disabled = false; }, 2000);
+                await loadApplications();
+            }
+        } catch (e) {
+            console.error('Analyze all error:', e);
+            btn.querySelector('.eval-text').textContent = 'LỖI - THỬ LẠI';
+            btn.disabled = false;
+        }
+    }
+
     // Gọi ngay nếu DOM đã ready, hoặc chờ DOMContentLoaded
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', loadApplications);
@@ -397,5 +459,20 @@
         loadApplications();
     }
     </script>
+    <style>
+        .btn-ai-analyze {
+            padding: 3px 10px; border: 1px solid #cbd5e1; border-radius: 4px;
+            background: #f8fafc; color: #3b82f6; font-size: 11px; font-weight: 600;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .btn-ai-analyze:hover { background: #eff6ff; border-color: #3b82f6; }
+        .btn-ai-analyze:disabled { opacity: 0.6; cursor: not-allowed; }
+        .compat-score { font-weight: 700; font-size: 13px; padding: 2px 8px; border-radius: 4px; }
+        .compat-high { background: #dcfce7; color: #166534; }
+        .compat-mid { background: #fef9c3; color: #854d0e; }
+        .compat-low { background: #fee2e2; color: #991b1b; }
+        .btn-smart-eval { cursor: pointer; border: none; background: none; display: flex; align-items: center; gap: 8px; }
+        .btn-smart-eval:disabled .eval-text { opacity: 0.6; }
+    </style>
 </body>
 </html>
