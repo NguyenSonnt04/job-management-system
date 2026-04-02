@@ -73,6 +73,11 @@ function syncDesignControls() {
     document.querySelectorAll('[data-section-toggle]').forEach(input => {
         input.checked = designState.sections[input.dataset.sectionToggle] !== false;
     });
+
+    const currentLang = designState.language || 'vi';
+    document.querySelectorAll('.lang-option-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    });
 }
 
 function applyDesignStateToPreview() {
@@ -122,6 +127,87 @@ function updateDesign(prop, value, el) {
 
     if (prop === 'color') renderCurrentPreview();
     else applyDesignStateToPreview();
+}
+
+// ── Language Switcher ─────────────────────────────────────────
+function updateLanguage(lang) {
+    if (lang !== 'vi' && lang !== 'en') return;
+    if (isEditMode && typeof syncPreviewToCurrentCv === 'function') syncPreviewToCurrentCv();
+
+    designState.language = lang;
+
+    // Update all section titles to the selected language
+    const translations = CV_LANG[lang] || CV_LANG['vi'];
+    Object.keys(translations).forEach(sectionKey => {
+        designState.sectionTitles[sectionKey] = translations[sectionKey];
+    });
+
+    syncDesignStateToCurrentCv();
+    renderCvPreview(currentCvJson);
+    syncDesignControls();
+    markCvDirty({ immediate: true });
+}
+
+// ── AI Translate CV Content ───────────────────────────────────
+async function translateCvContent() {
+    if (!currentCvJson) return;
+
+    const lang = designState.language || 'vi';
+    const langLabel = lang === 'en' ? 'English' : 'Tiếng Việt';
+    const btn = document.getElementById('btnTranslateCv');
+    const label = document.getElementById('btnTranslateLabel');
+
+    // Sync current DOM edits before translating
+    if (isEditMode && typeof syncPreviewToCurrentCv === 'function') syncPreviewToCurrentCv();
+
+    // Strip internal state fields before sending to Gemini
+    const cvToSend = Object.assign({}, currentCvJson);
+    delete cvToSend._designState;
+    delete cvToSend._styleTag;
+    delete cvToSend._accent;
+    delete cvToSend.avatarUrl;
+
+    // Loading state
+    if (btn) btn.disabled = true;
+    if (label) label.textContent = 'Đang dịch...';
+
+    try {
+        const resp = await fetch('/api/user-cv/translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cvContent: cvToSend, targetLang: lang })
+        });
+        const json = await resp.json();
+
+        if (!json.success) throw new Error(json.message || 'Lỗi dịch CV');
+
+        // Merge translated data back, preserve internal state
+        const translated = json.data;
+        const preserved = {
+            _designState: currentCvJson._designState,
+            _styleTag:    currentCvJson._styleTag,
+            _accent:      currentCvJson._accent,
+            avatarUrl:    currentCvJson.avatarUrl
+        };
+
+        Object.assign(currentCvJson, translated, preserved);
+        renderCvPreview(currentCvJson);
+        markCvDirty({ immediate: true });
+
+        if (label) label.textContent = 'Đã dịch xong!';
+        setTimeout(() => {
+            if (label) label.textContent = 'Dịch toàn bộ nội dung CV';
+        }, 2000);
+
+    } catch (err) {
+        console.error('Translate error:', err);
+        if (label) label.textContent = 'Lỗi — thử lại';
+        setTimeout(() => {
+            if (label) label.textContent = 'Dịch toàn bộ nội dung CV';
+        }, 3000);
+    } finally {
+        if (btn) btn.disabled = false;
+    }
 }
 
 // ── Background Patterns ───────────────────────────────────────
@@ -244,6 +330,7 @@ function ensureSectionSeedData(sectionName) {
 }
 
 function addSection(sectionName) {
+    if (isEditMode && typeof syncPreviewToCurrentCv === 'function') syncPreviewToCurrentCv();
     ensureSectionSeedData(sectionName);
     designState.sections[sectionName] = true;
     syncDesignStateToCurrentCv();
@@ -253,6 +340,7 @@ function addSection(sectionName) {
 }
 
 function toggleSection(sectionName, isVisible) {
+    if (isEditMode && typeof syncPreviewToCurrentCv === 'function') syncPreviewToCurrentCv();
     if (isVisible) ensureSectionSeedData(sectionName);
     designState.sections[sectionName] = isVisible;
     syncDesignStateToCurrentCv();

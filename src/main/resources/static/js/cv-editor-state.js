@@ -49,6 +49,34 @@ const sectionMeta = {
 
 const defaultSectionOrder = [...sectionCatalog];
 
+// ── Language Translations ─────────────────────────────────────
+const CV_LANG = {
+    vi: {
+        summary:        'Mục tiêu nghề nghiệp',
+        experience:     'Kinh nghiệm làm việc',
+        education:      'Học vấn',
+        skills:         'Kỹ năng',
+        projects:       'Dự án',
+        certifications: 'Chứng chỉ',
+        awards:         'Giải thưởng',
+        activities:     'Hoạt động',
+        references:     'Người tham chiếu',
+        hobbies:        'Sở thích'
+    },
+    en: {
+        summary:        'Professional Summary',
+        experience:     'Work Experience',
+        education:      'Education',
+        skills:         'Skills',
+        projects:       'Projects',
+        certifications: 'Certifications',
+        awards:         'Awards',
+        activities:     'Activities',
+        references:     'References',
+        hobbies:        'Hobbies'
+    }
+};
+
 // ── Design State ─────────────────────────────────────────────
 const designState = {
     font: "'Inter', sans-serif",
@@ -56,6 +84,7 @@ const designState = {
     lineSpacing: 1.5,
     color: '#2E3B8E',
     background: 'solid',
+    language: 'vi',
     sections: {
         contacts: true,
         summary: true,
@@ -108,6 +137,7 @@ function hydrateDesignState(savedState = {}) {
     designState.lineSpacing = Number(savedState.lineSpacing || designState.lineSpacing);
     designState.color       = savedState.color       || designState.color;
     designState.background  = savedState.background  || designState.background;
+    designState.language    = savedState.language    || designState.language;
     designState.sections    = { ...designState.sections, ...(savedState.sections || {}) };
     designState.order       = sanitizeSectionOrder(savedState.order || designState.order);
     designState.sectionTitles = { ...(savedState.sectionTitles || {}) };

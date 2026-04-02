@@ -229,7 +229,7 @@
                         <div class="box"><h4>Tóm tắt hồ sơ</h4><p>${esc(limit(summary, 260))}</p></div>
                         <div class="box"><h4>Các mục đang có trong CV</h4><div class="section-pills">${buildSections(cv)}</div></div>
                         <div class="card-actions">
-                            <a class="btn btn-soft" href="/cv-editor.html?cvId=${encodeURIComponent(cvRecord.id)}">Chỉnh sửa</a>
+                            <a class="btn btn-soft" href="/cv-editor.html?cvId=${encodeURIComponent(cvRecord.id)}&edit=true">Chỉnh sửa</a>
                             <button class="btn btn-soft" onclick="downloadCvPopup('${encodeURIComponent(cvRecord.id)}')">Tải về</button>
                         </div>
                     </div>
@@ -268,7 +268,7 @@
             const cvId = params.get('cvId');
             document.getElementById('heroScoreHint').textContent = 'Chưa có kết quả chấm điểm tự động cho CV này.';
             document.getElementById('scorePanel').className = 'state';
-            document.getElementById('scorePanel').innerHTML = `<h3>Chưa có đánh giá AI</h3><p>${esc(message || 'Hệ thống chưa trả về kết quả chấm điểm.')}</p><div class="state-actions">${cvId ? `<button class="btn btn-score" onclick="scoreCvInline('${esc(cvId)}')">Đánh giá CV ngay</button>` : ''}<a class="btn btn-soft" href="/cv-editor.html${cvId ? `?cvId=${encodeURIComponent(cvId)}` : ''}">Quay lại chỉnh sửa</a></div>`;
+            document.getElementById('scorePanel').innerHTML = `<h3>Chưa có đánh giá AI</h3><p>${esc(message || 'Hệ thống chưa trả về kết quả chấm điểm.')}</p><div class="state-actions">${cvId ? `<button class="btn btn-score" onclick="scoreCvInline('${esc(cvId)}')">Đánh giá CV ngay</button>` : ''}<a class="btn btn-soft" href="/cv-editor.html${cvId ? `?cvId=${encodeURIComponent(cvId)}&edit=true` : ''}">Quay lại chỉnh sửa</a></div>`;
         }
 
         async function scoreCvInline(cvId) {
