@@ -504,11 +504,16 @@ public class CvScoringController {
                 "Analyze and return ONLY a JSON object (no markdown):\n" +
                 "{\n" +
                 "  \"matchScore\": <0-100 overall match percentage>,\n" +
+                "  \"skillScore\": <0-100 how well candidate skills match job requirements>,\n" +
+                "  \"experienceScore\": <0-100 how well experience level matches>,\n" +
+                "  \"educationScore\": <0-100 how well education matches>,\n" +
+                "  \"languageScore\": <0-100 language and communication fit>,\n" +
+                "  \"overallFitScore\": <0-100 overall cultural and role fit>,\n" +
                 "  \"summary\": \"<2-3 sentences summary in Vietnamese about overall fit>\",\n" +
                 "  \"matchedSkills\": [\"<skill1>\", \"<skill2>\"],\n" +
                 "  \"missingSkills\": [\"<missing skill1>\", \"<missing skill2>\"],\n" +
-                "  \"experienceMatch\": \"<comment on experience alignment>\",\n" +
-                "  \"educationMatch\": \"<comment on education alignment>\",\n" +
+                "  \"experienceMatch\": \"<comment on experience alignment in Vietnamese>\",\n" +
+                "  \"educationMatch\": \"<comment on education alignment in Vietnamese>\",\n" +
                 "  \"suggestions\": [\n" +
                 "    \"<suggestion1>\",\n" +
                 "    \"<suggestion2>\",\n" +
@@ -536,6 +541,11 @@ public class CvScoringController {
             result.put("fileName", originalName);
             result.put("jdText", jdText.trim());
             result.put("matchScore", root.path("matchScore").asInt(0));
+            result.put("skillScore", root.path("skillScore").asInt(0));
+            result.put("experienceScore", root.path("experienceScore").asInt(0));
+            result.put("educationScore", root.path("educationScore").asInt(0));
+            result.put("languageScore", root.path("languageScore").asInt(0));
+            result.put("overallFitScore", root.path("overallFitScore").asInt(0));
             result.put("summary", root.path("summary").asText("Không có tóm tắt"));
             result.put("matchedSkills", parseStringArray(root, "matchedSkills"));
             result.put("missingSkills", parseStringArray(root, "missingSkills"));
