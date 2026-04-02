@@ -363,7 +363,7 @@ public class UserCvController {
             return ResponseEntity.status(500).body(result);
         }
     }
-}
+
     private Map<String, Object> toVersionSummary(UserCvVersion version) {
         Map<String, Object> item = new HashMap<>();
         item.put("id", version.getId());

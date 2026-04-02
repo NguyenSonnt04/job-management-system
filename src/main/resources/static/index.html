@@ -44,21 +44,16 @@
                         <h2 class="search-title">Khởi đầu hành trình mới với<br><strong>19,490 cơ hội đang chờ bạn</strong></h2>
                         
                         <div class="search-form">
-                            <div class="search-input-wrapper">
+                            <div class="search-input-wrapper" style="position:relative;">
                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                     <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M19 19L14.65 14.65" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <input type="text" placeholder="Chức danh" class="search-input">
+                                <input type="text" placeholder="Tìm việc ngay" class="search-input" id="heroSearchInput" autocomplete="off">
+                                <div class="hero-autocomplete" id="heroAutocomplete"></div>
                             </div>
                             
                             <div class="search-actions">
-                                <button class="btn-reset">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M14.6667 1.33334L1.33334 14.6667M1.33334 1.33334L14.6667 14.6667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    Reset
-                                </button>
                                 <button class="btn-advanced">
                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                         <path d="M14 8.66667H2M14 3.33334H2M14 14H2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -68,7 +63,7 @@
                             </div>
                         </div>
 
-                        <button class="btn-search">TÌM VIỆC NGAY</button>
+                        <button class="btn-search" id="heroSearchBtn">TÌM VIỆC NGAY</button>
 
                         <p class="register-text">Đăng hồ sơ nghề nghiệp để dễ dàng ứng tuyển nhanh</p>
                         <button class="btn-register">ĐĂNG NGAY</button>
@@ -339,6 +334,127 @@
     <script src="js/homepage-jobs.js"></script>
     <script src="js/top-employer-logos.js"></script>
     <script src="js/main.js"></script>
+
+    <style>
+        .hero-autocomplete {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            max-height: 280px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .hero-autocomplete.show { display: block; }
+        .hero-ac-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background 0.1s;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .hero-ac-item:last-child { border-bottom: none; }
+        .hero-ac-item:hover { background: #f0fdf4; }
+        .hero-ac-title { font-size: 13px; font-weight: 600; color: #1e293b; }
+        .hero-ac-meta { font-size: 11px; color: #9ca3af; }
+        .hero-ac-company { font-size: 11px; color: #64748b; }
+        .hero-ac-icon {
+            width: 32px; height: 32px; border-radius: 8px; background: #f3f4f6;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            color: #9ca3af; font-size: 14px;
+        }
+        .hero-ac-empty {
+            padding: 16px; text-align: center; color: #9ca3af; font-size: 12px;
+        }
+        .hero-autocomplete::-webkit-scrollbar { width: 4px; }
+        .hero-autocomplete::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+    </style>
+
+    <script>
+    (function() {
+        const input = document.getElementById('heroSearchInput');
+        const dropdown = document.getElementById('heroAutocomplete');
+        const searchBtn = document.getElementById('heroSearchBtn');
+        if (!input || !dropdown) return;
+
+        let debounceTimer = null;
+
+        input.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            const q = input.value.trim();
+            if (q.length < 2) { dropdown.classList.remove('show'); return; }
+            debounceTimer = setTimeout(() => fetchSuggestions(q), 250);
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); doSearch(); }
+        });
+
+        searchBtn.addEventListener('click', doSearch);
+
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        async function fetchSuggestions(q) {
+            try {
+                const res = await fetch(`/api/jobs/search?keyword=${encodeURIComponent(q)}`);
+                const jobs = await res.json();
+                renderDropdown(jobs.slice(0, 8));
+            } catch (e) {
+                dropdown.classList.remove('show');
+            }
+        }
+
+        function renderDropdown(jobs) {
+            if (!jobs.length) {
+                dropdown.innerHTML = '<div class="hero-ac-empty">Khong tim thay viec lam phu hop</div>';
+                dropdown.classList.add('show');
+                return;
+            }
+            dropdown.innerHTML = jobs.map(job => {
+                const company = job.employer ? job.employer.companyName : '';
+                const location = job.location || '';
+                return `
+                    <div class="hero-ac-item" data-id="${job.id}" data-title="${esc(job.title)}">
+                        <div class="hero-ac-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+                        <div>
+                            <div class="hero-ac-title">${esc(job.title)}</div>
+                            <div class="hero-ac-company">${esc(company)}${location ? ' · ' + esc(location) : ''}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            dropdown.classList.add('show');
+
+            dropdown.querySelectorAll('.hero-ac-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const id = item.dataset.id;
+                    window.location.href = `/job-detail.html?id=${id}`;
+                });
+            });
+        }
+
+        function doSearch() {
+            const q = input.value.trim();
+            if (q) {
+                window.location.href = `/job-search.html?keyword=${encodeURIComponent(q)}`;
+            }
+        }
+
+        function esc(t) { const d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+    })();
+    </script>
 
 </body>
 </html>
