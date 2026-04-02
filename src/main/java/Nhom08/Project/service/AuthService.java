@@ -77,7 +77,7 @@ public class AuthService {
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(employerRole);
-        user.setEnabled(true);
+        user.setEnabled(false); // Chờ xác thực email OTP
 
         return userRepository.save(user);
     }

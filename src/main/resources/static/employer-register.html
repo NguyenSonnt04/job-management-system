@@ -106,6 +106,29 @@
                             <button type="submit" class="btn-submit-teal" style="background-color: #00d1b2;">TIẾP TỤC</button>
                         </div>
                     </form>
+
+                    <!-- OTP Verification Section (ẩn ban đầu) -->
+                    <div id="otpSection" style="display:none; margin-top: 20px;">
+                        <div style="text-align:center; margin-bottom:16px;">
+                            <div style="font-size:15px; font-weight:600; color:#333; margin-bottom:6px;">Xác thực email</div>
+                            <div style="font-size:13px; color:#666;">Mã OTP đã gửi đến <strong id="otpEmailDisplay"></strong></div>
+                        </div>
+                        <div id="otpMsg" style="font-size:13px; margin-bottom:12px; display:none;"></div>
+                        <div style="display:flex; gap:8px; justify-content:center; margin-bottom:16px;" id="otpBoxes">
+                            <input type="text" maxlength="1" inputmode="numeric" style="width:44px;height:52px;border:2px solid #d1d5db;border-radius:8px;font-size:22px;font-weight:700;text-align:center;outline:none;">
+                            <input type="text" maxlength="1" inputmode="numeric" style="width:44px;height:52px;border:2px solid #d1d5db;border-radius:8px;font-size:22px;font-weight:700;text-align:center;outline:none;">
+                            <input type="text" maxlength="1" inputmode="numeric" style="width:44px;height:52px;border:2px solid #d1d5db;border-radius:8px;font-size:22px;font-weight:700;text-align:center;outline:none;">
+                            <input type="text" maxlength="1" inputmode="numeric" style="width:44px;height:52px;border:2px solid #d1d5db;border-radius:8px;font-size:22px;font-weight:700;text-align:center;outline:none;">
+                            <input type="text" maxlength="1" inputmode="numeric" style="width:44px;height:52px;border:2px solid #d1d5db;border-radius:8px;font-size:22px;font-weight:700;text-align:center;outline:none;">
+                            <input type="text" maxlength="1" inputmode="numeric" style="width:44px;height:52px;border:2px solid #d1d5db;border-radius:8px;font-size:22px;font-weight:700;text-align:center;outline:none;">
+                        </div>
+                        <button id="btnVerifyRegOtp" onclick="verifyRegOtp()" style="width:100%;padding:12px;background:#00d1b2;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;">Xác nhận</button>
+                        <div style="text-align:center;font-size:13px;color:#666;">
+                            Không nhận được?
+                            <button id="btnResendRegOtp" onclick="resendRegOtp()" disabled style="background:none;border:none;color:#1D4ED8;font-weight:600;cursor:pointer;text-decoration:underline;">Gửi lại</button>
+                            <span id="regCountdown" style="font-weight:600;color:#1D4ED8;"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -205,17 +228,22 @@
                 try {
                     const response = await fetch('/api/auth/register/employer/step1', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
                     });
 
                     const data = await response.json();
 
-                    if (data.success) {
-                        window.location.href = data.redirectUrl || '/employer-register-step-2.html';
-                    } else {
+                    if (data.success && data.requireEmailVerification) {
+                        // Ẩn form, hiện OTP section
+                        form.style.display = 'none';
+                        document.getElementById('otpEmailDisplay').textContent = data.email;
+                        document.getElementById('otpSection').style.display = 'block';
+                        currentRegEmail = data.email;
+                        startRegCountdown(60);
+                        document.querySelector('#otpBoxes input').focus();
+                        if (!data.mailSent) showOtpMsg('Không thể gửi email, nhấn "Gửi lại" để thử.', 'error');
+                    } else if (!data.success) {
                         showError(data.message);
                     }
                 } catch (error) {
@@ -226,6 +254,94 @@
             function showError(message) {
                 errorMessage.textContent = message;
                 errorMessage.style.display = 'block';
+            }
+
+            // ── OTP logic for registration ──
+            let currentRegEmail = '';
+            let regTimer;
+            const otpBoxInputs = [...document.querySelectorAll('#otpBoxes input')];
+
+            otpBoxInputs.forEach((inp, i) => {
+                inp.addEventListener('input', () => {
+                    inp.value = inp.value.replace(/\D/g,'').slice(-1);
+                    if (inp.value && i < 5) otpBoxInputs[i+1].focus();
+                });
+                inp.addEventListener('keydown', e => {
+                    if (e.key === 'Backspace' && !inp.value && i > 0) otpBoxInputs[i-1].focus();
+                });
+                inp.addEventListener('paste', e => {
+                    e.preventDefault();
+                    const text = (e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+                    text.split('').forEach((ch,idx) => { if(otpBoxInputs[idx]) otpBoxInputs[idx].value = ch; });
+                    if (text.length > 0) otpBoxInputs[Math.min(text.length,5)].focus();
+                });
+            });
+
+            function getRegOtp() { return otpBoxInputs.map(i=>i.value).join(''); }
+
+            function showOtpMsg(msg, type) {
+                const el = document.getElementById('otpMsg');
+                el.textContent = msg;
+                el.style.display = 'block';
+                el.style.color = type === 'error' ? '#dc2626' : '#16a34a';
+            }
+
+            async function verifyRegOtp() {
+                const otp = getRegOtp();
+                if (otp.length < 6) { showOtpMsg('Vui lòng nhập đủ 6 chữ số', 'error'); return; }
+                const btn = document.getElementById('btnVerifyRegOtp');
+                btn.disabled = true; btn.textContent = 'Đang xác thực...';
+                try {
+                    const res = await fetch('/api/auth/verify-employer-registration-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ email: currentRegEmail, otp })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showOtpMsg('Xác thực thành công! Đang chuyển hướng...', 'success');
+                        setTimeout(() => { window.location.href = data.redirectUrl || '/employer-register-step-2.html'; }, 1000);
+                    } else {
+                        showOtpMsg(data.message || 'Mã OTP không đúng', 'error');
+                        otpBoxInputs.forEach(i => { i.value = ''; i.style.borderColor = '#ef4444'; });
+                        otpBoxInputs[0].focus();
+                        btn.disabled = false; btn.textContent = 'Xác nhận';
+                    }
+                } catch { showOtpMsg('Lỗi kết nối', 'error'); btn.disabled = false; btn.textContent = 'Xác nhận'; }
+            }
+
+            async function resendRegOtp() {
+                const btn = document.getElementById('btnResendRegOtp');
+                btn.disabled = true;
+                try {
+                    const res = await fetch('/api/auth/resend-employer-registration-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ email: currentRegEmail })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showOtpMsg('Đã gửi lại mã OTP', 'success');
+                        startRegCountdown(60);
+                        otpBoxInputs.forEach(i => { i.value = ''; i.style.borderColor = '#d1d5db'; });
+                        otpBoxInputs[0].focus();
+                    } else { showOtpMsg(data.message, 'error'); btn.disabled = false; }
+                } catch { showOtpMsg('Lỗi kết nối', 'error'); btn.disabled = false; }
+            }
+
+            function startRegCountdown(seconds) {
+                clearInterval(regTimer);
+                document.getElementById('btnResendRegOtp').disabled = true;
+                let rem = seconds;
+                const el = document.getElementById('regCountdown');
+                el.textContent = `(${rem}s)`;
+                regTimer = setInterval(() => {
+                    rem--;
+                    if (rem <= 0) { clearInterval(regTimer); el.textContent = ''; document.getElementById('btnResendRegOtp').disabled = false; }
+                    else el.textContent = `(${rem}s)`;
+                }, 1000);
             }
         });
     </script>
