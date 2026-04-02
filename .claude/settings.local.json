@@ -8,7 +8,16 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(mvn clean:*)",
-      "Bash(mvn compile:*)"
+      "Bash(mvn compile:*)",
+      "Bash(node -)",
+      "Bash(node -e ':*)",
+      "Bash(node -c src/main/resources/static/js/cv-editor-state.js)",
+      "Bash(node -c src/main/resources/static/js/cv-editor-render.js)",
+      "Bash(node -c src/main/resources/static/js/cv-editor-design.js)",
+      "Bash(node -c src/main/resources/static/js/cv-editor-save.js)",
+      "Bash(./mvnw compile:*)",
+      "Bash(grep -E \"\\\\.java$\")",
+      "Bash(wc -l /d/MyProject/DA/job-management-system/src/main/resources/static/js/cv-editor-*.js /d/MyProject/DA/job-management-system/src/main/resources/static/css/cv-editor.css)"
     ],
     "additionalDirectories": [
       "d:\\DuongTanHuy\\QLCV\\job-management-system\\src\\main\\resources\\static\\css",

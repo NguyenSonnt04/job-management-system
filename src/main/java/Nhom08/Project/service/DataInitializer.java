@@ -169,30 +169,50 @@ public class DataInitializer implements CommandLineRunner {
     // ─── Provinces ───────────────────────────────────────────────────────────────
 
     private void seedProvinces() {
-        if (provinceRepository.count() > 0) return;
+        if (provinceRepository.count() == 35) return; // da co du 35 tinh thanh moi
+        provinceRepository.deleteAll();
         provinceRepository.saveAll(List.of(
-            new Province("Hồ Chí Minh",       "Hồ Chí Minh",       1),
-            new Province("Hà Nội",             "Hà Nội",             2),
-            new Province("Đà Nẵng",            "Đà Nẵng",            3),
-            new Province("Bình Dương",         "Bình Dương",         4),
-            new Province("Đồng Nai",           "Đồng Nai",           5),
-            new Province("Cần Thơ",            "Cần Thơ",            6),
-            new Province("Hải Phòng",          "Hải Phòng",          7),
-            new Province("Long An",             "Long An",             8),
-            new Province("Bà Rịa - Vũng Tàu", "Bà Rịa - Vũng Tàu", 9),
-            new Province("Bình Định",          "Bình Định",          10),
-            new Province("Khánh Hòa",          "Khánh Hòa",          11),
-            new Province("Lâm Đồng",           "Lâm Đồng",           12),
-            new Province("Kiên Giang",         "Kiên Giang",         13),
-            new Province("Nghệ An",             "Nghệ An",             14),
-            new Province("Thừa Thiên Huế",     "Thừa Thiên Huế",     15),
-            new Province("Hải Dương",          "Hải Dương",          16),
-            new Province("Bắc Ninh",           "Bắc Ninh",           17),
-            new Province("Thái Nguyên",        "Thái Nguyên",        18),
-            new Province("Vĩnh Phúc",          "Vĩnh Phúc",          19),
-            new Province("Toàn quốc",          "Toàn quốc",          20)
+            // ── Toàn quốc ──
+            new Province("Toàn quốc",    "Toàn quốc",     0),
+            // ── Thành phố trực thuộc TW (sáp nhập) ──
+            new Province("Hà Nội",       "Hà Nội",         1),
+            new Province("Hồ Chí Minh",  "TP. Hồ Chí Minh (+ Bình Dương, Bà Rịa–Vũng Tàu)",  2),
+            new Province("Đà Nẵng",      "Đà Nẵng (+ Quảng Nam)",       3),
+            new Province("Hải Phòng",    "Hải Phòng (+ Hải Dương)",     4),
+            new Province("Cần Thơ",      "Cần Thơ (+ Sóc Trăng, Hậu Giang)", 5),
+            new Province("Huế",          "Huế",            6),
+            // ── Tỉnh sáp nhập ──
+            new Province("Tuyên Quang",  "Tuyên Quang (+ Hà Giang)",    7),
+            new Province("Lào Cai",      "Lào Cai (+ Yên Bái)",         8),
+            new Province("Thái Nguyên",  "Thái Nguyên (+ Bắc Kạn)",    9),
+            new Province("Phú Thọ",      "Phú Thọ (+ Vĩnh Phúc, Hòa Bình)", 10),
+            new Province("Bắc Ninh",     "Bắc Ninh (+ Bắc Giang)",     11),
+            new Province("Hưng Yên",     "Hưng Yên (+ Thái Bình)",     12),
+            new Province("Ninh Bình",    "Ninh Bình (+ Hà Nam, Nam Định)", 13),
+            new Province("Quảng Trị",    "Quảng Trị (+ Quảng Bình)",   14),
+            new Province("Quảng Ngãi",   "Quảng Ngãi (+ Kon Tum)",     15),
+            new Province("Gia Lai",      "Gia Lai (+ Bình Định)",       16),
+            new Province("Khánh Hòa",    "Khánh Hòa (+ Ninh Thuận)",   17),
+            new Province("Lâm Đồng",    "Lâm Đồng (+ Đắk Nông, Bình Thuận)", 18),
+            new Province("Đắk Lắk",     "Đắk Lắk (+ Phú Yên)",        19),
+            new Province("Đồng Nai",     "Đồng Nai (+ Bình Phước)",    20),
+            new Province("Tây Ninh",     "Tây Ninh (+ Long An)",        21),
+            new Province("Vĩnh Long",    "Vĩnh Long (+ Bến Tre, Trà Vinh)", 22),
+            new Province("Đồng Tháp",    "Đồng Tháp (+ Tiền Giang)",   23),
+            new Province("Cà Mau",       "Cà Mau (+ Bạc Liêu)",        24),
+            new Province("An Giang",     "An Giang (+ Kiên Giang)",     25),
+            // ── Tỉnh giữ nguyên ──
+            new Province("Lai Châu",     "Lai Châu",       26),
+            new Province("Điện Biên",    "Điện Biên",      27),
+            new Province("Sơn La",       "Sơn La",         28),
+            new Province("Lạng Sơn",     "Lạng Sơn",       29),
+            new Province("Quảng Ninh",   "Quảng Ninh",     30),
+            new Province("Thanh Hóa",    "Thanh Hóa",      31),
+            new Province("Nghệ An",      "Nghệ An",        32),
+            new Province("Hà Tĩnh",      "Hà Tĩnh",        33),
+            new Province("Cao Bằng",     "Cao Bằng",       34)
         ));
-        System.out.println("✅ Seeded provinces");
+        System.out.println("✅ Seeded 35 provinces (sau sáp nhập)");
     }
 
     // ─── Dynamic Filter Groups & Options ─────────────────────────────────────────

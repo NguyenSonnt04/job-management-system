@@ -8,6 +8,8 @@ import Nhom08.Project.service.CvVersioningService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -108,6 +110,7 @@ public class CvTemplateController {
 
     /** Admin: delete template */
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<Map<String, String>> deleteTemplate(@PathVariable Long id) {
         if (!cvTemplateRepository.existsById(id)) return ResponseEntity.notFound().build();
         cvTemplateVersionRepository.deleteByTemplateId(id);

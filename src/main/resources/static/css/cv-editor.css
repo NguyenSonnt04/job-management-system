@@ -1383,36 +1383,36 @@ input:checked + .slider:before {
 }
 
 .cvh-header {
-    padding: 40px 50px 24px;
+    padding: 36px 50px 20px;
     text-align: center;
 }
 
 .cvh-name {
-    font-size: calc(32px * var(--cv-font-scale, 1));
+    font-size: calc(30px * var(--cv-font-scale, 1));
     font-weight: 900;
-    letter-spacing: 3px;
+    letter-spacing: 4px;
     text-transform: uppercase;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     color: #000;
     font-family: var(--font-main, 'Inter', 'Arial', sans-serif);
 }
 
 .cvh-subtitle {
-    font-size: calc(14px * var(--cv-font-scale, 1));
+    font-size: calc(13px * var(--cv-font-scale, 1));
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
     color: #000;
     margin-bottom: 14px;
 }
 
 .cvh-contact {
-    font-size: calc(12px * var(--cv-font-scale, 1));
+    font-size: calc(11.5px * var(--cv-font-scale, 1));
     color: #000;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 6px 16px;
+    gap: 5px 14px;
     padding-top: 10px;
     border-top: 1px solid #000;
 }
@@ -1420,49 +1420,49 @@ input:checked + .slider:before {
 .cvh-contact-item {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
+    gap: 3px;
     white-space: nowrap;
 }
 
 .cvh-body {
-    padding: 0 50px 40px;
+    padding: 0 50px 36px;
 }
 
 .cvh-section {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .cvh-title {
-    font-size: calc(14px * var(--cv-font-scale, 1));
+    font-size: calc(13.5px * var(--cv-font-scale, 1));
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1px;
     border-bottom: 1.5px solid #000;
-    padding-bottom: 4px;
-    margin-bottom: 10px;
+    padding-bottom: 3px;
+    margin-bottom: 8px;
     color: #000;
 }
 
 .cvh-summary {
-    font-size: calc(13px * var(--cv-font-scale, 1));
+    font-size: calc(12.5px * var(--cv-font-scale, 1));
     line-height: var(--cv-line-height, 1.6);
     color: inherit;
     margin-bottom: 4px;
 }
 
 .cvh-item {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
 }
 
 .cvh-item-head {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
 }
 
 .cvh-item-title {
-    font-size: calc(13.5px * var(--cv-font-scale, 1));
+    font-size: calc(13px * var(--cv-font-scale, 1));
     font-weight: 700;
     color: inherit;
 }
@@ -1476,34 +1476,34 @@ input:checked + .slider:before {
 }
 
 .cvh-item-sub {
-    font-size: calc(13px * var(--cv-font-scale, 1));
-    font-weight: 700;
+    font-size: calc(12.5px * var(--cv-font-scale, 1));
+    font-weight: 600;
     font-style: italic;
     color: inherit;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .cvh-item-tech {
-    font-size: calc(12.5px * var(--cv-font-scale, 1));
+    font-size: calc(12px * var(--cv-font-scale, 1));
     font-weight: 700;
     font-style: italic;
     color: #000;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .cvh-github-bullet {
-    font-size: calc(12px * var(--cv-font-scale, 1));
+    font-size: calc(11.5px * var(--cv-font-scale, 1));
     color: inherit;
     line-height: var(--cv-line-height, 1.55);
     margin-bottom: 2px;
 }
 
 .cvh-bullet {
-    font-size: calc(12.5px * var(--cv-font-scale, 1));
+    font-size: calc(12px * var(--cv-font-scale, 1));
     color: inherit;
     line-height: var(--cv-line-height, 1.55);
-    padding-left: 18px;
-    text-indent: -12px;
+    padding-left: 16px;
+    text-indent: -11px;
     margin-bottom: 2px;
 }
 
@@ -1515,11 +1515,11 @@ input:checked + .slider:before {
 
 .cvh-skill-row {
     display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 4px 16px;
-    padding: 4px 0;
-    border-bottom: 1px solid #e5e5e5;
-    font-size: calc(13px * var(--cv-font-scale, 1));
+    grid-template-columns: 170px 1fr;
+    gap: 3px 14px;
+    padding: 5px 0;
+    border-bottom: 1px solid #d0d0d0;
+    font-size: calc(12.5px * var(--cv-font-scale, 1));
     line-height: var(--cv-line-height, 1.5);
     align-items: baseline;
 }
@@ -1535,7 +1535,7 @@ input:checked + .slider:before {
 }
 
 .cvh-skill-items {
-    color: inherit;
+    color: #333;
 }
 
 .cvm-skill-group { margin-bottom: 15px; }
@@ -1618,9 +1618,9 @@ input:checked + .slider:before {
 /* â”€â”€ Harvard Styles â”€â”€ */
 .cvh-root { padding: 0; font-family: var(--font-main, 'Inter', 'Arial', sans-serif); }
 .cvh-header { text-align: center; margin-bottom: 0; }
-.cvh-name { font-size: calc(32px * var(--cv-font-scale, 1)); font-weight: 900; letter-spacing: 3px; display: block; padding: 0; border-bottom: none; }
+.cvh-name { font-size: calc(30px * var(--cv-font-scale, 1)); font-weight: 900; letter-spacing: 4px; display: block; padding: 0; border-bottom: none; }
 .cvh-inline-item {
-    font-size: calc(12px * var(--cv-font-scale, 1));
+    font-size: calc(11.5px * var(--cv-font-scale, 1));
     color: inherit;
     line-height: var(--cv-line-height, 1.5);
     margin-bottom: 4px;
@@ -6315,7 +6315,7 @@ input:checked + .slider:before {
     body.pdf-export-mode #cvPreview .cvm-skill-group,
     body.pdf-export-mode #cvPreview .cvc2-skill-group,
     body.pdf-export-mode #cvPreview .cvcl2-skill,
-    body.pdf-export-mode #cvPreview .cvh-skill-group {
+    body.pdf-export-mode #cvPreview .cvh-skill-row {
         margin-bottom: 4px !important;
     }
 
