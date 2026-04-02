@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Ứng Viên - CareerViet</title>
+    <title>Quản Lý Ứng Viên - CoHoiViecLam</title>
     <meta name="description" content="Quản lý hồ sơ ứng viên ứng tuyển vào các vị trí công việc của doanh nghiệp.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,14 +34,7 @@
                     <span class="badge-new">NEW</span>
                 </a>
                 <a href="#" class="sub-nav-link">Đơn Hàng</a>
-                <a href="#" class="sub-nav-link">Tài Khoản</a>
-                <a href="#" class="sub-nav-link">CVRewards</a>
-                <a href="#" class="sub-nav-link">
-                    Xem thêm
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </a>
+                <a href="tai-khoan-ntd.html" class="sub-nav-link">Tài Khoản</a>
             </div>
             <div class="sub-nav-actions">
                 <button class="btn-sub-nav btn-search">
@@ -134,9 +127,9 @@
             <!-- Status Tabs -->
             <div class="tabs-container">
                 <div class="main-tabs">
-                    <button class="tab-item active">Hồ Sơ Ứng Tuyển (0)</button>
-                    <button class="tab-item">Hồ Sơ Đã Lưu (0)</button>
-                    <button class="tab-item">Hồ Sơ Đã Xóa (0)</button>
+                    <button class="tab-item active" data-tab="applied" id="tabApplied">Hồ Sơ Ứng Tuyển (0)</button>
+                    <button class="tab-item" data-tab="saved" id="tabSaved">Hồ Sơ Đã Lưu (0)</button>
+                    <button class="tab-item" data-tab="deleted" id="tabDeleted">Hồ Sơ Đã Xóa (0)</button>
                 </div>
                 
                 <div class="tab-content card">
@@ -263,11 +256,13 @@
 
     function renderTable(apps) {
         const tbody = document.querySelector('.candidate-table tbody');
+        console.log('renderTable called, tbody:', tbody, 'apps:', apps?.length);
+        if (!tbody) { console.error('tbody not found!'); return; }
         if (!apps || apps.length === 0) {
             tbody.innerHTML = `<tr class="empty-row"><td colspan="9">Hiện tại không có hồ sơ nào trong thư mục này!</td></tr>`;
             return;
         }
-        tbody.innerHTML = apps.map(app => `
+        const html = apps.map(app => `
             <tr data-id="${app.id}">
                 <td class="col-check">
                     <input type="checkbox" class="row-check" value="${app.id}">
@@ -295,6 +290,8 @@
                 </td>
             </tr>
         `).join('');
+        tbody.innerHTML = html;
+        console.log('Rendered rows:', tbody.querySelectorAll('tr').length, 'table visible:', document.querySelector('.table-wrapper').offsetHeight);
     }
 
     // ── Change status ────────────────────────────────────────
@@ -321,6 +318,38 @@
         }
     }
 
+    // ── Tab filtering ──────────────────────────────────────
+    let currentTab = 'applied';
+
+    function getFilteredApps(tab) {
+        switch (tab) {
+            case 'saved':   return allApplications.filter(a => a.status === 'SAVED');
+            case 'deleted': return allApplications.filter(a => a.status === 'REJECTED');
+            case 'applied':
+            default:        return allApplications.filter(a => a.status !== 'SAVED' && a.status !== 'REJECTED');
+        }
+    }
+
+    function updateTabCounts() {
+        const applied = allApplications.filter(a => a.status !== 'SAVED' && a.status !== 'REJECTED').length;
+        const saved   = allApplications.filter(a => a.status === 'SAVED').length;
+        const deleted = allApplications.filter(a => a.status === 'REJECTED').length;
+        document.getElementById('tabApplied').textContent = `Hồ Sơ Ứng Tuyển (${applied})`;
+        document.getElementById('tabSaved').textContent   = `Hồ Sơ Đã Lưu (${saved})`;
+        document.getElementById('tabDeleted').textContent  = `Hồ Sơ Đã Xóa (${deleted})`;
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.tab-item[data-tab="${tab}"]`).classList.add('active');
+        renderTable(getFilteredApps(tab));
+    }
+
+    document.querySelectorAll('.tab-item').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
     // ── Select all checkbox ─────────────────────────────────
     document.getElementById('check-all').addEventListener('change', function() {
         document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
@@ -333,25 +362,40 @@
             if (!res.ok) {
                 if (res.status === 401) {
                     document.querySelector('.candidate-table tbody').innerHTML =
-                        `<tr class="empty-row"><td colspan="9">⚠️ Vui lòng <a href="employer-login.html">đăng nhập</a> để xem danh sách ứng viên.</td></tr>`;
+                        `<tr class="empty-row"><td colspan="9">Vui lòng <a href="employer-login.html">đăng nhập</a> để xem danh sách ứng viên.</td></tr>`;
                     return;
                 }
                 throw new Error('API error ' + res.status);
             }
             const data = await res.json();
             allApplications = data.applications || [];
+            console.log('Loaded applications:', allApplications.length, allApplications);
 
-            // Update tab count
-            document.querySelector('.tab-item.active').textContent =
-                `Hồ Sơ Ứng Tuyển (${data.total || 0})`;
-
-            renderTable(allApplications);
+            updateTabCounts();
+            const filtered = getFilteredApps(currentTab);
+            console.log('Filtered for tab', currentTab, ':', filtered.length);
+            renderTable(filtered);
         } catch (err) {
             console.error('Lỗi tải dữ liệu ứng viên:', err);
         }
     }
 
-    document.addEventListener('DOMContentLoaded', loadApplications);
+    // Cập nhật lại tab counts sau khi đổi status
+    const _origChangeStatus = changeStatus;
+    changeStatus = async function(id, newStatus) {
+        await _origChangeStatus(id, newStatus);
+        const app = allApplications.find(a => a.id === id);
+        if (app) app.status = newStatus;
+        updateTabCounts();
+        renderTable(getFilteredApps(currentTab));
+    };
+
+    // Gọi ngay nếu DOM đã ready, hoặc chờ DOMContentLoaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadApplications);
+    } else {
+        loadApplications();
+    }
     </script>
 </body>
 </html>

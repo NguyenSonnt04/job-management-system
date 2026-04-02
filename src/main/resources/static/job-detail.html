@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Chi tiết việc làm | CareerViet</title>
+    <title id="pageTitle">Chi tiết việc làm | CoHoiViecLam</title>
     <meta name="description" id="pageDescription" content="Xem chi tiết tin tuyển dụng, mô tả công việc và yêu cầu ứng viên.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -626,7 +626,7 @@
         const employer = job.employer || {};
 
         // Page title & meta
-        document.getElementById('pageTitle').textContent = `${job.title} | ${employer.companyName || ''} | CareerViet`;
+        document.getElementById('pageTitle').textContent = `${job.title} | ${employer.companyName || ''} | CoHoiViecLam`;
         document.getElementById('pageDescription').content =
             `Tuyển dụng ${job.title} tại ${employer.companyName || ''}. ${job.description ? job.description.substring(0, 150) : ''}`;
 

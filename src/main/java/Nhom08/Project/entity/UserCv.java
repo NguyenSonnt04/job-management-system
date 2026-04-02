@@ -28,9 +28,15 @@ public class UserCv {
     @Column(name = "template_name", length = 200)
     private String templateName;
 
+    @Column(name = "source_template_version_no")
+    private Integer sourceTemplateVersionNo;
+
     /** Structured CV data stored as JSON string */
     @Column(name = "cv_content", columnDefinition = "TEXT")
     private String cvContent;
+
+    @Column(name = "current_version_no")
+    private Integer currentVersionNo = 1;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -65,8 +71,14 @@ public class UserCv {
     public String getTemplateName() { return templateName; }
     public void setTemplateName(String templateName) { this.templateName = templateName; }
 
+    public Integer getSourceTemplateVersionNo() { return sourceTemplateVersionNo; }
+    public void setSourceTemplateVersionNo(Integer sourceTemplateVersionNo) { this.sourceTemplateVersionNo = sourceTemplateVersionNo; }
+
     public String getCvContent() { return cvContent; }
     public void setCvContent(String cvContent) { this.cvContent = cvContent; }
+
+    public Integer getCurrentVersionNo() { return currentVersionNo; }
+    public void setCurrentVersionNo(Integer currentVersionNo) { this.currentVersionNo = currentVersionNo; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

@@ -5,12 +5,10 @@ body.career-guide-page {
         radial-gradient(circle at 85% 60%, rgba(251, 146, 60, 0.02), transparent 35%),
         linear-gradient(180deg, #fefefe 0%, #f8fafc 100%);
     color: #1e293b;
-    font-family: var(--font-primary, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 15px;
-    line-height: 1.7;
-    letter-spacing: 0.01em;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+    letter-spacing: 0;
 }
 
 body.career-guide-page .header {
@@ -583,19 +581,19 @@ body.career-guide-page .header {
 .guide-article-body,
 .guide-sidebar-card {
     display: grid;
-    gap: 12px;
+    gap: 8px;
 }
 
 .guide-lead-body {
-    padding: 24px 24px 26px;
+    padding: 20px 24px 22px;
 }
 
 .guide-rail-body {
-    padding: 20px 22px 24px;
+    padding: 16px 20px 18px;
 }
 
 .guide-card-body {
-    padding: 16px;
+    padding: 14px 16px 16px;
 }
 
 .guide-lead-kicker,
@@ -640,7 +638,7 @@ body.career-guide-page .header {
     margin: 0;
     color: #64748b;
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.55;
     font-weight: 400;
 }
 
@@ -649,9 +647,9 @@ body.career-guide-page .header {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px 12px;
-    color: #64748b;
-    font-size: 13px;
+    gap: 6px 10px;
+    color: #94a3b8;
+    font-size: 12px;
     font-weight: 500;
 }
 
@@ -665,12 +663,12 @@ body.career-guide-page .header {
 .guide-lead-cta {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     width: fit-content;
-    padding: 10px 0 0;
+    padding: 2px 0 0;
     color: #0f766e;
-    font-size: 14px;
-    font-weight: 800;
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .guide-rail {
@@ -1169,7 +1167,7 @@ body.career-guide-page .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 56px;
+    height: 46px;
 }
 
 .guide-nav-list {
@@ -1178,7 +1176,7 @@ body.career-guide-page .header {
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     overflow-x: auto;
     scrollbar-width: none;
 }
@@ -1239,7 +1237,7 @@ body.career-guide-page .header {
 /* Inline search form in navigation */
 .guide-nav-search-form {
     margin: 0;
-    flex: 0 0 280px;
+    flex: 0 0 220px;
 }
 
 .guide-search-input-wrapper {
@@ -1247,9 +1245,9 @@ body.career-guide-page .header {
     align-items: center;
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(148, 163, 184, 0.2);
-    border-radius: 8px;
-    padding: 6px 10px;
-    gap: 8px;
+    border-radius: 20px;
+    padding: 3px 4px 3px 12px;
+    gap: 6px;
     transition: all 0.2s ease;
 }
 
@@ -1267,9 +1265,9 @@ body.career-guide-page .header {
     flex: 1;
     border: none;
     background: transparent;
-    padding: 4px 6px;
+    padding: 2px 0;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 12px;
     color: #1e293b;
     outline: none;
     min-width: 0;
@@ -1283,9 +1281,11 @@ body.career-guide-page .header {
     background: #3b82f6;
     color: #fff;
     border: none;
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 13px;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    font-size: 11px;
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
@@ -1401,7 +1401,7 @@ body.career-guide-page {
 
 .career-guide-page .career-guide-shell {
     max-width: 1400px;
-    padding: 48px 24px 56px;
+    padding: 20px 24px 60px;
 }
 
 .career-guide-page .guide-top-nav {
@@ -1415,7 +1415,7 @@ body.career-guide-page {
 }
 
 .career-guide-page .guide-nav-list a {
-    padding: 10px 14px;
+    padding: 6px 12px;
     border-radius: 999px;
     font-size: 13px;
 }
@@ -1440,7 +1440,11 @@ body.career-guide-page {
 }
 
 .career-guide-page .guide-grid-section {
-    margin-top: 34px;
+    margin-top: 24px;
+}
+
+.career-guide-page .guide-grid-section:first-child {
+    margin-top: 0;
 }
 
 .career-guide-page .guide-featured-layout {
@@ -1496,14 +1500,14 @@ body.career-guide-page {
 }
 
 .career-guide-page .guide-lead-body {
-    padding: 28px 28px 30px;
-    gap: 14px;
+    padding: 20px 24px 22px;
+    gap: 8px;
 }
 
 .career-guide-page .guide-rail-body,
 .career-guide-page .guide-card-body {
-    padding: 18px 18px 20px;
-    gap: 10px;
+    padding: 14px 16px 16px;
+    gap: 6px;
 }
 
 .career-guide-page .guide-lead-kicker,
@@ -1558,7 +1562,8 @@ body.career-guide-page {
 }
 
 .career-guide-page .guide-lead-cta {
-    padding-top: 2px;
+    padding-top: 0;
+    margin-top: 2px;
     color: #1a2456;
     font-size: 13px;
 }
@@ -1686,22 +1691,16 @@ body.career-guide-page {
     }
 }
 
-/* Apply Animation to Cards */
+/* Cards — no animation */
 .guide-lead-card,
 .guide-rail-card,
 .guide-card,
 .guide-article-card,
 .guide-sidebar-card {
-    animation: fadeInUp 0.6s ease-out forwards;
+    animation: none;
+    opacity: 1;
+    transform: none;
 }
-
-.guide-lead-card { animation-delay: 0.1s; }
-.guide-rail-card { animation-delay: 0.2s; }
-.guide-card:nth-child(1) { animation-delay: 0.1s; }
-.guide-card:nth-child(2) { animation-delay: 0.2s; }
-.guide-card:nth-child(3) { animation-delay: 0.3s; }
-.guide-card:nth-child(4) { animation-delay: 0.4s; }
-.guide-card:nth-child(5) { animation-delay: 0.5s; }
 
 /* Enhanced Hover Effects */
 .guide-lead-card:hover,
@@ -1843,16 +1842,13 @@ body.career-guide-page {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 80px 20px;
+    padding: 48px 20px;
     text-align: center;
-    min-height: 400px;
+    min-height: 0;
 }
 
 .guide-empty::before {
-    content: '📚';
-    font-size: 64px;
-    margin-bottom: 20px;
-    opacity: 0.5;
+    display: none;
 }
 
 .guide-empty strong {

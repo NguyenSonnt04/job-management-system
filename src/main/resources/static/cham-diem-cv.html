@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chấm điểm CV bằng AI | CareerViet</title>
+    <title>Chấm điểm CV bằng AI | CoHoiViecLam</title>
     <meta name="description" content="Phân tích và chấm điểm CV của bạn bằng trí tuệ nhân tạo Gemini. Nhận đánh giá chi tiết về điểm mạnh, điểm yếu và gợi ý cải thiện.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -867,7 +867,7 @@
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(180, 180, 220);
-        doc.text('Powered by Google Gemini AI  |  CareerViet', margin, 24);
+        doc.text('Powered by Google Gemini AI  |  CoHoiViecLam', margin, 24);
 
         const pct  = Math.round((currentResult.totalScore / (currentResult.maxTotalScore || 100)) * 100);
         const grade = getGrade(pct);
@@ -1032,7 +1032,7 @@
             doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(160, 160, 160);
-            doc.text(`CareerViet CV Scoring  |  Trang ${p}/${pageCount}`, W / 2, 290, { align: 'center' });
+            doc.text(`CoHoiViecLam CV Scoring  |  Trang ${p}/${pageCount}`, W / 2, 290, { align: 'center' });
         }
 
         const fileName = (currentResult.fileName || 'cv').replace(/\.[^.]+$/, '');

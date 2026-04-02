@@ -69,7 +69,8 @@ const designState = {
         references: false,
         hobbies: false
     },
-    order: [...defaultSectionOrder]
+    order: [...defaultSectionOrder],
+    sectionTitles: {}
 };
 
 // ── Editor Undo/Redo History ──────────────────────────────────
@@ -109,6 +110,7 @@ function hydrateDesignState(savedState = {}) {
     designState.background  = savedState.background  || designState.background;
     designState.sections    = { ...designState.sections, ...(savedState.sections || {}) };
     designState.order       = sanitizeSectionOrder(savedState.order || designState.order);
+    designState.sectionTitles = { ...(savedState.sectionTitles || {}) };
     if (savedState.sectionIcons)  designState.sectionIcons  = { ...savedState.sectionIcons };
     if (savedState.previewIcons)  designState.previewIcons  = { ...savedState.previewIcons };
 }

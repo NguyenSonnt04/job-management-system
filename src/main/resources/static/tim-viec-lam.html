@@ -57,58 +57,38 @@
             <div class="filters-wrapper">
                 <div class="filter-group">
                     <label>Mức lương</label>
-                    <select id="filterSalary" class="filter-select">
-                        <option>Tất cả</option>
-                        <option>Dưới 10 triệu</option>
-                        <option>10 - 15 triệu</option>
-                        <option>15 - 20 triệu</option>
-                        <option>20 - 30 triệu</option>
-                        <option>Trên 30 triệu</option>
+                    <select id="filterSalary" class="filter-select" data-filter-code="salary">
+                        <option value="">Tất cả</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <label>Cấp bậc</label>
-                    <select id="filterLevel" class="filter-select">
-                        <option>Tất cả</option>
-                        <option>Thực tập sinh</option>
-                        <option>Nhân viên</option>
-                        <option>Trưởng nhóm</option>
-                        <option>Quản lý</option>
+                    <select id="filterLevel" class="filter-select" data-filter-code="level">
+                        <option value="">Tất cả</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <label>Đăng trong vòng</label>
-                    <select id="filterPosted" class="filter-select">
-                        <option>Tất cả</option>
-                        <option>24 giờ qua</option>
-                        <option>7 ngày qua</option>
-                        <option>30 ngày qua</option>
+                    <select id="filterPosted" class="filter-select" data-filter-code="posted_within">
+                        <option value="">Tất cả</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <label>Hình thức việc làm</label>
-                    <select id="filterType" class="filter-select">
-                        <option>Tất cả</option>
-                        <option>Toàn thời gian</option>
-                        <option>Bán thời gian</option>
-                        <option>Remote</option>
+                    <select id="filterType" class="filter-select" data-filter-code="employment_type">
+                        <option value="">Tất cả</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <label>Kinh nghiệm làm việc</label>
-                    <select id="filterExp" class="filter-select">
-                        <option>Tất cả</option>
-                        <option>Chưa có kinh nghiệm</option>
-                        <option>Dưới 1 năm</option>
-                        <option>1-2 năm</option>
-                        <option>3-5 năm</option>
-                        <option>Trên 5 năm</option>
+                    <select id="filterExp" class="filter-select" data-filter-code="experience">
+                        <option value="">Tất cả</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <label>Công việc làm khiến cấp</label>
-                    <select class="filter-select">
-                        <option>Tất cả</option>
+                    <select id="filterRank" class="filter-select" data-filter-code="job_rank">
+                        <option value="">Tất cả</option>
                     </select>
                 </div>
                 <button class="btn-clear-filters">Xóa bộ lọc</button>

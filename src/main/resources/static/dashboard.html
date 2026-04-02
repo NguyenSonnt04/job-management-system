@@ -1,175 +1,234 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Quản lý Tuyển Dụng | CareerViet</title>
-    <meta name="description" content="Dashboard quản lý tuyển dụng - Tìm hồ sơ ứng viên, đăng tin tuyển dụng, quản lý chiến dịch tuyển dụng">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Quản lý Tuyển Dụng | CoHoiViecLam</title>
+    <meta
+      name="description"
+      content="Dashboard quản lý tuyển dụng - Tìm hồ sơ ứng viên, đăng tin tuyển dụng, quản lý chiến dịch tuyển dụng"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+  </head>
+  <body>
     <!-- Header Placeholder -->
     <div id="header-employer-placeholder"></div>
 
     <!-- Sub Navigation -->
     <nav class="sub-nav">
-        <div class="container">
-            <div class="sub-nav-links">
-                <a href="dashboard.html" class="sub-nav-link active">Dashboard</a>
-                <a href="quan-ly-dang-tuyen.html" class="sub-nav-link">
-                    Quản Lý Đăng Tuyển
-                    <span class="nav-count-badge" id="badge-jobs" style="display:none"></span>
-                </a>
-                <a href="quan-ly-ung-vien.html" class="sub-nav-link">
-                    Quản Lý Ứng Viên
-                    <span class="nav-count-badge" id="badge-applicants" style="display:none"></span>
-                </a>
-                <a href="#" class="sub-nav-link">
-                    Chiến dịch tuyển dụng
-                    <span class="badge-new">NEW</span>
-                </a>
-                <a href="#" class="sub-nav-link">Đơn Hàng</a>
-                <a href="#" class="sub-nav-link">Tài Khoản</a>
-                <a href="#" class="sub-nav-link">CVRewards</a>
-                <a href="#" class="sub-nav-link">
-                    Xem thêm
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </a>
-            </div>
-            <div class="sub-nav-actions">
-                <a href="#" class="btn-sub-nav btn-search">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                    TÌM HỒ SƠ
-                </a>
-                <a href="quan-ly-dang-tuyen.html" class="btn-sub-nav btn-post" style="text-decoration: none;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="12" y1="18" x2="12" y2="12"></line>
-                        <line x1="9" y1="15" x2="15" y2="15"></line>
-                    </svg>
-                    ĐĂNG TUYỂN DỤNG
-                </a>
-            </div>
+      <div class="container">
+        <div class="sub-nav-links">
+          <a href="dashboard.html" class="sub-nav-link active">Dashboard</a>
+          <a href="quan-ly-dang-tuyen.html" class="sub-nav-link">
+            Quản Lý Đăng Tuyển
+            <span
+              class="nav-count-badge"
+              id="badge-jobs"
+              style="display: none"
+            ></span>
+          </a>
+          <a href="quan-ly-ung-vien.html" class="sub-nav-link">
+            Quản Lý Ứng Viên
+            <span
+              class="nav-count-badge"
+              id="badge-applicants"
+              style="display: none"
+            ></span>
+          </a>
+          <a href="#" class="sub-nav-link">
+            Chiến dịch tuyển dụng
+            <span class="badge-new">NEW</span>
+          </a>
+          <a href="#" class="sub-nav-link">Đơn Hàng</a>
+          <a href="tai-khoan-ntd.html" class="sub-nav-link">Tài Khoản</a>
         </div>
+        <div class="sub-nav-actions">
+          <a href="#" class="btn-sub-nav btn-search">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            TÌM HỒ SƠ
+          </a>
+          <a
+            href="quan-ly-dang-tuyen.html"
+            class="btn-sub-nav btn-post"
+            style="text-decoration: none"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              ></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+            ĐĂNG TUYỂN DỤNG
+          </a>
+        </div>
+      </div>
     </nav>
 
     <!-- Hero Banner -->
     <section class="dashboard-hero">
-        <div class="container">
-            <div class="hero-banner">
-                <div class="hero-content-dash">
-                    <h1 class="hero-title-dash">CÙNG NÂNG TẦM HIỆU QUẢ TUYỂN DỤNG VỚI careerviet <span class="ai-badge">AI</span></h1>
-                    <p class="hero-subtitle-dash">Đơn giản hóa bước tạo tin tuyển dụng và nhận bản tóm tắt nhanh chóng khi tìm hồ sơ</p>
-                    <div class="hero-buttons">
-                        <button class="btn-hero btn-search-cv">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <path d="m21 21-4.35-4.35"></path>
-                            </svg>
-                            TÌM HỒ SƠ ỨNG VIÊN
-                        </button>
-                        <a href="quan-ly-dang-tuyen.html" class="btn-hero btn-post-job" style="text-decoration: none;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                            </svg>
-                            ĐĂNG TUYỂN DỤNG
-                        </a>
-                    </div>
-                </div>
+      <div class="container">
+        <div class="hero-banner">
+          <div class="hero-content-dash">
+            <h1 class="hero-title-dash">
+              CÙNG NÂNG TẦM HIỆU QUẢ TUYỂN DỤNG VỚI CoHoiViecLam
+              <span class="ai-badge">AI</span>
+            </h1>
+            <p class="hero-subtitle-dash">
+              Đơn giản hóa bước tạo tin tuyển dụng và nhận bản tóm tắt nhanh
+              chóng khi tìm hồ sơ
+            </p>
+            <div class="hero-buttons">
+              <button class="btn-hero btn-search-cv">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                TÌM HỒ SƠ ỨNG VIÊN
+              </button>
+              <a
+                href="quan-ly-dang-tuyen.html"
+                class="btn-hero btn-post-job"
+                style="text-decoration: none"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  ></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                ĐĂNG TUYỂN DỤNG
+              </a>
             </div>
+          </div>
+          <div class="hero-image-dash">
+            <img src="images/ai-robot.png" alt="AI Robot" class="ai-robot" />
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Dashboard Widgets -->
     <section class="dashboard-widgets">
-        <div class="container">
-            <div class="widgets-grid">
-                <!-- Account Info Widget -->
-                <div class="widget-card">
-                    <div class="widget-header">
-                        <h3 class="widget-title">THÔNG TIN TÀI KHOẢN</h3>
-                    </div>
-                    <div class="widget-body">
-                        <div class="account-package">
-                            <div class="package-logo">
-                                <img src="images/logo.png" alt="CareerViet">
-                                <div class="package-badge">STANDARD</div>
-                            </div>
-                            <div class="account-stats">
-                                <div class="stat-row">
-                                    <span class="stat-number">0</span>
-                                    <span class="stat-label">Ví trị chưa sử dụng</span>
-                                </div>
-                                <div class="stat-row">
-                                    <span class="stat-number">0</span>
-                                    <span class="stat-label">Đơn hàng đang xử dụng</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Search History Widget -->
-                <div class="widget-card">
-                    <div class="widget-header">
-                        <h3 class="widget-title">TÌM KIẾM HỒ SƠ</h3>
-                    </div>
-                    <div class="widget-body">
-                        <div class="empty-state">
-                            <p>Chưa có điểm xem hồ sơ</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Job Management Widget -->
-                <div class="widget-card">
-                    <div class="widget-header">
-                        <h3 class="widget-title">QUẢN LÝ ĐĂNG TUYỂN</h3>
-                        <a href="#" class="widget-link">Xem thêm</a>
-                    </div>
-                    <div class="widget-body">
-                        <div class="job-stats">
-                            <div class="job-stat-item">
-                                <span class="job-stat-number">0</span>
-                                <span class="job-stat-label">Việc làm đang đăng</span>
-                            </div>
-                            <div class="job-stat-item">
-                                <span class="job-stat-number">0</span>
-                                <span class="job-stat-label">Việc làm chờ dăng</span>
-                            </div>
-                            <div class="job-stat-item">
-                                <span class="job-stat-number">0</span>
-                                <span class="job-stat-label">Việc làm tạm dừng đăng</span>
-                            </div>
-                            <div class="job-stat-item">
-                                <span class="job-stat-number">0</span>
-                                <span class="job-stat-label">Việc làm hết hạn</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Activity History Widget -->
-                <div class="widget-card">
-                    <div class="widget-header">
-                        <h3 class="widget-title">LỊCH SỬ HOẠT ĐỘNG</h3>
-                    </div>
-                    <div class="widget-body">
-                    </div>
-                </div>
+      <div class="container">
+        <div class="widgets-grid">
+          <!-- Account Info Widget -->
+          <div class="widget-card">
+            <div class="widget-header">
+              <h3 class="widget-title">THÔNG TIN TÀI KHOẢN</h3>
             </div>
+            <div class="widget-body">
+              <div class="account-package">
+                <div class="package-logo">
+                  <img src="images/logo.png" alt="CoHoiViecLam" />
+                  <div class="package-badge">STANDARD</div>
+                </div>
+                <div class="account-stats">
+                  <div class="stat-row">
+                    <span class="stat-number">0</span>
+                    <span class="stat-label">Ví trị chưa sử dụng</span>
+                  </div>
+                  <div class="stat-row">
+                    <span class="stat-number">0</span>
+                    <span class="stat-label">Đơn hàng đang xử dụng</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search History Widget -->
+          <div class="widget-card">
+            <div class="widget-header">
+              <h3 class="widget-title">TÌM KIẾM HỒ SƠ</h3>
+            </div>
+            <div class="widget-body">
+              <div class="empty-state">
+                <p>Chưa có điểm xem hồ sơ</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Job Management Widget -->
+          <div class="widget-card">
+            <div class="widget-header">
+              <h3 class="widget-title">QUẢN LÝ ĐĂNG TUYỂN</h3>
+              <a href="#" class="widget-link">Xem thêm</a>
+            </div>
+            <div class="widget-body">
+              <div class="job-stats">
+                <div class="job-stat-item">
+                  <span class="job-stat-number">0</span>
+                  <span class="job-stat-label">Việc làm đang đăng</span>
+                </div>
+                <div class="job-stat-item">
+                  <span class="job-stat-number">0</span>
+                  <span class="job-stat-label">Việc làm chờ dăng</span>
+                </div>
+                <div class="job-stat-item">
+                  <span class="job-stat-number">0</span>
+                  <span class="job-stat-label">Việc làm tạm dừng đăng</span>
+                </div>
+                <div class="job-stat-item">
+                  <span class="job-stat-number">0</span>
+                  <span class="job-stat-label">Việc làm hết hạn</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity History Widget -->
+          <div class="widget-card">
+            <div class="widget-header">
+              <h3 class="widget-title">LỊCH SỬ HOẠT ĐỘNG</h3>
+            </div>
+            <div class="widget-body">
+              <div class="zalo-widget">
+                <img src="images/zalo-icon.png" alt="Zalo" class="zalo-logo" />
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Footer Placeholder -->
@@ -177,9 +236,9 @@
 
     <!-- Zalo Chat -->
     <a href="#" class="zalo-chat">
-        <img src="images/zalo-icon.png" alt="Zalo">
+      <img src="images/zalo-icon.png" alt="Zalo" />
     </a>
 
     <script src="js/employer.js"></script>
-</body>
+  </body>
 </html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Tin Tài Khoản | CoHoiViecLam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .account-page { padding: 14px 0 40px; background: #f4f6f9; min-height: calc(100vh - 200px); }
+        .account-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .account-title { font-size: 22px; font-weight: 700; color: #1e293b; }
+
+        /* Tabs */
+        .account-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+        .account-tab {
+            padding: 7px 18px; border: none; background: #e4e6eb; color: #555;
+            font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 6px 6px 0 0;
+            transition: all 0.15s;
+        }
+        .account-tab:hover { background: #d0d3d9; }
+        .account-tab.active { background: #fff; color: #1a2456; border-bottom: 2px solid #1a2456; }
+
+        /* Tab content */
+        .tab-panel { display: none; background: #fff; border-radius: 0 8px 8px 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .tab-panel.active { display: block; }
+
+        /* Form */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-label { font-size: 13px; font-weight: 600; color: #444; }
+        .form-input, .form-select, .form-textarea {
+            padding: 7px 12px; border: 1px solid #cbd5e1; border-radius: 6px;
+            font-size: 13px; color: #333; outline: none; font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1);
+        }
+        .form-input:disabled { background: #f8f9fa; color: #888; }
+        .form-textarea { resize: vertical; min-height: 80px; }
+
+        .btn-save {
+            padding: 7px 20px; background: #1a2456; color: #fff; border: none;
+            border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: background 0.2s; margin-top: 12px;
+        }
+        .btn-save:hover { background: #2d3a6e; }
+        .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .save-msg { font-size: 12px; color: #16a34a; margin-left: 10px; display: none; }
+
+        /* User table */
+        .user-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        .user-table th { background: #e4e6eb; padding: 10px; text-align: left; font-size: 12px; font-weight: 700; color: #555; text-transform: uppercase; }
+        .user-table td { padding: 10px; font-size: 13px; color: #333; border-bottom: 1px solid #f0f0f0; }
+        .status-active { color: #16a34a; font-weight: 600; }
+
+        .info-note { font-size: 13px; color: #666; margin-bottom: 12px; line-height: 1.5; }
+        .info-note strong { color: #1e293b; }
+
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div id="header-employer-placeholder"></div>
+
+    <!-- Sub Nav (giống dashboard.html) -->
+    <nav class="sub-nav">
+      <div class="container">
+        <div class="sub-nav-links">
+          <a href="dashboard.html" class="sub-nav-link">Dashboard</a>
+          <a href="quan-ly-dang-tuyen.html" class="sub-nav-link">
+            Quản Lý Đăng Tuyển
+            <span class="nav-count-badge" id="badge-jobs" style="display:none"></span>
+          </a>
+          <a href="quan-ly-ung-vien.html" class="sub-nav-link">
+            Quản Lý Ứng Viên
+            <span class="nav-count-badge" id="badge-applicants" style="display:none"></span>
+          </a>
+          <a href="#" class="sub-nav-link">
+            Chiến dịch tuyển dụng
+            <span class="badge-new">NEW</span>
+          </a>
+          <a href="#" class="sub-nav-link">Đơn Hàng</a>
+          <a href="tai-khoan-ntd.html" class="sub-nav-link active">Tài Khoản</a>
+        </div>
+        <div class="sub-nav-actions">
+          <a href="#" class="btn-sub-nav btn-search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            TÌM HỒ SƠ
+          </a>
+          <a href="post-job.html" class="btn-sub-nav btn-post" style="text-decoration:none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+            ĐĂNG TUYỂN DỤNG
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <section class="account-page">
+        <div class="container">
+            <div class="account-header">
+                <h1 class="account-title">Thông Tin Tài Khoản</h1>
+                <a href="#" class="link-guide" style="font-size:13px;color:#3b82f6;font-weight:600;text-decoration:none;">Hướng dẫn</a>
+            </div>
+
+            <div class="account-tabs">
+                <button class="account-tab active" data-tab="account">Tài Khoản</button>
+                <button class="account-tab" data-tab="company">Thông Tin Công Ty</button>
+                <button class="account-tab" data-tab="contact">Thông Tin Liên Hệ</button>
+                <button class="account-tab" data-tab="password">Đổi Mật Khẩu</button>
+            </div>
+
+            <!-- Tab: Tài Khoản -->
+            <div class="tab-panel active" id="panelAccount">
+                <div class="info-note">
+                    Quý khách có thể tạo tối đa <strong>5</strong> user(s). Để có thể tạo thêm nhiều user phụ và nhiều thông tin công ty con, vui lòng liên hệ với chúng tôi.
+                    <br>Hiện có: <strong id="userCount">1</strong> user(s)
+                </div>
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Ngày</th>
+                            <th>Email đăng nhập</th>
+                            <th>Họ và Tên</th>
+                            <th>Trạng thái</th>
+                            <th>Loại user</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="5" style="text-align:center;color:#999;">Đang tải...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab: Thông Tin Công Ty -->
+            <div class="tab-panel" id="panelCompany">
+                <form id="companyForm" class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Tên công ty</label>
+                        <input class="form-input" id="companyName" name="companyName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Loại hình doanh nghiệp</label>
+                        <input class="form-input" id="businessType" name="businessType">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Quy mô nhân sự</label>
+                        <input class="form-input" id="employeeCount" name="employeeCount" placeholder="VD: 50-100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mã số thuế</label>
+                        <input class="form-input" id="taxCode" name="taxCode">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tỉnh/Thành phố</label>
+                        <input class="form-input" id="province" name="province">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Website</label>
+                        <input class="form-input" id="website" name="website" placeholder="https://">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Địa chỉ</label>
+                        <input class="form-input" id="address" name="address">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Mô tả công ty</label>
+                        <textarea class="form-textarea" id="description" name="description" rows="4"></textarea>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn-save" id="btnSaveCompany">Lưu thay đổi</button>
+                        <span class="save-msg" id="msgCompany">Đã lưu thành công</span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tab: Thông Tin Liên Hệ -->
+            <div class="tab-panel" id="panelContact">
+                <form id="contactForm" class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Họ và Tên</label>
+                        <input class="form-input" id="fullName" name="fullName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input class="form-input" id="email" name="email" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Số điện thoại</label>
+                        <input class="form-input" id="phone" name="phone">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Người liên hệ</label>
+                        <input class="form-input" id="contactName" name="contactName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">SĐT liên hệ</label>
+                        <input class="form-input" id="contactPhone" name="contactPhone">
+                    </div>
+                    <div>
+                        <button type="submit" class="btn-save" id="btnSaveContact">Lưu thay đổi</button>
+                        <span class="save-msg" id="msgContact">Đã lưu thành công</span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tab: Đổi Mật Khẩu -->
+            <div class="tab-panel" id="panelPassword">
+                <form id="passwordForm" class="form-grid" style="max-width:400px;">
+                    <div class="form-group full">
+                        <label class="form-label">Mật khẩu hiện tại</label>
+                        <input class="form-input" type="password" id="currentPassword" required>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Mật khẩu mới</label>
+                        <input class="form-input" type="password" id="newPassword" required minlength="6">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Xác nhận mật khẩu mới</label>
+                        <input class="form-input" type="password" id="confirmPassword" required>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn-save" id="btnSavePassword">Đổi mật khẩu</button>
+                        <span class="save-msg" id="msgPassword">Đổi mật khẩu thành công</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-placeholder"></div>
+    <script src="js/employer.js"></script>
+    <script>
+    let profileData = {};
+
+    // ── Tab switching ──
+    document.querySelectorAll('.account-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.account-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            const panelId = 'panel' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1);
+            const panel = document.getElementById(panelId);
+            if (panel) panel.classList.add('active');
+        });
+    });
+
+    // ── Load profile ──
+    async function loadProfile() {
+        try {
+            const res = await fetch('/api/employer/profile', { credentials: 'include' });
+            if (!res.ok) {
+                if (res.status === 401) { window.location.href = 'employer-login.html'; return; }
+                throw new Error('API error');
+            }
+            profileData = await res.json();
+            fillForm();
+        } catch (e) {
+            console.error('Lỗi tải profile:', e);
+        }
+    }
+
+    function fillForm() {
+        const d = profileData;
+        // User table
+        const tbody = document.getElementById('userTableBody');
+        const date = d.createdAt ? new Date(d.createdAt).toLocaleDateString('vi-VN') : '—';
+        tbody.innerHTML = `
+            <tr>
+                <td>${date}</td>
+                <td>${d.email || '—'}</td>
+                <td>${d.fullName || '—'}</td>
+                <td><span class="status-active">Kích hoạt</span></td>
+                <td>Chính</td>
+            </tr>
+        `;
+
+        // Company form
+        document.getElementById('companyName').value = d.companyName || '';
+        document.getElementById('businessType').value = d.businessType || '';
+        document.getElementById('employeeCount').value = d.employeeCount || '';
+        document.getElementById('taxCode').value = d.taxCode || '';
+        document.getElementById('province').value = d.province || '';
+        document.getElementById('website').value = d.website || '';
+        document.getElementById('address').value = d.address || '';
+        document.getElementById('description').value = d.description || '';
+
+        // Contact form
+        document.getElementById('fullName').value = d.fullName || '';
+        document.getElementById('email').value = d.email || '';
+        document.getElementById('phone').value = d.phone || '';
+        document.getElementById('contactName').value = d.contactName || '';
+        document.getElementById('contactPhone').value = d.contactPhone || '';
+    }
+
+    // ── Save company ──
+    document.getElementById('companyForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnSaveCompany');
+        btn.disabled = true; btn.textContent = 'Đang lưu...';
+        try {
+            const res = await fetch('/api/employer/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    companyName: document.getElementById('companyName').value,
+                    businessType: document.getElementById('businessType').value,
+                    employeeCount: document.getElementById('employeeCount').value,
+                    taxCode: document.getElementById('taxCode').value,
+                    province: document.getElementById('province').value,
+                    website: document.getElementById('website').value,
+                    address: document.getElementById('address').value,
+                    description: document.getElementById('description').value,
+                })
+            });
+            if (res.ok) showMsg('msgCompany');
+        } catch (e) { alert('Lỗi lưu: ' + e.message); }
+        finally { btn.disabled = false; btn.textContent = 'Lưu thay đổi'; }
+    });
+
+    // ── Save contact ──
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnSaveContact');
+        btn.disabled = true; btn.textContent = 'Đang lưu...';
+        try {
+            const res = await fetch('/api/employer/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    fullName: document.getElementById('fullName').value,
+                    phone: document.getElementById('phone').value,
+                    contactName: document.getElementById('contactName').value,
+                    contactPhone: document.getElementById('contactPhone').value,
+                })
+            });
+            if (res.ok) showMsg('msgContact');
+        } catch (e) { alert('Lỗi lưu: ' + e.message); }
+        finally { btn.disabled = false; btn.textContent = 'Lưu thay đổi'; }
+    });
+
+    // ── Change password ──
+    document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newPw = document.getElementById('newPassword').value;
+        const confirmPw = document.getElementById('confirmPassword').value;
+        if (newPw !== confirmPw) { alert('Mật khẩu xác nhận không khớp'); return; }
+
+        const btn = document.getElementById('btnSavePassword');
+        btn.disabled = true; btn.textContent = 'Đang xử lý...';
+        try {
+            const res = await fetch('/api/auth/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    currentPassword: document.getElementById('currentPassword').value,
+                    newPassword: newPw,
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showMsg('msgPassword');
+                document.getElementById('passwordForm').reset();
+            } else {
+                alert(data.message || 'Đổi mật khẩu thất bại');
+            }
+        } catch (e) { alert('Lỗi: ' + e.message); }
+        finally { btn.disabled = false; btn.textContent = 'Đổi mật khẩu'; }
+    });
+
+    function showMsg(id) {
+        const el = document.getElementById(id);
+        el.style.display = 'inline';
+        setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+
+    loadProfile();
+    </script>
+</body>
+</html>

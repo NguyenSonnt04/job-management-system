@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Xem CV | CoHoiViecLam</title>
+    <link rel="stylesheet" href="css/style.css"/>
+    <link rel="stylesheet" href="css/cv-editor.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Reuse render modules (state + design + render only, no edit/save/init) -->
+    <script src="js/cv-editor-state.js"></script>
+    <script src="js/cv-editor-design.js"></script>
+    <script src="js/cv-editor-render.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: #f3f4f6;
+            font-family: "Inter", sans-serif;
+            min-height: 100vh;
+        }
+
+        #header-placeholder { position: relative; z-index: 10; }
+
+        .view-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 10px 0 8px;
+            background: #f3f4f6;
+        }
+
+        .view-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .view-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 140ms;
+        }
+
+        .view-back:hover { background: #f9fafb; }
+
+        .view-cv-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .view-topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-view {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            padding: 0 14px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 140ms;
+            text-decoration: none;
+        }
+
+        .btn-view:hover { background: #f9fafb; }
+
+        .btn-view.primary {
+            background: #0f9f5f;
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .btn-view.primary:hover { background: #0c7d4a; }
+
+        .view-shell {
+            max-width: 900px;
+            margin: 0 auto 48px;
+            padding: 12px 20px 0;
+        }
+
+        /* Disable all editing interactions */
+        .cv-document .cv-editable {
+            pointer-events: none !important;
+            cursor: default !important;
+            outline: none !important;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .cv-document .cv-editable:hover,
+        .cv-document .cv-editable:focus {
+            outline: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        /* Hide any editor-only UI */
+        .cv-add-section-btn,
+        .cv-drag-handle,
+        .cv-section-menu,
+        .cv-field-toolbar,
+        [data-action] { display: none !important; }
+
+        .view-loading {
+            text-align: center;
+            padding: 80px 20px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .view-error {
+            text-align: center;
+            padding: 80px 20px;
+            color: #ef4444;
+            font-size: 14px;
+        }
+
+        .view-notice {
+            max-width: 460px;
+            margin: 60px auto;
+            padding: 32px 28px;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            text-align: center;
+        }
+
+        .view-notice-icon {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 16px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+        }
+
+        .view-notice h3 { margin: 0 0 8px; font-size: 16px; font-weight: 700; color: #111827; }
+        .view-notice p  { margin: 0 0 20px; font-size: 13px; color: #6b7280; line-height: 1.6; }
+        .view-notice-actions { display: flex; gap: 8px; justify-content: center; }
+
+        /* PDF embed */
+        .pdf-embed-wrap {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .pdf-embed-wrap embed,
+        .pdf-embed-wrap iframe {
+            display: block;
+            width: 100%;
+            height: 80vh;
+            border: none;
+        }
+
+        #footer-placeholder { position: relative; z-index: 2; }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="view-shell">
+        <div class="view-topbar">
+            <div class="view-topbar-left">
+                <a href="/my-cvs.html" class="view-back">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    Quay lại
+                </a>
+                <span class="view-cv-name" id="viewCvName">Đang tải...</span>
+            </div>
+            <div class="view-topbar-actions">
+                <a id="btnEdit" href="#" class="btn-view">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Chỉnh sửa
+                </a>
+                <button class="btn-view primary" id="btnDownloadPdf" onclick="downloadPdf()">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Tải PDF
+                </button>
+            </div>
+        </div>
+
+        <div id="viewState" class="view-loading">Đang tải CV...</div>
+        <div class="cv-document" id="cvPreview" style="display:none"></div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let cvId = null;
+        let cvName = '';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.lucide) lucide.createIcons();
+
+            const params = new URLSearchParams(window.location.search);
+            cvId = params.get('cvId');
+
+            if (!cvId) {
+                showError('Không tìm thấy CV. Vui lòng quay lại trang quản lý CV.');
+                return;
+            }
+
+            document.getElementById('btnEdit').href = `/cv-editor.html?cvId=${cvId}`;
+
+            try {
+                const res = await fetch(`/api/user-cv/${cvId}`, { credentials: 'include' });
+                if (res.status === 401) {
+                    window.location.href = `/login.html?redirect=/cv-view.html?cvId=${cvId}`;
+                    return;
+                }
+                if (!res.ok) throw new Error('Không tìm thấy CV');
+
+                const data = await res.json();
+                cvName = data.cvName || 'CV của tôi';
+                document.getElementById('viewCvName').textContent = cvName;
+                document.title = `${cvName} | CoHoiViecLam`;
+
+                // Parse JSON — handle null, empty string, invalid JSON
+                let parsed = null;
+                if (data.cvContent && data.cvContent.trim()) {
+                    try { parsed = JSON.parse(data.cvContent); } catch { parsed = null; }
+                }
+                // CV tải lên dạng PDF mới → có _pdfUrl
+                if (parsed && parsed._pdfUrl) {
+                    showPdfEmbed(parsed._pdfUrl, cvName, cvId);
+                    return;
+                }
+                // Không có content hoặc content rỗng/không hợp lệ
+                if (!parsed) {
+                    showUploadedCvNotice(cvName, cvId);
+                    return;
+                }
+
+                // Set up render state (reuse cv-editor-state globals)
+                window.avatarDataUrl = parsed.avatarUrl || parsed.avatarDataUrl || null;
+                hydrateDesignState(parsed._designState || { color: parsed._accent });
+                window.currentTemplate = {
+                    previewColor: parsed._accent || parsed._designState?.color || designState.color || '#1f4b99',
+                    styleTag: normalizeCvStyle(parsed._styleTag || 'professional'),
+                    name: data.templateName || ''
+                };
+                parsed._styleTag = normalizeCvStyle(parsed._styleTag || 'professional');
+
+                // Render into #cvPreview
+                renderCvPreview(parsed);
+
+                document.getElementById('viewState').style.display = 'none';
+                document.getElementById('cvPreview').style.display = '';
+
+                // Re-run lucide icons that may have been injected by render
+                if (window.lucide) lucide.createIcons();
+
+            } catch (e) {
+                showError(e.message || 'Không thể tải CV. Vui lòng thử lại.');
+            }
+        });
+
+        function showError(msg) {
+            const el = document.getElementById('viewState');
+            el.className = 'view-error';
+            el.textContent = msg;
+        }
+
+        function showPdfEmbed(pdfUrl, name, id) {
+            document.getElementById('viewState').style.display = 'none';
+            // Ẩn nút Tải PDF mặc định, thay bằng link trực tiếp
+            const dlBtn = document.getElementById('btnDownloadPdf');
+            dlBtn.onclick = null;
+            dlBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Tải PDF`;
+            dlBtn.onclick = () => {
+                const a = document.createElement('a');
+                a.href = pdfUrl;
+                a.download = name + '.pdf';
+                a.click();
+            };
+
+            const preview = document.getElementById('cvPreview');
+            preview.style.display = '';
+            preview.className = 'pdf-embed-wrap';
+            preview.innerHTML = `<embed src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0" type="application/pdf"/>`;
+        }
+
+        function showUploadedCvNotice(name, id) {
+            const el = document.getElementById('viewState');
+            el.className = '';
+            el.innerHTML = `
+                <div class="view-notice">
+                    <div class="view-notice-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <h3>${esc(name)}</h3>
+                    <p>CV này được tải lên dưới dạng file nên không thể xem trực tiếp tại đây.<br>Bạn có thể mở trong trình chỉnh sửa để thêm nội dung và xem bản xem trước.</p>
+                    <div class="view-notice-actions">
+                        <a href="/my-cvs.html" class="btn-view">Quay lại</a>
+                        <a href="/cv-editor.html?cvId=${id}" class="btn-view primary">Mở trong trình chỉnh sửa</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function esc(str) {
+            return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        function downloadPdf() {
+            const btn = document.getElementById('btnDownloadPdf');
+            const el  = document.getElementById('cvPreview');
+            if (!el) return;
+
+            btn.textContent = 'Đang xuất...';
+            btn.disabled = true;
+
+            const opt = {
+                margin:      [8, 8, 8, 8],
+                filename:    `${cvName}.pdf`,
+                image:       { type: 'jpeg', quality: 0.97 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(el).save().then(() => {
+                btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Tải PDF`;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

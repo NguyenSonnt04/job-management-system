@@ -71,6 +71,7 @@ public class CvParseController {
             byte[] fileBytes = file.getBytes();
             String rawJson   = geminiService.scoreCvWithPrompt(fileBytes, mimeType, prompt);
 
+
             @SuppressWarnings("unchecked")
             Map<String, Object> parsed = objectMapper.readValue(rawJson, Map.class);
 
