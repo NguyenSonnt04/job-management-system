@@ -132,7 +132,11 @@ function queueAutoPdfDownload() {
     autoDownloadStarted = true;
 
     window.setTimeout(async () => {
-        await downloadPdf();
+        const ok = await downloadPdf();
+        // Auto-close the popup tab after successful download
+        if (ok && window.opener !== null) {
+            setTimeout(() => window.close(), 1500);
+        }
     }, 700);
 }
 
@@ -262,49 +266,60 @@ async function downloadPdf() {
         try {
             await waitForPdfAssets(cvDoc);
 
-            // Sanitize unsupported CSS color functions for html2canvas
+            // Sanitize unsupported CSS color() functions for html2canvas
             const sanitized = [];
+            const colorProps = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor'];
+            const gradientProps = ['backgroundImage'];
             cvDoc.querySelectorAll('*').forEach(el => {
                 const cs = getComputedStyle(el);
-                ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor'].forEach(prop => {
+                colorProps.forEach(prop => {
                     const val = cs[prop];
-                    if (val && /^color\(/.test(val)) {
+                    if (val && /color\(/.test(val)) {
                         sanitized.push({ el, prop, original: el.style[prop] });
                         el.style[prop] = '#000000';
                     }
                 });
+                gradientProps.forEach(prop => {
+                    const val = cs[prop];
+                    if (val && /color\(/.test(val)) {
+                        sanitized.push({ el, prop, original: el.style[prop] });
+                        el.style[prop] = 'none';
+                    }
+                });
             });
 
-            const pdfBlob = await html2pdf()
+            // Generate PDF blob via jsPDF directly (bypass html2pdf .save())
+            const worker = html2pdf()
                 .set({
                     margin:      0,
-                    filename,
                     image:       { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2, useCORS: true, removeContainer: true },
                     pagebreak:   { mode: ['css'] },
                     jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 })
                 .from(cvDoc)
-                .output('blob');
+                .toPdf();
 
-            // Manual download to avoid html2pdf .save() double-download bug
+            const pdf = await worker.get('pdf');
+            const arrayBuf = pdf.output('arraybuffer');
+            const pdfBlob = new Blob([arrayBuf], { type: 'application/pdf' });
+
+            // Single download via <a> click — do NOT append to DOM
             const blobUrl = URL.createObjectURL(pdfBlob);
             const a = document.createElement('a');
             a.href = blobUrl;
             a.download = filename;
-            document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(blobUrl);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
 
             // Restore original styles
             sanitized.forEach(({ el, prop, original }) => { el.style[prop] = original; });
             return true;
         } catch (error) {
             console.error('downloadPdf:', error);
+            // Fallback: open browser print dialog so the user can still save as PDF
             document.title = filename;
             window.print();
-            alert('Có lỗi khi tải PDF. Vui lòng thử lại!');
             return false;
         } finally {
             if (btn) { btn.innerHTML = oldText; btn.disabled = false; }

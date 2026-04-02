@@ -148,6 +148,68 @@ function updateLanguage(lang) {
     markCvDirty({ immediate: true });
 }
 
+// ── AI Translate CV Content ───────────────────────────────────
+async function translateCvContent() {
+    if (!currentCvJson) return;
+
+    const lang = designState.language || 'vi';
+    const langLabel = lang === 'en' ? 'English' : 'Tiếng Việt';
+    const btn = document.getElementById('btnTranslateCv');
+    const label = document.getElementById('btnTranslateLabel');
+
+    // Sync current DOM edits before translating
+    if (isEditMode && typeof syncPreviewToCurrentCv === 'function') syncPreviewToCurrentCv();
+
+    // Strip internal state fields before sending to Gemini
+    const cvToSend = Object.assign({}, currentCvJson);
+    delete cvToSend._designState;
+    delete cvToSend._styleTag;
+    delete cvToSend._accent;
+    delete cvToSend.avatarUrl;
+
+    // Loading state
+    if (btn) btn.disabled = true;
+    if (label) label.textContent = 'Đang dịch...';
+
+    try {
+        const resp = await fetch('/api/user-cv/translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cvContent: cvToSend, targetLang: lang })
+        });
+        const json = await resp.json();
+
+        if (!json.success) throw new Error(json.message || 'Lỗi dịch CV');
+
+        // Merge translated data back, preserve internal state
+        const translated = json.data;
+        const preserved = {
+            _designState: currentCvJson._designState,
+            _styleTag:    currentCvJson._styleTag,
+            _accent:      currentCvJson._accent,
+            avatarUrl:    currentCvJson.avatarUrl
+        };
+
+        Object.assign(currentCvJson, translated, preserved);
+        renderCvPreview(currentCvJson);
+        markCvDirty({ immediate: true });
+
+        if (label) label.textContent = 'Đã dịch xong!';
+        setTimeout(() => {
+            if (label) label.textContent = 'Dịch toàn bộ nội dung CV';
+        }, 2000);
+
+    } catch (err) {
+        console.error('Translate error:', err);
+        if (label) label.textContent = 'Lỗi — thử lại';
+        setTimeout(() => {
+            if (label) label.textContent = 'Dịch toàn bộ nội dung CV';
+        }, 3000);
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
 // ── Background Patterns ───────────────────────────────────────
 function applyBackground(pattern) {
     const cvDoc  = document.getElementById('cvPreview');

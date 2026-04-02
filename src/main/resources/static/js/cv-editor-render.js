@@ -278,6 +278,20 @@ function renderCreativeStyle(c, accent) {
         </div>`;
     }).join('');
 
+    const awardsHtml2 = cardSection('awards', c.awards||[]);
+    const refHtml2 = (c.references||[]).map((ref,idx)=>`
+        <div class="cvc2-card cv-edit-shell">
+            ${getItemControls('references',idx)}
+            <div class="cvc2-card-title">${ed(ref.name||'','Người tham chiếu')}</div>
+            <div class="cvc2-card-sub" style="color:${accent}">${ed(ref.role||ref.company||'','Chức danh / Công ty')}</div>
+        </div>`).join('');
+    const hobbyHtml2 = (c.hobbies||[]).map((hobby,idx)=>`
+        <div class="cvc2-card cv-edit-shell">
+            ${getItemControls('hobbies',idx)}
+            <div class="cvc2-card-title">${ed(hobby.name||'','Sở thích')}</div>
+            <div class="cvc2-card-sub" style="color:${accent}">${ed(hobby.description||'','Mô tả')}</div>
+        </div>`).join('');
+
     return `<div class="cv-full cvc2-root" style="--cv-accent:${accent};">
         <header class="cvc2-header" style="background:linear-gradient(45deg,${accent},${accent}cc);">
             ${getAvatarHtml('rgba(255,255,255,0.8)',110,'square')}
@@ -289,10 +303,13 @@ function renderCreativeStyle(c, accent) {
         </header>
         <div class="cvc2-body">
             <aside class="cvc2-left">
-                ${c.summary?`<section class="cvc2-zone" data-cv-section="summary">${renderSectionTitle('h3', 'summary', 'GIỚI THIỆU', 'cvc2-zone-title', `style="color:${accent}"`)}<div class="cvc2-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</div></section>`:''}
+                ${(c.summary||sectionEnabled('summary'))?`<section class="cvc2-zone" data-cv-section="summary">${renderSectionTitle('h3', 'summary', 'GIỚI THIỆU', 'cvc2-zone-title', `style="color:${accent}"`)}<div class="cvc2-summary cv-editable" data-placeholder="Giới thiệu bản thân...">${c.summary?esc(c.summary).replace(/\n/g,'<br>'):''}</div></section>`:''}
                 ${skillsHtml?`<section class="cvc2-zone" data-cv-section="skills">${renderSectionTitle('h3', 'skills', 'KỸ NĂNG', 'cvc2-zone-title', `style="color:${accent}"`)}${skillsHtml}</section>`:''}
                 ${cardSection('education',c.education||[])?`<section class="cvc2-zone" data-cv-section="education">${renderSectionTitle('h3', 'education', 'HỌC VẤN', 'cvc2-zone-title', `style="color:${accent}"`)}${cardSection('education',c.education||[])}</section>`:''}
                 ${cardSection('certifications',c.certifications||[])?`<section class="cvc2-zone" data-cv-section="certifications">${renderSectionTitle('h3', 'certifications', 'CHỨNG CHỈ', 'cvc2-zone-title', `style="color:${accent}"`)}${cardSection('certifications',c.certifications||[])}</section>`:''}
+                ${awardsHtml2?`<section class="cvc2-zone" data-cv-section="awards">${renderSectionTitle('h3', 'awards', 'GIẢI THƯỞNG', 'cvc2-zone-title', `style="color:${accent}"`)}${awardsHtml2}</section>`:''}
+                ${refHtml2?`<section class="cvc2-zone" data-cv-section="references">${renderSectionTitle('h3', 'references', 'NGƯỜI THAM CHIẾU', 'cvc2-zone-title', `style="color:${accent}"`)}${refHtml2}</section>`:''}
+                ${hobbyHtml2?`<section class="cvc2-zone" data-cv-section="hobbies">${renderSectionTitle('h3', 'hobbies', 'SỞ THÍCH', 'cvc2-zone-title', `style="color:${accent}"`)}${hobbyHtml2}</section>`:''}
             </aside>
             <main class="cvc2-right">
                 ${cardSection('experience',c.experience||[])?`<section class="cvc2-zone" data-cv-section="experience">${renderSectionTitle('h3', 'experience', 'KINH NGHIỆM', 'cvc2-zone-title', `style="color:${accent}"`)}${cardSection('experience',c.experience||[])}</section>`:''}
@@ -413,9 +430,9 @@ function renderImpactfulStyle(c, accent) {
                 ${hobbyHtml?`<div class="cvi-sidebar-section" data-cv-section="hobbies"><div class="cvi-sidebar-title" style="color:${accent};">${getSectionTitleText('hobbies','SỞ THÍCH')}</div>${hobbyHtml}</div>`:''}
             </aside>
             <main class="cvi-main">
-                ${c.summary?`<section class="cvi-section" data-cv-section="summary">
+                ${(c.summary||sectionEnabled('summary'))?`<section class="cvi-section" data-cv-section="summary">
                     <div class="cvi-section-title" style="border-left:4px solid ${accent};"><span class="cv-editable cv-section-heading" data-section-title-key="summary" data-placeholder="Tiêu đề mục">${getSectionTitleText('summary','GIỚI THIỆU BẢN THÂN')}</span></div>
-                    <div class="cvi-summary cv-editable" data-placeholder="Giới thiệu bản thân...">${esc(c.summary).replace(/\n/g,'<br>')}</div>
+                    <div class="cvi-summary cv-editable" data-placeholder="Giới thiệu bản thân...">${c.summary?esc(c.summary).replace(/\n/g,'<br>'):''}</div>
                 </section>`:''}
                 ${expHtml?`<section class="cvi-section" data-cv-section="experience">
                     <div class="cvi-section-title" style="border-left:4px solid ${accent};"><span class="cv-editable cv-section-heading" data-section-title-key="experience" data-placeholder="Tiêu đề mục">${getSectionTitleText('experience','KINH NGHIỆM LÀM VIỆC')}</span></div>
@@ -467,6 +484,28 @@ function renderModernStyle(c, accent) {
             <div class="cvm2-row-content"><div class="cvm2-row-org">${esc((sg.items||[]).join(', '))}</div></div>
         </div>`).join('');
 
+    const refHtml3 = (c.references||[]).map((ref,idx)=>`
+        <div class="cvm2-row cv-edit-shell">
+            ${getItemControls('references',idx)}
+            <div class="cvm2-row-meta">
+                <div class="cvm2-row-period" style="color:${accent}">${esc(ref.role||ref.company||'')}</div>
+            </div>
+            <div class="cvm2-row-content">
+                <div class="cvm2-row-title">${esc(ref.name||'')}</div>
+                <div class="cvm2-row-org">${esc(ref.contact||'')}</div>
+            </div>
+        </div>`).join('');
+    const hobbyHtml3 = (c.hobbies||[]).map((hobby,idx)=>`
+        <div class="cvm2-row cv-edit-shell">
+            ${getItemControls('hobbies',idx)}
+            <div class="cvm2-row-meta">
+                <div class="cvm2-row-period" style="color:${accent}">${esc(hobby.name||'')}</div>
+            </div>
+            <div class="cvm2-row-content">
+                <div class="cvm2-row-org">${esc(hobby.description||'')}</div>
+            </div>
+        </div>`).join('');
+
     return `<div class="cv-full cvm2-root" style="--cv-accent:${accent};">
         <header class="cvm2-header">
             <div class="cvm2-header-bar" style="background:${accent};"></div>
@@ -481,7 +520,7 @@ function renderModernStyle(c, accent) {
             </div>
         </header>
         <div class="cvm2-body">
-            ${c.summary?block('summary', 'GIỚI THIỆU', `<p class="cvm2-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>`):''}
+            ${(c.summary||sectionEnabled('summary'))?block('summary', 'GIỚI THIỆU', `<p class="cvm2-summary cv-editable" data-placeholder="Giới thiệu bản thân...">${esc(c.summary).replace(/\n/g,'<br>')}</p>`):''}
             ${row('experience',c.experience||[])?block('experience', 'KINH NGHIỆM', row('experience',c.experience||[])):''}
             ${row('projects',c.projects||[])?block('projects', 'DỰ ÁN', row('projects',c.projects||[])):''}
             ${row('education',c.education||[])?block('education', 'HỌC VẤN', row('education',c.education||[])):''}
@@ -489,6 +528,8 @@ function renderModernStyle(c, accent) {
             ${row('certifications',c.certifications||[])?block('certifications', 'CHỨNG CHỈ', row('certifications',c.certifications||[])):''}
             ${row('awards',c.awards||[])?block('awards', 'GIẢI THƯỞNG', row('awards',c.awards||[])):''}
             ${row('activities',c.activities||[])?block('activities', 'HOẠT ĐỘNG', row('activities',c.activities||[])):''}
+            ${refHtml3?block('references', 'NGƯỜI THAM CHIẾU', refHtml3):''}
+            ${hobbyHtml3?block('hobbies', 'SỞ THÍCH', hobbyHtml3):''}
         </div>
     </div>`;
 }
@@ -546,6 +587,43 @@ function renderClassicStyle(c, accent) {
             <div class="cvcl2-skill-vals">${(sg.items||[]).map(i=>`<span class="cvcl2-pill" style="border-color:${hr}22;background:${hr}0d;color:${hr};">${ed(i)}</span>`).join('')}</div>
         </div>`).join('');
 
+    const certHtml2 = (c.certifications||[]).map((cert,idx)=>`
+        <div class="cvcl2-r-item cv-edit-shell">
+            ${getItemControls('certifications',idx)}
+            <div class="cvcl2-r-degree cv-editable">${esc(cert.name||cert.raw||'')}</div>
+            <div class="cvcl2-r-school cv-editable">${esc(cert.issuer||'')}</div>
+            <div class="cvcl2-r-period" style="color:${hr}">${ed(cert.year||'')}</div>
+        </div>`).join('');
+    const awardsHtml3 = (c.awards||[]).map((aw,idx)=>`
+        <div class="cvcl2-r-item cv-edit-shell">
+            ${getItemControls('awards',idx)}
+            <div class="cvcl2-r-degree cv-editable">${esc(aw.name||aw.raw||'')}</div>
+            <div class="cvcl2-r-period" style="color:${hr}">${ed(aw.year||'')}</div>
+        </div>`).join('');
+    const actHtml2 = (c.activities||[]).map((a,idx)=>`
+        <div class="cvcl2-item cv-edit-shell">
+            ${getItemControls('activities',idx)}
+            <div class="cvcl2-item-top">
+                <span class="cvcl2-role cv-editable">${esc(a.name||a.raw||'')}</span>
+                <span class="cvcl2-date" style="color:${hr}">${ed(a.period||'')}</span>
+            </div>
+            <div class="cvcl2-company cv-editable">${esc(a.role||'')}</div>
+            ${detailsBlock(a.details, 'cvcl2-bullet')}
+        </div>`).join('');
+    const refHtml4 = (c.references||[]).map((ref,idx)=>`
+        <div class="cvcl2-r-item cv-edit-shell">
+            ${getItemControls('references',idx)}
+            <div class="cvcl2-r-degree cv-editable">${esc(ref.name||'')}</div>
+            <div class="cvcl2-r-school cv-editable">${esc(ref.role||ref.company||'')}</div>
+            <div class="cvcl2-r-period cv-editable">${esc(ref.contact||'')}</div>
+        </div>`).join('');
+    const hobbyHtml4 = (c.hobbies||[]).map((hobby,idx)=>`
+        <div class="cvcl2-r-item cv-edit-shell">
+            ${getItemControls('hobbies',idx)}
+            <div class="cvcl2-r-degree cv-editable">${esc(hobby.name||'')}</div>
+            <div class="cvcl2-r-school cv-editable">${esc(hobby.description||'')}</div>
+        </div>`).join('');
+
     const contactBits = [
         c.email?`<span class="cv-editable">${esc(c.email)}</span>`:'',
         c.phone?`<span class="cv-editable">${esc(c.phone)}</span>`:'',
@@ -561,15 +639,20 @@ function renderClassicStyle(c, accent) {
                 <div class="cvcl2-contact" data-cv-section="contacts">${contactBits}</div>
             </div>
         </div>
-        ${c.summary?`<div class="cvcl2-summary-bar" data-cv-section="summary" style="border-left:4px solid ${hr};"><p class="cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p></div>`:''}
+        ${(c.summary||sectionEnabled('summary'))?`<div class="cvcl2-summary-bar" data-cv-section="summary" style="border-left:4px solid ${hr};"><p class="cv-editable" data-placeholder="Giới thiệu bản thân...">${c.summary?esc(c.summary).replace(/\n/g,'<br>'):''}</p></div>`:''}
         <div class="cvcl2-body">
             <div class="cvcl2-left">
                 ${lsec('experience', 'KINH NGHIỆM', expHtml)}
                 ${lsec('projects', 'DỰ ÁN', projHtml)}
+                ${lsec('activities', 'HOẠT ĐỘNG', actHtml2)}
             </div>
             <div class="cvcl2-right">
                 ${rsec('education', 'HỌC VẤN', eduHtml)}
                 ${rsec('skills', 'KỸ NĂNG', skillHtml)}
+                ${rsec('certifications', 'CHỨNG CHỈ', certHtml2)}
+                ${rsec('awards', 'GIẢI THƯỞNG', awardsHtml3)}
+                ${rsec('references', 'NGƯỜI THAM CHIẾU', refHtml4)}
+                ${rsec('hobbies', 'SỞ THÍCH', hobbyHtml4)}
             </div>
         </div>
     </div>`;
@@ -628,6 +711,24 @@ function renderHarvardStyle(c, accent) {
         </div>`).join('');
 
     // Contact line with icons matching the PDF layout
+    const refHtml5 = (c.references||[]).map((ref,idx)=>`
+        <div class="cvh-item cvh-edit-shell">
+            ${getItemControls('references',idx)}
+            <div class="cvh-item-head">
+                <span class="cvh-item-title cv-editable" data-placeholder="Người tham chiếu">${esc(ref.name||'')}</span>
+            </div>
+            <div class="cvh-item-sub cv-editable" data-placeholder="Chức danh / Công ty">${esc(ref.role||ref.company||'')}</div>
+            <div class="cvh-item-sub cv-editable" data-placeholder="Email / SĐT">${esc(ref.contact||'')}</div>
+        </div>`).join('');
+    const hobbyHtml5 = (c.hobbies||[]).map((hobby,idx)=>`
+        <div class="cvh-item cvh-edit-shell">
+            ${getItemControls('hobbies',idx)}
+            <div class="cvh-item-head">
+                <span class="cvh-item-title cv-editable" data-placeholder="Sở thích">${esc(hobby.name||'')}</span>
+            </div>
+            <div class="cvh-item-sub cv-editable" data-placeholder="Mô tả">${esc(hobby.description||'')}</div>
+        </div>`).join('');
+
     const contactItems = CONTACT_TYPES
         .filter(t => c[t.key] !== undefined && c[t.key] !== null && c[t.key] !== '')
         .map(t => `<span class="cvh-contact-item" data-contact-key="${t.key}">${libIcon(t.icon, 13, 'vertical-align:-2px;margin-right:4px;')} <span class="cv-editable" data-placeholder="${t.placeholder}">${esc(c[t.key]||'')}</span></span>`)
@@ -644,10 +745,12 @@ function renderHarvardStyle(c, accent) {
             ${section('education', 'EDUCATION', itemRow('education',c.education||[]), 'education')}
             ${section('projects', 'PROJECTS', itemRow('projects',c.projects||[]), 'projects')}
             ${section('experience', 'EXPERIENCE', itemRow('experience',c.experience||[]), 'experience')}
-            ${section('summary', 'PROFESSIONAL SUMMARY', c.summary ? `<p class="cvh-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>` : '')}
+            ${section('summary', 'PROFESSIONAL SUMMARY', (c.summary||sectionEnabled('summary')) ? `<p class="cvh-summary cv-editable" data-placeholder="Giới thiệu bản thân...">${c.summary?esc(c.summary).replace(/\n/g,'<br>'):''}</p>` : '', 'summary')}
             ${section('certifications', 'CERTIFICATIONS', itemRow('certifications',c.certifications||[]), 'certifications')}
             ${section('awards', 'AWARDS', itemRow('awards',c.awards||[]), 'awards')}
             ${section('activities', 'ACTIVITIES', itemRow('activities',c.activities||[]), 'activities')}
+            ${section('references', 'REFERENCES', refHtml5, 'references')}
+            ${section('hobbies', 'SỞ THÍCH', hobbyHtml5, 'hobbies')}
         </div>
     </div>`;
 }
@@ -685,6 +788,41 @@ function renderAtsStyle(c, accent) {
             <div style="flex:1;color:#777;">${ed((sg.items||[]).join(', '))}</div>
         </div>`).join('');
 
+    const awardsHtml4 = (c.awards||[]).map((aw,idx)=>`
+        <div class="cv-topcv-row cv-edit-shell">
+            ${getItemControls('awards',idx)}
+            <div style="display:flex;justify-content:space-between;">
+                <strong>${ed(aw.name||aw.raw||'','Tên giải thưởng')}</strong>
+                <span style="font-style:italic;color:#777;">${ed(aw.year||'','Năm')}</span>
+            </div>
+        </div>`).join('');
+    const actHtml3 = (c.activities||[]).map((a,idx)=>`
+        <div class="cv-topcv-row cv-edit-shell">
+            ${getItemControls('activities',idx)}
+            <div style="display:flex;justify-content:space-between;">
+                <strong>${ed(a.name||a.raw||'','Tên hoạt động')}</strong>
+                <span style="font-style:italic;color:#777;">${ed(a.period||'','Thời gian')}</span>
+            </div>
+            ${detailsBlock(a.details, 'cv-ats-detail')}
+        </div>`).join('');
+    const refHtml6 = (c.references||[]).map((ref,idx)=>`
+        <div class="cv-topcv-row cv-edit-shell">
+            ${getItemControls('references',idx)}
+            <div style="display:flex;justify-content:space-between;">
+                <strong>${ed(ref.name||'','Người tham chiếu')}</strong>
+                <span>${ed(ref.contact||'','Email / SĐT')}</span>
+            </div>
+            <div style="margin-top:4px;">${ed(ref.role||ref.company||'','Chức danh / Công ty')}</div>
+        </div>`).join('');
+    const hobbyHtml6 = (c.hobbies||[]).map((hobby,idx)=>`
+        <div class="cv-topcv-row cv-edit-shell">
+            ${getItemControls('hobbies',idx)}
+            <div style="display:flex;align-items:center;gap:8px;">
+                <strong>${ed(hobby.name||'','Sở thích')}</strong>
+                <span style="color:#777;">${ed(hobby.description||'','Mô tả')}</span>
+            </div>
+        </div>`).join('');
+
     const contactHtml = [
         c.phone?`<span>${libIcon('phone',14,'vertical-align:-2px;')} <span class="cv-editable">${esc(c.phone)}</span></span>`:'',
         c.email?`<span>${libIcon('mail',14,'vertical-align:-2px;')} <span class="cv-editable">${esc(c.email)}</span></span>`:'',
@@ -698,12 +836,16 @@ function renderAtsStyle(c, accent) {
             <div style="display:flex;justify-content:center;gap:15px;flex-wrap:wrap;" data-cv-section="contacts">${contactHtml}</div>
         </header>
         <div class="cv-topcv-body">
-            ${c.summary?sec('summary', 'TÓM TẮT', `<div class="cv-editable" style="font-style:italic;color:#555;">${esc(c.summary).replace(/\n/g,'<br>')}</div>`):''}
+            ${(c.summary||sectionEnabled('summary'))?sec('summary', 'TÓM TẮT', `<div class="cv-editable" data-placeholder="Giới thiệu bản thân..." style="font-style:italic;color:#555;">${esc(c.summary).replace(/\n/g,'<br>')}</div>`):''}
             ${skillHtml?sec('skills', 'KỸ NĂNG', skillHtml):''}
             ${rowHtml('education',c.education||[])?sec('education', 'HỌC VẤN', rowHtml('education',c.education||[])):''}
             ${rowHtml('experience',c.experience||[])?sec('experience', 'KINH NGHIỆM LÀM VIỆC', rowHtml('experience',c.experience||[])):''}
             ${rowHtml('projects',c.projects||[])?sec('projects', 'DỰ ÁN', rowHtml('projects',c.projects||[])):''}
             ${rowHtml('certifications',c.certifications||[])?sec('certifications', 'CHỨNG CHỈ', rowHtml('certifications',c.certifications||[])):''}
+            ${awardsHtml4?sec('awards', 'GIẢI THƯỞNG', awardsHtml4):''}
+            ${actHtml3?sec('activities', 'HOẠT ĐỘNG', actHtml3):''}
+            ${refHtml6?sec('references', 'NGƯỜI THAM CHIẾU', refHtml6):''}
+            ${hobbyHtml6?sec('hobbies', 'SỞ THÍCH', hobbyHtml6):''}
         </div>
     </div>`;
 }

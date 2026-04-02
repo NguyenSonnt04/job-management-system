@@ -420,6 +420,39 @@ body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cv-ats-detail {
     line-height: 1;
 }
 
+.btn-translate-cv {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--editor-primary) 0%, #6366f1 100%);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+}
+
+.btn-translate-cv:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-translate-cv:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-translate-cv i {
+    width: 16px;
+    height: 16px;
+}
+
 /* Section Toggle Items */
 .section-toggles {
     display: flex;
