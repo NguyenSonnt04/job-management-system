@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xác thực OTP - CoHoiViecLam</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(29, 78, 216, 0.12);
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+    }
+
+    .logo { margin-bottom: 24px; }
+    .logo img { height: 48px; }
+
+    .icon-shield {
+      width: 72px; height: 72px;
+      background: #EFF6FF;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .icon-shield svg { width: 36px; height: 36px; }
+
+    h1 { font-size: 22px; color: #111827; margin-bottom: 8px; }
+    .subtitle { color: #6b7280; font-size: 14px; line-height: 1.6; margin-bottom: 32px; }
+    .email-highlight { font-weight: 600; color: #1D4ED8; }
+
+    /* OTP inputs */
+    .otp-inputs {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .otp-inputs input {
+      width: 52px; height: 60px;
+      border: 2px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      color: #111827;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .otp-inputs input:focus {
+      border-color: #1D4ED8;
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+    }
+    .otp-inputs input.filled { border-color: #1D4ED8; background: #EFF6FF; }
+    .otp-inputs input.error { border-color: #ef4444; background: #fef2f2; }
+
+    .btn-verify {
+      width: 100%;
+      padding: 14px;
+      background: #1D4ED8;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-bottom: 16px;
+    }
+    .btn-verify:hover { background: #1e40af; }
+    .btn-verify:active { transform: scale(0.98); }
+    .btn-verify:disabled { background: #93c5fd; cursor: not-allowed; }
+
+    .resend-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+    .btn-resend {
+      background: none; border: none;
+      color: #1D4ED8; font-size: 14px; font-weight: 600;
+      cursor: pointer; padding: 0;
+      text-decoration: underline;
+    }
+    .btn-resend:disabled { color: #9ca3af; cursor: not-allowed; text-decoration: none; }
+
+    .countdown { font-weight: 600; color: #1D4ED8; min-width: 32px; }
+
+    .msg {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .msg.error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; display: block; }
+    .msg.success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; display: block; }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #9ca3af;
+      text-decoration: none;
+    }
+    .back-link:hover { color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <a href="/index.html">
+        <img src="/images/logo.png" alt="CoHoiViecLam" onerror="this.style.display='none'" />
+      </a>
+    </div>
+
+    <div class="icon-shield">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <polyline points="9 12 11 14 15 10"/>
+      </svg>
+    </div>
+
+    <h1 id="pageTitle">Xác thực 2 lớp</h1>
+    <p class="subtitle">
+      Mã OTP 6 chữ số đã được gửi đến<br>
+      <span class="email-highlight" id="emailDisplay"></span>
+    </p>
+
+    <div id="msg" class="msg"></div>
+
+    <div class="otp-inputs" id="otpInputs">
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" />
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+      <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+    </div>
+
+    <button class="btn-verify" id="btnVerify" onclick="verify()">Xác nhận</button>
+
+    <div class="resend-row">
+      <span>Không nhận được mã?</span>
+      <button class="btn-resend" id="btnResend" onclick="resend()" disabled>Gửi lại</button>
+      <span class="countdown" id="countdown"></span>
+    </div>
+
+    <a href="/index.html" class="back-link">← Quay lại trang chủ</a>
+  </div>
+
+  <script>
+    const params    = new URLSearchParams(location.search);
+    const email     = params.get('email') || '';
+    const pageType  = params.get('type') || 'oauth2'; // 'register' hoặc 'oauth2'
+    const verifyEndpoint = pageType === 'register' ? '/api/2fa/verify-email' : '/api/2fa/verify';
+
+    document.getElementById('emailDisplay').textContent = email;
+    if (pageType === 'register') {
+      document.getElementById('pageTitle').textContent = 'Xác thực email đăng ký';
+    }
+
+    const inputs  = [...document.querySelectorAll('.otp-inputs input')];
+    const btnVerify = document.getElementById('btnVerify');
+    const btnResend = document.getElementById('btnResend');
+    const countdownEl = document.getElementById('countdown');
+    const msgEl = document.getElementById('msg');
+
+    // Nếu server gửi mail thất bại → hiện lỗi và cho phép gửi lại ngay
+    if (params.get('mailError') === 'true') {
+      showMsg('Không thể gửi email OTP. Vui lòng nhấn "Gửi lại" để thử lại.', 'error');
+      btnResend.disabled = false;
+      countdownEl.textContent = '';
+    }
+
+    // — OTP input navigation —
+    inputs.forEach((inp, i) => {
+      inp.addEventListener('input', () => {
+        inp.value = inp.value.replace(/\D/g, '').slice(-1);
+        inp.classList.toggle('filled', inp.value !== '');
+        clearMsg();
+        if (inp.value && i < 5) inputs[i + 1].focus();
+        if (getOtp().length === 6) btnVerify.focus();
+      });
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !inp.value && i > 0) inputs[i - 1].focus();
+      });
+      inp.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+        text.split('').forEach((ch, idx) => {
+          if (inputs[idx]) { inputs[idx].value = ch; inputs[idx].classList.add('filled'); }
+        });
+        if (text.length > 0) inputs[Math.min(text.length, 5)].focus();
+      });
+    });
+
+    inputs[0].focus();
+
+    function getOtp() { return inputs.map(i => i.value).join(''); }
+
+    function showMsg(text, type) {
+      msgEl.textContent = text;
+      msgEl.className = 'msg ' + type;
+    }
+    function clearMsg() {
+      msgEl.className = 'msg';
+      inputs.forEach(i => i.classList.remove('error'));
+    }
+
+    // — Verify —
+    async function verify() {
+      const otp = getOtp();
+      if (otp.length < 6) { showMsg('Vui lòng nhập đủ 6 chữ số', 'error'); return; }
+
+      btnVerify.disabled = true;
+      btnVerify.textContent = 'Đang xác thực...';
+
+      try {
+        const res  = await fetch(verifyEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, otp })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showMsg('Xác thực thành công! Đang chuyển hướng...', 'success');
+          setTimeout(() => { window.location.href = data.redirectUrl || '/index.html'; }, 800);
+        } else {
+          showMsg(data.message || 'Mã OTP không đúng', 'error');
+          inputs.forEach(i => i.classList.add('error'));
+          btnVerify.disabled = false;
+          btnVerify.textContent = 'Xác nhận';
+          inputs[0].focus();
+          inputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
+        }
+      } catch {
+        showMsg('Lỗi kết nối, vui lòng thử lại', 'error');
+        btnVerify.disabled = false;
+        btnVerify.textContent = 'Xác nhận';
+      }
+    }
+
+    // — Countdown & Resend —
+    let timer;
+    function startCountdown(seconds) {
+      clearInterval(timer);
+      btnResend.disabled = true;
+      let remaining = seconds;
+      countdownEl.textContent = `(${remaining}s)`;
+      timer = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(timer);
+          countdownEl.textContent = '';
+          btnResend.disabled = false;
+        } else {
+          countdownEl.textContent = `(${remaining}s)`;
+        }
+      }, 1000);
+    }
+
+    async function resend() {
+      btnResend.disabled = true;
+      try {
+        const res  = await fetch('/api/2fa/resend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, type: pageType })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showMsg('Đã gửi lại mã OTP đến ' + email, 'success');
+          startCountdown(60);
+          inputs.forEach(i => { i.value = ''; i.classList.remove('filled', 'error'); });
+          inputs[0].focus();
+        } else {
+          showMsg(data.message || 'Không thể gửi lại OTP', 'error');
+          btnResend.disabled = false;
+        }
+      } catch {
+        showMsg('Lỗi kết nối, vui lòng thử lại', 'error');
+        btnResend.disabled = false;
+      }
+    }
+
+    // Bắt đầu đếm ngược 60 giây khi tải trang
+    startCountdown(60);
+  </script>
+</body>
+</html>

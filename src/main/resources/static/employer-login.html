@@ -85,12 +85,45 @@
               </div>
 
               <div class="form-footer">
-                <a href="#" class="link-forgot">Quên Mật Khẩu?</a>
+                <a href="/forgot-password.html" class="link-forgot">Quên Mật Khẩu?</a>
                 <button type="submit" class="btn-submit-teal" id="submitBtn">
                   ĐĂNG NHẬP
                 </button>
               </div>
             </form>
+
+            <!-- OTP Section (hidden initially) -->
+            <div id="otpSection" style="display:none;">
+              <div style="text-align:center; margin-bottom:16px;">
+                <p style="font-size:14px; color:#374151; margin-bottom:4px;">
+                  Mã OTP đã được gửi đến email:
+                </p>
+                <p id="otpEmailDisplay" style="font-weight:600; color:#0d9488; font-size:15px;"></p>
+              </div>
+
+              <div
+                id="otpLoginError"
+                style="display:none; background:#fee2e2; color:#dc2626; padding:12px 16px; border-radius:8px; font-size:14px; margin-bottom:16px; border-left:4px solid #dc2626;"
+              ></div>
+
+              <div style="display:flex; gap:8px; justify-content:center; margin-bottom:20px;">
+                <input type="text" maxlength="1" class="otp-login-box" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid #d1d5db;border-radius:8px;outline:none;transition:border-color 0.2s;" />
+                <input type="text" maxlength="1" class="otp-login-box" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid #d1d5db;border-radius:8px;outline:none;transition:border-color 0.2s;" />
+                <input type="text" maxlength="1" class="otp-login-box" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid #d1d5db;border-radius:8px;outline:none;transition:border-color 0.2s;" />
+                <input type="text" maxlength="1" class="otp-login-box" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid #d1d5db;border-radius:8px;outline:none;transition:border-color 0.2s;" />
+                <input type="text" maxlength="1" class="otp-login-box" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid #d1d5db;border-radius:8px;outline:none;transition:border-color 0.2s;" />
+                <input type="text" maxlength="1" class="otp-login-box" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:700;border:2px solid #d1d5db;border-radius:8px;outline:none;transition:border-color 0.2s;" />
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                <button type="button" id="resendLoginOtpBtn" onclick="resendLoginOtp()" style="background:none;border:none;color:#0d9488;font-size:13px;cursor:pointer;text-decoration:underline;padding:0;" disabled>
+                  Gửi lại OTP (<span id="loginOtpCountdown">60</span>s)
+                </button>
+                <button type="button" onclick="verifyLoginOtp()" id="verifyLoginBtn" style="background:#0d9488;color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:15px;font-weight:600;cursor:pointer;">
+                  XÁC NHẬN
+                </button>
+              </div>
+            </div>
 
             <div class="register-call">
               Quý khách chưa có tài khoản?
@@ -113,6 +146,9 @@
 
     <script src="js/employer.js"></script>
     <script>
+      let loginOtpEmail = "";
+      let loginOtpTimer = null;
+
       async function handleEmployerLogin(e) {
         e.preventDefault();
 
@@ -134,20 +170,24 @@
           });
           const data = await res.json();
 
-          if (data.success) {
-            // Check role — only allow employers
+          if (data.requireOtp) {
+            loginOtpEmail = data.email || email;
+            document.getElementById("loginForm").style.display = "none";
+            document.getElementById("otpSection").style.display = "block";
+            document.getElementById("otpEmailDisplay").textContent = loginOtpEmail;
+            initLoginOtpInputs();
+            startLoginCountdown();
+          } else if (data.success) {
             if (data.role === "ROLE_EMPLOYER" || data.role === "ROLE_ADMIN") {
               window.location.href = data.redirectUrl || "/dashboard.html";
             } else {
-              errorEl.textContent =
-                "Tài khoản này không phải tài khoản nhà tuyển dụng.";
+              errorEl.textContent = "Tài khoản này không phải tài khoản nhà tuyển dụng.";
               errorEl.style.display = "block";
               submitBtn.disabled = false;
               submitBtn.textContent = "ĐĂNG NHẬP";
             }
           } else {
-            errorEl.textContent =
-              data.message || "Email hoặc mật khẩu không chính xác.";
+            errorEl.textContent = data.message || "Email hoặc mật khẩu không chính xác.";
             errorEl.style.display = "block";
             submitBtn.disabled = false;
             submitBtn.textContent = "ĐĂNG NHẬP";
@@ -157,6 +197,115 @@
           errorEl.style.display = "block";
           submitBtn.disabled = false;
           submitBtn.textContent = "ĐĂNG NHẬP";
+        }
+      }
+
+      function initLoginOtpInputs() {
+        const boxes = document.querySelectorAll(".otp-login-box");
+        boxes.forEach((box, i) => {
+          box.value = "";
+          box.addEventListener("input", () => {
+            if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
+          });
+          box.addEventListener("keydown", (e) => {
+            if (e.key === "Backspace" && !box.value && i > 0) boxes[i - 1].focus();
+          });
+          box.addEventListener("paste", (e) => {
+            e.preventDefault();
+            const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+            boxes.forEach((b, j) => { b.value = text[j] || ""; });
+            const last = Math.min(text.length, boxes.length - 1);
+            boxes[last].focus();
+          });
+        });
+        boxes[0].focus();
+      }
+
+      function startLoginCountdown() {
+        clearInterval(loginOtpTimer);
+        let seconds = 60;
+        const resendBtn = document.getElementById("resendLoginOtpBtn");
+        const countdownEl = document.getElementById("loginOtpCountdown");
+        resendBtn.disabled = true;
+        countdownEl.textContent = seconds;
+        loginOtpTimer = setInterval(() => {
+          seconds--;
+          countdownEl.textContent = seconds;
+          if (seconds <= 0) {
+            clearInterval(loginOtpTimer);
+            resendBtn.disabled = false;
+            resendBtn.textContent = "Gửi lại OTP";
+          }
+        }, 1000);
+      }
+
+      async function verifyLoginOtp() {
+        const boxes = document.querySelectorAll(".otp-login-box");
+        const otp = Array.from(boxes).map(b => b.value).join("");
+        const errorEl = document.getElementById("otpLoginError");
+        const verifyBtn = document.getElementById("verifyLoginBtn");
+
+        if (otp.length !== 6) {
+          errorEl.textContent = "Vui lòng nhập đủ 6 chữ số OTP.";
+          errorEl.style.display = "block";
+          return;
+        }
+
+        errorEl.style.display = "none";
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = "Đang xác nhận...";
+
+        try {
+          const res = await fetch("/api/auth/verify-login-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email: loginOtpEmail, otp }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            window.location.href = data.redirectUrl || "/dashboard.html";
+          } else {
+            errorEl.textContent = data.message || "Mã OTP không đúng hoặc đã hết hạn.";
+            errorEl.style.display = "block";
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = "XÁC NHẬN";
+          }
+        } catch (err) {
+          errorEl.textContent = "Lỗi kết nối. Vui lòng thử lại.";
+          errorEl.style.display = "block";
+          verifyBtn.disabled = false;
+          verifyBtn.textContent = "XÁC NHẬN";
+        }
+      }
+
+      async function resendLoginOtp() {
+        const errorEl = document.getElementById("otpLoginError");
+        const resendBtn = document.getElementById("resendLoginOtpBtn");
+        resendBtn.disabled = true;
+
+        try {
+          const res = await fetch("/api/auth/resend-login-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email: loginOtpEmail }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            errorEl.style.display = "none";
+            startLoginCountdown();
+          } else {
+            errorEl.textContent = data.message || "Không thể gửi lại OTP. Vui lòng thử lại.";
+            errorEl.style.display = "block";
+            resendBtn.disabled = false;
+          }
+        } catch (err) {
+          errorEl.textContent = "Lỗi kết nối. Vui lòng thử lại.";
+          errorEl.style.display = "block";
+          resendBtn.disabled = false;
         }
       }
     </script>
