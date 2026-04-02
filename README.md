@@ -15,7 +15,7 @@
 
 ---
 
-## 📋 Overview
+##  Overview
 
 A comprehensive recruitment management system that leverages AI technology to streamline the hiring process. The platform connects job seekers with employers through intelligent CV matching, automated scoring, and streamlined application workflows.
 
@@ -81,7 +81,7 @@ The AI engine analyzes CV submissions against job requirements, calculating comp
 
 ## 👥 User Roles & Features
 
-### 1️⃣ Administrator
+###  Administrator
 
 **Full system control and oversight**
 
