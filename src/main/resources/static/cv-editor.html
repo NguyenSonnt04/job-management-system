@@ -47,6 +47,10 @@
                         <i data-lucide="panel-left"></i>
                         <span>Bố cục</span>
                     </button>
+                    <button class="design-nav-item" type="button" data-panel="language" onclick="switchDesignPanel('language')">
+                        <i data-lucide="languages"></i>
+                        <span>Ngôn ngữ</span>
+                    </button>
                 </div>
 
                 <div class="design-panels">
@@ -161,6 +165,26 @@
                             <div class="layout-unused-box">
                                 <div class="layout-unused-title">Mục chưa sử dụng</div>
                                 <div class="layout-grid layout-grid-unused" id="layoutUnusedGrid"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="design-panel" data-panel="language">
+                        <div class="design-panel-heading">
+                            <h3>Ngôn ngữ CV</h3>
+                            <p>Chọn ngôn ngữ hiển thị cho các tiêu đề mục trong CV.</p>
+                        </div>
+                        <div class="design-group">
+                            <label class="design-label">Ngôn ngữ</label>
+                            <div class="lang-options" id="langOptions">
+                                <button type="button" class="lang-option-btn active" data-lang="vi" onclick="updateLanguage('vi')">
+                                    <span class="lang-flag">🇻🇳</span>
+                                    <span>Tiếng Việt</span>
+                                </button>
+                                <button type="button" class="lang-option-btn" data-lang="en" onclick="updateLanguage('en')">
+                                    <span class="lang-flag">🇬🇧</span>
+                                    <span>English</span>
+                                </button>
                             </div>
                         </div>
                     </section>

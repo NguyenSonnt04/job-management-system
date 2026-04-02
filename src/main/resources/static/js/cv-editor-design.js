@@ -73,6 +73,11 @@ function syncDesignControls() {
     document.querySelectorAll('[data-section-toggle]').forEach(input => {
         input.checked = designState.sections[input.dataset.sectionToggle] !== false;
     });
+
+    const currentLang = designState.language || 'vi';
+    document.querySelectorAll('.lang-option-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    });
 }
 
 function applyDesignStateToPreview() {
@@ -122,6 +127,25 @@ function updateDesign(prop, value, el) {
 
     if (prop === 'color') renderCurrentPreview();
     else applyDesignStateToPreview();
+}
+
+// ── Language Switcher ─────────────────────────────────────────
+function updateLanguage(lang) {
+    if (lang !== 'vi' && lang !== 'en') return;
+    if (isEditMode && typeof syncPreviewToCurrentCv === 'function') syncPreviewToCurrentCv();
+
+    designState.language = lang;
+
+    // Update all section titles to the selected language
+    const translations = CV_LANG[lang] || CV_LANG['vi'];
+    Object.keys(translations).forEach(sectionKey => {
+        designState.sectionTitles[sectionKey] = translations[sectionKey];
+    });
+
+    syncDesignStateToCurrentCv();
+    renderCvPreview(currentCvJson);
+    syncDesignControls();
+    markCvDirty({ immediate: true });
 }
 
 // ── Background Patterns ───────────────────────────────────────
@@ -244,6 +268,7 @@ function ensureSectionSeedData(sectionName) {
 }
 
 function addSection(sectionName) {
+    if (isEditMode && typeof syncPreviewToCurrentCv === 'function') syncPreviewToCurrentCv();
     ensureSectionSeedData(sectionName);
     designState.sections[sectionName] = true;
     syncDesignStateToCurrentCv();
@@ -253,6 +278,7 @@ function addSection(sectionName) {
 }
 
 function toggleSection(sectionName, isVisible) {
+    if (isEditMode && typeof syncPreviewToCurrentCv === 'function') syncPreviewToCurrentCv();
     if (isVisible) ensureSectionSeedData(sectionName);
     designState.sections[sectionName] = isVisible;
     syncDesignStateToCurrentCv();

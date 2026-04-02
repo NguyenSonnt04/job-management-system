@@ -577,26 +577,45 @@ function renderClassicStyle(c, accent) {
 
 // ── STYLE 5: Harvard ──────────────────────────────────────────
 function renderHarvardStyle(c, accent) {
-    const section = (sectionKey, title, content) => content ? `
-        <div class="cvh-section" data-cv-section="${sectionKey}">
+    const sectionAddBtn = (type) => `<div class="cvh-empty-section-add" contenteditable="false">
+        <button class="btn-item-ctrl btn-item-add" type="button" onclick="addItem('${type}')" title="Thêm mục">
+            <i data-lucide="plus"></i> Thêm mục
+        </button>
+    </div>`;
+
+    const section = (sectionKey, title, content, type) => {
+        const hasContent = content && content.trim();
+        if (!hasContent && !type) return '';
+        return `<div class="cvh-section" data-cv-section="${sectionKey}">
             ${renderSectionTitle('div', sectionKey, title, 'cvh-title')}
-            ${content}
-        </div>` : '';
+            ${hasContent ? content : sectionAddBtn(type || sectionKey)}
+        </div>`;
+    };
+
+    const itemPlaceholders = {
+        experience:     { title: 'Vị trí / Chức danh', sub: 'Tên công ty', period: 'Thời gian' },
+        education:      { title: 'Bằng cấp / Chuyên ngành', sub: 'Trường học', period: 'Thời gian' },
+        projects:       { title: 'Tên dự án', sub: 'Công ty / Tổ chức', period: 'Thời gian', tech: 'Công nghệ sử dụng', github: 'Link GitHub' },
+        certifications: { title: 'Tên chứng chỉ', sub: 'Tổ chức cấp', period: 'Năm' },
+        awards:         { title: 'Tên giải thưởng', sub: 'Tổ chức', period: 'Năm' },
+        activities:     { title: 'Hoạt động / Vai trò', sub: 'Tổ chức', period: 'Thời gian' },
+    };
 
     const itemRow = (type, items) => items.map((item, idx) => {
         const title  = item.role || item.degree || item.name || '';
         const sub    = item.company || item.school || '';
         const period = item.period || '';
         const details= item.details || [];
+        const ph = itemPlaceholders[type] || { title: 'Tiêu đề', sub: 'Mô tả', period: 'Thời gian' };
         return `<div class="cvh-item cvh-edit-shell">
             ${getItemControls(type,idx)}
             <div class="cvh-item-head">
-                <span class="cvh-item-title cv-editable">${esc(title)}</span>
-                <span class="cvh-item-date cv-editable">${esc(period)}</span>
+                <span class="cvh-item-title cv-editable" data-placeholder="${ph.title}">${esc(title)}</span>
+                <span class="cvh-item-date cv-editable" data-placeholder="${ph.period}">${esc(period)}</span>
             </div>
-            ${sub?`<div class="cvh-item-sub cv-editable">${esc(sub)}</div>`:''}
-            ${item.tech?`<div class="cvh-item-tech cv-editable">${esc(item.tech)}</div>`:''}
-            ${item.github?`<div class="cvh-bullet cvh-github-bullet cv-editable">${esc(item.github)}</div>`:''}
+            <div class="cvh-item-sub cv-editable" data-placeholder="${ph.sub}">${esc(sub)}</div>
+            ${item.tech||ph.tech?`<div class="cvh-item-tech cv-editable" data-placeholder="${ph.tech||'Công nghệ'}">${esc(item.tech||'')}</div>`:''}
+            ${item.github||ph.github?`<div class="cvh-github-bullet cv-editable" data-placeholder="${ph.github||'Link GitHub'}">${esc(item.github||'')}</div>`:''}
             ${detailsBlock(details, 'cvh-bullet')}
         </div>`;
     }).join('');
@@ -604,8 +623,8 @@ function renderHarvardStyle(c, accent) {
     const skillHtml = (c.skills||[]).map((sg,idx)=>`
         <div class="cvh-skill-row cvh-edit-shell">
             ${getItemControls('skills',idx)}
-            <div class="cvh-skill-cat cv-editable">${esc(sg.category||'')}</div>
-            <div class="cvh-skill-items cv-editable">${esc((sg.items||[]).join(', '))}</div>
+            <div class="cvh-skill-cat cv-editable" data-placeholder="Nhóm kỹ năng">${esc(sg.category||'')}</div>
+            <div class="cvh-skill-items cv-editable" data-placeholder="Kỹ năng 1, Kỹ năng 2, ...">${esc((sg.items||[]).join(', '))}</div>
         </div>`).join('');
 
     // Contact line with icons matching the PDF layout
@@ -621,14 +640,14 @@ function renderHarvardStyle(c, accent) {
             <div class="cvh-contact" data-cv-section="contacts">${contactItems||`<button class="btn-item-ctrl btn-item-add cv-contact-add-btn cv-contact-add-standalone" type="button" onclick="openAddContactMenu(this)" contenteditable="false"><i data-lucide="plus"></i> Thêm liên hệ</button>`}</div>
         </div>
         <div class="cvh-body">
-            ${skillHtml?section('skills', 'SKILLS', `<div class="cvh-skill-table">${skillHtml}</div>`):''}
-            ${section('education', 'EDUCATION', itemRow('education',c.education||[]))}
-            ${section('projects', 'PROJECTS', itemRow('projects',c.projects||[]))}
-            ${section('experience', 'EXPERIENCE', itemRow('experience',c.experience||[]))}
-            ${c.summary?section('summary', 'PROFESSIONAL SUMMARY', `<p class="cvh-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>`):''}
-            ${itemRow('certifications',c.certifications||[])?section('certifications', 'CERTIFICATIONS', itemRow('certifications',c.certifications||[])):''}
-            ${itemRow('awards',c.awards||[])?section('awards', 'AWARDS', itemRow('awards',c.awards||[])):''}
-            ${itemRow('activities',c.activities||[])?section('activities', 'ACTIVITIES', itemRow('activities',c.activities||[])):''}
+            ${section('skills', 'SKILLS', skillHtml ? `<div class="cvh-skill-table">${skillHtml}</div>` : '', 'skills')}
+            ${section('education', 'EDUCATION', itemRow('education',c.education||[]), 'education')}
+            ${section('projects', 'PROJECTS', itemRow('projects',c.projects||[]), 'projects')}
+            ${section('experience', 'EXPERIENCE', itemRow('experience',c.experience||[]), 'experience')}
+            ${section('summary', 'PROFESSIONAL SUMMARY', c.summary ? `<p class="cvh-summary cv-editable">${esc(c.summary).replace(/\n/g,'<br>')}</p>` : '')}
+            ${section('certifications', 'CERTIFICATIONS', itemRow('certifications',c.certifications||[]), 'certifications')}
+            ${section('awards', 'AWARDS', itemRow('awards',c.awards||[]), 'awards')}
+            ${section('activities', 'ACTIVITIES', itemRow('activities',c.activities||[]), 'activities')}
         </div>
     </div>`;
 }
@@ -764,6 +783,7 @@ function moveItem(type, index, direction) {
 function removeItem(type, index) {
     if (!currentCvJson || !Array.isArray(currentCvJson[type])) return;
     if (!confirm('Bạn có chắc muốn xóa mục này?')) return;
+    if (isEditMode && typeof syncPreviewToCurrentCv === 'function') syncPreviewToCurrentCv();
     currentCvJson[type].splice(index, 1);
     renderCvPreview(currentCvJson);
     markCvDirty({ immediate: true });
@@ -771,6 +791,7 @@ function removeItem(type, index) {
 
 function duplicateItem(type, index) {
     if (!currentCvJson || !Array.isArray(currentCvJson[type])) return;
+    if (isEditMode && typeof syncPreviewToCurrentCv === 'function') syncPreviewToCurrentCv();
     const clone = JSON.parse(JSON.stringify(currentCvJson[type][index]));
     currentCvJson[type].splice(index + 1, 0, clone);
     renderCvPreview(currentCvJson);
@@ -779,6 +800,7 @@ function duplicateItem(type, index) {
 
 function addItem(type, insertIndex = null) {
     if (!currentCvJson) return;
+    if (isEditMode && typeof syncPreviewToCurrentCv === 'function') syncPreviewToCurrentCv();
     if (!currentCvJson[type]) currentCvJson[type] = [];
     const defaults = {
         skills:         { category: '', items: [''] },

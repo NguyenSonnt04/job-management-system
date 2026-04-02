@@ -275,7 +275,7 @@ async function downloadPdf() {
                 });
             });
 
-            await html2pdf()
+            const pdfBlob = await html2pdf()
                 .set({
                     margin:      0,
                     filename,
@@ -285,7 +285,17 @@ async function downloadPdf() {
                     jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 })
                 .from(cvDoc)
-                .save();
+                .output('blob');
+
+            // Manual download to avoid html2pdf .save() double-download bug
+            const blobUrl = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(blobUrl);
 
             // Restore original styles
             sanitized.forEach(({ el, prop, original }) => { el.style[prop] = original; });

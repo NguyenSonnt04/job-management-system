@@ -378,6 +378,48 @@ body.pdf-export-mode #cvPreview [data-cv-section="projects"] .cv-ats-detail {
     border-color: #000;
 }
 
+/* Language Options */
+.lang-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.lang-option-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--editor-text);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    flex: 1;
+    justify-content: center;
+}
+
+.lang-option-btn:hover {
+    border-color: var(--editor-primary);
+    background: #eff6ff;
+    color: var(--editor-primary);
+}
+
+.lang-option-btn.active {
+    border-color: var(--editor-primary);
+    background: #eff6ff;
+    color: var(--editor-primary);
+    font-weight: 600;
+}
+
+.lang-flag {
+    font-size: 20px;
+    line-height: 1;
+}
+
 /* Section Toggle Items */
 .section-toggles {
     display: flex;
@@ -1414,6 +1456,13 @@ input:checked + .slider:before {
     font-style: italic;
     color: #000;
     margin-bottom: 4px;
+}
+
+.cvh-github-bullet {
+    font-size: calc(12px * var(--cv-font-scale, 1));
+    color: inherit;
+    line-height: var(--cv-line-height, 1.55);
+    margin-bottom: 2px;
 }
 
 .cvh-bullet {
@@ -2990,6 +3039,16 @@ input:checked + .slider:before {
 
 .cvh-edit-shell {
     border-radius: 14px;
+}
+
+.cvh-empty-section-add {
+    display: none;
+    padding: 12px 0;
+    text-align: center;
+}
+
+.cv-editable-mode .cvh-empty-section-add {
+    display: block;
 }
 
 .cvh-editable-active,
