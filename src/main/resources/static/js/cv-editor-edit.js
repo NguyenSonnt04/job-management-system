@@ -6,7 +6,7 @@
 function resolvePreviewItemShell(target) {
     if (!isEditMode || !(target instanceof HTMLElement)) return null;
     if (target.closest('.cv-item-controls')) return null;
-    return target.closest('.cv-edit-shell, .cvm-exp-item, .cvm-edu-item, .cvm-skill-group, .cvm2-row, .cvc2-card, .cvh-item, .cvh-skill-group, .cvh-inline-item, .cv-topcv-row, .cvcl2-item, .cvcl2-r-item');
+    return target.closest('.cv-edit-shell, .cvm-exp-item, .cvm-edu-item, .cvm-skill-group, .cvm2-row, .cvc2-card, .cvh-item, .cvh-skill-row, .cvh-inline-item, .cv-topcv-row, .cvcl2-item, .cvcl2-r-item');
 }
 
 function setActiveItemShell(shell, preview = document.getElementById('cvPreview')) {
@@ -339,8 +339,8 @@ function syncHarvardPreviewToJson(preview) {
     if (exp.length) currentCvJson.experience = exp;
 
     const edu = mapHarvardItems('education', 'EDUCATION', (item, subLines, details) => ({
-        degree: cleanPreviewText(item.querySelector('.cvh-item-title')?.innerText || ''),
-        school: subLines[0] || '',
+        school: cleanPreviewText(item.querySelector('.cvh-item-title')?.innerText || ''),
+        degree: subLines[0] || '',
         period: cleanPreviewText(item.querySelector('.cvh-item-date')?.innerText || ''),
         details
     }));

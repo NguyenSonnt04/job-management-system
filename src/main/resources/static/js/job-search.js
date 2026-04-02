@@ -8,6 +8,10 @@ let currentFilteredJobs = [];
 let visibleJobsCount = 5;
 const JOBS_PER_PAGE = 5;
 
+// ─── Keyword Suggestion State ──────────────────────
+let suggestionDebounce = null;
+let suggestionActiveIdx = -1;
+
 // Map filter group code → select element id
 const FILTER_CODE_TO_ID = {
     salary:          'filterSalary',
@@ -17,6 +21,56 @@ const FILTER_CODE_TO_ID = {
     experience:      'filterExp',
     job_rank:        'filterRank'
 };
+
+let allProvinces = [];
+
+async function loadProvinces() {
+    try {
+        const res = await fetch('/api/jobs/form-options');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.provinces) return;
+        allProvinces = data.provinces;
+    } catch (e) {
+        console.warn('Không thể tải danh sách tỉnh/thành:', e);
+    }
+}
+
+function initProvinceDropdown() {
+    const input = document.getElementById('searchLocation');
+    const dropdown = document.getElementById('provinceDropdown');
+    if (!input || !dropdown) return;
+
+    function renderDropdown(filter) {
+        const query = (filter || '').toLowerCase();
+        const matched = query
+            ? allProvinces.filter(p => p.toLowerCase().includes(query))
+            : allProvinces;
+        if (matched.length === 0) {
+            dropdown.classList.remove('show');
+            return;
+        }
+        dropdown.innerHTML = matched.map(p =>
+            `<div class="province-item">${escapeHtml(p)}</div>`
+        ).join('');
+        dropdown.classList.add('show');
+
+        dropdown.querySelectorAll('.province-item').forEach(item => {
+            item.addEventListener('mousedown', e => {
+                e.preventDefault();
+                input.value = item.textContent;
+                dropdown.classList.remove('show');
+                triggerSearch();
+            });
+        });
+    }
+
+    input.addEventListener('focus', () => renderDropdown(input.value));
+    input.addEventListener('input', () => renderDropdown(input.value));
+    input.addEventListener('blur', () => {
+        setTimeout(() => dropdown.classList.remove('show'), 150);
+    });
+}
 
 async function loadFilterOptions() {
     try {
@@ -54,8 +108,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (keywordInput  && initKeyword)  keywordInput.value  = initKeyword;
     if (locationInput && initLocation) locationInput.value = initLocation;
 
-    // Load filter options from DB, then load jobs
+    // Load provinces + filter options from DB, then load jobs
+    loadProvinces().then(() => initProvinceDropdown());
     loadFilterOptions().then(() => loadJobs(initKeyword, initLocation));
+
+    // ── Keyword suggestions ────────────────────────────
+    initKeywordSuggestions();
 
     // ── Search button + Enter ──────────────────────────
     const searchBtn = document.querySelector('.btn-search-main');
@@ -94,6 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // TRIGGER SEARCH
 // ─────────────────────────────────────────────────────
 function triggerSearch() {
+    hideKeywordSuggestions();
     const keyword  = (document.getElementById('searchKeyword')?.value  || '').trim();
     const location = (document.getElementById('searchLocation')?.value || '').trim();
     loadJobs(keyword, location);
@@ -611,6 +670,171 @@ function renderLoadMore() {
             renderJobs(currentFilteredJobs, false);
         });
     }
+}
+
+// ─────────────────────────────────────────────────────
+// KEYWORD SUGGESTIONS
+// ─────────────────────────────────────────────────────
+
+function initKeywordSuggestions() {
+    const input = document.getElementById('searchKeyword');
+    const box   = document.getElementById('keywordSuggestions');
+    if (!input || !box) return;
+
+    // Gõ → debounce 220ms rồi hiện gợi ý
+    input.addEventListener('input', () => {
+        clearTimeout(suggestionDebounce);
+        suggestionDebounce = setTimeout(() => renderSuggestions(input.value), 220);
+    });
+
+    // Focus: nếu đã có chữ thì hiện lại
+    input.addEventListener('focus', () => {
+        if (input.value.trim().length >= 1) renderSuggestions(input.value);
+    });
+
+    // Điều hướng bằng bàn phím
+    input.addEventListener('keydown', e => {
+        const items = box.querySelectorAll('.kw-suggestion-item');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            suggestionActiveIdx = Math.min(suggestionActiveIdx + 1, items.length - 1);
+            updateSuggestionActive(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            suggestionActiveIdx = Math.max(suggestionActiveIdx - 1, -1);
+            updateSuggestionActive(items);
+        } else if (e.key === 'Enter') {
+            if (suggestionActiveIdx >= 0 && items[suggestionActiveIdx]) {
+                e.preventDefault();
+                const title = items[suggestionActiveIdx].dataset.title;
+                if (title) {
+                    input.value = title;
+                    hideKeywordSuggestions();
+                    triggerSearch();
+                }
+            }
+        } else if (e.key === 'Escape') {
+            hideKeywordSuggestions();
+        }
+    });
+
+    // Click ngoài → ẩn
+    document.addEventListener('mousedown', e => {
+        if (!box.contains(e.target) && e.target !== input) {
+            hideKeywordSuggestions();
+        }
+    });
+}
+
+function renderSuggestions(query) {
+    const box = document.getElementById('keywordSuggestions');
+    if (!box) return;
+
+    const q = (query || '').trim();
+    if (q.length < 1) { hideKeywordSuggestions(); return; }
+
+    const lower = q.toLowerCase();
+
+    // Gợi ý từ allJobs đã load — ghép cả title + company + industry
+    const MAX = 8;
+    const seen = new Set();
+    const results = [];
+
+    // Ưu tiên: khớp đầu tiêu đề
+    for (const job of allJobs) {
+        if (results.length >= MAX) break;
+        const title = job.title || '';
+        if (title.toLowerCase().includes(lower) && !seen.has(title)) {
+            seen.add(title);
+            results.push({ title, sub: job.employer?.companyName || '', type: 'job' });
+        }
+    }
+
+    // Tiếp: khớp tên công ty
+    for (const job of allJobs) {
+        if (results.length >= MAX) break;
+        const company = job.employer?.companyName || '';
+        if (company.toLowerCase().includes(lower) && !seen.has(company)) {
+            seen.add(company);
+            results.push({ title: company, sub: 'Công ty', type: 'company' });
+        }
+    }
+
+    // Tiếp: khớp ngành nghề
+    for (const job of allJobs) {
+        if (results.length >= MAX) break;
+        const industry = job.industry || '';
+        if (industry.toLowerCase().includes(lower) && !seen.has(industry)) {
+            seen.add(industry);
+            results.push({ title: industry, sub: 'Ngành nghề', type: 'industry' });
+        }
+    }
+
+    if (results.length === 0) { hideKeywordSuggestions(); return; }
+
+    suggestionActiveIdx = -1;
+    box.innerHTML = results.map((r, i) => {
+        const icon = r.type === 'company'  ? 'fa-building'
+                   : r.type === 'industry' ? 'fa-layer-group'
+                   :                        'fa-briefcase';
+        const typeLabel = r.type === 'company'  ? 'Công ty'
+                        : r.type === 'industry' ? 'Ngành'
+                        :                        'Việc làm';
+        return `
+        <div class="kw-suggestion-item" data-title="${escapeAttr(r.title)}" data-idx="${i}">
+            <div class="kw-suggestion-icon">
+                <i class="fa-solid ${icon}"></i>
+            </div>
+            <div class="kw-suggestion-text">
+                <div class="kw-suggestion-title">${highlightMatch(r.title, q)}</div>
+                ${r.sub ? `<div class="kw-suggestion-meta">${escapeHtml(r.sub)}</div>` : ''}
+            </div>
+            <span class="kw-suggestion-type">${typeLabel}</span>
+        </div>`;
+    }).join('');
+
+    // Click chọn gợi ý
+    box.querySelectorAll('.kw-suggestion-item').forEach(item => {
+        item.addEventListener('mousedown', e => {
+            e.preventDefault();
+            const title = item.dataset.title;
+            if (title) {
+                document.getElementById('searchKeyword').value = title;
+                hideKeywordSuggestions();
+                triggerSearch();
+            }
+        });
+    });
+
+    box.classList.add('show');
+}
+
+function hideKeywordSuggestions() {
+    const box = document.getElementById('keywordSuggestions');
+    if (box) { box.classList.remove('show'); box.innerHTML = ''; }
+    suggestionActiveIdx = -1;
+}
+
+function updateSuggestionActive(items) {
+    items.forEach((el, i) => {
+        el.classList.toggle('active', i === suggestionActiveIdx);
+        if (i === suggestionActiveIdx) el.scrollIntoView({ block: 'nearest' });
+    });
+    // Cập nhật input theo item đang active
+    const input = document.getElementById('searchKeyword');
+    if (input && suggestionActiveIdx >= 0 && items[suggestionActiveIdx]) {
+        input.value = items[suggestionActiveIdx].dataset.title || input.value;
+    }
+}
+
+// Highlight phần khớp trong text
+function highlightMatch(text, query) {
+    const escaped = escapeHtml(text);
+    if (!query) return escaped;
+    const re = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return escapeHtml(text).replace(re, '<mark>$1</mark>');
 }
 
 // ─────────────────────────────────────────────────────

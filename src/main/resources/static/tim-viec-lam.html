@@ -19,19 +19,21 @@
         <div class="container">
             <div class="search-bar-wrapper">
                 <div class="search-inputs">
-                    <div class="search-input-group">
+                    <div class="search-input-group keyword-group">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"></circle>
                             <path d="m21 21-4.35-4.35"></path>
                         </svg>
-                        <input type="text" id="searchKeyword" placeholder="Chức danh, Kỹ năng, Tên công ty" class="search-input">
+                        <input type="text" id="searchKeyword" placeholder="Chức danh, Kỹ năng, Tên công ty" class="search-input" autocomplete="off">
+                        <div id="keywordSuggestions" class="keyword-suggestions"></div>
                     </div>
-                    <div class="search-input-group">
+                    <div class="search-input-group location-group">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                             <circle cx="12" cy="10" r="3"></circle>
                         </svg>
-                        <input type="text" id="searchLocation" placeholder="Tỉnh, Thành Phố" class="search-input">
+                        <input type="text" id="searchLocation" placeholder="Tỉnh, Thành Phố" class="search-input" autocomplete="off">
+                        <div id="provinceDropdown" class="province-dropdown"></div>
                     </div>
                     <button class="btn-search-main">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

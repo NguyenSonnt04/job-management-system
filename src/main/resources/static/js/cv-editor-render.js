@@ -685,11 +685,20 @@ function renderHarvardStyle(c, accent) {
     };
 
     const itemRow = (type, items) => items.map((item, idx) => {
-        const title  = item.role || item.degree || item.name || '';
-        const sub    = item.company || item.school || '';
+        let title, sub;
+        if (type === 'education') {
+            // Harvard style: institution name is the prominent bold title
+            title = item.school || item.degree || item.name || '';
+            sub   = item.school ? (item.degree || '') : '';
+        } else {
+            title  = item.role || item.degree || item.name || '';
+            sub    = item.company || item.school || '';
+        }
         const period = item.period || '';
         const details= item.details || [];
-        const ph = itemPlaceholders[type] || { title: 'Tiêu đề', sub: 'Mô tả', period: 'Thời gian' };
+        const ph = type === 'education'
+            ? { title: 'Trường học', sub: 'Bằng cấp / Chuyên ngành', period: 'Thời gian' }
+            : (itemPlaceholders[type] || { title: 'Tiêu đề', sub: 'Mô tả', period: 'Thời gian' });
         return `<div class="cvh-item cvh-edit-shell">
             ${getItemControls(type,idx)}
             <div class="cvh-item-head">
