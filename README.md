@@ -1,434 +1,436 @@
 <div align="center">
 
-#  Job Management System with AI-Powered Recruitment
+# Job Management System
 
-### Intelligent CV Matching • Automated Recruitment • Multi-Role Platform
+An end-to-end recruitment platform built with Spring Boot, MySQL, and server-hosted web pages for candidates, employers, and admins.
 
-*Spring Boot • MySQL • AI Integration*
+It combines classic job board workflows with AI-assisted CV generation, CV scoring, job matching, mock interviews, and content modules such as career guides and career paths.
 
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-green?logo=spring-boot)](https://spring.io/projects/spring-boot)
-[![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk)](https://openjdk.org/projects/jdk/17/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?logo=mysql)](https://www.mysql.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Build](https://img.shields.io/badge/build-local%20package%20verified-brightgreen)](#quick-start)
+[![Version](https://img.shields.io/badge/version-0.0.1--SNAPSHOT-blue)](./pom.xml)
+[![License](https://img.shields.io/badge/license-not%20specified-lightgrey)](#license)
+[![Java](https://img.shields.io/badge/java-17-orange?logo=openjdk)](https://openjdk.org/projects/jdk/17/)
+[![Spring Boot](https://img.shields.io/badge/spring%20boot-4.1.0--M1-6DB33F?logo=springboot)](https://spring.io/projects/spring-boot)
+[![MySQL](https://img.shields.io/badge/mysql-8.0-4479A1?logo=mysql)](https://www.mysql.com/)
 
 </div>
 
----
+> Local packaging was verified on April 4, 2026 with `mvnw.cmd -q -DskipTests package`.
 
-##  Overview
+## Table of Contents
 
-A comprehensive recruitment management system that leverages AI technology to streamline the hiring process. The platform connects job seekers with employers through intelligent CV matching, automated scoring, and streamlined application workflows.
+- [Why This Project](#why-this-project)
+- [Feature Overview](#feature-overview)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Main Workflows](#main-workflows)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Seed Data](#seed-data)
+- [Troubleshooting](#troubleshooting)
+- [FAQ](#faq)
+- [License](#license)
 
-### Core Intelligence
+## Why This Project
 
-The AI engine analyzes CV submissions against job requirements, calculating compatibility scores based on:
-- **Skill extraction** from CV documents (PDF/DOCX)
-- **Requirement parsing** from job postings
-- **Experience matching** and **gap analysis**
-- **Automated ranking** of candidates by fit percentage
+This repository is a Spring Boot monolith for job discovery, employer hiring workflows, and AI-assisted career tooling.
 
----
+What is already implemented in code today:
 
-##  Architecture
+- Candidate registration, login, profile management, saved jobs, and application tracking
+- Employer onboarding, OTP-based employer login, company profile management, and job posting
+- Admin moderation for jobs, users, employers, analytics, and content modules
+- AI-assisted CV generation, CV scoring, CV-vs-JD comparison, job recommendations, and mock interviews
+- Public-facing content APIs for hero banners, announcements, career guides, and career paths
+- A contact widget chatbot plus scheduled cleanup for stale chat sessions
 
-### System Components
+## Feature Overview
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         PRESENTATION LAYER                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │   Admin UI   │  │  Employer UI │  │   Candidate UI       │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                          API LAYER                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │ REST API     │  │ Auth Service │  │   AI Matching Service│  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                        BUSINESS LAYER                           │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │ User Service │  │ Job Service  │  │  Analytics Service   │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                         DATA LAYER                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │   MySQL      │  │  Repository  │  │  Entity Models       │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Area | What ships in the codebase |
+| --- | --- |
+| Candidate | Browse jobs, save jobs, apply to jobs, manage profile, upload/save CVs, version CVs, view notifications, track application history |
+| Employer | Two-step registration, OTP login, manage employer profile, upload employer logo, create/edit/delete job posts, review applicants |
+| Admin | Dashboard stats, analytics, user management, employer management, job approval/rejection, application review |
+| CV Tooling | AI CV builder, AI CV editing, CV translation, saved CV history, template versioning, uploaded PDF/DOC/DOCX CV support |
+| AI Screening | CV scoring, scoring history, CV-to-job matching, CV-to-JD comparison, applicant analysis with compatibility summaries |
+| Interview | AI mock interview sessions, interview result scoring, interview history, role/level/type reference data, question bank |
+| Content | Career guide, career path APIs, site announcements, hero banners, top employer logos, notification templates |
 
-### Technology Stack
+## Tech Stack
 
-| Category | Technology | Purpose |
-|----------|------------|---------|
-| **Backend** | Spring Boot 4.1.0 | Application framework |
-| **Language** | Java 17 | Core programming language |
-| **Database** | MySQL 8.0 | Data persistence |
-| **ORM** | Spring Data JPA | Database abstraction |
-| **Security** | Spring Security | Authentication & authorization |
-| **Template Engine** | Thymeleaf | Server-side rendering |
-| **Build Tool** | Maven | Dependency management |
-| **Container** | Docker | Database deployment |
-| **Database UI** | phpMyAdmin | Database administration |
+| Layer | Technology |
+| --- | --- |
+| Backend | Spring Boot 4.1.0-M1 |
+| Language | Java 17 |
+| Persistence | Spring Data JPA, Hibernate |
+| Database | MySQL 8.0 |
+| Security | Spring Security, OAuth2 client |
+| UI delivery | Static HTML/CSS/JS under `src/main/resources/static`, plus a small Thymeleaf layer |
+| Build | Maven Wrapper |
+| Containers | Docker, Docker Compose |
+| Optional integrations | Gemini API, Gmail SMTP, Google OAuth, GitHub OAuth, Firebase Storage |
 
----
-
-## 👥 User Roles & Features
-
-###  Administrator
-
-**Full system control and oversight**
-
-| Feature | Description |
-|---------|-------------|
-| **User Management** | CRUD operations for all user types |
-| **Employer Management** | Approve/reject employer registrations |
-| **Industry Management** | Manage job categories and sectors |
-| **Skills Management** | Maintain skill taxonomy |
-| **System Analytics** | Dashboard with key metrics |
-
-**Analytics Dashboard:**
-```
-┌─────────────────┬─────────────────┬─────────────────┐
-│ Total Candidates│ CVs Submitted   │ Active Employers│
-│     1,247       │      856        │       89        │
-└─────────────────┴─────────────────┴─────────────────┘
-
-Top Industries:          Top Skills:
-• IT/Software (35%)      • Java (28%)
-• Finance (22%)          • Python (24%)
-• Healthcare (18%)       • SQL (19%)
-```
-
----
-
-### 2️⃣ Employer
-
-**Job posting and candidate management**
-
-| Feature | Description |
-|---------|-------------|
-| **Job Creation** | Post positions with detailed requirements |
-| **AI Matching** | View compatibility scores for each applicant |
-| **Application Review** | Approve/reject with one click |
-| **Candidate Sorting** | Filter by score, date, status |
-| **Bulk Actions** | Process multiple applications |
-
-**Application Workflow:**
-```mermaid
-graph LR
-    A[CV Received] --> B[AI Analysis]
-    B --> C{Score > 70%?}
-    C -->|Yes| D[Shortlist]
-    C -->|No| E[Review Manual]
-    D --> F[Interview]
-    E --> G[Reject]
-```
-
----
-
-### 3️⃣ Candidate (User)
-
-**Profile management and job application**
-
-| Feature | Description |
-|---------|-------------|
-| **Profile Builder** | Create and update personal profile |
-| **CV Upload** | Support PDF/DOCX formats |
-| **AI CV Generator** | Auto-create CV from profile data |
-| **Job Search** | Browse and apply to positions |
-| **Application Tracking** | Monitor application status |
-| **AI Feedback** | View matching scores and skill gaps |
-
-**AI CV Generator Process:**
-```
-Input Profile Data → Template Selection → AI Enhancement
-                                          ↓
-                        Professional CV + Missing Skills Highlight
-```
-
----
-
-### 4️⃣ AI Engine
-
-**Intelligent matching and analysis**
-
-| Capability | Description |
-|------------|-------------|
-| **CV Parsing** | Extract skills from uploaded documents |
-| **Requirement Analysis** | Parse job posting requirements |
-| **Matching Algorithm** | Calculate compatibility percentage |
-| **Gap Detection** | Identify missing skills for candidates |
-| **Ranking System** | Sort applicants by fit score |
-
-**Matching Algorithm:**
-```
-Score = (Skill Match × 40%) + (Experience Match × 30%) +
-        (Education Match × 20%) + (Keyword Match × 10%)
-
-Skill Gap Analysis:
-Present Skills + Required Skills → Gap Report
-```
-
----
-
-## 🚀 Getting Started
+## Quick Start
 
 ### Prerequisites
 
-- **JDK 17+**
-- **Maven 3.8+**
-- **Docker** (for MySQL)
-- **IDE**: IntelliJ IDEA / Eclipse / VS Code
+- Java 17
+- Docker and Docker Compose
+- Internet access for Maven dependency resolution on a fresh machine
 
-### Installation
+### Option A: Local development (recommended)
 
-**1. Clone Repository**
+Start only MySQL and phpMyAdmin:
+
 ```bash
-git clone https://github.com/Son1BeYew/job-management-system.git
-cd job-management-system
+docker compose up -d mysql phpmyadmin
 ```
 
-**2. Start Database**
+Run the Spring Boot app locally:
+
 ```bash
-docker-compose up -d
+# macOS / Linux
+./mvnw spring-boot:run
+
+# Windows
+mvnw.cmd spring-boot:run
 ```
 
-**3. Configure Application**
+Open the app:
 
-Edit `src/main/resources/application.properties` if needed:
+- Application: [http://localhost:8083](http://localhost:8083)
+- phpMyAdmin: [http://localhost:8086](http://localhost:8086)
+- MySQL host port: `localhost:8085`
+
+### Option B: Full Docker stack
+
+If you want the application itself to run in Docker too:
+
+```bash
+docker compose up --build
+```
+
+Important:
+
+- `docker compose up` starts the `app` service on port `8083`
+- Do not run `mvnw spring-boot:run` at the same time, or you will get a port conflict
+
+### Default development credentials
+
+The application seeds a default admin account on startup:
+
+- Admin: `admin@careerviet.vn` / `admin123`
+
+The codebase also seeds demo candidate and employer accounts in `MasterDataSeeder`.
+
+Example:
+
+- Candidate: `candidate1@gmail.com` / `123456`
+- Employer: `employer1@fpt.vn` / `123456`
+
+Note: employer login is OTP-gated, so employer sign-in still needs working email delivery.
+
+## Configuration
+
+The project already ships with a working local datasource configuration for Docker MySQL:
+
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:8085/qltd_db
+spring.datasource.url=jdbc:mysql://localhost:8085/qltd_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
 spring.datasource.username=qltd_user
 spring.datasource.password=qltd_pass123
 ```
 
-**4. Run Application**
-```bash
-mvn spring-boot:run
+Local overrides are imported from the gitignored file:
+
+```text
+src/main/resources/application-local.properties
 ```
 
-**5. Access Application**
+Use it for secrets that should not live in Git.
+
+### Optional integration settings
+
+| Setting | Enables | If missing |
+| --- | --- | --- |
+| `GMAIL_USERNAME`, `GMAIL_APP_PASSWORD` | OTP email delivery, password reset, employer OTP login, OAuth2 OTP completion | OTP-based flows will not be usable end-to-end |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google OAuth login | Google login disabled |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | GitHub OAuth login | GitHub login disabled |
+| `GEMINI_API_KEY` | CV AI, CV scoring, job matching, JD comparison, interview AI, contact chatbot | AI endpoints will fail |
+| `CLAUDE_API_KEY` | `ClaudeChatbotService` only | That service remains unusable |
+| `firebase.storage.enabled`, `firebase.storage.bucket`, `firebase.storage.service-account-path` | Remote image upload and image serving | Image upload endpoints return configuration errors |
+
+### Example `application-local.properties`
+
+```properties
+# Email / OTP
+spring.mail.username=your-email@gmail.com
+spring.mail.password=your-gmail-app-password
+
+# OAuth
+spring.security.oauth2.client.registration.google.client-id=...
+spring.security.oauth2.client.registration.google.client-secret=...
+spring.security.oauth2.client.registration.github.client-id=...
+spring.security.oauth2.client.registration.github.client-secret=...
+
+# AI
+gemini.api.key=...
+claude.api.key=...
+
+# Firebase image storage
+firebase.storage.enabled=true
+firebase.storage.bucket=your-project.firebasestorage.app
+firebase.storage.service-account-path=file:/absolute/path/to/serviceAccountKey.json
 ```
-Application:  http://localhost:8083
-phpMyAdmin:   http://localhost:8086
+
+## Main Workflows
+
+### Candidate flow
+
+1. Browse public pages such as job search, career guide, career paths, CV tools, and interview pages.
+2. Register as a candidate via `/api/auth/register/user`.
+3. Verify email OTP through `/api/2fa/verify-email`.
+4. Create or upload CVs through `/api/user-cv/**`.
+5. Optionally use AI features:
+   - CV generation and editing: `/api/cv-ai/**`
+   - CV scoring and match jobs: `/api/cv-scoring/**`
+   - Mock interview: `/api/interview/**`
+6. Apply to jobs via `/api/applications/apply`.
+7. Track saved jobs, notifications, and personal application history.
+
+### Employer flow
+
+1. Register employer account in two steps:
+   - Step 1 creates the auth record and sends OTP
+   - Step 2 stores company profile data
+2. Login as employer, then complete OTP verification before the session is fully established.
+3. Manage employer profile and logo.
+4. Create job posts through `/api/jobs/create`.
+5. Newly created jobs are stored as `PENDING`.
+6. An admin approves the job, changing it to `ACTIVE`.
+7. Employer reviews applicants, runs AI applicant analysis, and updates application status.
+8. When a candidate is moved to `INTERVIEW`, a notification is created for that candidate.
+
+### Admin flow
+
+1. Login with the seeded admin account.
+2. Monitor dashboard stats and 30-day analytics.
+3. Manage users, employers, jobs, and applications.
+4. Approve, reject, pause, or reactivate jobs.
+5. Manage CV templates, hero banners, top employer logos, announcements, and career-guide content.
+
+### AI-assisted flow
+
+The current active AI path in controllers routes through `GeminiService`:
+
+- AI CV builder and editor
+- CV scoring from uploaded files or saved CV JSON
+- CV-to-job recommendation
+- CV-to-JD comparison
+- Applicant summary and compatibility scoring
+- Mock interview chat and interview evaluation
+- Contact widget chatbot
+
+## Architecture
+
+### Runtime view
+
+```mermaid
+flowchart LR
+    B["Browser"] --> P["Static pages + minimal Thymeleaf"]
+    P --> C["Spring MVC controllers / JSON APIs"]
+    C --> S["Service layer"]
+    S --> R["Spring Data JPA repositories"]
+    R --> D[("MySQL")]
+
+    S --> G["Gemini API (optional)"]
+    S --> M["Gmail SMTP (optional)"]
+    S --> O["Google / GitHub OAuth (optional)"]
+    S --> F["Firebase Storage (optional)"]
 ```
 
-### Default Credentials
+### Code-level architecture
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@careerviet.vn | admin123 |
+- `config/`
+  Contains security, MVC resource handling, Firebase wiring, schedulers, and startup seeders.
+- `controller/`
+  Handles public APIs, admin APIs, auth flows, job flows, CV flows, interview flows, uploads, and content APIs.
+- `service/`
+  Contains business logic, AI orchestration, OTP/email handling, versioning, and chat/session behavior.
+- `repository/`
+  Spring Data JPA repositories for every major aggregate.
+- `entity/`
+  Covers users, employers, jobs, applications, CVs, interviews, notifications, chat sessions, content modules, and lookup tables.
+- `static/`
+  Main UI delivery mechanism. Most pages are static HTML/CSS/JS that call backend JSON APIs.
+- `templates/`
+  Very small Thymeleaf footprint; `403.html` is the main visible template.
 
----
+### Architectural observations from the codebase
 
-## 📁 Project Structure
+- This is a monolith, not a microservice system.
+- The frontend is closer to a server-hosted static app than a full Thymeleaf MVC application.
+- Startup seeders do a lot of work:
+  - roles and default admin
+  - option tables and filters
+  - demo users, employers, jobs, and applications
+  - CV templates and version metadata
+  - interview roles, levels, types, prompts, and question bank
+  - notification templates, hero banners, and top employer logos
+- Chat session cleanup is scheduled hourly and once shortly after startup.
+- Current defaults are clearly development-oriented:
+  - `spring.jpa.hibernate.ddl-auto=update`
+  - demo data seeded automatically
+  - CSRF disabled
+  - permissive request access for many routes
 
-```
+## Project Structure
+
+```text
 job-management-system/
-├── src/main/java/Nhom08/Project/
-│   ├── config/              # Security & web configuration
-│   │   └── SecurityConfig.java
-│   ├── controller/          # REST & MVC controllers
-│   │   ├── AdminController.java
-│   │   ├── AuthController.java
-│   │   ├── PageController.java
-│   │   └── UserController.java
-│   ├── dto/                 # Data transfer objects
-│   │   ├── LoginDTO.java
-│   │   ├── UserRegisterDTO.java
-│   │   └── EmployerRegisterStep*.java
-│   ├── entity/              # JPA entities
-│   │   ├── User.java
-│   │   ├── Employer.java
-│   │   └── Role.java
-│   ├── repository/          # Data access layer
-│   ├── service/             # Business logic
-│   └── QltdApplication.java # Main entry point
-├── src/main/resources/
-│   ├── static/              # HTML, CSS, JS, Images
-│   ├── templates/           # Thymeleaf templates
-│   └── application.properties
-├── docker-compose.yml       # Database configuration
-└── pom.xml                  # Maven dependencies
+├── src/
+│   ├── main/
+│   │   ├── java/Nhom08/Project/
+│   │   │   ├── config/
+│   │   │   ├── controller/
+│   │   │   ├── dto/
+│   │   │   ├── entity/
+│   │   │   ├── handler/
+│   │   │   ├── repository/
+│   │   │   ├── security/
+│   │   │   ├── service/
+│   │   │   └── QltdApplication.java
+│   │   └── resources/
+│   │       ├── db/
+│   │       ├── static/
+│   │       ├── templates/
+│   │       └── application.properties
+│   └── test/
+│       └── java/Nhom08/Project/QltdApplicationTests.java
+├── init-scripts/
+├── uploads/
+├── docker-compose.yml
+├── Dockerfile
+├── pom.xml
+└── README.md
 ```
 
----
+## Seed Data
 
-## 🔐 Security
+On startup, the application bootstraps a large amount of demo and reference data.
 
-### Authentication Flow
+Seed categories include:
 
-```
-┌─────────┐    ┌─────────────┐    ┌──────────────┐
-│  User   │───→│  Spring     │───→│  Session     │
-│ Request │    │  Security   │    │  Management  │
-└─────────┘    └─────────────┘    └──────────────┘
-                      ↓
-              ┌─────────────┐
-              │  Role-Based │
-              │  Access     │
-              │  Control    │
-              └─────────────┘
-```
+- Roles and the default admin account
+- Industries, provinces, education levels, degree levels, experience levels, job benefits, and dynamic filter options
+- Demo employers, candidate accounts, jobs, job applications, and job statistics
+- CV scoring criteria
+- CV templates and their version histories
+- Interview levels, types, roles, prompt templates, and question bank entries
+- Hero banners, top employer logos, and notification templates
 
-### Access Control
+This makes the repository useful for demos and local exploration right after first boot.
 
-| Endpoint | Admin | Employer | User |
-|----------|-------|----------|------|
-| `/api/admin/*` | ✅ | ❌ | ❌ |
-| `/api/employer/*` | ✅ | ✅ | ❌ |
-| `/api/user/*` | ✅ | ✅ | ✅ |
+## Troubleshooting
 
----
+### Port `8083` is already in use
 
-## 📊 Database Schema
+You probably started the Docker `app` service and then also tried to run Spring Boot locally.
 
-```sql
--- Core Tables
-users          -- User authentication & profile
-employers      -- Company information
-roles          -- System roles (ADMIN, EMPLOYER, USER)
-jobs           -- Job postings
-applications   -- Job applications
-skills         -- Skill definitions
-user_skills    -- User skill associations
-job_skills     -- Job skill requirements
+Fix:
 
--- Relationships
-users ──1:1── employers
-users ──N:1── roles
-jobs ──1:N── applications
-users ──1:N── applications
-```
+- Use `docker compose up -d mysql phpmyadmin` for local development
+- Or stop the Docker app container before running `mvnw spring-boot:run`
 
----
+### Cannot connect to MySQL
 
-## 🛠️ API Endpoints
+The host port is `8085`, not the default MySQL port `3306`.
 
-> 📖 **Xem tài liệu API đầy đủ:** [`API_DOCS.md`](./API_DOCS.md)
+Check:
 
-### Authentication (`/api/auth`)
+- `docker compose ps`
+- the datasource URL in `application.properties`
+- whether `mysql` is healthy before starting the application
 
-| Method | Endpoint | Auth | Mô tả |
-|--------|----------|------|---------|
-| `GET` | `/api/auth/check-email` | ❌ | Kiểm tra email tồn tại |
-| `POST` | `/api/auth/register/user` | ❌ | Đăng ký ứng viên |
-| `POST` | `/api/auth/register/employer/step1` | ❌ | Đăng ký NTD bước 1 |
-| `POST` | `/api/auth/register/employer/step2` | Session | Đăng ký NTD bước 2 |
-| `POST` | `/api/auth/login` | ❌ | Đăng nhập (tất cả role) |
-| `GET` | `/api/auth/me` | Optional | Thông tin user hiện tại |
-| `GET` | `/logout` | ✅ | Đăng xuất |
+### OTP emails are not arriving
 
-### User (`/api/user`)
+OTP is required for:
 
-| Method | Endpoint | Auth | Mô tả |
-|--------|----------|------|---------|
-| `GET` | `/api/user/me` | Optional | Thông tin user + employer info |
+- candidate email verification
+- employer registration verification
+- employer login
+- password reset
+- OAuth2 login completion
 
-### Jobs (`/api/jobs`)
+Check:
 
-| Method | Endpoint | Auth | Mô tả |
-|--------|----------|------|---------|
-| `GET` | `/api/jobs/active` | ❌ | Tất cả tin đang tuyển (public) |
-| `GET` | `/api/jobs/{id}` | ❌ | Chi tiết một tin |
-| `GET` | `/api/jobs/search?keyword=` | ❌ | Tìm kiếm việc làm |
-| `GET` | `/api/jobs/form-options` | ❌ | Dropdown options từ DB |
-| `GET` | `/api/jobs/employer-info` | EMPLOYER | Auto-fill thông tin công ty |
-| `GET` | `/api/jobs/my-jobs` | EMPLOYER | Danh sách tin đã đăng |
-| `POST` | `/api/jobs/create` | EMPLOYER | Đăng tin tuyển dụng |
-| `PUT` | `/api/jobs/{id}` | EMPLOYER | Cập nhật tin |
-| `DELETE` | `/api/jobs/{id}` | EMPLOYER | Xóa tin (soft delete) |
-| `POST` | `/api/jobs/{id}/view` | ❌ | Tăng lượt xem |
+- `spring.mail.username`
+- `spring.mail.password`
+- whether you are using a Gmail App Password instead of the regular account password
 
-### Applications (`/api/applications`)
+### AI endpoints return `500`
 
-| Method | Endpoint | Auth | Mô tả |
-|--------|----------|------|---------|
-| `POST` | `/api/applications/apply` | Optional | Nộp hồ sơ ứng tuyển |
-| `GET` | `/api/applications/employer` | EMPLOYER | Xem ứng viên của mình |
-| `PATCH` | `/api/applications/{id}/status` | EMPLOYER | Cập nhật trạng thái hồ sơ |
+Most AI features depend on `gemini.api.key`.
 
-### CV Scoring AI (`/api/cv-scoring`)
+Affected areas:
 
-| Method | Endpoint | Auth | Mô tả |
-|--------|----------|------|---------|
-| `GET` | `/api/cv-scoring/criteria` | ❌ | Tiêu chí chấm điểm |
-| `POST` | `/api/cv-scoring/score` | ✅ | Upload CV → chấm điểm AI |
-| `GET` | `/api/cv-scoring/history` | ✅ | Lịch sử chấm điểm |
-| `GET` | `/api/cv-scoring/{id}` | ✅ | Chi tiết phiên chấm |
-| `POST` | `/api/cv-scoring/match-jobs` | ✅ | AI gợi ý việc làm phù hợp |
-| `DELETE` | `/api/cv-scoring/match-jobs/{id}` | ✅ | Xóa cache matching |
+- CV generation and editing
+- CV scoring
+- job recommendation from CV
+- CV-vs-JD comparison
+- interview AI
+- contact chatbot
 
-### Notifications (`/api/notifications`)
+### Employer logo or image upload returns `503`
 
-| Method | Endpoint | Auth | Mô tả |
-|--------|----------|------|---------|
-| `GET` | `/api/notifications` | ✅ | Danh sách thông báo |
-| `PATCH` | `/api/notifications/read-all` | ✅ | Đánh dấu tất cả đã đọc |
-| `PATCH` | `/api/notifications/{id}/read` | ✅ | Đánh dấu 1 thông báo đã đọc |
+Firebase Storage is optional, but image upload endpoints depend on it when invoked.
 
-### Admin (`/api/admin`)
+Check:
 
-| Method | Endpoint | Auth | Mô tả |
-|--------|----------|------|---------|
-| `GET` | `/api/admin/stats` | ADMIN | Thống kê dashboard |
+- `firebase.storage.enabled=true`
+- `firebase.storage.bucket`
+- `firebase.storage.service-account-path`
 
----
+### The app starts but some features still feel unavailable
 
-## 🔄 Development Workflow
+That is expected when optional integrations are not configured.
 
-```bash
-# Build project
-mvn clean package
+Without SMTP, OTP flows break.
+Without Gemini, AI flows break.
+Without Firebase, image upload breaks.
+Without OAuth credentials, social login breaks.
 
-# Run tests
-mvn test
+## FAQ
 
-# Start database
-docker-compose up -d
+### Can I run the project without AI keys?
 
-# Run application
-mvn spring-boot:run
+Yes, but only the non-AI parts of the platform will work reliably. Public browsing, core CRUD, admin dashboards, and seeded demo data are still useful. AI CV features, interview AI, and chatbot features require `GEMINI_API_KEY`.
 
-# View logs
-docker-compose logs -f mysql
-```
+### Why is MySQL exposed on port `8085`?
 
----
+Because `docker-compose.yml` maps host port `8085` to container port `3306`.
 
-## 🤝 Contributing
+### Is employer login different from candidate login?
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
+Yes. Employer login is OTP-gated on top of password authentication. Candidate and admin password login do not go through the same OTP login step.
 
----
+### Why does the license badge say "not specified"?
 
-## 📄 License
+Because the repository currently does not include a committed `LICENSE` file, and the Maven metadata does not declare a concrete license either.
 
-This project is licensed under the MIT License.
+### Is this production-ready as-is?
 
----
+Not yet. The repository is strong as a development/demo foundation, but production hardening is still needed around security, secret management, deployment strategy, data seeding, and operational defaults.
 
-## 👨‍💻 Development Team
+Examples of code-level reasons:
 
-**Team 08 (Nhom08)** - Job Management System
+- CSRF is disabled
+- `ddl-auto=update` is enabled
+- demo users and data are auto-seeded
+- several features rely on local/dev-friendly defaults
 
-*Spring Boot • MySQL • AI-Powered Recruitment*
+## License
 
----
+No open-source license file is currently included in this repository.
 
-<div align="center">
-
-**Built with ❤️ for smarter hiring@@**
-
-</div>
+If you plan to publish or redistribute this project, add a `LICENSE` file before treating it as an open-source package.
