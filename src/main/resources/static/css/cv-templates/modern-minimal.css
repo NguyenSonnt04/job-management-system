@@ -1,0 +1,75 @@
+/* ── Modern Minimal 1 (prefix: cvm1-) — extracted from cv-editor.css ── */
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 3: MINIMALIST â€” Clean single-column, accent header
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.cvm1-root { font-family: 'Inter', sans-serif; background: white; }
+
+.cvm1-header {
+    display: flex; align-items: center; gap: 28px;
+    padding: 36px 48px 28px;
+}
+
+.cvm1-name {
+    font-size: 32px; font-weight: 800;
+    letter-spacing: 0.5px; line-height: 1.1;
+    margin-bottom: 6px;
+}
+
+.cvm1-subtitle {
+    font-size: 15px; font-weight: 500;
+    color: #64748b; margin-bottom: 14px;
+    letter-spacing: 0.5px;
+}
+
+.cvm1-contacts {
+    display: flex; flex-wrap: wrap; gap: 6px 18px;
+    font-size: 12.5px; color: #64748b;
+}
+
+.cvm1-contact-item { display: flex; align-items: center; gap: 5px; }
+
+.cvm1-divider {
+    height: 3px; margin: 0 48px;
+    border-radius: 2px;
+}
+
+.cvm1-body { padding: 28px 48px 40px; display: flex; flex-direction: column; gap: 24px; }
+
+.cvm1-section { display: flex; flex-direction: column; gap: 12px; }
+
+.cvm1-section-title {
+    font-size: 12px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+}
+
+.cvm1-summary { font-size: 14.5px; color: #374151; line-height: 1.75; }
+
+.cvm1-item { margin-bottom: 16px; }
+
+.cvm1-item-head {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 4px;
+}
+
+.cvm1-item-title { font-size: 15px; font-weight: 700; color: #1e293b; }
+.cvm1-item-sub   { font-size: 13px; color: #64748b; margin-bottom: 6px; }
+.cvm1-item-date  { font-size: 12.5px; font-weight: 600; white-space: nowrap; margin-left: 12px; }
+.cvm1-detail     { font-size: 13.5px; color: #475569; line-height: 1.65; }
+
+/* Skill pills */
+.cvm1-skill-row { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+.cvm1-skill-cat { font-size: 12px; font-weight: 700; color: #374151; min-width: 110px; padding-top: 3px; flex-shrink: 0; }
+.cvm1-skill-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.cvm1-pill {
+    padding: 3px 10px; border-radius: 4px;
+    font-size: 12px; font-weight: 600;
+}
+
+/* Certs, awards (inline list style) */
+.cvm1-cert { font-size: 14px; color: #374151; line-height: 1.6; margin-bottom: 6px; }
+.cvm1-cert-name { font-weight: 600; }
+.cvm1-cert-issuer { color: #64748b; }
+.cvm1-cert-year { font-weight: 600; }

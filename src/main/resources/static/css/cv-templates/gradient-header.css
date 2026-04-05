@@ -1,0 +1,146 @@
+/* ── STYLE 7: GRADIENT HEADER (prefix: cvgrad-) — extracted from cv-editor.css ── */
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 7: GRADIENT HEADER â€” Vibrant gradient header with modern layout
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.cvgrad-root {
+    font-family: 'Inter', sans-serif;
+    background: #ffffff;
+}
+
+.cvgrad-header {
+    position: relative;
+    padding: 40px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+}
+
+.cvgrad-header-shape {
+    position: absolute;
+    right: -50px;
+    top: -50px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.cvgrad-name {
+    font-size: 32px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.cvgrad-subtitle {
+    font-size: 16px;
+    font-weight: 500;
+    opacity: 0.95;
+    margin-bottom: 16px;
+}
+
+.cvgrad-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.cvgrad-contact span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cvgrad-body {
+    padding: 24px 40px 32px;
+}
+
+.cvgrad-section {
+    margin-bottom: 24px;
+}
+
+.cvgrad-section-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #667eea;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cvgrad-section-title::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(to right, #667eea, transparent);
+}
+
+.cvgrad-item {
+    margin-bottom: 16px;
+}
+
+.cvgrad-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+}
+
+.cvgrad-item-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.cvgrad-item-date {
+    font-size: 12px;
+    color: #764ba2;
+    font-weight: 700;
+}
+
+.cvgrad-item-subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.cvgrad-detail {
+    font-size: 13px;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 4px;
+}
+
+.cvgrad-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.cvgrad-tag {
+    padding: 0;
+    background: transparent;
+    color: #444;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 0;
+}
+
+.cvgrad-tag:not(:last-child)::after {
+    content: ',';
+    margin-right: 4px;
+}
+@media print {
+.cvgrad-header {
+        background: #667eea !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

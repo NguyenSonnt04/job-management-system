@@ -1,0 +1,120 @@
+/* ── STYLE 8: MINIMALIST CLEAN (prefix: cvmin-) — extracted from cv-editor.css ── */
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 8: MINIMALIST CLEAN â€” Ultra-clean layout with accent color
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.cvmin-root {
+    font-family: 'Inter', sans-serif;
+    background: #ffffff;
+    color: #2c2c2c;
+}
+
+.cvmin-header {
+    padding: 40px 48px 28px;
+    text-align: center;
+}
+
+.cvmin-name {
+    font-size: 28px;
+    font-weight: 800;
+    color: #000;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+}
+
+.cvmin-subtitle {
+    font-size: 15px;
+    font-weight: 400;
+    color: #666;
+    margin-bottom: 16px;
+}
+
+.cvmin-contact {
+    font-size: 13px;
+    color: #777;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.cvmin-divider {
+    height: 3px;
+    background: linear-gradient(to right, var(--cv-accent, #2e3b8e), transparent);
+    margin: 0 auto 28px;
+    max-width: 200px;
+}
+
+.cvmin-body {
+    padding: 0 48px 32px;
+}
+
+.cvmin-section {
+    margin-bottom: 28px;
+}
+
+.cvmin-section-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--cv-accent, #2e3b8e);
+    margin-bottom: 14px;
+}
+
+.cvmin-item {
+    margin-bottom: 16px;
+}
+
+.cvmin-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+}
+
+.cvmin-item-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.cvmin-item-date {
+    font-size: 12px;
+    color: #999;
+    font-weight: 600;
+}
+
+.cvmin-item-subtitle {
+    font-size: 13px;
+    color: var(--cv-accent, #2e3b8e);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.cvmin-detail {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 6px;
+}
+
+.cvmin-skills {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cvmin-skill-row {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.cvmin-skill-label {
+    font-weight: 700;
+    color: #1a1a1a;
+    min-width: 100px;
+}
+
+.cvmin-skill-vals {
+    color: #555;
+}
