@@ -1,0 +1,173 @@
+/* ── STYLE 3: MINIMALIST (prefix: cvm2-) — extracted from cv-editor.css ── */
+
+/* â”€â”€ Minimalist Style (Style 3) â”€â”€ */
+.cvm2-root { padding: 60px 40px; background: white; }
+.cvm2-header { margin-bottom: 50px; border-bottom: 1px solid #f1f5f9; padding-bottom: 30px; text-align: left; }
+.cvm2-name { font-size: 42px; font-weight: 800; color: #0f172a; margin-bottom: 4px; letter-spacing: -1.5px; }
+.cvm2-subtitle { font-size: 18px; color: #64748b; font-weight: 500; margin-bottom: 20px; }
+.cvm2-contacts { display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 13.5px; color: #475569; }
+
+.cvm2-block { margin-bottom: 40px; display: grid; grid-template-columns: 180px 1fr; gap: 40px; }
+.cvm2-block-label {
+    font-size: 12px; font-weight: 800; color: white; padding: 4px 15px; border-radius: 99px;
+    height: fit-content; text-transform: uppercase; letter-spacing: 1.5px; text-align: center;
+}
+
+.cvm2-row { margin-bottom: 30px; }
+.cvm2-row-title { font-size: 17px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+.cvm2-row-org { font-size: 14.5px; color: #64748b; font-weight: 600; margin-bottom: 8px; }
+.cvm2-row-period { font-size: 13px; font-weight: 700; color: #94a3b8; margin-bottom: 10px; }
+.cvm2-bullet { font-size: 14.5px; color: #475569; line-height: 1.7; margin-bottom: 6px; position: relative; padding-left: 18px; }
+.cvm2-bullet::before { content: 'â€¢'; position: absolute; left: 0; color: #cbd5e1; }
+
+.cvm2-block-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 99px;
+    height: fit-content;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.cvm2-row { margin-bottom: 24px; }
+.cvm2-row-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+.cvm2-row-org { font-size: 14px; color: #64748b; font-weight: 600; margin-bottom: 8px; }
+.cvm2-row-period { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.cvm2-bullet { font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 4px; position: relative; padding-left: 15px; }
+.cvm2-bullet::before { content: 'â€¢'; position: absolute; left: 0; color: #94a3b8; }
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 3 (NEW): MINIMALIST â€” Left colored bar + meta/content rows
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.cvm2-root { font-family: 'Inter', sans-serif; background: white; }
+
+.cvm2-header { display: flex; align-items: stretch; border-bottom: 1px solid #e8ecef; }
+.cvm2-header-bar { width: 6px; flex-shrink: 0; }
+.cvm2-header-content { padding: 36px 48px 28px; }
+.cvm2-name { font-size: 36px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.1; margin-bottom: 8px; color: #1e293b; }
+.cvm2-subtitle { font-size: 15px; font-weight: 400; color: #64748b; margin-bottom: 14px; }
+.cvm2-contacts { font-size: 13px; color: #64748b; line-height: 1.7; }
+.cvm2-sep { color: #cbd5e1; margin: 0 4px; }
+
+.cvm2-body { padding: 0 0 40px 0; }
+.cvm2-block { display: flex; border-bottom: 1px solid #f1f5f9; }
+.cvm2-block-label {
+    width: 100px; flex-shrink: 0;
+    font-size: 9.5px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    color: white; padding: 20px 10px;
+    display: flex; align-items: flex-start; justify-content: center;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+}
+.cvm2-block-body { flex: 1; padding: 20px 40px 20px 20px; }
+.cvm2-row { display: grid; grid-template-columns: 85px 1fr; gap: 0 16px; margin-bottom: 16px; }
+.cvm2-row-meta { display: flex; flex-direction: column; gap: 4px; padding-top: 2px; }
+.cvm2-row-period { font-size: 11.5px; font-weight: 700; }
+.cvm2-row-org { font-size: 11px; color: #94a3b8; }
+.cvm2-row-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.cvm2-bullet { font-size: 13px; color: #475569; line-height: 1.65; padding-left: 12px; text-indent: -8px; }
+.cvm2-divider { height: 1px; background: #f1f5f9; margin: 12px 0; }
+.cvm2-summary { font-size: 14px; color: #374151; line-height: 1.75; margin: 0; }
+.cvm2-skills { display: flex; flex-direction: column; gap: 8px; }
+.cvm2-skill-line { display: flex; gap: 12px; font-size: 13px; line-height: 1.5; }
+.cvm2-skill-label { font-weight: 700; color: #1e293b; min-width: 100px; flex-shrink: 0; }
+.cvm2-skill-vals { color: #475569; }
+
+        .cvm2-header-content {
+            width: 100%;
+        }
+
+        .cvm2-block-body {
+            padding: 24px 44px 24px 22px;
+        }
+
+        .cvm2-row {
+            padding: 6px 0;
+        }
+
+        .cvm2-row-content {
+            min-width: 0;
+        }
+
+        .cvm2-skill-line {
+            align-items: flex-start;
+        }
+
+.cv-modern-root .cvm2-header {
+    margin-bottom: 34px;
+    padding: 0 0 26px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.cv-modern-root .cvm2-name {
+    font-size: 44px;
+    letter-spacing: -1.8px;
+}
+
+.cv-modern-root .cvm2-subtitle {
+    font-size: 17px;
+    color: #475569;
+}
+
+.cv-modern-root .cvm2-block {
+    grid-template-columns: 150px 1fr;
+    gap: 28px;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.88);
+}
+
+.cv-modern-root .cvm2-block-label {
+    background: transparent;
+    color: var(--cv-accent);
+    border-radius: 0;
+    padding: 0;
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: 2.2px;
+}
+
+.cv-modern-root .cvm2-row {
+    padding: 0 0 18px;
+    border-bottom: 1px dashed rgba(203, 213, 225, 0.8);
+}
+
+.cv-modern-root .cvm2-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.cv-modern-root .cvm2-row-title {
+    font-size: 18px;
+}
+
+.cv-modern-root .cvm2-row-period {
+    color: var(--cv-accent);
+}
+@media (max-width: 900px) {
+.cv-modern-root .cvm2-block {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+
+.cv-modern-root .cvm2-contacts .cv-custom-contact-item,
+.cv-modern-root .cvm2-contacts .cv-contact-entry {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    color: #475569;
+}
+
+.cv-modern-root .cvm2-contacts .cv-custom-contact-item:focus-within,
+.cv-modern-root .cvm2-contacts .cv-contact-controls--item,
+.cv-modern-root .cvm2-contacts .cv-contact-controls--row {
+    border-color: rgba(30, 41, 59, 0.38);
+    background: rgba(15, 23, 42, 0.06);
+    padding: 4px 6px;
+    border-radius: 999px;
+}

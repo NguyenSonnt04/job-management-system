@@ -1,0 +1,436 @@
+/* ── STYLE 5: HARVARD (prefix: cvh-) — extracted from cv-editor.css ── */
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 5: HARVARD â€” Authentic Harvard resume format
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.cvh-root {
+    font-family: var(--font-main, 'Inter', 'Arial', sans-serif);
+    background: white;
+    color: #000;
+    line-height: var(--cv-line-height, 1.45);
+}
+
+.cvh-header {
+    padding: 10px 14px 8px;
+    text-align: center;
+}
+
+.cvh-name {
+    font-size: calc(30px * var(--cv-font-scale, 1));
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    color: #000;
+    font-family: var(--font-main, 'Inter', 'Arial', sans-serif);
+}
+
+.cvh-subtitle {
+    font-size: calc(13px * var(--cv-font-scale, 1));
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #000;
+    margin-bottom: 14px;
+}
+
+.cvh-contact {
+    font-size: calc(11.5px * var(--cv-font-scale, 1));
+    color: #000;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px 14px;
+    padding-top: 10px;
+    border-top: 1px solid #000;
+}
+
+.cvh-contact-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+}
+
+.cvh-body {
+    padding: 0 14px 10px;
+}
+
+.cvh-section {
+    margin-bottom: 16px;
+}
+
+.cvh-title {
+    font-size: calc(13.5px * var(--cv-font-scale, 1));
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1.5px solid #000;
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+    color: #000;
+}
+
+.cvh-summary {
+    font-size: calc(12.5px * var(--cv-font-scale, 1));
+    line-height: var(--cv-line-height, 1.6);
+    color: inherit;
+    margin-bottom: 4px;
+}
+
+.cvh-item {
+    margin-bottom: 12px;
+}
+
+.cvh-item-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1px;
+}
+
+.cvh-item-title {
+    font-size: calc(13px * var(--cv-font-scale, 1));
+    font-weight: 700;
+    color: inherit;
+}
+
+.cvh-item-date {
+    font-size: calc(12px * var(--cv-font-scale, 1));
+    font-weight: 400;
+    color: inherit;
+    white-space: nowrap;
+    margin-left: 12px;
+}
+
+.cvh-item-sub {
+    font-size: calc(12.5px * var(--cv-font-scale, 1));
+    font-weight: 600;
+    font-style: italic;
+    color: inherit;
+    margin-bottom: 3px;
+}
+
+.cvh-item-tech {
+    font-size: calc(12px * var(--cv-font-scale, 1));
+    font-weight: 700;
+    font-style: italic;
+    color: #000;
+    margin-bottom: 3px;
+}
+
+.cvh-github-bullet {
+    font-size: calc(11.5px * var(--cv-font-scale, 1));
+    color: inherit;
+    line-height: var(--cv-line-height, 1.55);
+    margin-bottom: 2px;
+}
+
+.cvh-bullet {
+    font-size: calc(12px * var(--cv-font-scale, 1));
+    color: inherit;
+    line-height: var(--cv-line-height, 1.55);
+    padding-left: 16px;
+    text-indent: -11px;
+    margin-bottom: 2px;
+}
+
+/* Skills table layout matching PDF */
+.cvh-skill-table {
+    display: flex;
+    flex-direction: column;
+}
+
+.cvh-skill-row {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 3px 14px;
+    padding: 5px 0;
+    border-bottom: 1px solid #d0d0d0;
+    font-size: calc(12.5px * var(--cv-font-scale, 1));
+    line-height: var(--cv-line-height, 1.5);
+    align-items: baseline;
+}
+
+.cvh-skill-row:last-child {
+    border-bottom: none;
+}
+
+.cvh-skill-cat {
+    font-weight: 700;
+    color: #000;
+    flex-shrink: 0;
+}
+
+.cvh-skill-items {
+    color: #333;
+}
+
+/* â”€â”€ Harvard Styles â”€â”€ */
+.cvh-root { padding: 0; font-family: var(--font-main, 'Inter', 'Arial', sans-serif); }
+.cvh-header { text-align: center; margin-bottom: 0; }
+.cvh-name { font-size: calc(30px * var(--cv-font-scale, 1)); font-weight: 900; letter-spacing: 4px; display: block; padding: 0; border-bottom: none; }
+.cvh-inline-item {
+    font-size: calc(11.5px * var(--cv-font-scale, 1));
+    color: inherit;
+    line-height: var(--cv-line-height, 1.5);
+    margin-bottom: 4px;
+}
+
+@media print {
+        .cvh-root {
+            font-family: var(--font-main, 'Times New Roman', 'Georgia', serif) !important;
+        }
+    .cvh-header {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+        .cvh-title {
+            border-bottom: 1px solid var(--cv-accent, currentColor) !important;
+        }
+}
+
+.cvh-edit-shell {
+    border-radius: 14px;
+}
+
+.cvh-empty-section-add {
+    display: none;
+    padding: 12px 0;
+    text-align: center;
+}
+
+.cv-editable-mode .cvh-empty-section-add {
+    display: block;
+}
+
+.cvh-editable-active,
+.cvh-item-title[contenteditable="true"]:focus,
+.cvh-item-sub[contenteditable="true"]:focus,
+.cvh-item-date[contenteditable="true"]:focus,
+.cvh-skill-cat[contenteditable="true"]:focus,
+.cvh-skill-items[contenteditable="true"]:focus,
+.cvh-contact-item[contenteditable="true"]:focus {
+    box-shadow: inset 0 0 0 1px #1A2456;
+    border-radius: 8px;
+}
+.cv-editable-mode .cvh-root .cv-editable.cvh-editable-active,
+.cv-editable-mode .cvh-root .cv-editable[contenteditable="true"]:focus {
+    border-color: #1A2456 !important;
+    border-style: solid !important;
+    box-shadow: inset 0 0 0 1px #1A2456, 0 0 0 1px rgba(26, 36, 86, 0.12) !important;
+    background: transparent !important;
+            position: relative;
+            z-index: 2;
+            border-radius: 4px;
+        }
+
+        .cv-editable-mode .cvh-root {
+            position: relative;
+            border-radius: 12px;
+            box-shadow:
+                0 0 0 1px rgba(203, 213, 225, 0.92),
+                0 0 0 6px rgba(241, 245, 249, 0.95);
+            background: #ffffff;
+        }
+
+        .cv-editable-mode .cv-full:not(.cvh-root) {
+            position: relative;
+            border-radius: 12px;
+            box-shadow:
+                0 0 0 1px rgba(203, 213, 225, 0.88),
+                0 0 0 6px rgba(241, 245, 249, 0.9);
+            background: #ffffff;
+        }
+
+        .cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell) {
+            position: relative;
+            border-radius: 12px;
+            box-sizing: border-box;
+            box-shadow: inset 0 0 0 1px transparent;
+            transition: box-shadow 0.16s ease, background 0.16s ease;
+        }
+
+        .cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell):hover {
+            box-shadow:
+                inset 0 0 0 1px rgba(203, 213, 225, 0.98),
+                0 0 0 4px rgba(248, 250, 252, 0.92);
+        }
+
+        .cv-editable-mode .cv-edit-shell:not(.cvh-edit-shell):focus-within {
+            box-shadow:
+                inset 0 0 0 1px rgba(148, 163, 184, 0.42),
+                0 0 0 2px rgba(226, 232, 240, 0.9);
+        }
+
+        .cv-editable-mode .cvh-edit-shell {
+            position: relative;
+            margin: 10px 0 14px;
+            padding: 12px 14px 12px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.01);
+            transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+        }
+
+        .cv-editable-mode .cvh-edit-shell::after {
+            content: '';
+            position: absolute;
+            inset: 7px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            pointer-events: none;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .cv-editable-mode .cvh-edit-shell:hover {
+            border-color: #dbe4ee;
+            background: rgba(248, 250, 252, 0.92);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+        }
+
+        .cv-editable-mode .cvh-edit-shell:hover::after {
+            border-color: rgba(226, 232, 240, 0.96);
+        }
+
+        .cv-editable-mode .cvh-edit-shell:focus-within {
+            border-color: rgba(26, 36, 86, 0.26);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(26, 36, 86, 0.08);
+        }
+
+        .cv-editable-mode .cvh-edit-shell:focus-within::after {
+            border-color: rgba(26, 36, 86, 0.26);
+            box-shadow: 0 0 0 1px rgba(26, 36, 86, 0.08);
+        }
+
+        .cv-editable-mode .cvh-edit-shell > .cv-item-controls {
+            top: 12px;
+            right: 12px;
+            bottom: auto;
+        }
+
+        .cv-editable-mode .cvh-edit-shell .cvh-item-head {
+            padding-right: 186px;
+            gap: 16px;
+        }
+
+        .cv-editable-mode .cvh-edit-shell.cvh-skill-group,
+        .cv-editable-mode .cvh-edit-shell.cvh-inline-item {
+            display: block !important;
+            width: 100%;
+            padding-right: 186px;
+        }
+
+        .cv-editable-mode .cvh-edit-shell .cvh-item-sub,
+        .cv-editable-mode .cvh-edit-shell .cvh-details,
+        .cv-editable-mode .cvh-edit-shell .cvh-bullet,
+        .cv-editable-mode .cvh-edit-shell .cvh-github-bullet,
+        .cv-editable-mode .cvh-edit-shell .cvh-skill-items {
+            display: block;
+            margin-top: 6px;
+        }
+
+        .cv-editable-mode .cvh-root .cvh-item-title,
+        .cv-editable-mode .cvh-root .cvh-item-date,
+        .cv-editable-mode .cvh-root .cvh-inline-name,
+        .cv-editable-mode .cvh-root .cvh-inline-year,
+        .cv-editable-mode .cvh-root .cvh-inline-issuer,
+        .cv-editable-mode .cvh-root .cvh-skill-cat {
+            display: inline-block;
+            padding: 2px 6px;
+            min-height: 1.35em;
+        }
+
+        .cv-editable-mode .cvh-root .cvh-item-sub,
+        .cv-editable-mode .cvh-root .cvh-details,
+        .cv-editable-mode .cvh-root .cvh-bullet,
+        .cv-editable-mode .cvh-root .cvh-github-bullet,
+        .cv-editable-mode .cvh-root .cvh-skill-items {
+            display: block;
+            padding: 4px 6px;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .cv-editable-mode .cvh-edit-shell .cvh-inline-meta {
+            display: inline-block;
+            margin-left: 4px;
+        }
+
+        .cv-editable-mode .cvh-edit-shell .cvh-details {
+            line-height: 1.65;
+            white-space: pre-wrap;
+        }
+
+        .cv-editable-mode .cvh-edit-shell .cvh-bullet {
+            padding-left: 2px;
+        }
+
+        .cvh-details,
+        .cvh-github-bullet {
+            margin-top: 6px;
+        }
+
+        .cvh-item-title,
+        .cvh-inline-name,
+        .cvh-skill-cat {
+            font-weight: 700;
+        }
+
+        .cvh-inline-issuer {
+            font-style: italic;
+        }
+
+        .cvh-root {
+            padding: 54px 60px;
+            background: #ffffff;
+        }
+
+        .cvh-header {
+            margin-bottom: 24px;
+        }
+
+        .cvh-name {
+            display: block;
+            padding: 0;
+            border: none;
+            font-size: calc(30px * var(--cv-font-scale, 1));
+            letter-spacing: 0.6px;
+        }
+
+        .cvh-subtitle {
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .cvh-contact {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid var(--cv-accent, #111827);
+        }
+
+        .cvh-title {
+            font-size: calc(12px * var(--cv-font-scale, 1));
+            letter-spacing: 1.6px;
+        }
+
+.cv-harvard-root .cvh-header {
+    border-bottom-width: 1px;
+    padding-bottom: 24px;
+    margin-bottom: 22px;
+}
+
+.cv-harvard-root .cvh-name {
+    font-size: calc(28px * var(--cv-font-scale, 1));
+    letter-spacing: 1.2px;
+}
+
+.cv-harvard-root .cvh-title {
+    letter-spacing: 1.7px;
+}
+
+.cv-harvard-root .cvh-item {
+    margin-bottom: 18px;
+}

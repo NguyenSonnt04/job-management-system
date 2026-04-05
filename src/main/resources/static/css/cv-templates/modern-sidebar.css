@@ -1,0 +1,140 @@
+/* ── STYLE 9: MODERN SIDEBAR (prefix: cvms-) — extracted from cv-editor.css ── */
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STYLE 9: MODERN SIDEBAR â€” Left sidebar with color accent
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.cvms-root {
+    font-family: 'Inter', sans-serif;
+    background: #ffffff;
+}
+
+.cvms-container {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 297mm;
+}
+
+.cvms-sidebar {
+    background: #f8f9fa;
+    padding: 28px 20px;
+    border-right: 1px solid #e9ecef;
+}
+
+.cvms-main {
+    padding: 32px 36px;
+}
+
+.cvms-avatar-section {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.cvms-section-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--cv-accent, #2e3b8e);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--cv-accent, #2e3b8e);
+}
+
+.cvms-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #444;
+}
+
+.cvms-contact-icon {
+    width: 20px;
+    height: 20px;
+    background: var(--cv-accent, #2e3b8e);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+.cvms-skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.cvms-skill-tag {
+    font-size: 12px;
+    padding: 0;
+    background: transparent;
+    color: #333;
+    border: none;
+    border-radius: 0;
+    font-weight: 500;
+}
+
+.cvms-skill-tag:not(:last-child)::after {
+    content: ',';
+}
+
+.cvms-name {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--cv-accent, #2e3b8e);
+    margin-bottom: 4px;
+}
+
+.cvms-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 24px;
+}
+
+.cvms-section {
+    margin-bottom: 24px;
+}
+
+.cvms-main-section-title {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--cv-accent, #2e3b8e);
+    margin-bottom: 14px;
+}
+
+.cvms-item {
+    margin-bottom: 16px;
+}
+
+.cvms-item-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 3px;
+}
+
+.cvms-item-meta {
+    font-size: 12px;
+    color: var(--cv-accent, #2e3b8e);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.cvms-detail {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 4px;
+}
+@media print {
+.cvms-sidebar {
+        background: #f8f9fa !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
