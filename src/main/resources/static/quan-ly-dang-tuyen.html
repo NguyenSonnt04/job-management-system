@@ -123,6 +123,7 @@
             <!-- Status Tabs -->
             <div class="status-tabs">
                 <button class="status-tab active" data-status="ACTIVE" id="tab-active">Việc Làm Đang Đăng <span class="tab-count" id="count-active"></span></button>
+                <button class="status-tab" data-status="PENDING" id="tab-pending">Chờ Duyệt <span class="tab-count" id="count-pending"></span></button>
                 <button class="status-tab" data-status="DRAFT" id="tab-draft">Việc Làm Chờ Đăng <span class="tab-count" id="count-draft"></span></button>
                 <button class="status-tab" data-status="PAUSED" id="tab-paused">Việc Làm Tạm Dừng Đăng <span class="tab-count" id="count-paused"></span></button>
                 <button class="status-tab" data-status="CLOSED" id="tab-closed">Việc Làm Hết Hạn <span class="tab-count" id="count-closed"></span></button>
@@ -344,6 +345,7 @@
         const today = new Date();
         const counts = {
             'ACTIVE': allJobs.filter(j => j.status === 'ACTIVE' && (!j.deadline || new Date(j.deadline) >= today)).length,
+            'PENDING': allJobs.filter(j => j.status === 'PENDING').length,
             'DRAFT':  allJobs.filter(j => j.status === 'DRAFT').length,
             'PAUSED': allJobs.filter(j => j.status === 'PAUSED').length,
             'CLOSED': allJobs.filter(j => j.status === 'CLOSED' || (j.deadline && new Date(j.deadline) < today)).length,

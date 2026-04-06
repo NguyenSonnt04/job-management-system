@@ -3,16 +3,20 @@ package Nhom08.Project.controller;
 import Nhom08.Project.entity.User;
 import Nhom08.Project.entity.UserCv;
 import Nhom08.Project.entity.UserCvVersion;
+import Nhom08.Project.repository.JobApplicationRepository;
 import Nhom08.Project.repository.UserCvRepository;
 import Nhom08.Project.repository.UserCvVersionRepository;
 import Nhom08.Project.service.AuthService;
 import Nhom08.Project.service.CvVersioningService;
+import Nhom08.Project.service.FirebaseImageStorageService;
 import Nhom08.Project.service.GeminiService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,22 +42,28 @@ public class UserCvController {
 
     private final UserCvRepository userCvRepository;
     private final UserCvVersionRepository userCvVersionRepository;
+    private final JobApplicationRepository jobApplicationRepository;
     private final AuthService authService;
     private final CvVersioningService cvVersioningService;
     private final GeminiService geminiService;
+    private final FirebaseImageStorageService firebaseStorageService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public UserCvController(
             UserCvRepository userCvRepository,
             UserCvVersionRepository userCvVersionRepository,
+            JobApplicationRepository jobApplicationRepository,
             AuthService authService,
             CvVersioningService cvVersioningService,
-            GeminiService geminiService) {
+            GeminiService geminiService,
+            FirebaseImageStorageService firebaseStorageService) {
         this.userCvRepository = userCvRepository;
         this.userCvVersionRepository = userCvVersionRepository;
+        this.jobApplicationRepository = jobApplicationRepository;
         this.authService = authService;
         this.cvVersioningService = cvVersioningService;
         this.geminiService = geminiService;
+        this.firebaseStorageService = firebaseStorageService;
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -276,6 +286,7 @@ public class UserCvController {
         });
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(
             @PathVariable Long id, Authentication auth) {
@@ -291,6 +302,21 @@ public class UserCvController {
                 result.put("message", "Không có quyền xóa CV này.");
                 return ResponseEntity.status(403).body(result);
             }
+
+            // Check if user has pending applications and this is their last CV
+            List<UserCv> userCvs = userCvRepository.findByUserIdOrderByUpdatedAtDesc(user.getId());
+            boolean isLastCv = userCvs.size() <= 1;
+            if (isLastCv) {
+                List<Nhom08.Project.entity.JobApplication> apps = jobApplicationRepository.findByUserId(user.getId());
+                boolean hasPendingApps = apps.stream()
+                        .anyMatch(a -> "PENDING".equalsIgnoreCase(a.getStatus()));
+                if (hasPendingApps) {
+                    result.put("success", false);
+                    result.put("message", "Không thể xóa CV cuối cùng khi bạn còn đơn ứng tuyển đang chờ xử lý. Nhà tuyển dụng cần xem CV của bạn.");
+                    return ResponseEntity.status(409).body(result);
+                }
+            }
+
             userCvVersionRepository.deleteByUserCvId(id);
             userCvRepository.delete(cv);
             result.put("success", true);
@@ -306,7 +332,7 @@ public class UserCvController {
 
     /**
      * POST /api/user-cv/upload-pdf
-     * Nhận file PDF, lưu vào uploads/cv/, tạo bản ghi UserCv với _pdfUrl trong cvContent.
+     * Nhận file PDF/DOC/DOCX, upload lên Firebase (fallback local), tạo bản ghi UserCv.
      */
     @PostMapping("/upload-pdf")
     public ResponseEntity<Map<String, Object>> uploadPdf(
@@ -334,18 +360,23 @@ public class UserCvController {
                 return ResponseEntity.badRequest().body(result);
             }
 
-            // Lưu file vào uploads/cv/
-            Path uploadDir = Paths.get("uploads", "cv");
-            Files.createDirectories(uploadDir);
-            String ext      = file.getOriginalFilename() != null
-                    && file.getOriginalFilename().contains(".")
-                    ? file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'))
-                    : ".pdf";
-            String fileName = UUID.randomUUID() + ext;
-            Path   filePath = uploadDir.resolve(fileName);
-            Files.write(filePath, file.getBytes());
-
-            String pdfUrl = "/cv-files/" + fileName;
+            String pdfUrl;
+            // Ưu tiên Firebase, fallback local
+            try {
+                String objectPath = firebaseStorageService.uploadFile(file, "user-cvs", 10 * 1024 * 1024);
+                pdfUrl = "/api/uploads/file?path=" + java.net.URLEncoder.encode(objectPath, java.nio.charset.StandardCharsets.UTF_8);
+            } catch (Exception firebaseEx) {
+                // Fallback: lưu local
+                Path uploadDir = Paths.get("uploads", "cv");
+                Files.createDirectories(uploadDir);
+                String ext = file.getOriginalFilename() != null
+                        && file.getOriginalFilename().contains(".")
+                        ? file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'))
+                        : ".pdf";
+                String fileName = UUID.randomUUID() + ext;
+                Files.write(uploadDir.resolve(fileName), file.getBytes());
+                pdfUrl = "/cv-files/" + fileName;
+            }
 
             // Lưu vào user_cvs với cvContent chứa _pdfUrl
             UserCv cv = new UserCv();

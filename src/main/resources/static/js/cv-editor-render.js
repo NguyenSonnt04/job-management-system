@@ -660,18 +660,12 @@ function renderClassicStyle(c, accent) {
 
 // ── STYLE 5: Harvard ──────────────────────────────────────────
 function renderHarvardStyle(c, accent) {
-    const sectionAddBtn = (type) => `<div class="cvh-empty-section-add" contenteditable="false">
-        <button class="btn-item-ctrl btn-item-add" type="button" onclick="addItem('${type}')" title="Thêm mục">
-            <i data-lucide="plus"></i> Thêm mục
-        </button>
-    </div>`;
-
-    const section = (sectionKey, title, content, type) => {
+    const section = (sectionKey, title, content) => {
         const hasContent = content && content.trim();
-        if (!hasContent && !type) return '';
+        if (!hasContent) return '';
         return `<div class="cvh-section" data-cv-section="${sectionKey}">
             ${renderSectionTitle('div', sectionKey, title, 'cvh-title')}
-            ${hasContent ? content : sectionAddBtn(type || sectionKey)}
+            ${content}
         </div>`;
     };
 
@@ -739,8 +733,8 @@ function renderHarvardStyle(c, accent) {
         </div>`).join('');
 
     const contactItems = CONTACT_TYPES
-        .filter(t => c[t.key] !== undefined && c[t.key] !== null && c[t.key] !== '')
-        .map(t => `<span class="cvh-contact-item" data-contact-key="${t.key}">${libIcon(t.icon, 13, 'vertical-align:-2px;margin-right:4px;')} <span class="cv-editable" data-placeholder="${t.placeholder}">${esc(c[t.key]||'')}</span></span>`)
+        .filter(t => c[t.key] !== undefined && c[t.key] !== null)
+        .map(t => renderContactItem(t.key, c[t.key] || '', `contact-${t.key}`, t.icon, t.label, t.placeholder).replace('cv-contact-item', 'cv-contact-item cvh-contact-item'))
         .join('');
 
     return `<div class="cv-full cvh-root">
@@ -750,16 +744,16 @@ function renderHarvardStyle(c, accent) {
             <div class="cvh-contact" data-cv-section="contacts">${contactItems||`<button class="btn-item-ctrl btn-item-add cv-contact-add-btn cv-contact-add-standalone" type="button" onclick="openAddContactMenu(this)" contenteditable="false"><i data-lucide="plus"></i> Thêm liên hệ</button>`}</div>
         </div>
         <div class="cvh-body">
-            ${section('skills', 'SKILLS', skillHtml ? `<div class="cvh-skill-table">${skillHtml}</div>` : '', 'skills')}
-            ${section('education', 'EDUCATION', itemRow('education',c.education||[]), 'education')}
-            ${section('projects', 'PROJECTS', itemRow('projects',c.projects||[]), 'projects')}
-            ${section('experience', 'EXPERIENCE', itemRow('experience',c.experience||[]), 'experience')}
-            ${section('summary', 'PROFESSIONAL SUMMARY', (c.summary||sectionEnabled('summary')) ? `<p class="cvh-summary cv-editable" data-placeholder="Giới thiệu bản thân...">${c.summary?esc(c.summary).replace(/\n/g,'<br>'):''}</p>` : '', 'summary')}
-            ${section('certifications', 'CERTIFICATIONS', itemRow('certifications',c.certifications||[]), 'certifications')}
-            ${section('awards', 'AWARDS', itemRow('awards',c.awards||[]), 'awards')}
-            ${section('activities', 'ACTIVITIES', itemRow('activities',c.activities||[]), 'activities')}
-            ${section('references', 'REFERENCES', refHtml5, 'references')}
-            ${section('hobbies', 'SỞ THÍCH', hobbyHtml5, 'hobbies')}
+            ${section('skills', 'SKILLS', skillHtml ? `<div class="cvh-skill-table">${skillHtml}</div>` : '')}
+            ${section('education', 'EDUCATION', itemRow('education',c.education||[]))}
+            ${section('projects', 'PROJECTS', itemRow('projects',c.projects||[]))}
+            ${section('experience', 'EXPERIENCE', itemRow('experience',c.experience||[]))}
+            ${section('summary', 'PROFESSIONAL SUMMARY', (c.summary||sectionEnabled('summary')) ? `<p class="cvh-summary cv-editable" data-placeholder="Giới thiệu bản thân...">${c.summary?esc(c.summary).replace(/\n/g,'<br>'):''}</p>` : '')}
+            ${section('certifications', 'CERTIFICATIONS', itemRow('certifications',c.certifications||[]))}
+            ${section('awards', 'AWARDS', itemRow('awards',c.awards||[]))}
+            ${section('activities', 'ACTIVITIES', itemRow('activities',c.activities||[]))}
+            ${section('references', 'REFERENCES', refHtml5)}
+            ${section('hobbies', 'SỞ THÍCH', hobbyHtml5)}
         </div>
     </div>`;
 }

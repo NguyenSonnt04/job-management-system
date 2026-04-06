@@ -27,6 +27,98 @@
     <script src="js/cv-editor-state.js"></script>
     <script src="js/cv-editor-design.js"></script>
     <script src="js/cv-editor-render.js"></script>
+    <!-- Implementations for edit-only functions needed in view mode -->
+    <script>
+        // Pure UI stubs (not needed in view mode)
+        if (typeof refreshEditModeUI === 'undefined') window.refreshEditModeUI = function(){};
+        if (typeof setActiveItemShell === 'undefined') window.setActiveItemShell = function(){};
+
+        // Section key resolver (from cv-editor-edit.js)
+        function normalizePreviewSectionToken(value) {
+            return String(value || '')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase().replace(/&/g, ' and ')
+                .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+        }
+
+        function resolvePreviewSectionKey(rawKey, headingText) {
+            const aliasMap = {
+                contacts:'contacts', thong_tin_lien_he:'contacts', contact:'contacts',
+                summary:'summary', gioi_thieu:'summary', professional_summary:'summary', muc_tieu_nghe_nghiep:'summary', tom_tat:'summary',
+                experience:'experience', kinh_nghiem:'experience', kinh_nghiem_lam_viec:'experience',
+                education:'education', hoc_van:'education',
+                skills:'skills', ky_nang:'skills', skills_expertise:'skills',
+                projects:'projects', du_an:'projects', du_an_noi_bat:'projects',
+                certifications:'certifications', chung_chi:'certifications',
+                awards:'awards', awards_honors:'awards', giai_thuong:'awards',
+                activities:'activities', leadership_activities:'activities', hoat_dong:'activities',
+                references:'references', nguoi_tham_chieu:'references',
+                hobbies:'hobbies', so_thich:'hobbies'
+            };
+            const candidates = [rawKey, headingText].map(normalizePreviewSectionToken).filter(Boolean);
+            for (const c of candidates) { if (aliasMap[c]) return aliasMap[c]; }
+            return '';
+        }
+
+        function tagPreviewSections(style) {
+            const preview = document.getElementById('cvPreview');
+            if (!preview) return;
+            preview.querySelectorAll('[data-cv-section]').forEach(section => {
+                const titleEl = section.querySelector('h1,h2,h3,h4,.cvm-section-title,.cvc2-zone-title,.cvm2-block-label,.cvh-title,.cvcl2-sec-title,.cv-topcv-title,.cvi-section-title,.cvi-sidebar-title');
+                const text = (titleEl?.textContent || '').trim();
+                const key = resolvePreviewSectionKey(section.dataset.cvSection || '', text);
+                if (key) section.setAttribute('data-cv-section', key);
+            });
+        }
+
+        function applySectionVisibilityToPreview() {
+            const preview = document.getElementById('cvPreview');
+            if (!preview || typeof sectionCatalog === 'undefined') return;
+            sectionCatalog.forEach(name => {
+                const visible = sectionEnabled(name);
+                preview.querySelectorAll('[data-cv-section="' + name + '"]').forEach(el => {
+                    el.style.display = visible ? '' : 'none';
+                });
+            });
+        }
+
+        function applySectionOrderToPreview(style) {
+            const preview = document.getElementById('cvPreview');
+            if (!preview) return;
+            style = style || getCurrentPreviewStyle();
+            tagPreviewSections(style);
+            const ordered = getOrderedUsedSections();
+
+            // Single-column body
+            const body = preview.querySelector('.cvm2-body, .cvh-body, .cv-topcv-body');
+            if (body) {
+                const sections = [...body.querySelectorAll('[data-cv-section]')];
+                ordered.forEach(key => {
+                    const sec = sections.find(s => resolvePreviewSectionKey(s.dataset.cvSection || '') === key);
+                    if (sec) body.appendChild(sec);
+                });
+                return;
+            }
+
+            // Two-column layout
+            const columns = [
+                preview.querySelector('.cvm-left, .cvc2-left, .cvcl2-left, .cvi-sidebar'),
+                preview.querySelector('.cvm-right, .cvc2-right, .cvcl2-right, .cvi-main')
+            ].filter(Boolean);
+            if (!columns.length) return;
+            const sectionMap = new Map();
+            columns.forEach(col => {
+                [...col.children].forEach(child => {
+                    const key = resolvePreviewSectionKey(child?.dataset?.cvSection || '',
+                        (child.querySelector('h1,h2,h3,h4,.cvm-section-title,.cvc2-zone-title,.cvh-title,.cvi-section-title,.cvi-sidebar-title')?.textContent || ''));
+                    if (key) { child.dataset.cvSection = key; sectionMap.set(key, child); }
+                });
+            });
+            ordered.filter(key => sectionMap.has(key)).forEach((key, i) => {
+                columns[i % columns.length].appendChild(sectionMap.get(key));
+            });
+        }
+    </script>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
 
@@ -35,6 +127,7 @@
             background: #f3f4f6;
             font-family: "Inter", sans-serif;
             min-height: 100vh;
+            overflow: auto !important;
         }
 
         #header-placeholder { position: relative; z-index: 10; }
@@ -353,26 +446,128 @@
             return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         }
 
-        function downloadPdf() {
-            const btn = document.getElementById('btnDownloadPdf');
-            const el  = document.getElementById('cvPreview');
-            if (!el) return;
+        let pdfExportInProgress = false;
 
+        function getCvExportRoot() {
+            const preview = document.getElementById('cvPreview');
+            if (!preview) return null;
+            return preview.querySelector('.cv-full') || preview;
+        }
+
+        async function waitForPdfAssets(root) {
+            if (!root) return;
+            const imagePromises = [...root.querySelectorAll('img')]
+                .filter(img => !img.complete)
+                .map(img => new Promise(resolve => {
+                    img.addEventListener('load', resolve, { once: true });
+                    img.addEventListener('error', resolve, { once: true });
+                }));
+            if (document.fonts?.ready) {
+                try { await document.fonts.ready; } catch (e) { /* ignore */ }
+            }
+            if (imagePromises.length) {
+                await Promise.race([
+                    Promise.all(imagePromises),
+                    new Promise(resolve => setTimeout(resolve, 2500))
+                ]);
+            }
+        }
+
+        async function downloadPdf() {
+            if (pdfExportInProgress) return;
+            pdfExportInProgress = true;
+
+            const btn = document.getElementById('btnDownloadPdf');
+            const cvDoc = getCvExportRoot();
+            if (!cvDoc) { pdfExportInProgress = false; return; }
+
+            const oldHtml = btn.innerHTML;
             btn.textContent = 'Đang xuất...';
             btn.disabled = true;
 
-            const opt = {
-                margin:      [8, 8, 8, 8],
-                filename:    `${cvName}.pdf`,
-                image:       { type: 'jpeg', quality: 0.97 },
-                html2canvas: { scale: 2, useCORS: true, logging: false },
-                jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            try {
+                await waitForPdfAssets(cvDoc);
 
-            html2pdf().set(opt).from(el).save().then(() => {
+                // Remove min-height to prevent blank 2nd page
+                const savedMinHeight = cvDoc.style.minHeight;
+                const savedBoxShadow = cvDoc.style.boxShadow;
+                const savedOverflow  = cvDoc.style.overflow;
+                cvDoc.style.minHeight = 'auto';
+                cvDoc.style.boxShadow = 'none';
+                cvDoc.style.overflow  = 'visible';
+
+                // Sanitize unsupported CSS color() functions for html2canvas
+                const sanitized = [];
+                const colorProps = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor'];
+                const gradientProps = ['backgroundImage'];
+                cvDoc.querySelectorAll('*').forEach(el => {
+                    const cs = getComputedStyle(el);
+                    colorProps.forEach(prop => {
+                        const val = cs[prop];
+                        if (val && /color\(/.test(val)) {
+                            sanitized.push({ el, prop, original: el.style[prop] });
+                            el.style[prop] = '#000000';
+                        }
+                    });
+                    gradientProps.forEach(prop => {
+                        const val = cs[prop];
+                        if (val && /color\(/.test(val)) {
+                            sanitized.push({ el, prop, original: el.style[prop] });
+                            el.style[prop] = 'none';
+                        }
+                    });
+                });
+
+                const worker = html2pdf()
+                    .set({
+                        margin:      0,
+                        image:       { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true, removeContainer: true },
+                        pagebreak:   { mode: ['css'] },
+                        jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    })
+                    .from(cvDoc)
+                    .toPdf();
+
+                const pdf = await worker.get('pdf');
+
+                // Remove trailing blank pages
+                const totalPages = pdf.internal.getNumberOfPages();
+                if (totalPages > 1) {
+                    for (let p = totalPages; p > 1; p--) {
+                        pdf.setPage(p);
+                        const pageData = pdf.output('datauristring', { pages: [p] });
+                        if (pageData.length < 10000) {
+                            pdf.deletePage(p);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                const arrayBuf = pdf.output('arraybuffer');
+                const pdfBlob = new Blob([arrayBuf], { type: 'application/pdf' });
+
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = `${cvName}.pdf`;
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+
+                // Restore original styles
+                cvDoc.style.minHeight = savedMinHeight;
+                cvDoc.style.boxShadow = savedBoxShadow;
+                cvDoc.style.overflow  = savedOverflow;
+                sanitized.forEach(({ el, prop, original }) => { el.style[prop] = original; });
+            } catch (error) {
+                console.error('downloadPdf:', error);
+                window.print();
+            } finally {
                 btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Tải PDF`;
                 btn.disabled = false;
-            });
+                pdfExportInProgress = false;
+            }
         }
     </script>
 </body>

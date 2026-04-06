@@ -90,6 +90,7 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/jobs/search").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/jobs/{id}").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/uploads/image").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/uploads/file").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/uploads/images").authenticated()
                 
                 // Employer-only Job API (write operations)
