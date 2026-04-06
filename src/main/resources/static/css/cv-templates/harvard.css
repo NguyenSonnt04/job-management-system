@@ -7,7 +7,7 @@
     font-family: var(--font-main, 'Inter', 'Arial', sans-serif);
     background: white;
     color: #000;
-    line-height: var(--cv-line-height, 1.45);
+    line-height: var(--cv-line-height, 1.35);
 }
 
 .cvh-header {
@@ -54,10 +54,11 @@
 
 .cvh-body {
     padding: 0 14px 10px;
+    overflow: hidden;
 }
 
 .cvh-section {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .cvh-title {
@@ -66,8 +67,8 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     border-bottom: 1.5px solid #000;
-    padding-bottom: 3px;
-    margin-bottom: 8px;
+    padding-bottom: 2px;
+    margin-bottom: 5px;
     color: #000;
 }
 
@@ -79,7 +80,15 @@
 }
 
 .cvh-item {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.cvh-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .cvh-item-head {
@@ -144,11 +153,11 @@
 .cvh-skill-row {
     display: grid;
     grid-template-columns: 170px 1fr;
-    gap: 3px 14px;
-    padding: 5px 0;
-    border-bottom: 1px solid #d0d0d0;
+    gap: 0 14px;
+    padding: 4px 0;
+    border-bottom: 1px solid #e5e5e5;
     font-size: calc(12.5px * var(--cv-font-scale, 1));
-    line-height: var(--cv-line-height, 1.5);
+    line-height: 1.35;
     align-items: baseline;
 }
 
@@ -194,15 +203,6 @@
     border-radius: 14px;
 }
 
-.cvh-empty-section-add {
-    display: none;
-    padding: 12px 0;
-    text-align: center;
-}
-
-.cv-editable-mode .cvh-empty-section-add {
-    display: block;
-}
 
 .cvh-editable-active,
 .cvh-item-title[contenteditable="true"]:focus,
@@ -265,11 +265,13 @@
 
         .cv-editable-mode .cvh-edit-shell {
             position: relative;
-            margin: 10px 0 14px;
-            padding: 12px 14px 12px;
+            margin: 2px 0;
+            padding: 6px 10px;
             border: 1px solid transparent;
             border-radius: 12px;
             background: rgba(255, 255, 255, 0.01);
+            box-sizing: border-box;
+            max-width: 100%;
             transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
         }
 
@@ -350,8 +352,10 @@
             display: block;
             padding: 4px 6px;
             border-radius: 4px;
-            width: 100%;
+            max-width: 100%;
             box-sizing: border-box;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
 
         .cv-editable-mode .cvh-edit-shell .cvh-inline-meta {
@@ -366,6 +370,7 @@
 
         .cv-editable-mode .cvh-edit-shell .cvh-bullet {
             padding-left: 2px;
+            text-indent: 0;
         }
 
         .cvh-details,
@@ -384,7 +389,7 @@
         }
 
         .cvh-root {
-            padding: 54px 60px;
+            padding: 12px 16px;
             background: #ffffff;
         }
 
@@ -432,5 +437,12 @@
 }
 
 .cv-harvard-root .cvh-item {
-    margin-bottom: 18px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+.cv-harvard-root .cvh-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
