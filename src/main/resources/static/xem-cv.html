@@ -307,8 +307,31 @@
 
         function goEdit()      { window.location.href = `/cv-editor.html?cvId=${cvId}`; }
         function goExportPdf() {
-            showToast('Đang khởi tạo trình xuất PDF...');
-            window.open(`/cv-editor.html?cvId=${cvId}&download=pdf`, '_blank');
+            const btn = document.getElementById('btnPdf');
+            if (btn) { btn.textContent = 'Đang xuất...'; btn.disabled = true; }
+            showToast('Đang xuất PDF, vui lòng chờ...');
+
+            const url = `/cv-editor.html?cvId=${cvId}&download=pdf`;
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1200px;height:1600px;opacity:0;pointer-events:none;';
+            iframe.src = url;
+            document.body.appendChild(iframe);
+
+            function cleanup() {
+                window.removeEventListener('message', onMsg);
+                if (iframe.parentNode) iframe.remove();
+                if (btn) { btn.textContent = 'Xuất PDF'; btn.disabled = false; }
+            }
+
+            function onMsg(e) {
+                if (e.data && e.data.type === 'cv-pdf-downloaded') {
+                    showToast('Đã tải PDF thành công!');
+                    cleanup();
+                }
+            }
+
+            window.addEventListener('message', onMsg);
+            setTimeout(cleanup, 20000);
         }
 
         function showError(msg) {

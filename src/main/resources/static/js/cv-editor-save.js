@@ -133,7 +133,11 @@ function queueAutoPdfDownload() {
 
     window.setTimeout(async () => {
         const ok = await downloadPdf();
-        // Auto-close the popup tab after successful download
+        // Notify parent frame that download finished (hidden-iframe flow)
+        if (ok && window.parent !== window) {
+            try { window.parent.postMessage({ type: 'cv-pdf-downloaded' }, window.location.origin); } catch (e) { /* ignore */ }
+        }
+        // Auto-close the popup tab after successful download (legacy popup flow)
         if (ok && window.opener !== null) {
             setTimeout(() => window.close(), 1500);
         }
@@ -266,6 +270,15 @@ async function downloadPdf() {
         try {
             await waitForPdfAssets(cvDoc);
 
+            // Temporarily remove min-height so content that fits 1 page
+            // doesn't spill onto a blank 2nd page due to sub-pixel overflow
+            const savedMinHeight = cvDoc.style.minHeight;
+            const savedBoxShadow = cvDoc.style.boxShadow;
+            const savedOverflow  = cvDoc.style.overflow;
+            cvDoc.style.minHeight = 'auto';
+            cvDoc.style.boxShadow = 'none';
+            cvDoc.style.overflow  = 'visible';
+
             // Sanitize unsupported CSS color() functions for html2canvas
             const sanitized = [];
             const colorProps = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor'];
@@ -301,6 +314,23 @@ async function downloadPdf() {
                 .toPdf();
 
             const pdf = await worker.get('pdf');
+
+            // Remove trailing blank pages
+            const totalPages = pdf.internal.getNumberOfPages();
+            if (totalPages > 1) {
+                for (let p = totalPages; p > 1; p--) {
+                    pdf.setPage(p);
+                    // Check if page is blank by scanning pixel data
+                    const pageData = pdf.output('datauristring', { pages: [p] });
+                    // Simple heuristic: if page content is very small, it's blank
+                    if (pageData.length < 10000) {
+                        pdf.deletePage(p);
+                    } else {
+                        break; // stop at first non-blank page
+                    }
+                }
+            }
+
             const arrayBuf = pdf.output('arraybuffer');
             const pdfBlob = new Blob([arrayBuf], { type: 'application/pdf' });
 
@@ -313,6 +343,9 @@ async function downloadPdf() {
             setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
 
             // Restore original styles
+            cvDoc.style.minHeight = savedMinHeight;
+            cvDoc.style.boxShadow = savedBoxShadow;
+            cvDoc.style.overflow  = savedOverflow;
             sanitized.forEach(({ el, prop, original }) => { el.style[prop] = original; });
             return true;
         } catch (error) {

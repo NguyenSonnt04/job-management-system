@@ -1333,10 +1333,28 @@
         function downloadCV(id, button) {
             const exportUrl = `/cv-editor.html?cvId=${id}&download=pdf&source=my-cvs`;
             setButtonLoading(button, true);
-            toast('Đang mở CV để xuất PDF...', 'success');
-            const popup = window.open(exportUrl, '_blank', 'noopener');
-            setTimeout(() => setButtonLoading(button, false), 2200);
-            if (!popup) window.location.href = exportUrl;
+            toast('Đang xuất PDF, vui lòng chờ...', 'success');
+
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1200px;height:1600px;opacity:0;pointer-events:none;';
+            iframe.src = exportUrl;
+            document.body.appendChild(iframe);
+
+            function cleanup() {
+                window.removeEventListener('message', onMsg);
+                if (iframe.parentNode) iframe.remove();
+                setButtonLoading(button, false);
+            }
+
+            function onMsg(e) {
+                if (e.data && e.data.type === 'cv-pdf-downloaded') {
+                    toast('Đã tải PDF thành công!', 'success');
+                    cleanup();
+                }
+            }
+
+            window.addEventListener('message', onMsg);
+            setTimeout(cleanup, 20000);
         }
 
         function setButtonLoading(button, loading) {
