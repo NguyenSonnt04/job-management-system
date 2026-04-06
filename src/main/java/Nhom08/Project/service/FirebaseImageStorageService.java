@@ -61,6 +61,36 @@ public class FirebaseImageStorageService {
         return objectName;
     }
 
+    /**
+     * Upload any file (PDF, DOC, DOCX, images, etc.) to Firebase Storage.
+     */
+    public String uploadFile(MultipartFile file, String folder, long maxSizeBytes) throws IOException {
+        validateEnabled();
+
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Chưa có file được gửi lên");
+        }
+        if (file.getSize() > maxSizeBytes) {
+            throw new IllegalArgumentException("File vượt quá dung lượng cho phép");
+        }
+
+        String contentType = file.getContentType();
+        if (!StringUtils.hasText(contentType)) {
+            contentType = "application/octet-stream";
+        }
+
+        Bucket bucket = StorageClient.getInstance(firebaseAppProvider.getObject()).bucket();
+        String objectName = buildObjectName(folder, file.getOriginalFilename(), contentType);
+
+        BlobInfo blobInfo = BlobInfo.newBuilder(bucket.getName(), objectName)
+                .setContentType(contentType)
+                .setCacheControl("public, max-age=31536000")
+                .build();
+
+        bucket.getStorage().create(blobInfo, file.getBytes());
+        return objectName;
+    }
+
     public StoredImage loadImage(String objectName) {
         validateEnabled();
 
@@ -125,7 +155,10 @@ public class FirebaseImageStorageService {
             case "image/webp" -> ".webp";
             case "image/gif" -> ".gif";
             case "image/svg+xml" -> ".svg";
-            default -> ".img";
+            case "application/pdf" -> ".pdf";
+            case "application/msword" -> ".doc";
+            case "application/vnd.openxmlformats-officedocument.wordprocessingml.document" -> ".docx";
+            default -> ".bin";
         };
     }
 

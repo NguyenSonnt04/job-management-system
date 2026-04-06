@@ -79,47 +79,51 @@
                 <div class="filter-row">
                     <div class="filter-group">
                         <label>Từ khóa</label>
-                        <input type="text" class="filter-input" placeholder="Nhập từ khóa">
+                        <input type="text" class="filter-input" id="filterKeyword" placeholder="Nhập từ khóa">
                     </div>
                     <div class="filter-group">
                         <label>Tìm theo</label>
-                        <select class="filter-select">
-                            <option>Tên hồ sơ</option>
-                            <option>Mã hồ sơ</option>
-                            <option>Email</option>
+                        <select class="filter-select" id="filterSearchBy">
+                            <option value="name">Tên hồ sơ</option>
+                            <option value="email">Email</option>
+                            <option value="job">Vị trí ứng tuyển</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Trạng thái tìm việc</label>
-                        <select class="filter-select">
-                            <option>Tất cả</option>
-                            <option>Đang tìm việc</option>
-                            <option>Đang cân nhắc</option>
+                        <label>Trạng thái</label>
+                        <select class="filter-select" id="filterStatus">
+                            <option value="">Tất cả</option>
+                            <option value="PENDING">Chờ xem xét</option>
+                            <option value="VIEWED">Đã xem</option>
+                            <option value="INTERVIEW">Mời phỏng vấn</option>
+                            <option value="SAVED">Đã lưu</option>
+                            <option value="REJECTED">Từ chối</option>
                         </select>
                     </div>
                     <div class="filter-group">
                         <label>Từ</label>
-                        <input type="date" class="filter-input">
+                        <input type="date" class="filter-input" id="filterDateFrom">
                     </div>
                     <div class="filter-group">
                         <label>Đến</label>
-                        <input type="date" class="filter-input">
+                        <input type="date" class="filter-input" id="filterDateTo">
                     </div>
                     <div class="filter-group-actions">
-                        <button class="btn-search-main">
+                        <button class="btn-search-main" id="btnSearch" onclick="applyFilters()">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <path d="m21 21-4.35-4.35"></path>
                             </svg>
                             Tìm
                         </button>
-                        <a href="#" class="link-advanced-filter">
+                        <button class="link-advanced-filter" onclick="clearFilters()" style="background:none;border:none;cursor:pointer;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <path d="m21 21-4.35-4.35"></path>
+                                <path d="M3 6h18"></path>
+                                <path d="M6 6v14c0 1 1 2 2 2h8c1 0 2-1 2-2V6"></path>
+                                <path d="M19 6l-1-4H6L5 6"></path>
                             </svg>
-                            Lọc nâng cao
-                        </a>
+                            Xóa bộ lọc
+                        </button>
                     </div>
                 </div>
             </div>
@@ -135,34 +139,22 @@
                 <div class="tab-content card">
                     <div class="sub-filter-row">
                         <div class="sub-filter-group">
-                            <span class="label">User</span>
-                            <select class="sub-select">
-                                <option>Sơn Sơn Nguyễn</option>
-                            </select>
-                        </div>
-                        <div class="sub-filter-group">
-                            <select class="sub-select">
-                                <option>Việc Làm Đang Đăng (0)</option>
-                            </select>
-                        </div>
-                        <div class="sub-filter-group">
-                            <select class="sub-select">
-                                <option>Chọn thư mục</option>
+                            <span class="label">Việc làm</span>
+                            <select class="sub-select" id="filterJob" onchange="applyFilters()">
+                                <option value="">Tất cả việc làm</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="action-buttons-row">
                         <div class="btn-group">
-                            <button class="btn-outline">Xem tóm tắt</button>
-                            <button class="btn-outline">Flipview All</button>
-                            <button class="btn-outline disabled" disabled>
+                            <button class="btn-outline" onclick="exportCSV()">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                     <polyline points="7 10 12 15 17 10"></polyline>
                                     <line x1="12" y1="15" x2="12" y2="3"></line>
                                 </svg>
-                                Tải tất cả hồ sơ
+                                Xuất CSV
                             </button>
                         </div>
                         <button class="btn-smart-eval" id="btnAnalyzeAll" onclick="analyzeAllApplications()" title="AI phân tích tất cả ứng viên chưa được đánh giá">
@@ -184,9 +176,9 @@
                             </svg>
                             Chọn và xử lý:
                         </div>
-                        <button class="btn-batch">Xem và Đánh giá hồ sơ</button>
-                        <button class="btn-batch">Xóa hồ sơ</button>
-                        <button class="btn-batch">Lưu thư mục</button>
+                        <button class="btn-batch" onclick="batchChangeStatus('INTERVIEW')">Mời phỏng vấn</button>
+                        <button class="btn-batch" onclick="batchChangeStatus('REJECTED')">Từ chối hồ sơ</button>
+                        <button class="btn-batch" onclick="batchChangeStatus('SAVED')">Lưu hồ sơ</button>
                     </div>
 
                     <div class="table-wrapper">
@@ -219,6 +211,17 @@
         </div>
     </section>
 
+    <!-- Applicant Detail Modal -->
+    <div class="modal-overlay" id="detailModal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Chi tiết ứng viên</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
     <!-- Footer Placeholder -->
     <div id="footer-placeholder"></div>
 
@@ -249,23 +252,30 @@
         return `<span class="status-badge ${s.cls}">${s.text}</span>`;
     }
 
-    // ── Render table ────────────────────────────────────────
-    let allApplications = [];
+    function compatClass(score) {
+        if (score >= 80) return 'compat-high';
+        if (score >= 50) return 'compat-mid';
+        return 'compat-low';
+    }
 
+    // ── Data ────────────────────────────────────────────────
+    let allApplications = [];
+    let currentTab = 'applied';
+
+    // ── Render table ────────────────────────────────────────
     function renderTable(apps) {
         const tbody = document.querySelector('.candidate-table tbody');
-        console.log('renderTable called, tbody:', tbody, 'apps:', apps?.length);
-        if (!tbody) { console.error('tbody not found!'); return; }
+        if (!tbody) return;
         if (!apps || apps.length === 0) {
             tbody.innerHTML = `<tr class="empty-row"><td colspan="9">Hiện tại không có hồ sơ nào trong thư mục này!</td></tr>`;
             return;
         }
-        const html = apps.map(app => `
+        tbody.innerHTML = apps.map(app => `
             <tr data-id="${app.id}">
                 <td class="col-check">
                     <input type="checkbox" class="row-check" value="${app.id}">
                     <div class="applicant-info">
-                        <div class="applicant-name">${app.fullName || '—'}</div>
+                        <a href="#" class="applicant-name" onclick="viewDetail(${app.id});return false;">${app.fullName || '—'}</a>
                         <div class="applicant-email">${app.email || ''}</div>
                         <div class="applicant-job" style="font-size:11px;color:#888;">${app.jobTitle || ''}</div>
                     </div>
@@ -276,9 +286,16 @@
                 <td id="compat-${app.id}" style="text-align:center">${app.aiCompatScore != null ? `<span class="compat-score ${compatClass(app.aiCompatScore)}">${app.aiCompatScore}%</span>` : `<button class="btn-ai-analyze" onclick="analyzeOne(${app.id})" title="AI phân tích">Phân tích</button>`}</td>
                 <td id="ranking-${app.id}" style="text-align:center">${app.aiRanking || '—'}</td>
                 <td id="exp-${app.id}">${app.aiExperience || '—'}</td>
-                <td>—</td>
+                <td>${app.phone || '—'}</td>
                 <td>
                     <div class="action-btns">
+                        ${(app.userCvId || app.cvFileUrl) ? `<button class="btn-view-cv" onclick="${app.cvFileUrl ? `viewUploadedCv('${app.cvFileUrl}', '${(app.fullName||'').replace(/'/g,"\\'")}')` : `viewCv(${app.id})`}" title="Xem CV">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                            CV
+                        </button>` : ''}
+                        <button class="btn-view-detail" onclick="viewDetail(${app.id})" title="Xem chi tiết">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
                         <select class="status-select" onchange="changeStatus(${app.id}, this.value)" title="Đổi trạng thái">
                             ${Object.entries(STATUS_LABEL).map(([k, v]) =>
                                 `<option value="${k}" ${app.status === k ? 'selected' : ''}>${v.text}</option>`
@@ -288,44 +305,55 @@
                 </td>
             </tr>
         `).join('');
-        tbody.innerHTML = html;
-        console.log('Rendered rows:', tbody.querySelectorAll('tr').length, 'table visible:', document.querySelector('.table-wrapper').offsetHeight);
     }
 
     // ── Change status ────────────────────────────────────────
     async function changeStatus(id, newStatus) {
         try {
             const res = await fetch(`/api/applications/${id}/status`, {
-                method:      'PATCH',
-                headers:     { 'Content-Type': 'application/json' },
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body:        JSON.stringify({ status: newStatus })
+                body: JSON.stringify({ status: newStatus })
             });
             if (res.ok) {
                 const app = allApplications.find(a => a.id === id);
                 if (app) app.status = newStatus;
-                // Update status badge in same row
-                const row = document.querySelector(`tr[data-id="${id}"]`);
-                if (row) {
-                    const badge = row.querySelector('.status-badge');
-                    if (badge) badge.outerHTML = statusBadge(newStatus);
-                }
+                updateTabCounts();
+                renderTable(getDisplayedApps());
             }
         } catch (e) {
             console.error('Lỗi đổi trạng thái:', e);
         }
     }
 
-    // ── Tab filtering ──────────────────────────────────────
-    let currentTab = 'applied';
+    // ── Batch change status ──────────────────────────────────
+    async function batchChangeStatus(newStatus) {
+        const checked = [...document.querySelectorAll('.row-check:checked')];
+        if (checked.length === 0) { alert('Vui lòng chọn ít nhất 1 ứng viên.'); return; }
 
-    function getFilteredApps(tab) {
+        const label = STATUS_LABEL[newStatus]?.text || newStatus;
+        if (!confirm(`Đổi trạng thái ${checked.length} ứng viên thành "${label}"?`)) return;
+
+        for (const cb of checked) {
+            await changeStatus(parseInt(cb.value), newStatus);
+        }
+        document.getElementById('check-all').checked = false;
+    }
+
+    // ── Tab filtering ──────────────────────────────────────
+    function getTabApps(tab) {
         switch (tab) {
             case 'saved':   return allApplications.filter(a => a.status === 'SAVED');
             case 'deleted': return allApplications.filter(a => a.status === 'REJECTED');
             case 'applied':
             default:        return allApplications.filter(a => a.status !== 'SAVED' && a.status !== 'REJECTED');
         }
+    }
+
+    function getDisplayedApps() {
+        let apps = getTabApps(currentTab);
+        return applyClientFilters(apps);
     }
 
     function updateTabCounts() {
@@ -341,7 +369,7 @@
         currentTab = tab;
         document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
         document.querySelector(`.tab-item[data-tab="${tab}"]`).classList.add('active');
-        renderTable(getFilteredApps(tab));
+        renderTable(getDisplayedApps());
     }
 
     document.querySelectorAll('.tab-item').forEach(btn => {
@@ -353,10 +381,314 @@
         document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
     });
 
+    // ── Search & Filter ─────────────────────────────────────
+    function applyClientFilters(apps) {
+        const keyword  = (document.getElementById('filterKeyword').value || '').trim().toLowerCase();
+        const searchBy = document.getElementById('filterSearchBy').value;
+        const status   = document.getElementById('filterStatus').value;
+        const jobId    = document.getElementById('filterJob').value;
+        const dateFrom = document.getElementById('filterDateFrom').value;
+        const dateTo   = document.getElementById('filterDateTo').value;
+
+        return apps.filter(app => {
+            // Keyword filter
+            if (keyword) {
+                let field = '';
+                if (searchBy === 'name')  field = (app.fullName || '').toLowerCase();
+                if (searchBy === 'email') field = (app.email || '').toLowerCase();
+                if (searchBy === 'job')   field = (app.jobTitle || '').toLowerCase();
+                if (!field.includes(keyword)) return false;
+            }
+            // Status filter
+            if (status && app.status !== status) return false;
+            // Job filter
+            if (jobId && app.jobId != jobId) return false;
+            // Date range filter
+            if (dateFrom && app.createdAt) {
+                const appDate = app.createdAt.substring(0, 10);
+                if (appDate < dateFrom) return false;
+            }
+            if (dateTo && app.createdAt) {
+                const appDate = app.createdAt.substring(0, 10);
+                if (appDate > dateTo) return false;
+            }
+            return true;
+        });
+    }
+
+    function applyFilters() {
+        renderTable(getDisplayedApps());
+    }
+
+    function clearFilters() {
+        document.getElementById('filterKeyword').value = '';
+        document.getElementById('filterSearchBy').value = 'name';
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterJob').value = '';
+        document.getElementById('filterDateFrom').value = '';
+        document.getElementById('filterDateTo').value = '';
+        applyFilters();
+    }
+
+    // Enter key triggers search
+    document.getElementById('filterKeyword').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') applyFilters();
+    });
+
+    // ── Populate job dropdown ────────────────────────────────
+    function populateJobDropdown() {
+        const select = document.getElementById('filterJob');
+        const jobMap = {};
+        allApplications.forEach(app => {
+            if (app.jobId && app.jobTitle) jobMap[app.jobId] = app.jobTitle;
+        });
+        // Keep the "Tất cả" option, add jobs
+        select.innerHTML = '<option value="">Tất cả việc làm</option>';
+        Object.entries(jobMap).forEach(([id, title]) => {
+            const count = allApplications.filter(a => a.jobId == id).length;
+            select.innerHTML += `<option value="${id}">${title} (${count})</option>`;
+        });
+    }
+
+    // ── View detail modal ────────────────────────────────────
+    function viewDetail(id) {
+        const app = allApplications.find(a => a.id === id);
+        if (!app) return;
+
+        document.getElementById('modalTitle').textContent = app.fullName || 'Chi tiết ứng viên';
+        document.getElementById('modalBody').innerHTML = `
+            <div class="detail-grid">
+                <div class="detail-section">
+                    <h3>Thông tin cá nhân</h3>
+                    <div class="detail-row"><span class="detail-label">Họ tên:</span><span>${app.fullName || '—'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Email:</span><span><a href="mailto:${app.email}">${app.email || '—'}</a></span></div>
+                    <div class="detail-row"><span class="detail-label">Điện thoại:</span><span>${app.phone ? `<a href="tel:${app.phone}">${app.phone}</a>` : '—'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Ngày nộp:</span><span>${formatDate(app.createdAt)}</span></div>
+                    <div class="detail-row"><span class="detail-label">Trạng thái:</span><span>${statusBadge(app.status)}</span></div>
+                    <div class="detail-row"><span class="detail-label">Vị trí:</span><span>${app.jobTitle || '—'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Loại CV:</span><span>${app.cvType || '—'}</span></div>
+                </div>
+                ${app.aiCompatScore != null ? `
+                <div class="detail-section">
+                    <h3>Đánh giá AI</h3>
+                    <div class="detail-row"><span class="detail-label">Mức tương thích:</span><span class="compat-score ${compatClass(app.aiCompatScore)}">${app.aiCompatScore}%</span></div>
+                    <div class="detail-row"><span class="detail-label">Xếp loại:</span><span>${app.aiRanking || '—'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Kinh nghiệm:</span><span>${app.aiExperience || '—'}</span></div>
+                    ${app.aiSummary ? `<div class="detail-row detail-row-full"><span class="detail-label">Nhận xét AI:</span><p class="detail-text">${app.aiSummary}</p></div>` : ''}
+                </div>` : ''}
+                ${app.coverLetter ? `
+                <div class="detail-section">
+                    <h3>Thư xin việc</h3>
+                    <p class="detail-text">${app.coverLetter.replace(/\n/g, '<br>')}</p>
+                </div>` : ''}
+            </div>
+            <div class="detail-actions">
+                ${app.cvFileUrl ? `<button class="btn-cv-modal" onclick="viewUploadedCv('${app.cvFileUrl}', '${(app.fullName||'').replace(/'/g,"\\'")}')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    Xem CV đã nộp
+                </button>` : app.userCvId ? `<button class="btn-cv-modal" onclick="viewCv(${app.id})">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    Xem CV
+                </button>` : ''}
+                <select class="status-select" id="modalStatusSelect" onchange="changeStatus(${app.id}, this.value);closeModal();">
+                    ${Object.entries(STATUS_LABEL).map(([k, v]) =>
+                        `<option value="${k}" ${app.status === k ? 'selected' : ''}>${v.text}</option>`
+                    ).join('')}
+                </select>
+                <button class="btn-ai-modal" onclick="analyzeOne(${app.id});closeModal();">AI Phân tích</button>
+            </div>
+        `;
+        document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('detailModal').style.display = 'none';
+    }
+
+    document.getElementById('detailModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // ── View CV ──────────────────────────────────────────────
+    async function viewCv(applicationId) {
+        const app = allApplications.find(a => a.id === applicationId);
+        document.getElementById('modalTitle').textContent = `CV - ${app?.fullName || 'Ứng viên'}`;
+        document.getElementById('modalBody').innerHTML = '<div style="text-align:center;padding:40px;color:#64748b;">Đang tải CV...</div>';
+        document.getElementById('detailModal').style.display = 'flex';
+
+        try {
+            const res = await fetch(`/api/applications/${applicationId}/cv`, { credentials: 'include' });
+            const data = await res.json();
+
+            if (!data.success && data.message) {
+                document.getElementById('modalBody').innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">${data.message}</div>`;
+                return;
+            }
+
+            let parsed = null;
+            if (data.cvContent && data.cvContent.trim()) {
+                try { parsed = JSON.parse(data.cvContent); } catch { parsed = null; }
+            }
+
+            // CV dạng PDF upload
+            if (parsed && parsed._pdfUrl) {
+                document.getElementById('modalBody').innerHTML = `
+                    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-weight:600;color:#1a1a2e;">${data.cvName || 'CV'}</span>
+                        <a href="${parsed._pdfUrl}" target="_blank" class="btn-cv-modal" download>Tải PDF</a>
+                    </div>
+                    <iframe src="${parsed._pdfUrl}" style="width:100%;height:70vh;border:1px solid #e2e8f0;border-radius:8px;"></iframe>
+                `;
+                return;
+            }
+
+            // CV dạng JSON (tạo từ editor) - render thông tin chính
+            if (parsed) {
+                let html = '<div class="cv-preview-content">';
+                html += `<div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:600;color:#1a1a2e;">${data.cvName || 'CV'}</span>
+                    <span style="font-size:12px;color:#64748b;">Mẫu: ${data.templateName || '—'}</span>
+                </div>`;
+
+                // Extract key sections from CV JSON
+                const sections = parsed.sections || parsed;
+                if (typeof sections === 'object') {
+                    // Contact info
+                    const contacts = sections.contacts || sections.contact || sections.thong_tin_lien_he;
+                    if (contacts) {
+                        html += '<div class="detail-section"><h3>Thông tin liên hệ</h3>';
+                        if (typeof contacts === 'object') {
+                            const items = contacts.items || (Array.isArray(contacts) ? contacts : [contacts]);
+                            items.forEach(c => {
+                                if (typeof c === 'string') html += `<div class="detail-row">${c}</div>`;
+                                else if (c.label || c.value) html += `<div class="detail-row"><span class="detail-label">${c.label || ''}:</span><span>${c.value || ''}</span></div>`;
+                            });
+                        }
+                        html += '</div>';
+                    }
+
+                    // Summary
+                    const summary = sections.summary || sections.gioi_thieu || sections.muc_tieu_nghe_nghiep;
+                    if (summary) {
+                        const text = typeof summary === 'string' ? summary : (summary.content || summary.text || JSON.stringify(summary));
+                        html += `<div class="detail-section"><h3>Giới thiệu</h3><p class="detail-text">${text}</p></div>`;
+                    }
+
+                    // Experience
+                    const exp = sections.experience || sections.kinh_nghiem;
+                    if (exp) {
+                        html += '<div class="detail-section"><h3>Kinh nghiệm</h3>';
+                        const items = exp.items || (Array.isArray(exp) ? exp : [exp]);
+                        items.forEach(e => {
+                            if (typeof e === 'string') { html += `<p class="detail-text">${e}</p>`; return; }
+                            html += `<div style="margin-bottom:10px;"><strong>${e.title || e.position || ''}</strong>`;
+                            if (e.company || e.organization) html += ` - ${e.company || e.organization}`;
+                            if (e.period || e.date) html += ` <span style="color:#64748b;font-size:12px;">(${e.period || e.date})</span>`;
+                            html += `</div>`;
+                            if (e.description || e.details) html += `<p class="detail-text">${e.description || e.details}</p>`;
+                        });
+                        html += '</div>';
+                    }
+
+                    // Education
+                    const edu = sections.education || sections.hoc_van;
+                    if (edu) {
+                        html += '<div class="detail-section"><h3>Học vấn</h3>';
+                        const items = edu.items || (Array.isArray(edu) ? edu : [edu]);
+                        items.forEach(e => {
+                            if (typeof e === 'string') { html += `<p class="detail-text">${e}</p>`; return; }
+                            html += `<div style="margin-bottom:8px;"><strong>${e.degree || e.title || ''}</strong>`;
+                            if (e.school || e.institution) html += ` - ${e.school || e.institution}`;
+                            if (e.period || e.year) html += ` <span style="color:#64748b;font-size:12px;">(${e.period || e.year})</span>`;
+                            html += `</div>`;
+                        });
+                        html += '</div>';
+                    }
+
+                    // Skills
+                    const skills = sections.skills || sections.ky_nang;
+                    if (skills) {
+                        html += '<div class="detail-section"><h3>Kỹ năng</h3>';
+                        const items = skills.items || (Array.isArray(skills) ? skills : [skills]);
+                        html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+                        items.forEach(s => {
+                            const label = typeof s === 'string' ? s : (s.name || s.label || s.skill || '');
+                            if (label) html += `<span style="background:#e0e7ff;color:#3730a3;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;">${label}</span>`;
+                        });
+                        html += '</div></div>';
+                    }
+                }
+                html += '</div>';
+                document.getElementById('modalBody').innerHTML = html;
+                return;
+            }
+
+            // Fallback
+            document.getElementById('modalBody').innerHTML = `<div style="text-align:center;padding:40px;color:#64748b;">Không thể hiển thị CV. Nội dung CV không hợp lệ.</div>`;
+
+        } catch (e) {
+            console.error('viewCv error:', e);
+            document.getElementById('modalBody').innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">Lỗi tải CV: ${e.message}</div>`;
+        }
+    }
+
+    // ── View uploaded CV (PDF/DOC file) ─────────────────────
+    function viewUploadedCv(fileUrl, applicantName) {
+        document.getElementById('modalTitle').textContent = `CV - ${applicantName || 'Ứng viên'}`;
+        const isPdf = fileUrl.toLowerCase().endsWith('.pdf');
+        if (isPdf) {
+            document.getElementById('modalBody').innerHTML = `
+                <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:600;color:#1a1a2e;">File CV đã nộp</span>
+                    <a href="${fileUrl}" target="_blank" class="btn-cv-modal" download>Tải về</a>
+                </div>
+                <iframe src="${fileUrl}" style="width:100%;height:70vh;border:1px solid #e2e8f0;border-radius:8px;"></iframe>
+            `;
+        } else {
+            document.getElementById('modalBody').innerHTML = `
+                <div style="text-align:center;padding:40px;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    <p style="color:#64748b;margin:16px 0;">File CV dạng DOC/DOCX — không thể xem trực tiếp trên trình duyệt.</p>
+                    <a href="${fileUrl}" class="btn-cv-modal" download style="display:inline-flex;">Tải file về máy</a>
+                </div>
+            `;
+        }
+        document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    // ── CSV export ───────────────────────────────────────────
+    function exportCSV() {
+        const apps = getDisplayedApps();
+        if (apps.length === 0) { alert('Không có dữ liệu để xuất.'); return; }
+
+        const BOM = '\uFEFF';
+        const headers = ['Họ tên', 'Email', 'Điện thoại', 'Vị trí', 'Ngày nộp', 'Trạng thái', 'Mức tương thích', 'Xếp loại', 'Kinh nghiệm', 'Nhận xét AI'];
+        const rows = apps.map(app => [
+            app.fullName || '',
+            app.email || '',
+            app.phone || '',
+            app.jobTitle || '',
+            formatDate(app.createdAt),
+            STATUS_LABEL[app.status]?.text || app.status || '',
+            app.aiCompatScore != null ? app.aiCompatScore + '%' : '',
+            app.aiRanking || '',
+            app.aiExperience || '',
+            (app.aiSummary || '').replace(/"/g, '""')
+        ]);
+
+        const csv = BOM + [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `ung-vien-${new Date().toISOString().slice(0,10)}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+
     // ── Load data ───────────────────────────────────────────
     async function loadApplications() {
         try {
-            const res  = await fetch('/api/applications/employer', { credentials: 'include' });
+            const res = await fetch('/api/applications/employer', { credentials: 'include' });
             if (!res.ok) {
                 if (res.status === 401) {
                     document.querySelector('.candidate-table tbody').innerHTML =
@@ -367,13 +699,11 @@
             }
             const data = await res.json();
             allApplications = data.applications || [];
-            console.log('Loaded applications:', allApplications.length, allApplications);
 
+            populateJobDropdown();
             updateTabCounts();
-            const filtered = getFilteredApps(currentTab);
-            renderTable(filtered);
+            renderTable(getDisplayedApps());
 
-            // Tự động phân tích AI cho ứng viên chưa có score
             autoAnalyzeUnscored();
         } catch (err) {
             console.error('Lỗi tải dữ liệu ứng viên:', err);
@@ -382,30 +712,12 @@
 
     async function autoAnalyzeUnscored() {
         const unscored = allApplications.filter(a => a.aiCompatScore == null);
-        if (unscored.length === 0) return;
-
         for (const app of unscored) {
             await analyzeOne(app.id);
         }
     }
 
-    // Cập nhật lại tab counts sau khi đổi status
-    const _origChangeStatus = changeStatus;
-    changeStatus = async function(id, newStatus) {
-        await _origChangeStatus(id, newStatus);
-        const app = allApplications.find(a => a.id === id);
-        if (app) app.status = newStatus;
-        updateTabCounts();
-        renderTable(getFilteredApps(currentTab));
-    };
-
     // ── AI Analysis ─────────────────────────────────────────
-    function compatClass(score) {
-        if (score >= 80) return 'compat-high';
-        if (score >= 50) return 'compat-mid';
-        return 'compat-low';
-    }
-
     async function analyzeOne(id) {
         const btn = document.querySelector(`#compat-${id} .btn-ai-analyze`);
         if (btn) { btn.disabled = true; btn.textContent = 'Đang...'; }
@@ -415,13 +727,11 @@
             });
             const data = await res.json();
             if (data.success) {
-                // Cập nhật UI
                 document.getElementById(`compat-${id}`).innerHTML = `<span class="compat-score ${compatClass(data.aiCompatScore)}">${data.aiCompatScore}%</span>`;
                 document.getElementById(`ranking-${id}`).textContent = data.aiRanking || '—';
                 document.getElementById(`exp-${id}`).textContent = data.aiExperience || '—';
-                // Cập nhật data local
                 const app = allApplications.find(a => a.id === id);
-                if (app) { app.aiCompatScore = data.aiCompatScore; app.aiRanking = data.aiRanking; app.aiExperience = data.aiExperience; }
+                if (app) { app.aiCompatScore = data.aiCompatScore; app.aiRanking = data.aiRanking; app.aiExperience = data.aiExperience; app.aiSummary = data.aiSummary; }
             } else {
                 if (btn) { btn.disabled = false; btn.textContent = 'Thử lại'; }
             }
@@ -452,7 +762,7 @@
         }
     }
 
-    // Gọi ngay nếu DOM đã ready, hoặc chờ DOMContentLoaded
+    // ── Init ─────────────────────────────────────────────────
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', loadApplications);
     } else {
@@ -473,6 +783,80 @@
         .compat-low { background: #fee2e2; color: #991b1b; }
         .btn-smart-eval { cursor: pointer; border: none; background: none; display: flex; align-items: center; gap: 8px; }
         .btn-smart-eval:disabled .eval-text { opacity: 0.6; }
+
+        /* View detail button */
+        .btn-view-detail {
+            background: none; border: 1px solid #cbd5e1; border-radius: 4px;
+            padding: 4px 6px; cursor: pointer; color: #64748b; transition: all 0.15s;
+        }
+        .btn-view-detail:hover { border-color: #3b82f6; color: #3b82f6; }
+
+        /* Clickable applicant name */
+        a.applicant-name { color: #1a1a2e; text-decoration: none; font-weight: 700; font-size: 14px; }
+        a.applicant-name:hover { color: #3b82f6; text-decoration: underline; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: white; border-radius: 12px; width: 90%; max-width: 680px;
+            max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 24px; border-bottom: 1px solid #eee;
+        }
+        .modal-title { font-size: 18px; font-weight: 700; color: #1a1a2e; margin: 0; }
+        .modal-close {
+            background: none; border: none; font-size: 28px; color: #999;
+            cursor: pointer; line-height: 1; padding: 0 4px;
+        }
+        .modal-close:hover { color: #333; }
+        .modal-body { padding: 24px; }
+
+        .detail-section { margin-bottom: 24px; }
+        .detail-section h3 {
+            font-size: 15px; font-weight: 700; color: #1a1a2e;
+            margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;
+        }
+        .detail-row {
+            display: flex; gap: 12px; padding: 6px 0; font-size: 14px;
+        }
+        .detail-row-full { flex-direction: column; }
+        .detail-label { font-weight: 600; color: #64748b; min-width: 130px; }
+        .detail-text {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+            padding: 12px; font-size: 13px; line-height: 1.6; color: #334155; margin: 6px 0 0;
+        }
+        .detail-actions {
+            display: flex; gap: 12px; padding-top: 16px; border-top: 1px solid #eee; margin-top: 8px;
+        }
+        .btn-ai-modal {
+            padding: 8px 16px; background: linear-gradient(135deg, #002855, #004080);
+            color: #00d1b2; border: none; border-radius: 6px; font-weight: 700;
+            font-size: 13px; cursor: pointer;
+        }
+        .btn-ai-modal:hover { opacity: 0.9; }
+
+        /* CV buttons */
+        .btn-view-cv {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 8px; border: 1px solid #10b981; border-radius: 4px;
+            background: #ecfdf5; color: #065f46; font-size: 11px; font-weight: 600;
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-view-cv:hover { background: #d1fae5; border-color: #059669; }
+
+        .btn-cv-modal {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; background: #10b981; color: white;
+            border: none; border-radius: 6px; font-weight: 700;
+            font-size: 13px; cursor: pointer; text-decoration: none;
+        }
+        .btn-cv-modal:hover { background: #059669; }
     </style>
 </body>
 </html>

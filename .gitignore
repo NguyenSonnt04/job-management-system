@@ -37,6 +37,7 @@ src/main/resources/application-local.properties
 .secrets/
 *.env
 .env
+firebase-service-account*.json
 
 ### Windows reserved device names (cannot be added to Git on Windows) ###
 nul

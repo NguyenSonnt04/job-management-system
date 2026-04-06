@@ -393,6 +393,8 @@
       }
 
       // ---- File upload handler ----
+      let uploadedCvFileUrl = null;
+
       function handleFileUpload(input) {
         if (!input.files || input.files.length === 0) return;
         const file = input.files[0];
@@ -409,12 +411,40 @@
           input.value = "";
           return;
         }
-        // Show uploaded file
+
+        // Upload file to server immediately
         const indicator = document.getElementById("fileUploaded");
-        document.getElementById("fileUploadedName").textContent =
-          `✓ ${file.name}`;
+        document.getElementById("fileUploadedName").textContent = `Đang tải lên ${file.name}...`;
         indicator.style.display = "flex";
-        selectedCvOption = "upload";
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        fetch("/api/applications/upload-cv", {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              uploadedCvFileUrl = data.cvFileUrl;
+              document.getElementById("fileUploadedName").textContent = `✓ ${file.name}`;
+              selectedCvOption = "upload";
+            } else {
+              alert(data.message || "Lỗi upload file");
+              document.getElementById("fileUploadedName").textContent = `✗ Upload thất bại`;
+              input.value = "";
+              uploadedCvFileUrl = null;
+            }
+          })
+          .catch((err) => {
+            console.error("Upload error:", err);
+            alert("Lỗi upload file. Vui lòng thử lại.");
+            document.getElementById("fileUploadedName").textContent = `✗ Upload thất bại`;
+            input.value = "";
+            uploadedCvFileUrl = null;
+          });
       }
 
       // ---- Privacy toggle ----
@@ -548,6 +578,14 @@
             ? document.getElementById("coverLetterText").value
             : "";
 
+          // Validate: nếu chọn upload mà chưa upload file
+          if (selectedCvOption === "upload" && !uploadedCvFileUrl) {
+            alert("Vui lòng chờ file tải lên hoàn tất.");
+            btn.disabled = false;
+            btn.textContent = "ỨNG TUYỂN VỊ TRÍ NÀY";
+            return;
+          }
+
           const payload = {
             jobId: parseInt(jobId),
             fullName: name,
@@ -557,6 +595,9 @@
             privacy: selectedPrivacy,
             coverLetter: coverLetter,
           };
+          if (uploadedCvFileUrl) {
+            payload.cvFileUrl = uploadedCvFileUrl;
+          }
 
           const res = await fetch("/api/applications/apply", {
             method: "POST",

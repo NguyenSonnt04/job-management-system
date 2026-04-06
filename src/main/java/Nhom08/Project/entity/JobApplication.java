@@ -52,6 +52,9 @@ public class JobApplication {
     @Column(name = "ai_summary", columnDefinition = "TEXT")
     private String aiSummary;
 
+    @Column(name = "cv_file_url")
+    private String cvFileUrl;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -83,5 +86,7 @@ public class JobApplication {
     public void setAiExperience(String aiExperience) { this.aiExperience = aiExperience; }
     public String getAiSummary() { return aiSummary; }
     public void setAiSummary(String aiSummary) { this.aiSummary = aiSummary; }
+    public String getCvFileUrl() { return cvFileUrl; }
+    public void setCvFileUrl(String cvFileUrl) { this.cvFileUrl = cvFileUrl; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

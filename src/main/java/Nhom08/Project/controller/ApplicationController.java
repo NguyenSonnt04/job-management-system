@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,6 +37,7 @@ public class ApplicationController {
     @Autowired private NotificationRepository         notificationRepo;
     @Autowired private NotificationTemplateRepository templateRepo;
     @Autowired private Nhom08.Project.service.GeminiService geminiService;
+    @Autowired private Nhom08.Project.service.FirebaseImageStorageService firebaseStorageService;
     @Autowired private Nhom08.Project.repository.UserCvRepository userCvRepo;
 
     /**
@@ -91,6 +93,9 @@ public class ApplicationController {
         application.setCvType((String) body.getOrDefault("cvType", "existing"));
         application.setPrivacy((String) body.getOrDefault("privacy", "lock"));
         application.setCoverLetter((String) body.getOrDefault("coverLetter", ""));
+        if (body.containsKey("cvFileUrl")) {
+            application.setCvFileUrl((String) body.get("cvFileUrl"));
+        }
 
         // Link to user account if logged in
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
@@ -113,9 +118,69 @@ public class ApplicationController {
         });
 
         resp.put("success", true);
+        resp.put("success", true);
         resp.put("message", "Ứng tuyển thành công!");
         resp.put("applicationId", application.getId());
         return ResponseEntity.ok(resp);
+    }
+
+    /**
+     * POST /api/applications/upload-cv
+     * Upload file CV (PDF/DOC/DOCX).
+     * Ưu tiên Firebase Storage, fallback sang local storage nếu Firebase lỗi.
+     */
+    @PostMapping("/upload-cv")
+    public ResponseEntity<Map<String, Object>> uploadCvFile(
+            @RequestParam("file") MultipartFile file) {
+
+        Map<String, Object> result = new HashMap<>();
+        try {
+            String contentType = file.getContentType();
+            if (contentType == null || (!contentType.equals("application/pdf")
+                    && !contentType.equals("application/msword")
+                    && !contentType.contains("wordprocessingml"))) {
+                result.put("success", false);
+                result.put("message", "Chỉ hỗ trợ file PDF, DOC, DOCX");
+                return ResponseEntity.badRequest().body(result);
+            }
+            if (file.getSize() > 5 * 1024 * 1024) {
+                result.put("success", false);
+                result.put("message", "File vượt quá 5MB");
+                return ResponseEntity.badRequest().body(result);
+            }
+
+            String cvFileUrl;
+            // Thử Firebase trước
+            try {
+                String objectPath = firebaseStorageService.uploadFile(file, "cv-applications", 5 * 1024 * 1024);
+                cvFileUrl = "/api/uploads/file?path=" + java.net.URLEncoder.encode(objectPath, java.nio.charset.StandardCharsets.UTF_8);
+                System.out.println("[CV-UPLOAD] Firebase OK: " + cvFileUrl);
+            } catch (Exception firebaseEx) {
+                System.err.println("[CV-UPLOAD] Firebase FAILED: " + firebaseEx.getMessage());
+                firebaseEx.printStackTrace();
+                // Fallback: lưu local
+                java.nio.file.Path uploadDir = java.nio.file.Paths.get("uploads", "cv");
+                java.nio.file.Files.createDirectories(uploadDir);
+                String originalName = file.getOriginalFilename();
+                String ext = (originalName != null && originalName.contains("."))
+                        ? originalName.substring(originalName.lastIndexOf('.'))
+                        : ".pdf";
+                String fileName = java.util.UUID.randomUUID() + ext;
+                java.nio.file.Files.write(uploadDir.resolve(fileName), file.getBytes());
+                cvFileUrl = "/cv-files/" + fileName;
+                System.out.println("[CV-UPLOAD] Fallback local: " + cvFileUrl);
+            }
+
+            result.put("success", true);
+            result.put("cvFileUrl", cvFileUrl);
+            result.put("fileName", file.getOriginalFilename());
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "Lỗi upload file: " + e.getMessage());
+            return ResponseEntity.status(500).body(result);
+        }
     }
 
     /**
@@ -154,6 +219,7 @@ public class ApplicationController {
             m.put("phone",       app.getPhone());
             m.put("status",      app.getStatus());
             m.put("cvType",      app.getCvType());
+            m.put("cvFileUrl",   app.getCvFileUrl());
             m.put("coverLetter", app.getCoverLetter());
             m.put("createdAt",   app.getCreatedAt() != null ? app.getCreatedAt().toString() : null);
             // AI analysis fields
@@ -165,6 +231,14 @@ public class ApplicationController {
             if (app.getJob() != null) {
                 m.put("jobId",    app.getJob().getId());
                 m.put("jobTitle", app.getJob().getTitle());
+            }
+            // CV info – expose the latest CV id so employer can view it
+            if (app.getUser() != null) {
+                var cvs = userCvRepo.findByUserIdOrderByUpdatedAtDesc(app.getUser().getId());
+                if (!cvs.isEmpty()) {
+                    m.put("userCvId", cvs.get(0).getId());
+                    m.put("userCvName", cvs.get(0).getCvName());
+                }
             }
             return m;
         }).collect(Collectors.toList());
@@ -258,6 +332,54 @@ public class ApplicationController {
         }
 
         return ResponseEntity.ok(Map.of("success", true, "status", newStatus));
+    }
+
+    /**
+     * GET /api/applications/{id}/cv
+     * Employer xem CV của ứng viên (qua application id).
+     */
+    @GetMapping("/{id}/cv")
+    public ResponseEntity<?> getApplicantCv(@PathVariable Long id, Authentication auth) {
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            return ResponseEntity.status(401).body(Map.of("message", "Chưa đăng nhập"));
+        }
+
+        Optional<JobApplication> appOpt = applicationRepo.findById(id);
+        if (appOpt.isEmpty()) return ResponseEntity.notFound().build();
+
+        JobApplication application = appOpt.get();
+
+        // Verify caller is the employer who owns this job
+        Optional<User> callerOpt = userRepo.findByEmail(auth.getName());
+        if (callerOpt.isEmpty()) return ResponseEntity.status(401).body(Map.of("message", "User not found"));
+        Optional<Employer> empOpt = employerRepo.findByUserId(callerOpt.get().getId());
+        if (empOpt.isEmpty()) return ResponseEntity.status(403).body(Map.of("message", "Không phải NTD"));
+
+        Job job = application.getJob();
+        if (job == null || !job.getEmployer().getId().equals(empOpt.get().getId())) {
+            return ResponseEntity.status(403).body(Map.of("message", "Không có quyền xem CV này"));
+        }
+
+        // Get the applicant's latest CV
+        if (application.getUser() == null) {
+            return ResponseEntity.ok(Map.of("success", false, "message", "Ứng viên không có tài khoản trong hệ thống"));
+        }
+
+        var cvs = userCvRepo.findByUserIdOrderByUpdatedAtDesc(application.getUser().getId());
+        if (cvs.isEmpty()) {
+            return ResponseEntity.ok(Map.of("success", false, "message", "Ứng viên chưa có CV trong hệ thống"));
+        }
+
+        var cv = cvs.get(0);
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("success", true);
+        result.put("id", cv.getId());
+        result.put("cvName", cv.getCvName());
+        result.put("templateId", cv.getTemplateId());
+        result.put("templateName", cv.getTemplateName());
+        result.put("cvContent", cv.getCvContent());
+        result.put("updatedAt", cv.getUpdatedAt() != null ? cv.getUpdatedAt().toString() : null);
+        return ResponseEntity.ok(result);
     }
 
     /**

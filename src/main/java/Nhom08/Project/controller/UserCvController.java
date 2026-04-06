@@ -8,6 +8,7 @@ import Nhom08.Project.repository.UserCvRepository;
 import Nhom08.Project.repository.UserCvVersionRepository;
 import Nhom08.Project.service.AuthService;
 import Nhom08.Project.service.CvVersioningService;
+import Nhom08.Project.service.FirebaseImageStorageService;
 import Nhom08.Project.service.GeminiService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +46,7 @@ public class UserCvController {
     private final AuthService authService;
     private final CvVersioningService cvVersioningService;
     private final GeminiService geminiService;
+    private final FirebaseImageStorageService firebaseStorageService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public UserCvController(
@@ -53,13 +55,15 @@ public class UserCvController {
             JobApplicationRepository jobApplicationRepository,
             AuthService authService,
             CvVersioningService cvVersioningService,
-            GeminiService geminiService) {
+            GeminiService geminiService,
+            FirebaseImageStorageService firebaseStorageService) {
         this.userCvRepository = userCvRepository;
         this.userCvVersionRepository = userCvVersionRepository;
         this.jobApplicationRepository = jobApplicationRepository;
         this.authService = authService;
         this.cvVersioningService = cvVersioningService;
         this.geminiService = geminiService;
+        this.firebaseStorageService = firebaseStorageService;
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -328,7 +332,7 @@ public class UserCvController {
 
     /**
      * POST /api/user-cv/upload-pdf
-     * Nhận file PDF, lưu vào uploads/cv/, tạo bản ghi UserCv với _pdfUrl trong cvContent.
+     * Nhận file PDF/DOC/DOCX, upload lên Firebase (fallback local), tạo bản ghi UserCv.
      */
     @PostMapping("/upload-pdf")
     public ResponseEntity<Map<String, Object>> uploadPdf(
@@ -356,18 +360,23 @@ public class UserCvController {
                 return ResponseEntity.badRequest().body(result);
             }
 
-            // Lưu file vào uploads/cv/
-            Path uploadDir = Paths.get("uploads", "cv");
-            Files.createDirectories(uploadDir);
-            String ext      = file.getOriginalFilename() != null
-                    && file.getOriginalFilename().contains(".")
-                    ? file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'))
-                    : ".pdf";
-            String fileName = UUID.randomUUID() + ext;
-            Path   filePath = uploadDir.resolve(fileName);
-            Files.write(filePath, file.getBytes());
-
-            String pdfUrl = "/cv-files/" + fileName;
+            String pdfUrl;
+            // Ưu tiên Firebase, fallback local
+            try {
+                String objectPath = firebaseStorageService.uploadFile(file, "user-cvs", 10 * 1024 * 1024);
+                pdfUrl = "/api/uploads/file?path=" + java.net.URLEncoder.encode(objectPath, java.nio.charset.StandardCharsets.UTF_8);
+            } catch (Exception firebaseEx) {
+                // Fallback: lưu local
+                Path uploadDir = Paths.get("uploads", "cv");
+                Files.createDirectories(uploadDir);
+                String ext = file.getOriginalFilename() != null
+                        && file.getOriginalFilename().contains(".")
+                        ? file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'))
+                        : ".pdf";
+                String fileName = UUID.randomUUID() + ext;
+                Files.write(uploadDir.resolve(fileName), file.getBytes());
+                pdfUrl = "/cv-files/" + fileName;
+            }
 
             // Lưu vào user_cvs với cvContent chứa _pdfUrl
             UserCv cv = new UserCv();

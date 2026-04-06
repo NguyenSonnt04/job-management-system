@@ -91,6 +91,37 @@ public class UploadController {
         }
     }
 
+    /**
+     * GET /api/uploads/file?path=...
+     * Serve any file (PDF, DOC, etc.) from Firebase Storage.
+     */
+    @GetMapping("/file")
+    public ResponseEntity<?> getFile(@RequestParam("path") String path) {
+        try {
+            FirebaseImageStorageService.StoredImage stored = imageStorageService.loadImage(path);
+
+            String disposition = "inline";
+            String ct = stored.contentType();
+            // Force download for non-viewable types
+            if (ct != null && !ct.startsWith("image/") && !ct.equals("application/pdf")) {
+                disposition = "attachment";
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(ct))
+                    .cacheControl(CacheControl.maxAge(Duration.ofDays(30)).cachePublic())
+                    .header(HttpHeaders.CONTENT_DISPOSITION, disposition)
+                    .body(stored.bytes());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(503).body(response);
+        }
+    }
+
     private Optional<User> resolveUser(Authentication auth) {
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
             return Optional.empty();
