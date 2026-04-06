@@ -3,6 +3,7 @@ package Nhom08.Project.controller;
 import Nhom08.Project.entity.User;
 import Nhom08.Project.entity.UserCv;
 import Nhom08.Project.entity.UserCvVersion;
+import Nhom08.Project.repository.JobApplicationRepository;
 import Nhom08.Project.repository.UserCvRepository;
 import Nhom08.Project.repository.UserCvVersionRepository;
 import Nhom08.Project.service.AuthService;
@@ -13,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,6 +41,7 @@ public class UserCvController {
 
     private final UserCvRepository userCvRepository;
     private final UserCvVersionRepository userCvVersionRepository;
+    private final JobApplicationRepository jobApplicationRepository;
     private final AuthService authService;
     private final CvVersioningService cvVersioningService;
     private final GeminiService geminiService;
@@ -46,11 +50,13 @@ public class UserCvController {
     public UserCvController(
             UserCvRepository userCvRepository,
             UserCvVersionRepository userCvVersionRepository,
+            JobApplicationRepository jobApplicationRepository,
             AuthService authService,
             CvVersioningService cvVersioningService,
             GeminiService geminiService) {
         this.userCvRepository = userCvRepository;
         this.userCvVersionRepository = userCvVersionRepository;
+        this.jobApplicationRepository = jobApplicationRepository;
         this.authService = authService;
         this.cvVersioningService = cvVersioningService;
         this.geminiService = geminiService;
@@ -276,6 +282,7 @@ public class UserCvController {
         });
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(
             @PathVariable Long id, Authentication auth) {
@@ -291,6 +298,21 @@ public class UserCvController {
                 result.put("message", "Không có quyền xóa CV này.");
                 return ResponseEntity.status(403).body(result);
             }
+
+            // Check if user has pending applications and this is their last CV
+            List<UserCv> userCvs = userCvRepository.findByUserIdOrderByUpdatedAtDesc(user.getId());
+            boolean isLastCv = userCvs.size() <= 1;
+            if (isLastCv) {
+                List<Nhom08.Project.entity.JobApplication> apps = jobApplicationRepository.findByUserId(user.getId());
+                boolean hasPendingApps = apps.stream()
+                        .anyMatch(a -> "PENDING".equalsIgnoreCase(a.getStatus()));
+                if (hasPendingApps) {
+                    result.put("success", false);
+                    result.put("message", "Không thể xóa CV cuối cùng khi bạn còn đơn ứng tuyển đang chờ xử lý. Nhà tuyển dụng cần xem CV của bạn.");
+                    return ResponseEntity.status(409).body(result);
+                }
+            }
+
             userCvVersionRepository.deleteByUserCvId(id);
             userCvRepository.delete(cv);
             result.put("success", true);

@@ -122,10 +122,10 @@
                             <input type="text" maxlength="1" inputmode="numeric" style="width:44px;height:52px;border:2px solid #d1d5db;border-radius:8px;font-size:22px;font-weight:700;text-align:center;outline:none;">
                             <input type="text" maxlength="1" inputmode="numeric" style="width:44px;height:52px;border:2px solid #d1d5db;border-radius:8px;font-size:22px;font-weight:700;text-align:center;outline:none;">
                         </div>
-                        <button id="btnVerifyRegOtp" onclick="verifyRegOtp()" style="width:100%;padding:12px;background:#00d1b2;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;">Xác nhận</button>
+                        <button id="btnVerifyRegOtp" style="width:100%;padding:12px;background:#00d1b2;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;">Xác nhận</button>
                         <div style="text-align:center;font-size:13px;color:#666;">
                             Không nhận được?
-                            <button id="btnResendRegOtp" onclick="resendRegOtp()" disabled style="background:none;border:none;color:#1D4ED8;font-weight:600;cursor:pointer;text-decoration:underline;">Gửi lại</button>
+                            <button id="btnResendRegOtp" disabled style="background:none;border:none;color:#1D4ED8;font-weight:600;cursor:pointer;text-decoration:underline;">Gửi lại</button>
                             <span id="regCountdown" style="font-weight:600;color:#1D4ED8;"></span>
                         </div>
                     </div>
@@ -330,6 +330,9 @@
                     } else { showOtpMsg(data.message, 'error'); btn.disabled = false; }
                 } catch { showOtpMsg('Lỗi kết nối', 'error'); btn.disabled = false; }
             }
+
+            document.getElementById('btnVerifyRegOtp').addEventListener('click', verifyRegOtp);
+            document.getElementById('btnResendRegOtp').addEventListener('click', resendRegOtp);
 
             function startRegCountdown(seconds) {
                 clearInterval(regTimer);

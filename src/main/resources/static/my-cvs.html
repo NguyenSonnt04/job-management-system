@@ -1173,7 +1173,7 @@
                 cvRecords = Array.isArray(data) ? data : [];
                 cvRecords.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
             } catch (err) {
-                showToast('Lỗi kết nối cơ sở dữ liệu', 'error');
+                toast('Lỗi kết nối cơ sở dữ liệu', 'error');
             }
 
             if (loader) loader.style.display = 'none';
@@ -1244,7 +1244,7 @@
         }
 
         function openCvEditor(id) {
-            window.location.href = `/cv-editor.html?cvId=${id}`;
+            window.location.href = `/cv-editor.html?cvId=${id}&edit=true`;
         }
 
         function updateStats(total, recent, summary) {
@@ -1291,15 +1291,15 @@
         function openRename(id, name) {
             activeId = id;
             document.getElementById('renameInput').value = name;
-            document.getElementById('renameModal').classList.add('active');
+            document.getElementById('renameModal').classList.add('show');
             document.getElementById('renameInput').focus();
         }
         function openDelete(id, name) {
             activeId = id;
             document.getElementById('deleteMsg').innerHTML = `Xác nhận xóa bản CV <strong>"${name}"</strong>? Việc này sẽ xóa vĩnh viễn dữ liệu.`;
-            document.getElementById('deleteModal').classList.add('active');
+            document.getElementById('deleteModal').classList.add('show');
         }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
         async function confirmRename() {
             const newName = document.getElementById('renameInput').value.trim();
@@ -1312,20 +1312,20 @@
                     credentials: 'include'
                 });
                 if (res.ok) {
-                    showToast('Đã đổi tên thành công');
+                    toast('Đã đổi tên thành công');
                     closeModal('renameModal');
                     loadCvs();
                 }
-            } catch (err) { showToast('Không thể cập nhật tên', 'error'); }
+            } catch (err) { toast('Không thể cập nhật tên', 'error'); }
         }
 
         async function confirmDelete() {
             try {
-                const res = await fetch(`/api/user-cv/${deleteTargetId}`, { method: 'DELETE', credentials: 'include' });
+                const res = await fetch(`/api/user-cv/${activeId}`, { method: 'DELETE', credentials: 'include' });
                 const data = await parseJsonSafe(res);
                 if (!res.ok) throw new Error(data.message || 'Không thể xóa CV.');
                 toast('Đã xóa CV thành công.', 'success');
-                closeDelete();
+                closeModal('deleteModal');
                 await loadCvs();
             } catch (error) { toast(error.message || 'Không thể xóa CV.', 'error'); }
         }

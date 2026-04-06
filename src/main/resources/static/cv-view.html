@@ -27,6 +27,98 @@
     <script src="js/cv-editor-state.js"></script>
     <script src="js/cv-editor-design.js"></script>
     <script src="js/cv-editor-render.js"></script>
+    <!-- Implementations for edit-only functions needed in view mode -->
+    <script>
+        // Pure UI stubs (not needed in view mode)
+        if (typeof refreshEditModeUI === 'undefined') window.refreshEditModeUI = function(){};
+        if (typeof setActiveItemShell === 'undefined') window.setActiveItemShell = function(){};
+
+        // Section key resolver (from cv-editor-edit.js)
+        function normalizePreviewSectionToken(value) {
+            return String(value || '')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase().replace(/&/g, ' and ')
+                .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+        }
+
+        function resolvePreviewSectionKey(rawKey, headingText) {
+            const aliasMap = {
+                contacts:'contacts', thong_tin_lien_he:'contacts', contact:'contacts',
+                summary:'summary', gioi_thieu:'summary', professional_summary:'summary', muc_tieu_nghe_nghiep:'summary', tom_tat:'summary',
+                experience:'experience', kinh_nghiem:'experience', kinh_nghiem_lam_viec:'experience',
+                education:'education', hoc_van:'education',
+                skills:'skills', ky_nang:'skills', skills_expertise:'skills',
+                projects:'projects', du_an:'projects', du_an_noi_bat:'projects',
+                certifications:'certifications', chung_chi:'certifications',
+                awards:'awards', awards_honors:'awards', giai_thuong:'awards',
+                activities:'activities', leadership_activities:'activities', hoat_dong:'activities',
+                references:'references', nguoi_tham_chieu:'references',
+                hobbies:'hobbies', so_thich:'hobbies'
+            };
+            const candidates = [rawKey, headingText].map(normalizePreviewSectionToken).filter(Boolean);
+            for (const c of candidates) { if (aliasMap[c]) return aliasMap[c]; }
+            return '';
+        }
+
+        function tagPreviewSections(style) {
+            const preview = document.getElementById('cvPreview');
+            if (!preview) return;
+            preview.querySelectorAll('[data-cv-section]').forEach(section => {
+                const titleEl = section.querySelector('h1,h2,h3,h4,.cvm-section-title,.cvc2-zone-title,.cvm2-block-label,.cvh-title,.cvcl2-sec-title,.cv-topcv-title,.cvi-section-title,.cvi-sidebar-title');
+                const text = (titleEl?.textContent || '').trim();
+                const key = resolvePreviewSectionKey(section.dataset.cvSection || '', text);
+                if (key) section.setAttribute('data-cv-section', key);
+            });
+        }
+
+        function applySectionVisibilityToPreview() {
+            const preview = document.getElementById('cvPreview');
+            if (!preview || typeof sectionCatalog === 'undefined') return;
+            sectionCatalog.forEach(name => {
+                const visible = sectionEnabled(name);
+                preview.querySelectorAll('[data-cv-section="' + name + '"]').forEach(el => {
+                    el.style.display = visible ? '' : 'none';
+                });
+            });
+        }
+
+        function applySectionOrderToPreview(style) {
+            const preview = document.getElementById('cvPreview');
+            if (!preview) return;
+            style = style || getCurrentPreviewStyle();
+            tagPreviewSections(style);
+            const ordered = getOrderedUsedSections();
+
+            // Single-column body
+            const body = preview.querySelector('.cvm2-body, .cvh-body, .cv-topcv-body');
+            if (body) {
+                const sections = [...body.querySelectorAll('[data-cv-section]')];
+                ordered.forEach(key => {
+                    const sec = sections.find(s => resolvePreviewSectionKey(s.dataset.cvSection || '') === key);
+                    if (sec) body.appendChild(sec);
+                });
+                return;
+            }
+
+            // Two-column layout
+            const columns = [
+                preview.querySelector('.cvm-left, .cvc2-left, .cvcl2-left, .cvi-sidebar'),
+                preview.querySelector('.cvm-right, .cvc2-right, .cvcl2-right, .cvi-main')
+            ].filter(Boolean);
+            if (!columns.length) return;
+            const sectionMap = new Map();
+            columns.forEach(col => {
+                [...col.children].forEach(child => {
+                    const key = resolvePreviewSectionKey(child?.dataset?.cvSection || '',
+                        (child.querySelector('h1,h2,h3,h4,.cvm-section-title,.cvc2-zone-title,.cvh-title,.cvi-section-title,.cvi-sidebar-title')?.textContent || ''));
+                    if (key) { child.dataset.cvSection = key; sectionMap.set(key, child); }
+                });
+            });
+            ordered.filter(key => sectionMap.has(key)).forEach((key, i) => {
+                columns[i % columns.length].appendChild(sectionMap.get(key));
+            });
+        }
+    </script>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
 
@@ -35,6 +127,7 @@
             background: #f3f4f6;
             font-family: "Inter", sans-serif;
             min-height: 100vh;
+            overflow: auto !important;
         }
 
         #header-placeholder { position: relative; z-index: 10; }
