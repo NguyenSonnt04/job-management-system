@@ -1,0 +1,38 @@
+# Build artifacts
+target/
+!target/*.jar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Git
+.git/
+.gitignore
+
+# Secrets
+.secrets/
+*.env
+.env
+application-local.properties
+src/main/resources/application-local.properties
+config/application-local.properties
+firebase-service-account*.json
+
+# Docs
+README.md
+HELP.md
+*.md
+docs/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Docker (avoid recursive copy)
+docker-compose*.yml
+Dockerfile
+.dockerignore

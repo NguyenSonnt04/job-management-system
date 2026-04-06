@@ -23,6 +23,7 @@ It combines classic job board workflows with AI-assisted CV generation, CV scori
 - [Feature Overview](#feature-overview)
 - [Tech Stack](#tech-stack)
 - [Quick Start](#quick-start)
+- [Production Deployment](#production-deployment)
 - [Configuration](#configuration)
 - [Main Workflows](#main-workflows)
 - [Architecture](#architecture)
@@ -130,6 +131,19 @@ Example:
 - Employer: `employer1@fpt.vn` / `123456`
 
 Note: employer login is OTP-gated, so employer sign-in still needs working email delivery.
+
+## Production Deployment
+
+The repository includes a Docker-based VPS deployment flow with:
+
+- `docker-compose.yml`
+- `.env.example`
+- `deploy.sh`
+- `nginx/default.conf`
+
+The step-by-step guide lives in [docs/DEPLOY_VPS.md](./docs/DEPLOY_VPS.md).
+
+If you already keep secrets in `application-local.properties`, place that file on the VPS at `config/application-local.properties` so Docker can mount it at runtime.
 
 ## Configuration
 

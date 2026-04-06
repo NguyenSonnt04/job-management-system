@@ -8,8 +8,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import Nhom08.Project.entity.ChatMessage;
 import Nhom08.Project.entity.ChatSession;
@@ -37,6 +39,9 @@ public class ContactChatbotService {
 
     @Autowired
     private JobRepository jobRepository;
+
+    @Value("${app.public-base-url:http://localhost:8083}")
+    private String publicBaseUrl;
 
     // ===== System Prompt cho Chatbot =====
     private static final String SYSTEM_PROMPT = """
@@ -241,12 +246,12 @@ public class ContactChatbotService {
 
                 // Nếu người dùng hỏi về chấm điểm CV, thêm link vào phản hồi (ưu tiên check trước)
                 if (isAskingAboutCVScoring(userMessage)) {
-                    response += "\n\n**Chấm điểm CV với AI:** [Chấm điểm CV ở đây!!!](http://localhost:8083/cham-diem-cv.html)";
+                    response += "\n\n**Chấm điểm CV với AI:** [Chấm điểm CV ở đây!!!](" + cvScoringUrl() + ")";
                 }
                 // Nếu người dùng hỏi về CV (tạo CV, làm CV...), thêm link vào phản hồi
                 // Nhưng KHÔNG thêm nếu đã là câu hỏi về chấm điểm CV
                 else if (isAskingAboutCV(userMessage)) {
-                    response += "\n\n**Tạo CV với AI:** [Tạo CV ở đây!!!](http://localhost:8083/tao-cv-ai.html)";
+                    response += "\n\n**Tạo CV với AI:** [Tạo CV ở đây!!!](" + aiCvUrl() + ")";
                 }
 
                 System.out.println("✅ AI response received");
@@ -371,7 +376,7 @@ public class ContactChatbotService {
             List<Job> activeJobs = jobRepository.findByStatus("ACTIVE");
 
             if (activeJobs.isEmpty()) {
-                return "Hiện tại chưa có công việc nào đang tuyển dụng. Vui lòng quay lại sau!\n\n**Xem tất cả việc làm: Tìm việc ở đây!!!** [Tìm việc làm ở đây!!!](http://localhost:8083/tim-viec-lam.html)";
+                return "Hiện tại chưa có công việc nào đang tuyển dụng. Vui lòng quay lại sau!\n\n**Xem tất cả việc làm: Tìm việc ở đây!!!** [Tìm việc làm ở đây!!!](" + jobSearchUrl() + ")";
             }
 
             System.out.println("✅ Found " + activeJobs.size() + " active jobs");
@@ -440,7 +445,7 @@ public class ContactChatbotService {
                                 salaryDisplay = formatSalary(job.getSalaryMin()) + " - " + formatSalary(job.getSalaryMax());
                             }
                             noResultsMsg.append(String.format("Lương: %s\n", salaryDisplay));
-                            noResultsMsg.append(String.format("**Xem chi tiết:** [Mô tả ở đây!!!](http://localhost:8083/job-detail.html?id=%d)\n\n", job.getId()));
+                            noResultsMsg.append(String.format("**Xem chi tiết:** [Mô tả ở đây!!!](%s)\n\n", jobDetailUrl(job.getId())));
                         }
                         if (otherJobs.size() > 3) {
                             noResultsMsg.append(String.format("Và %d công việc khác...\n\n", otherJobs.size() - 3));
@@ -466,7 +471,7 @@ public class ContactChatbotService {
                             salaryDisplay = formatSalary(job.getSalaryMin()) + " - " + formatSalary(job.getSalaryMax());
                         }
                         noResultsMsg.append(String.format("Lương: %s\n", salaryDisplay));
-                        noResultsMsg.append(String.format("**Xem chi tiết:** [Mô tả ở đây!!!](http://localhost:8083/job-detail.html?id=%d)\n\n", job.getId()));
+                        noResultsMsg.append(String.format("**Xem chi tiết:** [Mô tả ở đây!!!](%s)\n\n", jobDetailUrl(job.getId())));
                     }
                     if (jobsAtLocation.size() > 3) {
                         noResultsMsg.append(String.format("Và %d công việc khác tại %s...\n\n", jobsAtLocation.size() - 3, location));
@@ -505,7 +510,7 @@ public class ContactChatbotService {
                                     salaryDisplay = formatSalary(job.getSalaryMin()) + " - " + formatSalary(job.getSalaryMax());
                                 }
                                 noResultsMsg.append(String.format("Lương: %s\n", salaryDisplay));
-                                noResultsMsg.append(String.format("**Xem chi tiết:** [Mô tả ở đây!!!](http://localhost:8083/job-detail.html?id=%d)\n\n", job.getId()));
+                                noResultsMsg.append(String.format("**Xem chi tiết:** [Mô tả ở đây!!!](%s)\n\n", jobDetailUrl(job.getId())));
                             }
                             if (similarJobs.size() > 3) {
                                 noResultsMsg.append(String.format("Và %d công việc khác...\n\n", similarJobs.size() - 3));
@@ -514,7 +519,7 @@ public class ContactChatbotService {
                     }
                 }
 
-                noResultsMsg.append("**Xem tất cả việc làm:** [Tìm việc làm ở đây!!!](http://localhost:8083/tim-viec-lam.html)");
+                noResultsMsg.append("**Xem tất cả việc làm:** [Tìm việc làm ở đây!!!](").append(jobSearchUrl()).append(")");
                 return noResultsMsg.toString();
             }
 
@@ -556,7 +561,7 @@ public class ContactChatbotService {
                 }
                 response.append(String.format("Lương: %s\n", salaryDisplay));
 
-                response.append(String.format("**Xem chi tiết: ** [Mô tả ở đây!!!](http://localhost:8083/job-detail.html?id=%d)\n\n", job.getId()));
+                response.append(String.format("**Xem chi tiết: ** [Mô tả ở đây!!!](%s)\n\n", jobDetailUrl(job.getId())));
             }
 
             // Thêm thông tin về số lượng kết quả
@@ -564,7 +569,7 @@ public class ContactChatbotService {
                 response.append(String.format("Và %d công việc khác...\n\n", filteredJobs.size() - 5));
             }
 
-            response.append("**Xem tất cả việc làm:** [Tìm việc làm ở đây!!!](http://localhost:8083/tim-viec-lam.html)");
+            response.append("**Xem tất cả việc làm:** [Tìm việc làm ở đây!!!](").append(jobSearchUrl()).append(")");
 
             String result = response.toString();
             System.out.println("✅ Job recommendations generated: " + result.length() + " characters");
@@ -1176,5 +1181,28 @@ public class ContactChatbotService {
                 }
             })
             .collect(java.util.stream.Collectors.toList());
+    }
+
+    private String cvScoringUrl() {
+        return publicUrl("/cham-diem-cv.html");
+    }
+
+    private String aiCvUrl() {
+        return publicUrl("/tao-cv-ai.html");
+    }
+
+    private String jobSearchUrl() {
+        return publicUrl("/tim-viec-lam.html");
+    }
+
+    private String jobDetailUrl(Long jobId) {
+        return publicUrl("/job-detail.html?id=" + jobId);
+    }
+
+    private String publicUrl(String path) {
+        String baseUrl = StringUtils.hasText(publicBaseUrl) ? publicBaseUrl.trim() : "http://localhost:8083";
+        String normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+        String normalizedPath = path.startsWith("/") ? path : "/" + path;
+        return normalizedBaseUrl + normalizedPath;
     }
 }

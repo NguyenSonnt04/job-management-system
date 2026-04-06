@@ -6,32 +6,34 @@ services:
     container_name: qltd_mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: qltd_db
-      MYSQL_USER: qltd_user
-      MYSQL_PASSWORD: qltd_pass123
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-qltd_db}
+      MYSQL_USER: ${MYSQL_USER:-qltd_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
-      - "127.0.0.1:8085:3306"
+      - "127.0.0.1:3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init-scripts:/docker-entrypoint-initdb.d
     command: --default-authentication-plugin=mysql_native_password
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # phpMyAdmin - Web UI for MySQL
+  # phpMyAdmin - Web UI for MySQL (accessible only from localhost)
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: qltd_phpmyadmin
+    profiles:
+      - admin-tools
     restart: unless-stopped
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
       PMA_USER: root
-      PMA_PASSWORD: root123
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       UPLOAD_LIMIT: 50M
     ports:
       - "127.0.0.1:8086:80"
@@ -44,20 +46,60 @@ services:
     build: .
     container_name: qltd_app
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:8083:8083"
+    expose:
+      - "8083"
     environment:
-      # Override datasource to connect to MySQL container (not localhost)
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/qltd_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: qltd_user
-      SPRING_DATASOURCE_PASSWORD: qltd_pass123
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-qltd_db}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-qltd_user}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      # Production overrides
+      SPRING_JPA_SHOW_SQL: "false"
+      SPRING_THYMELEAF_CACHE: "true"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_SERVLET_SESSION_COOKIE_SECURE: "true"
+      APP_PUBLIC_BASE_URL: ${APP_PUBLIC_BASE_URL}
+      APP_DEFAULT_ADMIN_EMAIL: ${APP_DEFAULT_ADMIN_EMAIL:-}
+      APP_DEFAULT_ADMIN_PASSWORD: ${APP_DEFAULT_ADMIN_PASSWORD:-}
+      APP_DEFAULT_ADMIN_FULL_NAME: ${APP_DEFAULT_ADMIN_FULL_NAME:-Production Admin}
+      APP_DEFAULT_ADMIN_PHONE: ${APP_DEFAULT_ADMIN_PHONE:-0900000000}
+      APP_SEED_DEMO_DATA: ${APP_SEED_DEMO_DATA:-false}
     volumes:
-      - ./uploads:/app/uploads
+      - uploads_data:/app/uploads
+      - ./config:/app/config:ro
       - ./.secrets:/app/.secrets:ro
     depends_on:
       mysql:
         condition: service_healthy
 
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: qltd_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - app
+
+  # Certbot for SSL (optional - run manually)
+  certbot:
+    image: certbot/certbot
+    container_name: qltd_certbot
+    profiles:
+      - ssl
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
 volumes:
   mysql_data:
+    driver: local
+  uploads_data:
     driver: local
