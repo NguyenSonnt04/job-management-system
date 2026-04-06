@@ -9,9 +9,20 @@ RUN ./mvnw package -DskipTests -B
 
 # Stage 2: Run
 FROM eclipse-temurin:17-jre
+
+ENV TZ=Asia/Ho_Chi_Minh \
+    JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
+
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-RUN mkdir -p /app/uploads
-VOLUME /app/uploads
+
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser -d /app appuser \
+    && mkdir -p /app/uploads /app/logs \
+    && chown -R appuser:appuser /app
+
+COPY --from=build --chown=appuser:appuser /app/target/*.jar app.jar
+
+USER appuser
 EXPOSE 8083
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]

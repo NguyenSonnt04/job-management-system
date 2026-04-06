@@ -3,6 +3,7 @@ package Nhom08.Project.config;
 import Nhom08.Project.entity.*;
 import Nhom08.Project.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
@@ -44,13 +45,20 @@ public class MasterDataSeeder implements ApplicationRunner {
     @Autowired private HeroBannerRepository heroBannerRepository;
     @Autowired private TopEmployerLogoRepository topEmployerLogoRepository;
 
+    @Value("${app.seed.demo-data:true}")
+    private boolean seedDemoData;
+
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        seedDemoUsers();
-        seedDemoEmployers();
-        seedDemoJobs();
-        seedDemoJobApplications();
+        if (seedDemoData) {
+            seedDemoUsers();
+            seedDemoEmployers();
+            seedDemoJobs();
+            seedDemoJobApplications();
+        } else {
+            System.out.println("Skipping demo user, employer, job, and application seed data");
+        }
         seedCvScoringCriteria();
         seedCareerPaths();
         seedInterviewLevels();

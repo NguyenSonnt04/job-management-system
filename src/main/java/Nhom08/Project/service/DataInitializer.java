@@ -3,9 +3,11 @@ package Nhom08.Project.service;
 import Nhom08.Project.entity.*;
 import Nhom08.Project.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -27,6 +29,18 @@ public class DataInitializer implements CommandLineRunner {
     // Dynamic filter repositories
     @Autowired private Nhom08.Project.repository.FilterGroupRepository  filterGroupRepository;
     @Autowired private Nhom08.Project.repository.FilterOptionRepository filterOptionRepository;
+
+    @Value("${app.bootstrap.default-admin.email:}")
+    private String defaultAdminEmail;
+
+    @Value("${app.bootstrap.default-admin.password:}")
+    private String defaultAdminPassword;
+
+    @Value("${app.bootstrap.default-admin.full-name:Administrator}")
+    private String defaultAdminFullName;
+
+    @Value("${app.bootstrap.default-admin.phone:0900000000}")
+    private String defaultAdminPhone;
 
     @Override
     public void run(String... args) throws Exception {
@@ -59,19 +73,23 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedAdminUser() {
-        String adminEmail = "admin@careerviet.vn";
-        if (!userRepository.existsByEmail(adminEmail)) {
+        if (!StringUtils.hasText(defaultAdminEmail) || !StringUtils.hasText(defaultAdminPassword)) {
+            System.out.println("Skipping default admin bootstrap because credentials are not configured");
+            return;
+        }
+
+        if (!userRepository.existsByEmail(defaultAdminEmail)) {
             Role adminRole = roleRepository.findByName(Role.ADMIN)
                     .orElseThrow(() -> new RuntimeException("Admin role not found"));
             User adminUser = new User();
-            adminUser.setEmail(adminEmail);
-            adminUser.setPassword(passwordEncoder.encode("admin123"));
-            adminUser.setFullName("Administrator");
-            adminUser.setPhone("0900000000");
+            adminUser.setEmail(defaultAdminEmail);
+            adminUser.setPassword(passwordEncoder.encode(defaultAdminPassword));
+            adminUser.setFullName(defaultAdminFullName);
+            adminUser.setPhone(defaultAdminPhone);
             adminUser.setRole(adminRole);
             adminUser.setEnabled(true);
             userRepository.save(adminUser);
-            System.out.println("✅ Created default admin: " + adminEmail);
+            System.out.println("✅ Created default admin: " + defaultAdminEmail);
         }
     }
 

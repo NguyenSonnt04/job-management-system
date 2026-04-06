@@ -1,0 +1,26 @@
+# Copy this file to:
+#   config/application-local.properties
+#
+# Then put your existing production keys here.
+# This file is mounted into the Docker container and loaded by Spring Boot.
+
+# Gmail SMTP
+spring.mail.username=your-email@gmail.com
+spring.mail.password=your-gmail-app-password
+
+# Google OAuth2
+spring.security.oauth2.client.registration.google.client-id=
+spring.security.oauth2.client.registration.google.client-secret=
+
+# GitHub OAuth2
+spring.security.oauth2.client.registration.github.client-id=
+spring.security.oauth2.client.registration.github.client-secret=
+
+# AI
+gemini.api.key=
+claude.api.key=
+
+# Firebase
+firebase.storage.enabled=false
+firebase.storage.bucket=
+firebase.storage.service-account-path=file:/app/.secrets/firebase-service-account.json
