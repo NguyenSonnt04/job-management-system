@@ -72,7 +72,7 @@ public class ContactChatbotService {
         - KHÔNG TỰ THÊM LINK vào câu trả lời
         """;
 
-    // ===== RAG Prompt: phân tích intent + chọn jobs phù hợp trong 1 lần gọi =====
+    // ===== RAG Prompt: Gemini tự suy nghĩ và quyết định toàn bộ =====
     private static final String RAG_PROMPT_TEMPLATE = """
         Bạn là Trợ lý AI tuyển dụng của JCO (Job Connection Online) — một người bạn thân thiện, vui vẻ, luôn sẵn lòng giúp đỡ.
 
@@ -83,45 +83,38 @@ public class ContactChatbotService {
         - Có thể dùng câu cảm thán, hỏi ngược, động viên
         - Trả lời ngắn gọn (dưới 80 từ), đi thẳng vào vấn đề
 
-        VÍ DỤ GIỌNG NÓI TỰ NHIÊN:
-        - "Ồ, bạn đang tìm việc Backend Intern à? Để mình xem nhé! 🔍"
-        - "Mình tìm được mấy vị trí khá phù hợp với bạn nè 👇"
-        - "Tiếc quá, hiện tại chưa có vị trí nào khớp. Bạn thử mở rộng tìm kiếm xem sao? 😊"
-        - "Chấm điểm CV hả? JCO có tính năng này luôn nè, hay lắm! ✨"
-
         DANH SÁCH CÔNG VIỆC ĐANG TUYỂN (format: ID | Chức danh | Địa điểm | Ngành | Kinh nghiệm | Lương):
         %s
 
+        CÁC TRANG TRÊN JCO (chèn vào response khi phù hợp, dùng markdown link):
+        - Tạo CV bằng AI: [Tạo CV ngay](%s)
+        - Chấm điểm CV bằng AI: [Chấm điểm CV](%s)
+        - Xem tất cả việc làm: [Xem việc làm](%s)
+
         Trả về JSON:
         {
-          "intent": "FIND_JOB | ASK_CV | ASK_CV_SCORING | GENERAL",
-          "response": "Câu trả lời tự nhiên, thân thiện bằng tiếng Việt",
+          "response": "Câu trả lời hoàn chỉnh bằng tiếng Việt — bao gồm cả link nếu cần",
           "matchedJobIds": [id1, id2, ...]
         }
 
-        PHÂN LOẠI INTENT:
-        - FIND_JOB: Muốn tìm/gợi ý việc làm, nhắc đến nghề/vị trí/địa điểm/lương
-        - ASK_CV: Hỏi về tạo CV, viết CV (KHÔNG phải chấm điểm)
-        - ASK_CV_SCORING: Hỏi về chấm điểm/đánh giá/review CV
-        - GENERAL: Câu hỏi chung, hướng dẫn, hoặc ngoài phạm vi
+        CÁCH HOẠT ĐỘNG:
+        - Bạn tự suy nghĩ và quyết định cách trả lời tốt nhất cho người dùng
+        - Nếu họ tìm việc → chọn jobs phù hợp nhất vào matchedJobIds, viết lời giới thiệu
+        - Nếu họ hỏi về CV → trả lời + chèn link tạo CV hoặc chấm điểm CV vào response
+        - Nếu họ hỏi cách dùng website → hướng dẫn + chèn link liên quan
+        - Nếu ngoài phạm vi → từ chối nhẹ nhàng, gợi ý quay lại chủ đề JCO
+        - KHÔNG cần phân loại intent — hãy tự nhiên như đang nói chuyện
 
         QUY TẮC CHỌN JOBS (matchedJobIds):
-        - CHỈ dùng khi intent = FIND_JOB, còn lại trả mảng rỗng []
-        - Chọn tối đa 5 jobs PHÙ HỢP NHẤT, sắp xếp phù hợp nhất trước
-        - PHẢI KHỚP ĐÚNG cấp độ: intern/thực tập ≠ senior, junior ≠ manager
-        - PHẢI KHỚP ĐÚNG vị trí: frontend ≠ backend, kế toán ≠ nhân sự
-        - Nếu KHÔNG có job nào thực sự phù hợp → trả [] (KHÔNG ép chọn job lệch)
-        - CHỈ dùng ID có trong danh sách trên, KHÔNG bịa ID
+        - Chọn tối đa 5 jobs PHÙ HỢP NHẤT từ danh sách, phù hợp nhất trước
+        - KHỚP ĐÚNG cấp độ: intern/thực tập ≠ senior, junior ≠ manager
+        - KHỚP ĐÚNG vị trí: frontend ≠ backend, kế toán ≠ nhân sự
+        - KHÔNG có job phù hợp → trả [] (không ép chọn job lệch)
+        - CHỈ dùng ID trong danh sách, KHÔNG bịa ID
+        - Nếu không liên quan đến tìm việc → trả []
 
-        PHẠM VI (CHỈ hỗ trợ):
-        - Tìm việc, ứng tuyển, xem tin tuyển dụng trên JCO
-        - Tạo CV, chấm điểm CV, quản lý hồ sơ trên JCO
-        - Đăng tin tuyển dụng, quản lý ứng viên trên JCO
-        - Hướng dẫn sử dụng website JCO
-
-        NGOÀI PHẠM VI → PHẢI từ chối nhẹ nhàng:
-        - Kiến thức chung, lập trình, học tập, khoa học, giải trí...
-        - Khi từ chối vẫn phải thân thiện, VD: "Ôi câu này hay nhưng hơi ngoài chuyên môn của mình rồi 😅 Mình giỏi nhất là tìm việc và hỗ trợ CV trên JCO — bạn cần mình giúp gì không?"
+        PHẠM VI JCO: Tìm việc, ứng tuyển, CV, hồ sơ, đăng tin, hướng dẫn website JCO.
+        NGOÀI PHẠM VI: Từ chối thân thiện, VD: "Câu này hơi ngoài chuyên môn của mình rồi 😅 Mình giỏi nhất là tìm việc và hỗ trợ CV — bạn cần gì không?"
 
         HIỂU TIẾNG VIỆT KHÔNG DẤU: "viec lam"="việc làm", "luong"="lương", "intern"="thực tập sinh"
         """;
@@ -195,48 +188,16 @@ public class ContactChatbotService {
             List<ChatMessage> history = messageRepository.findMessagesBySessionId(sessionId);
             String chatContext = buildChatContext(history);
 
-            // 4. RAG: 1 Gemini call duy nhất — intent + chọn jobs + response
+            // 4. RAG: 1 Gemini call — AI tự suy nghĩ và quyết định toàn bộ
             JsonNode analysis = callRAG(userMessage, chatContext);
 
-            String intent = analysis.path("intent").asText("GENERAL");
-            String aiResponse = analysis.path("response").asText("");
+            String finalResponse = analysis.path("response").asText(
+                "Mình có thể giúp bạn tìm việc, tạo CV, hoặc hướng dẫn sử dụng website JCO. Bạn cần hỗ trợ gì? 😊");
 
-            // 5. Xử lý theo intent
-            String finalResponse;
-            List<Map<String, Object>> jobCards = null;
-
-            switch (intent) {
-                case "FIND_JOB":
-                    // Lấy matched job IDs từ Gemini, map về card data
-                    jobCards = resolveMatchedJobs(analysis.path("matchedJobIds"));
-
-                    if (jobCards.isEmpty()) {
-                        finalResponse = !aiResponse.isEmpty() ? aiResponse
-                            : "Xin lỗi, mình không tìm thấy công việc phù hợp. Bạn thử từ khóa khác nhé!";
-                        finalResponse += "\n\n**Xem tất cả việc làm:** [Tìm việc làm ở đây!!!](" + publicUrl("/tim-viec-lam.html") + ")";
-                    } else {
-                        String intro = !aiResponse.isEmpty() ? aiResponse
-                            : "Mình tìm thấy một số công việc phù hợp cho bạn:";
-                        finalResponse = intro + "\n<!--JOBS" + objectMapper.writeValueAsString(jobCards) + "JOBS-->";
-                    }
-                    break;
-
-                case "ASK_CV":
-                    finalResponse = !aiResponse.isEmpty() ? aiResponse
-                        : "Bạn có thể tạo CV chuyên nghiệp với JCO!";
-                    finalResponse += "\n\n**Tạo CV:** [Tạo CV ở đây!!!](" + publicUrl("/tao-cv-ai.html") + ")";
-                    break;
-
-                case "ASK_CV_SCORING":
-                    finalResponse = !aiResponse.isEmpty() ? aiResponse
-                        : "Bạn có thể chấm điểm CV của mình bằng AI trên JCO!";
-                    finalResponse += "\n\n**Chấm điểm CV với AI:** [Chấm điểm CV ở đây!!!](" + publicUrl("/cham-diem-cv.html") + ")";
-                    break;
-
-                default: // GENERAL
-                    finalResponse = !aiResponse.isEmpty() ? aiResponse
-                        : "Mình có thể giúp bạn tìm việc, tạo CV, hoặc hướng dẫn sử dụng website JCO. Bạn cần hỗ trợ gì?";
-                    break;
+            // 5. Nếu AI chọn jobs → resolve thành card data và embed vào response
+            List<Map<String, Object>> jobCards = resolveMatchedJobs(analysis.path("matchedJobIds"));
+            if (!jobCards.isEmpty()) {
+                finalResponse += "\n<!--JOBS" + objectMapper.writeValueAsString(jobCards) + "JOBS-->";
             }
 
             // 6. Lưu response vào DB
@@ -273,19 +234,17 @@ public class ContactChatbotService {
      */
     private JsonNode callRAG(String userMessage, String chatContext) {
         try {
-            // Build danh sách jobs cho prompt
             String jobListText = buildJobListForPrompt();
-            System.out.println("=== RAG DEBUG ===");
-            System.out.println("Job list for prompt (" + jobListText.split("\n").length + " jobs):");
-            System.out.println(jobListText);
 
-            String prompt = String.format(RAG_PROMPT_TEMPLATE, jobListText) +
+            String prompt = String.format(RAG_PROMPT_TEMPLATE,
+                    jobListText,
+                    publicUrl("/tao-cv-ai.html"),
+                    publicUrl("/cham-diem-cv.html"),
+                    publicUrl("/tim-viec-lam.html")) +
                 "\n\nLỊCH SỬ ĐỐI THOẠI:\n" + chatContext +
                 "\n\nTIN NHẮN HIỆN TẠI: " + userMessage;
 
-            System.out.println("Calling Gemini with prompt length: " + prompt.length());
             String jsonResponse = geminiService.callGeminiJson(prompt);
-            System.out.println("Gemini RAG response: " + jsonResponse);
 
             // Dọn markdown wrapper nếu có
             jsonResponse = jsonResponse.trim();
@@ -293,11 +252,7 @@ public class ContactChatbotService {
                 jsonResponse = jsonResponse.replaceAll("^```(json)?\\s*", "").replaceAll("\\s*```$", "");
             }
 
-            JsonNode result = objectMapper.readTree(jsonResponse);
-            System.out.println("Parsed intent: " + result.path("intent").asText());
-            System.out.println("Parsed matchedJobIds: " + result.path("matchedJobIds"));
-            System.out.println("=== END RAG DEBUG ===");
-            return result;
+            return objectMapper.readTree(jsonResponse);
 
         } catch (Exception e) {
             System.err.println("Error in RAG call: " + e.getMessage());
@@ -306,12 +261,10 @@ public class ContactChatbotService {
                 String fallbackResponse = geminiService.callGeminiPlainText(
                     SYSTEM_PROMPT + "\n\nLỊCH SỬ:\n" + chatContext + "\n\nCÂU HỎI: " + userMessage);
                 return objectMapper.createObjectNode()
-                    .put("intent", "GENERAL")
                     .put("response", fallbackResponse);
             } catch (Exception ex) {
                 return objectMapper.createObjectNode()
-                    .put("intent", "GENERAL")
-                    .put("response", "Xin lỗi, mình đang gặp sự cố. Bạn vui lòng thử lại sau nhé!");
+                    .put("response", "Xin lỗi, mình đang gặp sự cố. Bạn thử lại sau nhé! 😊");
             }
         }
     }
