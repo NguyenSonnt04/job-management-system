@@ -671,6 +671,120 @@
     line-height: 1.4;
 }
 
+/* ===== Job Cards in Chat ===== */
+.chatbot-job-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.chatbot-job-card {
+    display: block;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.chatbot-job-card:hover {
+    border-color: #FF6B00;
+    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.15);
+}
+
+.chatbot-job-card__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.chatbot-job-card__logo-wrap {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+}
+
+.chatbot-job-card__logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    object-fit: contain;
+    background: #F9FAFB;
+    border: 1px solid #F3F4F6;
+}
+
+.chatbot-job-card__logo-fallback {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #FF6B00, #FF8C00);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.chatbot-job-card__info {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.chatbot-job-card__title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #1F2937;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.chatbot-job-card__company {
+    font-size: 11px;
+    color: #6B7280;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chatbot-job-card__details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.chatbot-job-card__tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10.5px;
+    color: #374151;
+    background: #F3F4F6;
+    padding: 3px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+/* Ensure job card links inside message bubble don't inherit bubble styles */
+.chatbot-modal__message-bubble .chatbot-job-cards a {
+    color: inherit;
+}
+
+.chatbot-modal__message-bubble .chatbot-job-cards a:hover {
+    color: inherit;
+}
+
 /* ===== Helper Text Styles ===== */
 .text-center {
     text-align: center;

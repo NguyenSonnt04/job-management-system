@@ -755,23 +755,72 @@
         scrollToBottom();
     }
 
-    // ===== Format Message (support markdown-like syntax) =====
+    // ===== Format Message (support markdown-like syntax + job cards) =====
     function formatMessage(text) {
-        // 1. Escape toàn bộ text trước
-        let formatted = escapeHtml(text);
+        // 1. Tách phần text và embedded jobs data
+        let textPart = text;
+        let jobsHtml = '';
 
-        // 2. Convert markdown links [text](url) thành HTML links
-        // Sau khi escape, cú pháp markdown vẫn giữ nguyên
+        const jobsMatch = text.match(/<!--JOBS([\s\S]*?)JOBS-->/);
+        if (jobsMatch) {
+            textPart = text.substring(0, text.indexOf('<!--JOBS')).trim();
+            try {
+                const jobs = JSON.parse(jobsMatch[1]);
+                jobsHtml = renderJobCards(jobs);
+            } catch (e) {
+                console.error('Error parsing jobs data:', e);
+            }
+        }
+
+        // 2. Escape toàn bộ text trước
+        let formatted = escapeHtml(textPart);
+
+        // 3. Convert markdown links [text](url) thành HTML links
         const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
         formatted = formatted.replace(linkRegex, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline; cursor: pointer;">$1</a>');
 
-        // 3. Convert **bold**
+        // 4. Convert **bold**
         formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-        // 4. Convert line breaks
+        // 5. Convert line breaks
         formatted = formatted.replace(/\n/g, '<br>');
 
+        // 6. Append job cards nếu có
+        if (jobsHtml) {
+            formatted += jobsHtml;
+        }
+
         return formatted;
+    }
+
+    // ===== Render Job Cards =====
+    function renderJobCards(jobs) {
+        if (!jobs || jobs.length === 0) return '';
+
+        let html = '<div class="chatbot-job-cards">';
+        jobs.forEach(job => {
+            const logoHtml = job.logoUrl
+                ? `<img src="${escapeHtml(job.logoUrl)}" alt="" class="chatbot-job-card__logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+                  + `<div class="chatbot-job-card__logo-fallback" style="display:none">${escapeHtml((job.companyName || 'C').charAt(0))}</div>`
+                : `<div class="chatbot-job-card__logo-fallback">${escapeHtml((job.companyName || 'C').charAt(0))}</div>`;
+
+            html += `
+                <a href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer" class="chatbot-job-card">
+                    <div class="chatbot-job-card__header">
+                        <div class="chatbot-job-card__logo-wrap">${logoHtml}</div>
+                        <div class="chatbot-job-card__info">
+                            <div class="chatbot-job-card__title">${escapeHtml(job.title)}</div>
+                            <div class="chatbot-job-card__company">${escapeHtml(job.companyName)}</div>
+                        </div>
+                    </div>
+                    <div class="chatbot-job-card__details">
+                        <span class="chatbot-job-card__tag">${escapeHtml(job.salary || 'Thỏa thuận')}</span>
+                        <span class="chatbot-job-card__tag">${escapeHtml(job.location || '')}</span>
+                    </div>
+                </a>`;
+        });
+        html += '</div>';
+        return html;
     }
 
     // ===== Format System Message with Suggestions =====

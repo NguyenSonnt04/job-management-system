@@ -29,4 +29,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
     // Find top active jobs (when industry not detected)
     List<Job> findTop20ByStatus(String status);
+
+    // Find active jobs sorted by newest first (for chatbot RAG)
+    List<Job> findByStatusOrderByCreatedAtDesc(String status);
 }
