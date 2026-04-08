@@ -18,7 +18,6 @@ spring.security.oauth2.client.registration.github.client-secret=
 
 # AI
 gemini.api.key=
-claude.api.key=
 
 # Firebase
 firebase.storage.enabled=false

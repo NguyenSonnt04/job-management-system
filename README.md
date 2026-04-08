@@ -171,7 +171,6 @@ Use it for secrets that should not live in Git.
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google OAuth login | Google login disabled |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | GitHub OAuth login | GitHub login disabled |
 | `GEMINI_API_KEY` | CV AI, CV scoring, job matching, JD comparison, interview AI, contact chatbot | AI endpoints will fail |
-| `CLAUDE_API_KEY` | `ClaudeChatbotService` only | That service remains unusable |
 | `firebase.storage.enabled`, `firebase.storage.bucket`, `firebase.storage.service-account-path` | Remote image upload and image serving | Image upload endpoints return configuration errors |
 
 ### Example `application-local.properties`
@@ -189,7 +188,6 @@ spring.security.oauth2.client.registration.github.client-secret=...
 
 # AI
 gemini.api.key=...
-claude.api.key=...
 
 # Firebase image storage
 firebase.storage.enabled=true
